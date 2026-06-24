@@ -10,6 +10,7 @@ import {
   createAssignmentSchema,
   createTeacherSchema,
   teacherIdParamSchema,
+  updateTeacherSchema,
 } from '../validators/teacher.validator.js';
 
 export const teacherRoutes = Router();
@@ -36,5 +37,10 @@ teacherRoutes.delete(
   validateParams(assignmentIdParamSchema),
   teacherController.deleteAssignment,
 );
-teacherRoutes.patch('/:id', teacherController.update);
+teacherRoutes.patch(
+  '/:id',
+  validateParams(teacherIdParamSchema),
+  validateBody(updateTeacherSchema),
+  teacherController.update,
+);
 teacherRoutes.delete('/:id', teacherController.delete);

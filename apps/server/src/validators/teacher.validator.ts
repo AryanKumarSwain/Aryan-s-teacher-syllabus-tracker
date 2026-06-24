@@ -49,3 +49,9 @@ export const createAssignmentSchema = z.object({
   classId: z.string().uuid(),
   subjectId: z.string().uuid(),
 });
+
+export const updateTeacherSchema = z.object({
+  name: z.string().min(2).optional(),
+  phone: z.string().optional().nullable(),
+  status: z.enum(['ACTIVE', 'SUSPENDED']).optional(),
+});

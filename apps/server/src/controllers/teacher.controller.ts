@@ -43,8 +43,8 @@ export const teacherController = {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       console.log('[CREATE TEACHER] body:', JSON.stringify(req.body, null, 2));
-      const teacher = await teacherService.create(getTenantId(req), req.body);
-      sendSuccess(res, teacher, 201);
+      const result = await teacherService.create(getTenantId(req), req.body);
+      sendSuccess(res, result, 201);
     } catch (err) {
       console.error('[CREATE TEACHER ERROR]', err);
       next(err);

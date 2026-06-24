@@ -1,9 +1,104 @@
-import { prisma } from '@school-syllabus/database';
+import { prisma, type Prisma } from '@school-syllabus/database';
 import { AppError } from '../middleware/error-handler.js';
 import { getPagination, softDeleteFilter, withTenant } from '../repositories/base.repository.js';
 import { hashPassword } from '../utils/password.js';
 import { authService } from './auth.service.js';
-import { sendTeacherCredentialsEmail } from '../emails/teacher-credentials.js';
+import { resolveTeacherCreate, trySendTeacherCredentials } from './teacher-email.util.js';
+
+export type TeacherMutationResult = {
+  teacher: { id: string; schoolId: string; userId: string; status: string };
+  emailSent: boolean;
+  emailError?: string;
+  restored?: boolean;
+};
+
+async function applyTeacherAssignments(
+  tx: Prisma.TransactionClient,
+  schoolId: string,
+  teacherId: string,
+  assignments: { classId: string; subjectId: string }[],
+) {
+  if (assignments.length === 0) return;
+
+  await tx.teacherClass.createMany({
+    data: assignments.map((a) => ({
+      schoolId,
+      teacherId,
+      classId: a.classId,
+      subjectId: a.subjectId,
+    })),
+    skipDuplicates: true,
+  });
+}
+
+async function buildAssignments(
+  schoolId: string,
+  data: {
+    classIds?: string[];
+    assignments?: { classId: string; subjectId: string }[];
+  },
+): Promise<{ classId: string; subjectId: string }[]> {
+  const hasMatrix = Array.isArray(data.assignments) && data.assignments.length > 0;
+  const hasLegacy = Array.isArray(data.classIds) && data.classIds.length > 0;
+
+  if (hasMatrix) {
+    const assignments = data.assignments!;
+
+    const subjectIds = Array.from(new Set(assignments.map((a) => a.subjectId)));
+    const subjects = await prisma.subject.findMany({
+      where: withTenant(schoolId, { id: { in: subjectIds }, ...softDeleteFilter() }),
+      select: { id: true, classId: true },
+    });
+    if (subjects.length !== subjectIds.length)
+      throw new AppError('One or more subjects not found', 404);
+
+    const subjectById = new Map(subjects.map((s) => [s.id, s]));
+    for (const a of assignments) {
+      const s = subjectById.get(a.subjectId);
+      if (!s) throw new AppError('One or more subjects not found', 404);
+      if (s.classId && s.classId !== a.classId)
+        throw new AppError('Subject does not belong to selected class', 422);
+    }
+
+    const classIds = Array.from(new Set(assignments.map((a) => a.classId)));
+    const classes = await prisma.class.findMany({
+      where: withTenant(schoolId, { id: { in: classIds }, ...softDeleteFilter() }),
+      select: { id: true },
+    });
+    if (classes.length !== classIds.length)
+      throw new AppError('One or more classes not found', 404);
+
+    return assignments;
+  }
+
+  if (hasLegacy) {
+    const classIds = Array.from(new Set(data.classIds!));
+
+    const classes = await prisma.class.findMany({
+      where: withTenant(schoolId, { id: { in: classIds }, ...softDeleteFilter() }),
+      select: { id: true },
+    });
+    if (classes.length !== classIds.length)
+      throw new AppError('One or more classes not found', 404);
+
+    const fallbackSubject = await prisma.subject.findFirst({
+      where: withTenant(schoolId, { classId: { in: classIds }, ...softDeleteFilter() }),
+      select: { id: true },
+    });
+    if (!fallbackSubject)
+      throw new AppError(
+        'No subjects are configured for the selected classes. Configure a subject first.',
+        422,
+      );
+
+    return classIds.map((classId) => ({
+      classId,
+      subjectId: fallbackSubject.id,
+    }));
+  }
+
+  return [];
+}
 
 export const teacherService = {
   async list(
@@ -58,7 +153,14 @@ export const teacherService = {
     schoolId: string,
     teachers: Array<{ name: string; email: string; phone?: string }>,
   ) {
-    const results: { success: boolean; name: string; email: string; error?: string }[] = [];
+    const results: {
+      success: boolean;
+      name: string;
+      email: string;
+      error?: string;
+      emailSent?: boolean;
+      warning?: string;
+    }[] = [];
 
     for (const data of teachers) {
       try {
@@ -73,17 +175,13 @@ export const teacherService = {
         }
 
         const email = data.email.toLowerCase();
-        const existingUser = await prisma.user.findFirst({
-          where: { email, schoolId, deletedAt: null },
-          include: { teacher: true },
-        });
 
-        if (existingUser?.teacher && existingUser.teacher.deletedAt === null) {
-          results.push({ success: false, name: data.name, email, error: 'Teacher already exists' });
-          continue;
-        }
-        if (existingUser && !existingUser.teacher) {
-          results.push({ success: false, name: data.name, email, error: 'Email already in use' });
+        let resolution;
+        try {
+          resolution = await resolveTeacherCreate(schoolId, email);
+        } catch (err) {
+          const message = err instanceof AppError ? err.message : 'Email not available';
+          results.push({ success: false, name: data.name, email, error: message });
           continue;
         }
 
@@ -91,31 +189,71 @@ export const teacherService = {
         const passwordHash = await hashPassword(tempPassword);
         const school = await prisma.school.findUnique({ where: { id: schoolId } });
 
-        await prisma.$transaction(async (tx) => {
-          const user = await tx.user.create({
-            data: {
-              email,
-              passwordHash,
-              name: data.name,
-              role: 'TEACHER',
-              schoolId,
-              phone: data.phone,
-            },
-          });
-          await tx.teacher.create({ data: { schoolId, userId: user.id } });
-        });
-
-        if (school) {
-          await sendTeacherCredentialsEmail({
-            to: email,
-            teacherName: data.name,
-            schoolName: school.name,
+        if (!school) {
+          results.push({
+            success: false,
+            name: data.name,
             email,
-            tempPassword,
+            error: 'School not found',
+          });
+          continue;
+        }
+
+        if (resolution.action === 'restore') {
+          await prisma.$transaction(async (tx) => {
+            await tx.user.update({
+              where: { id: resolution.userId },
+              data: {
+                deletedAt: null,
+                name: data.name,
+                phone: data.phone,
+                passwordHash,
+                role: 'TEACHER',
+                schoolId,
+                status: 'ACTIVE',
+              },
+            });
+            await tx.teacher.update({
+              where: { id: resolution.teacherId },
+              data: { deletedAt: null, status: 'ACTIVE' },
+            });
+          });
+        } else {
+          await prisma.$transaction(async (tx) => {
+            const user = await tx.user.create({
+              data: {
+                email,
+                passwordHash,
+                name: data.name,
+                role: 'TEACHER',
+                schoolId,
+                phone: data.phone,
+                status: 'ACTIVE',
+              },
+            });
+            await tx.teacher.create({
+              data: { schoolId, userId: user.id, status: 'ACTIVE' },
+            });
           });
         }
 
-        results.push({ success: true, name: data.name, email });
+        const emailResult = await trySendTeacherCredentials({
+          to: email,
+          teacherName: data.name,
+          schoolName: school.name,
+          email,
+          tempPassword,
+        });
+
+        results.push({
+          success: true,
+          name: data.name,
+          email,
+          emailSent: emailResult.emailSent,
+          warning: emailResult.emailSent
+            ? undefined
+            : (emailResult.emailError ?? 'Credentials email could not be sent'),
+        });
       } catch (error: any) {
         results.push({
           success: false,
@@ -139,82 +277,38 @@ export const teacherService = {
     },
   ) {
     const email = data.email.toLowerCase();
-
-    const existingUser = await prisma.user.findFirst({
-      where: { email, schoolId, deletedAt: null },
-      include: { teacher: true },
-    });
-
-    if (existingUser?.teacher && existingUser.teacher.deletedAt === null) {
-      throw new AppError('Teacher already exists', 409);
-    }
-    if (existingUser && !existingUser.teacher) {
-      throw new AppError('Email already in use', 409);
-    }
-
-    const hasMatrix = Array.isArray(data.assignments) && data.assignments.length > 0;
-    const hasLegacy = Array.isArray(data.classIds) && data.classIds.length > 0;
-
-    let assignments: { classId: string; subjectId: string }[] = [];
-
-    if (hasMatrix) {
-      assignments = data.assignments!;
-
-      const subjectIds = Array.from(new Set(assignments.map((a) => a.subjectId)));
-      const subjects = await prisma.subject.findMany({
-        where: withTenant(schoolId, { id: { in: subjectIds }, ...softDeleteFilter() }),
-        select: { id: true, classId: true },
-      });
-      if (subjects.length !== subjectIds.length)
-        throw new AppError('One or more subjects not found', 404);
-
-      const subjectById = new Map(subjects.map((s) => [s.id, s]));
-      for (const a of assignments) {
-        const s = subjectById.get(a.subjectId);
-        if (!s) throw new AppError('One or more subjects not found', 404);
-        if (s.classId && s.classId !== a.classId)
-          throw new AppError('Subject does not belong to selected class', 422);
-      }
-
-      const classIds = Array.from(new Set(assignments.map((a) => a.classId)));
-      const classes = await prisma.class.findMany({
-        where: withTenant(schoolId, { id: { in: classIds }, ...softDeleteFilter() }),
-        select: { id: true },
-      });
-      if (classes.length !== classIds.length)
-        throw new AppError('One or more classes not found', 404);
-    } else if (hasLegacy) {
-      const classIds = Array.from(new Set(data.classIds!));
-
-      const classes = await prisma.class.findMany({
-        where: withTenant(schoolId, { id: { in: classIds }, ...softDeleteFilter() }),
-        select: { id: true },
-      });
-      if (classes.length !== classIds.length)
-        throw new AppError('One or more classes not found', 404);
-
-      const fallbackSubject = await prisma.subject.findFirst({
-        where: withTenant(schoolId, { classId: { in: classIds }, ...softDeleteFilter() }),
-        select: { id: true },
-      });
-      if (!fallbackSubject)
-        throw new AppError(
-          'No subjects are configured for the selected classes. Configure a subject first.',
-          422,
-        );
-
-      assignments = classIds.map((classId) => ({
-        classId,
-        subjectId: fallbackSubject.id,
-      }));
-    }
-    // else: no assignments — teacher created without class/subject, can be assigned later
+    const resolution = await resolveTeacherCreate(schoolId, email);
+    const assignments = await buildAssignments(schoolId, data);
 
     const tempPassword = authService.generateSecurePassword();
     const passwordHash = await hashPassword(tempPassword);
     const school = await prisma.school.findUnique({ where: { id: schoolId } });
+    if (!school) throw new AppError('School not found', 404);
 
-    const result = await prisma.$transaction(async (tx) => {
+    const restored = resolution.action === 'restore';
+
+    const teacher = await prisma.$transaction(async (tx) => {
+      if (restored) {
+        await tx.user.update({
+          where: { id: resolution.userId },
+          data: {
+            deletedAt: null,
+            name: data.name,
+            phone: data.phone,
+            passwordHash,
+            role: 'TEACHER',
+            schoolId,
+            status: 'ACTIVE',
+          },
+        });
+        const restoredTeacher = await tx.teacher.update({
+          where: { id: resolution.teacherId },
+          data: { deletedAt: null, status: 'ACTIVE' },
+        });
+        await applyTeacherAssignments(tx, schoolId, restoredTeacher.id, assignments);
+        return restoredTeacher;
+      }
+
       const user = await tx.user.create({
         data: {
           email,
@@ -223,38 +317,30 @@ export const teacherService = {
           role: 'TEACHER',
           schoolId,
           phone: data.phone,
+          status: 'ACTIVE',
         },
       });
-      const teacher = await tx.teacher.create({
-        data: { schoolId, userId: user.id },
+      const created = await tx.teacher.create({
+        data: { schoolId, userId: user.id, status: 'ACTIVE' },
       });
-
-      if (assignments.length > 0) {
-        await tx.teacherClass.createMany({
-          data: assignments.map((a) => ({
-            schoolId,
-            teacherId: teacher.id,
-            classId: a.classId,
-            subjectId: a.subjectId,
-          })),
-          skipDuplicates: true,
-        });
-      }
-
-      return { teacher, tempPassword, user };
+      await applyTeacherAssignments(tx, schoolId, created.id, assignments);
+      return created;
     });
 
-    if (school) {
-      await sendTeacherCredentialsEmail({
-        to: email,
-        teacherName: data.name,
-        schoolName: school.name,
-        email,
-        tempPassword: result.tempPassword,
-      });
-    }
+    const emailResult = await trySendTeacherCredentials({
+      to: email,
+      teacherName: data.name,
+      schoolName: school.name,
+      email,
+      tempPassword,
+    });
 
-    return result.teacher;
+    return {
+      teacher,
+      emailSent: emailResult.emailSent,
+      emailError: emailResult.emailError,
+      restored,
+    };
   },
 
   async createAssignment(
@@ -391,18 +477,21 @@ export const teacherService = {
   async update(
     schoolId: string,
     id: string,
-    data: { name?: string; phone?: string; status?: string },
+    data: { name?: string; phone?: string; status?: 'ACTIVE' | 'SUSPENDED' | 'INACTIVE' },
   ) {
     const teacher = await this.getById(schoolId, id);
 
+    if (data.status === 'SUSPENDED' || data.status === 'ACTIVE') {
+      return this.setSuspended(schoolId, id, data.status === 'SUSPENDED');
+    }
+
     return prisma.$transaction(async (tx) => {
-      if (data.name || data.phone || data.status) {
+      if (data.name || data.phone) {
         await tx.user.update({
           where: { id: teacher.userId },
           data: {
             ...(data.name && { name: data.name }),
-            ...(data.phone && { phone: data.phone }),
-            ...(data.status && { status: data.status as 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' }),
+            ...(data.phone !== undefined && { phone: data.phone }),
           },
         });
       }
@@ -420,10 +509,41 @@ export const teacherService = {
     });
   },
 
+  /** Suspend or re-activate a teacher (distinct from soft delete). */
+  async setSuspended(schoolId: string, id: string, suspended: boolean) {
+    const teacher = await this.getById(schoolId, id);
+    const status = suspended ? 'SUSPENDED' : 'ACTIVE';
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: teacher.userId },
+        data: { status, deletedAt: null },
+      }),
+      prisma.teacher.update({
+        where: { id: teacher.id },
+        data: { status, deletedAt: null },
+      }),
+    ]);
+
+    return prisma.teacher.findUnique({
+      where: { id: teacher.id },
+      include: {
+        user: true,
+        teacherClasses: {
+          include: { class: true, subject: true },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
+  },
+
   async softDelete(schoolId: string, id: string) {
     const teacher = await this.getById(schoolId, id);
     return prisma.$transaction([
-      prisma.teacher.update({ where: { id }, data: { deletedAt: new Date() } }),
+      prisma.teacher.update({
+        where: { id },
+        data: { deletedAt: new Date(), status: 'INACTIVE' },
+      }),
       prisma.user.update({
         where: { id: teacher.userId },
         data: { deletedAt: new Date(), status: 'INACTIVE' },

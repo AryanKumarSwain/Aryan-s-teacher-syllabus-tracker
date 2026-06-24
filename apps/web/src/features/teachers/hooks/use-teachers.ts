@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 
 export interface TeacherRow {
   id: string;
+  status: string;
   user: { id: string; name: string; email: string; phone: string | null; status: string };
   subject: { id: string; name: string };
   teacherClasses: {
@@ -26,6 +27,15 @@ export interface BulkResult {
   name: string;
   email: string;
   error?: string;
+  emailSent?: boolean;
+  warning?: string;
+}
+
+export interface CreateTeacherResponse {
+  teacher: { id: string };
+  emailSent: boolean;
+  emailError?: string;
+  restored?: boolean;
 }
 
 export function useTeachers(params: { page?: number; search?: string }) {
@@ -49,10 +59,22 @@ export function useCreateTeacher() {
       phone?: string;
       classIds: string[];
       assignments: { classId: string; subjectId: string }[];
-    }) => api.post('/teachers', body),
-    onSuccess: () => {
+    }) => api.post<CreateTeacherResponse>('/teachers', body),
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ['teachers'] });
-      toast.success('Teacher created. You can now assign more subjects from their profile.');
+      if (data.restored) {
+        toast.success(
+          data.emailSent
+            ? 'Teacher restored and credentials emailed.'
+            : `Teacher restored. Email not sent: ${data.emailError ?? 'check SMTP settings'}`,
+        );
+      } else if (data.emailSent) {
+        toast.success('Teacher created. Login credentials were emailed.');
+      } else {
+        toast.warning(
+          `Teacher created but credentials email failed: ${data.emailError ?? 'check SMTP settings'}`,
+        );
+      }
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -67,8 +89,14 @@ export function useBulkCreateTeachers() {
       }),
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ['teachers'] });
-      if (data.succeeded > 0)
-        toast.success(`${data.succeeded} teacher${data.succeeded > 1 ? 's' : ''} imported`);
+      const emailWarnings = data.results.filter((r) => r.success && r.warning).length;
+      if (data.succeeded > 0) {
+        toast.success(
+          emailWarnings > 0
+            ? `${data.succeeded} teacher(s) saved; ${emailWarnings} without email (check SMTP)`
+            : `${data.succeeded} teacher${data.succeeded > 1 ? 's' : ''} imported`,
+        );
+      }
       if (data.failed > 0)
         toast.error(`${data.failed} teacher${data.failed > 1 ? 's' : ''} failed`);
     },
@@ -82,7 +110,20 @@ export function useDeleteTeacher() {
     mutationFn: (id: string) => api.delete(`/teachers/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['teachers'] });
-      toast.success('Teacher removed');
+      toast.success('Teacher deleted');
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useUpdateTeacherStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: 'ACTIVE' | 'SUSPENDED' }) =>
+      api.patch(`/teachers/${id}`, { status }),
+    onSuccess: (_, { status }) => {
+      qc.invalidateQueries({ queryKey: ['teachers'] });
+      toast.success(status === 'SUSPENDED' ? 'Teacher suspended' : 'Teacher reactivated');
     },
     onError: (e: Error) => toast.error(e.message),
   });

@@ -1,7 +1,6 @@
 'use client';
 
-import { use } from 'react';
-import { useMemo, useState } from 'react';
+import { use, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
@@ -18,12 +17,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { api, ApiError } from '@/services/api-client';
-import { formatPercent } from '@/lib/utils';
+import { formatPercent, cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { syllabusKeys } from '@/features/syllabus/query-keys';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
+import { getTeacherColorStyles } from '../page';
 
-// ✅ Type updated to include server-computed progress fields
 interface TeacherProfile {
   id: string;
   user: { name: string; email: string; phone: string | null };
@@ -33,10 +32,15 @@ interface TeacherProfile {
     subject: { id: string; name: string } | null;
   }[];
   chapterProgress: { chapterStatus: string; chapter: { title: string } }[];
-  // ✅ Server-computed — based on assigned subjects only
   totalChapters: number;
   completedChapters: number;
   progressPercentage: number;
+}
+
+interface SubjectItem {
+  id: string;
+  name: string;
+  classId: string | null;
 }
 
 export default function TeacherProfilePage({ params }: { params: Promise<{ id: string }> }) {
@@ -44,18 +48,20 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
   const qc = useQueryClient();
   const schoolId = useSchoolId();
   const [assignOpen, setAssignOpen] = useState(false);
-  const [selectedClassId, setSelectedClassId] = useState<string>('');
-  const [selectedSubjectId, setSelectedSubjectId] = useState<string>('');
+
+  const [selectedClassIds, setSelectedClassIds] = useState<string[]>([]);
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([]);
 
   const { data: teacher, isLoading } = useQuery({
     queryKey: ['teacher', id],
     queryFn: () => api.get<TeacherProfile>(`/teachers/${id}`),
   });
 
-  // ✅ Use server-computed values — accurate across all assigned subjects
   const completed = teacher?.completedChapters ?? 0;
   const total = teacher?.totalChapters ?? 0;
   const progress = teacher?.progressPercentage ?? 0;
+
+  const theme = useMemo(() => (teacher ? getTeacherColorStyles(teacher.id) : null), [teacher]);
 
   const {
     data: classesData,
@@ -79,13 +85,19 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
     isLoading: subjectsLoading,
     isError: subjectsError,
   } = useQuery({
-    queryKey: [...syllabusKeys.subjects(schoolId), selectedClassId] as const,
-    queryFn: () =>
-      api.get<{ id: string; name: string; classId: string | null }[]>(
-        '/syllabus/subjects',
-        selectedClassId ? { classId: selectedClassId } : undefined,
-      ),
-    enabled: assignOpen && Boolean(selectedClassId),
+    queryKey: [...syllabusKeys.subjects(schoolId), selectedClassIds] as const,
+    queryFn: async () => {
+      if (selectedClassIds.length === 0) return [];
+
+      const requests = selectedClassIds.map((classId) =>
+        api.get<SubjectItem[]>('/syllabus/subjects', { classId }),
+      );
+
+      const results = await Promise.all(requests);
+      const flatSubjects = results.flat();
+      return Array.from(new Map(flatSubjects.map((s) => [s.id, s])).values());
+    },
+    enabled: assignOpen && selectedClassIds.length > 0,
   });
 
   const assignmentCards = useMemo(() => {
@@ -98,16 +110,32 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
       }));
   }, [teacher]);
 
-  const addAssignment = useMutation({
-    mutationFn: () =>
-      api.post(`/teachers/${id}/assignments`, {
-        classId: selectedClassId,
-        subjectId: selectedSubjectId,
-      }),
+  const addAssignments = useMutation({
+    mutationFn: async () => {
+      const targets: { classId: string; subjectId: string }[] = [];
+
+      selectedClassIds.forEach((classId) => {
+        const classSubjects = subjects.filter(
+          (s) => s.classId === classId && selectedSubjectIds.includes(s.id),
+        );
+        classSubjects.forEach((sub) => {
+          targets.push({ classId, subjectId: sub.id });
+        });
+      });
+
+      if (targets.length === 0) {
+        throw new Error('No matching class-subject pairings found.');
+      }
+
+      return Promise.all(
+        targets.map((payload) => api.post(`/teachers/${id}/assignments`, payload)),
+      );
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['teacher', id] });
-      toast.success('Assignment added');
-      setSelectedSubjectId('');
+      toast.success('Assignments added successfully');
+      setSelectedClassIds([]);
+      setSelectedSubjectIds([]);
       setAssignOpen(false);
     },
     onError: (e: Error) => toast.error(e.message),
@@ -122,6 +150,29 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const handleToggleClass = (classId: string) => {
+    setSelectedClassIds((prev) => {
+      const isSelected = prev.includes(classId);
+      const nextClasses = isSelected ? prev.filter((id) => id !== classId) : [...prev, classId];
+
+      if (isSelected) {
+        setSelectedSubjectIds((prevSubIds) =>
+          prevSubIds.filter((subId) => {
+            const matchSub = subjects.find((s) => s.id === subId);
+            return matchSub ? matchSub.classId !== classId : true;
+          }),
+        );
+      }
+      return nextClasses;
+    });
+  };
+
+  const handleToggleSubject = (subjectId: string) => {
+    setSelectedSubjectIds((prev) =>
+      prev.includes(subjectId) ? prev.filter((id) => id !== subjectId) : [...prev, subjectId],
+    );
+  };
+
   if (isLoading) {
     return (
       <DashboardShell title="Teacher profile">
@@ -130,7 +181,7 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
     );
   }
 
-  if (!teacher) {
+  if (!teacher || !theme) {
     return (
       <DashboardShell title="Teacher profile">
         <p className="text-muted-foreground">Teacher not found.</p>
@@ -141,19 +192,21 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
   return (
     <DashboardShell title={teacher.user.name}>
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Profile */}
-        <Card className="lg:col-span-1">
+        {/* Color Accent Infused Profile Card */}
+        <Card className={cn('border-t-4 lg:col-span-1', theme.border.replace('hover:', ''))}>
           <CardHeader>
             <CardTitle>Profile</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <p>{teacher.user.email}</p>
-            {teacher.user.phone && <p>{teacher.user.phone}</p>}
-            <p className="text-muted-foreground">Assignments are managed below.</p>
+            <p className="text-foreground font-medium">{teacher.user.email}</p>
+            {teacher.user.phone && <p className="text-muted-foreground">{teacher.user.phone}</p>}
+            <p className="text-muted-foreground border-t pt-2 text-xs">
+              Assignments are managed below.
+            </p>
           </CardContent>
         </Card>
 
-        {/* Progress */}
+        {/* Progress Card */}
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Progress</CardTitle>
@@ -162,7 +215,7 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
             <div>
               <div className="mb-2 flex justify-between text-sm">
                 <span>Chapter completion</span>
-                <span>{formatPercent(progress)}</span>
+                <span className="font-semibold">{formatPercent(progress)}</span>
               </div>
               <Progress value={progress} />
             </div>
@@ -170,14 +223,16 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
               {completed} of {total} chapters completed · {total - completed} pending
             </p>
 
-            {/* Only show completed chapters */}
             {teacher.chapterProgress.filter((p) => p.chapterStatus === 'COMPLETED').length > 0 && (
               <ul className="space-y-2">
                 {teacher.chapterProgress
                   .filter((p) => p.chapterStatus === 'COMPLETED')
                   .map((p, i) => (
-                    <li key={i} className="flex justify-between rounded border p-2 text-sm">
-                      <span>{p.chapter.title}</span>
+                    <li
+                      key={i}
+                      className="bg-card flex items-center justify-between rounded-lg border p-2 text-sm"
+                    >
+                      <span className="font-medium">{p.chapter.title}</span>
                       <Badge variant="success">COMPLETED</Badge>
                     </li>
                   ))}
@@ -190,7 +245,7 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
           </CardContent>
         </Card>
 
-        {/* Subject assignments */}
+        {/* Assignments Display Card with uniquely colored tags */}
         <Card className="lg:col-span-3">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Subject assignments</CardTitle>
@@ -202,24 +257,28 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
           <CardContent>
             {assignmentCards.length === 0 ? (
               <p className="text-muted-foreground text-sm">
-                No subject assignments yet. Add a class + subject pairing.
+                No subject assignments yet. Add class + subject pairings.
               </p>
             ) : (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {assignmentCards.map((a) => (
                   <div
                     key={a.id}
-                    className="flex items-center justify-between rounded-lg border p-3"
+                    className={cn(
+                      'bg-card flex items-center justify-between rounded-lg border p-3 transition-all',
+                      theme.border,
+                    )}
                   >
-                    <span className="text-sm font-medium">{a.label}</span>
+                    <span className="text-sm font-semibold">{a.label}</span>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => deleteAssignment.mutate(a.id)}
                       disabled={deleteAssignment.isPending}
+                      className="hover:bg-destructive/10 text-muted-foreground hover:text-destructive h-8 w-8 rounded-md"
                       aria-label="Remove assignment"
                     >
-                      <Trash2 className="text-destructive h-4 w-4" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
@@ -229,17 +288,28 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
         </Card>
       </div>
 
-      {/* Add assignment dialog */}
-      <Dialog open={assignOpen} onOpenChange={setAssignOpen}>
+      {/* Multi-Selection Dialog */}
+      <Dialog
+        open={assignOpen}
+        onOpenChange={(open) => {
+          setAssignOpen(open);
+          if (!open) {
+            setSelectedClassIds([]);
+            setSelectedSubjectIds([]);
+          }
+        }}
+      >
         <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add assignment</DialogTitle>
-            <DialogDescription>Assign a subject to a class for this teacher.</DialogDescription>
+            <DialogDescription>
+              Assign multiple subjects and classes simultaneously for this teacher.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <p className="text-sm font-medium">Class</p>
+              <p className="text-sm font-medium">Classes ({selectedClassIds.length} selected)</p>
               {classesLoading && <p className="text-muted-foreground text-sm">Loading classes…</p>}
               {classesError && (
                 <p className="text-destructive text-sm">
@@ -249,70 +319,82 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
                 </p>
               )}
               {!classesLoading && !classesError && classes.length === 0 && (
-                <p className="text-muted-foreground text-sm">
-                  No classes found. Create classes under Admin → Classes first.
-                </p>
+                <p className="text-muted-foreground text-sm">No classes found.</p>
               )}
               <div className="flex flex-wrap gap-2">
-                {classes.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedClassId(c.id);
-                      setSelectedSubjectId('');
-                    }}
-                    className={`rounded-md border px-3 py-1 text-sm transition-colors ${
-                      selectedClassId === c.id
-                        ? 'border-primary bg-primary text-primary-foreground'
-                        : 'hover:border-muted-foreground'
-                    }`}
-                  >
-                    {c.name}
-                  </button>
-                ))}
+                {classes.map((c) => {
+                  const isSelected = selectedClassIds.includes(c.id);
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => handleToggleClass(c.id)}
+                      className={`rounded-md border px-3 py-1 text-sm font-medium transition-all ${
+                        isSelected
+                          ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+                          : 'hover:border-muted-foreground bg-background'
+                      }`}
+                    >
+                      {c.name}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             <div className="space-y-2">
-              <p className="text-sm font-medium">Subject</p>
-              {subjectsLoading && selectedClassId && (
+              <p className="text-sm font-medium">Subjects ({selectedSubjectIds.length} selected)</p>
+              {subjectsLoading && selectedClassIds.length > 0 && (
                 <p className="text-muted-foreground text-sm">Loading subjects…</p>
               )}
               {subjectsError && (
-                <p className="text-destructive text-sm">Failed to load subjects for this class.</p>
+                <p className="text-destructive text-sm">
+                  Failed to load subjects for selection configurations.
+                </p>
               )}
               <div className="flex flex-wrap gap-2">
-                {!subjectsLoading && subjects.length === 0 && (
+                {selectedClassIds.length === 0 ? (
                   <p className="text-muted-foreground text-sm">
-                    {selectedClassId
-                      ? 'No subjects linked to this class.'
-                      : 'Select a class to see subjects.'}
+                    Select one or more classes to load subjects.
                   </p>
+                ) : !subjectsLoading && subjects.length === 0 ? (
+                  <p className="text-muted-foreground text-sm">
+                    No matching subjects linked to selection classes.
+                  </p>
+                ) : (
+                  subjects.map((s) => {
+                    const isSelected = selectedSubjectIds.includes(s.id);
+                    const parentClassName = classes.find((c) => c.id === s.classId)?.name || '';
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => handleToggleSubject(s.id)}
+                        className={`rounded-md border px-3 py-1 text-sm font-medium transition-all ${
+                          isSelected
+                            ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+                            : 'hover:border-muted-foreground bg-background'
+                        }`}
+                      >
+                        {s.name}{' '}
+                        <span className="text-xs font-normal opacity-60">({parentClassName})</span>
+                      </button>
+                    );
+                  })
                 )}
-                {subjects.map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => setSelectedSubjectId(s.id)}
-                    className={`rounded-md border px-3 py-1 text-sm transition-colors ${
-                      selectedSubjectId === s.id
-                        ? 'border-primary bg-primary text-primary-foreground'
-                        : 'hover:border-muted-foreground'
-                    }`}
-                  >
-                    {s.name}
-                  </button>
-                ))}
               </div>
             </div>
 
             <Button
-              className="w-full"
-              onClick={() => addAssignment.mutate()}
-              disabled={!selectedClassId || !selectedSubjectId || addAssignment.isPending}
+              className="mt-2 w-full"
+              onClick={() => addAssignments.mutate()}
+              disabled={
+                selectedClassIds.length === 0 ||
+                selectedSubjectIds.length === 0 ||
+                addAssignments.isPending
+              }
             >
-              Add assignment
+              {addAssignments.isPending ? 'Adding assignments...' : 'Add assignments'}
             </Button>
           </div>
         </DialogContent>

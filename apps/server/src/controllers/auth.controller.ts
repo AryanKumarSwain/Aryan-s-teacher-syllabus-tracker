@@ -132,11 +132,26 @@ export const authController = {
 
       otpStore.set(userId, { otp, expiresAt });
 
-      await sendOtpEmail({
-        to: user.email,
-        name: user.name ?? 'User',
-        otp,
-      });
+      try {
+        await sendOtpEmail({
+          to: user.email,
+          name: user.name ?? 'User',
+          otp,
+        });
+      } catch (emailErr) {
+        otpStore.delete(userId);
+        const message =
+          emailErr instanceof Error ? emailErr.message : 'Failed to send verification email';
+        console.error('[Auth] sendPasswordOtp email failed', {
+          userId,
+          email: user.email,
+          message,
+        });
+        throw new AppError(
+          `Could not send verification code: ${message}. Check SMTP or Resend configuration.`,
+          502,
+        );
+      }
 
       sendSuccess(res, { message: `Verification code sent to ${user.email}` });
     } catch (err) {

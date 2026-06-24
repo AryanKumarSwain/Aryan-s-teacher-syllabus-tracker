@@ -34,7 +34,20 @@ export const authService = {
     const valid = await comparePassword(password, user.passwordHash);
     if (!valid) throw new AppError('Invalid credentials', 401);
 
+    if (user.status === 'SUSPENDED') {
+      throw new AppError('Account is suspended. Contact your school administrator.', 403);
+    }
     if (user.status !== 'ACTIVE') throw new AppError('Account is not active', 403);
+
+    if (user.role === 'TEACHER') {
+      const teacher = await prisma.teacher.findFirst({ where: { userId: user.id } });
+      if (!teacher || teacher.deletedAt) {
+        throw new AppError('Account is not active', 403);
+      }
+      if (teacher.status === 'SUSPENDED') {
+        throw new AppError('Account is suspended. Contact your school administrator.', 403);
+      }
+    }
 
     const sessionId = createSessionId();
     const payload = {
