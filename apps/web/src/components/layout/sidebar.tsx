@@ -15,6 +15,7 @@ import {
   Users,
   CreditCard,
   ChevronLeft,
+  Calendar,
 } from 'lucide-react';
 import { UserRole } from '@school-syllabus/types';
 import { cn } from '@/lib/utils';
@@ -35,6 +36,7 @@ const navByRole: Record<UserRole, { href: string; label: string; icon: React.Ele
     { href: '/admin/subjects', label: 'Subjects', icon: Bookmark },
     { href: '/admin/teachers', label: 'Teachers', icon: Users },
     { href: '/admin/syllabus', label: 'Syllabus', icon: BookOpen },
+    { href: '/admin/academic-timeline', label: 'Academic Timeline', icon: Calendar },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ],
   [UserRole.TEACHER]: [

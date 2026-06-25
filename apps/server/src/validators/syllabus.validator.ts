@@ -40,6 +40,7 @@ export const createChapterSchema = z.object({
   title: z.string().min(1, 'Chapter title is required'),
   description: z.string().optional(),
   notes: z.string().optional(),
+  estimatedTeachingDays: z.number().int().min(0).optional(),
 });
 
 export const updateChapterSchema = z.object({

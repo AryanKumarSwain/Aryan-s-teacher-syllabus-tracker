@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../src/generated/client';
 import bcrypt from 'bcryptjs';
 import process from 'process';
 
@@ -141,7 +141,6 @@ async function main() {
         status: 'ACTIVE',
         user:   { connect: { id: userRecord.id } },
         school: { connect: { id: demoSchool.id } },
-        // ✅ No subject assigned — assign manually via admin UI
       },
     });
 
@@ -217,6 +216,7 @@ async function main() {
       });
 
       for (let chIdx = 0; chIdx < chapterNames.length; chIdx++) {
+        // Explicitly selecting 'id' here fields validation mismatch bypass karne ke liye
         const dbChapter = await prisma.chapter.create({
           data: {
             schoolId: demoSchool.id,
@@ -225,6 +225,9 @@ async function main() {
             title: `Chapter ${chIdx + 1}: ${chapterNames[chIdx]}`,
             sortOrder: chIdx + 1,
           },
+          select: {
+            id: true
+          }
         });
 
         await prisma.topic.createMany({

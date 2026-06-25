@@ -6,6 +6,7 @@ import { syllabusRoutes } from './syllabus.routes.js';
 import { dashboardRoutes } from './dashboard.routes.js';
 import { progressRoutes } from './progress.routes.js';
 import { planRoutes } from './plan.routes.js';
+import academicTermRoutes from './academic-term.routes.js';
 
 export const apiRouter = Router();
 
@@ -16,6 +17,7 @@ apiRouter.use('/syllabus', syllabusRoutes);
 apiRouter.use('/dashboard', dashboardRoutes);
 apiRouter.use('/progress', progressRoutes);
 apiRouter.use('/plans', planRoutes);
+apiRouter.use('/academic-terms', academicTermRoutes);
 
 apiRouter.get('/health', (_req, res) => {
   res.json({ success: true, data: { status: 'ok', timestamp: new Date().toISOString() } });

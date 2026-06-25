@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/client"
 }
 
 datasource db {
@@ -50,6 +51,13 @@ enum NotificationType {
   ERROR
 }
 
+enum AcademicTermStatus {
+  ACTIVE
+  UPCOMING
+  COMPLETED
+  ARCHIVED
+}
+
 model User {
   id           String     @id @default(uuid())
   email        String     @unique
@@ -95,28 +103,29 @@ model RefreshToken {
 }
 
 model School {
-  id        String       @id @default(uuid())
-  name      String
-  slug      String       @unique
-  email     String
-  phone     String?
-  address   String?
-  logo      String?
-  status    SchoolStatus @default(ACTIVE)
-  createdAt DateTime     @default(now()) @map("created_at")
-  updatedAt DateTime     @updatedAt @map("updated_at")
-  deletedAt DateTime?    @map("deleted_at")
+  id             String        @id @default(uuid())
+  name           String
+  slug           String        @unique
+  email          String
+  phone          String?
+  address        String?
+  logo           String?
+  status         SchoolStatus  @default(ACTIVE)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  deletedAt      DateTime?     @map("deleted_at")
 
-  users         User[]
-  subscriptions Subscription[]
-  teachers      Teacher[]
-  classes       Class[]
-  subjects      Subject[]
-  chapters      Chapter[]
-  topics        Topic[]
-  notifications Notification[]
-  activityLogs  ActivityLog[]
-  auditLogs     AuditLog[]
+  users           User[]
+  subscriptions   Subscription[]
+  teachers        Teacher[]
+  classes         Class[]
+  subjects        Subject[]
+  chapters        Chapter[]
+  topics          Topic[]
+  notifications   Notification[]
+  activityLogs    ActivityLog[]
+  auditLogs       AuditLog[]
+  academicTerms   AcademicTerm[]
 
   @@index([status])
   @@index([slug])
@@ -238,17 +247,18 @@ model Subject {
 
 
 model Chapter {
-  id          String    @id @default(uuid())
-  schoolId    String    @map("school_id")
-  subjectId   String    @map("subject_id")
-  classId     String    @map("class_id")
-  title       String
-  description String?   @db.Text
-  notes       String?   @db.LongText
-  sortOrder   Int       @default(0) @map("sort_order")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  deletedAt   DateTime? @map("deleted_at")
+  id                   String    @id @default(uuid())
+  schoolId             String    @map("school_id")
+  subjectId            String    @map("subject_id")
+  classId              String    @map("class_id")
+  title                String
+  description           String?   @db.Text
+  notes                String?   @db.LongText
+  estimatedTeachingDays Int?      @default(0) @map("estimated_teaching_days")
+  sortOrder            Int       @default(0) @map("sort_order")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+  deletedAt            DateTime? @map("deleted_at")
 
   school          School            @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   subject         Subject           @relation(fields: [subjectId], references: [id], onDelete: Cascade)
@@ -409,4 +419,41 @@ model AuditLog {
   @@index([schoolId, createdAt])
   @@index([actorId])
   @@map("audit_logs")
+}
+
+model AcademicTerm {
+  id                   String              @id @default(uuid())
+  schoolId             String              @map("school_id")
+  name                 String
+  startDate            DateTime            @map("start_date")
+  endDate              DateTime            @map("end_date")
+  totalWorkingDays     Int                 @map("total_working_days")
+  actualAvailableDays  Int                 @map("actual_available_days")
+  weeklyHolidays       Json                @default("[0]") // Array of day numbers (0=Sunday, 6=Saturday)
+  status               AcademicTermStatus  @default(ACTIVE)
+  createdAt            DateTime            @default(now()) @map("created_at")
+  updatedAt            DateTime            @updatedAt @map("updated_at")
+  deletedAt            DateTime?           @map("deleted_at")
+
+  school        School        @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  vacationDays  VacationDay[]
+
+  @@index([schoolId])
+  @@index([status])
+  @@map("academic_terms")
+}
+
+model VacationDay {
+  id             String   @id @default(uuid())
+  academicTermId String   @map("academic_term_id")
+  startDate      DateTime @db.Date @map("start_date")
+  endDate        DateTime @db.Date @map("end_date")
+  reason         String?  @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  academicTerm AcademicTerm @relation(fields: [academicTermId], references: [id], onDelete: Cascade)
+
+  @@index([academicTermId])
+  @@index([startDate])
+  @@map("vacation_days")
 }

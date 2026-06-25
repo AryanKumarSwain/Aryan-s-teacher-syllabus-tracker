@@ -16,6 +16,7 @@ export interface AuthUser {
   name: string;
   role: UserRole;
   schoolId: string | null;
+  teacherId: string | null;
   avatar: string | null;
 }
 
