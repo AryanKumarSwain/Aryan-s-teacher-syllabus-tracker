@@ -32,9 +32,12 @@ export const academicTermController = {
 
   async update(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log('[AcademicTermController.update] Request body:', JSON.stringify(req.body));
+      console.log('[AcademicTermController.update] Params:', req.params);
       const term = await academicTermService.update(String(req.params.id), req.body);
       sendSuccess(res, term);
     } catch (err) {
+      console.error('[AcademicTermController.update] Error:', err);
       next(err);
     }
   },
@@ -50,10 +53,7 @@ export const academicTermController = {
 
   async addVacationDay(req: Request, res: Response, next: NextFunction) {
     try {
-      const vacationDay = await academicTermService.addVacationDay(
-        String(req.params.id),
-        req.body,
-      );
+      const vacationDay = await academicTermService.addVacationDay(String(req.params.id), req.body);
       sendSuccess(res, vacationDay, 201);
     } catch (err) {
       next(err);
@@ -62,7 +62,10 @@ export const academicTermController = {
 
   async removeVacationDay(req: Request, res: Response, next: NextFunction) {
     try {
-      await academicTermService.removeVacationDay(String(req.params.id), String(req.params.vacationId));
+      await academicTermService.removeVacationDay(
+        String(req.params.id),
+        String(req.params.vacationId),
+      );
       sendSuccess(res, { message: 'Vacation day removed' });
     } catch (err) {
       next(err);

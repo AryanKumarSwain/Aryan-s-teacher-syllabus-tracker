@@ -34,7 +34,7 @@ export const academicTermService = {
       where: { id, ...softDeleteFilter() },
       include: {
         vacationDays: {
-          orderBy: { date: 'asc' },
+          orderBy: { startDate: 'asc' }, // ✅
         },
       },
     });
@@ -97,8 +97,8 @@ export const academicTermService = {
     id: string,
     data: {
       name?: string;
-      startDate?: Date | string;
-      endDate?: Date | string;
+      startDate?: Date;
+      endDate?: Date;
       weeklyHolidays?: number[];
       status?: AcademicTermStatus;
     },
@@ -112,9 +112,12 @@ export const academicTermService = {
 
     if (!term) throw new AppError('Academic term not found', 404);
 
-    const weeklyHolidays = data.weeklyHolidays !== undefined ? data.weeklyHolidays : JSON.parse(term.weeklyHolidays as string);
-    const startDate = data.startDate ? new Date(data.startDate) : term.startDate;
-    const endDate = data.endDate ? new Date(data.endDate) : term.endDate;
+    const weeklyHolidays =
+      data.weeklyHolidays !== undefined
+        ? data.weeklyHolidays
+        : JSON.parse(term.weeklyHolidays as string);
+    const startDate = data.startDate || term.startDate;
+    const endDate = data.endDate || term.endDate;
 
     // Recalculate if dates or holidays changed
     if (data.startDate || data.endDate || data.weeklyHolidays !== undefined) {
@@ -125,29 +128,37 @@ export const academicTermService = {
         term.vacationDays,
       );
 
-      return prisma.academicTerm.update({
+      const updateData: any = {
+        startDate,
+        endDate,
+        totalWorkingDays,
+        actualAvailableDays,
+        weeklyHolidays: JSON.stringify(weeklyHolidays),
+      };
+
+      if (data.name !== undefined) updateData.name = data.name;
+      if (data.status !== undefined) updateData.status = data.status;
+
+      await prisma.academicTerm.update({
         where: { id },
-        data: {
-          name: data.name,
-          startDate,
-          endDate,
-          totalWorkingDays,
-          actualAvailableDays,
-          weeklyHolidays: JSON.stringify(weeklyHolidays),
-          status: data.status,
-        },
-        include: { vacationDays: true },
+        data: updateData,
       });
+
+      // Re-fetch with vacationDays to ensure fresh data
+      return this.getById(id);
     }
 
-    return prisma.academicTerm.update({
+    const updateData: any = {};
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.status !== undefined) updateData.status = data.status;
+
+    await prisma.academicTerm.update({
       where: { id },
-      data: {
-        name: data.name,
-        status: data.status,
-      },
-      include: { vacationDays: true },
+      data: updateData,
     });
+
+    // Re-fetch with vacationDays to ensure fresh data
+    return this.getById(id);
   },
 
   async softDelete(id: string) {
@@ -158,10 +169,14 @@ export const academicTermService = {
     });
   },
 
-  async addVacationDay(termId: string, data: { startDate: Date | string; endDate: Date | string; reason?: string }) {
+  async addVacationDay(
+    termId: string,
+    data: { startDate: Date | string; endDate: Date | string; reason?: string },
+  ) {
     await this.getById(termId);
 
-    const startDate = typeof data.startDate === 'string' ? new Date(data.startDate) : data.startDate;
+    const startDate =
+      typeof data.startDate === 'string' ? new Date(data.startDate) : data.startDate;
     const endDate = typeof data.endDate === 'string' ? new Date(data.endDate) : data.endDate;
 
     const vacationDay = await prisma.$transaction(async (tx) => {
@@ -394,8 +409,7 @@ export const academicTermService = {
     // Calculate days elapsed and remaining
     const now = new Date();
     const totalDaysInTerm = Math.ceil(
-      (activeTerm.endDate.getTime() - activeTerm.startDate.getTime()) /
-        (1000 * 60 * 60 * 24),
+      (activeTerm.endDate.getTime() - activeTerm.startDate.getTime()) / (1000 * 60 * 60 * 24),
     );
     const daysElapsed = Math.ceil(
       (now.getTime() - activeTerm.startDate.getTime()) / (1000 * 60 * 60 * 24),

@@ -29,11 +29,17 @@ export const syllabusController = {
       let teacherId: string | undefined;
 
       if (req.user?.role === 'TEACHER') {
-        const teacher = await prisma.teacher.findFirst({ where: { schoolId, userId: req.user.sub } });
+        const teacher = await prisma.teacher.findFirst({
+          where: { schoolId, userId: req.user.sub },
+        });
         teacherId = teacher?.id;
       }
 
-      const item = await syllabusService.getClassDetails(schoolId, String(req.params.id), teacherId);
+      const item = await syllabusService.getClassDetails(
+        schoolId,
+        String(req.params.id),
+        teacherId,
+      );
       sendSuccess(res, item);
     } catch (err) {
       next(err);
@@ -43,9 +49,15 @@ export const syllabusController = {
   async listAssignedClasses(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
-      const teacher = await prisma.teacher.findFirst({ where: { schoolId, userId: req.user!.sub } });
+      const teacher = await prisma.teacher.findFirst({
+        where: { schoolId, userId: req.user!.sub },
+      });
       if (!teacher) throw new Error('Teacher profile not found');
-      const result = await syllabusService.listAssignedClasses(schoolId, teacher.id, req.query as never);
+      const result = await syllabusService.listAssignedClasses(
+        schoolId,
+        teacher.id,
+        req.query as never,
+      );
       sendPaginated(res, result.items, result.total, result.page, result.pageSize);
     } catch (err) {
       next(err);
@@ -54,7 +66,11 @@ export const syllabusController = {
 
   async updateSubject(req: Request, res: Response, next: NextFunction) {
     try {
-      const item = await syllabusService.updateSubject(getTenantId(req), String(req.params.id), req.body);
+      const item = await syllabusService.updateSubject(
+        getTenantId(req),
+        String(req.params.id),
+        req.body,
+      );
       sendSuccess(res, item);
     } catch (err) {
       next(err);
@@ -63,7 +79,11 @@ export const syllabusController = {
 
   async updateChapter(req: Request, res: Response, next: NextFunction) {
     try {
-      const item = await syllabusService.updateChapter(getTenantId(req), String(req.params.id), req.body);
+      const item = await syllabusService.updateChapter(
+        getTenantId(req),
+        String(req.params.id),
+        req.body,
+      );
       sendSuccess(res, item);
     } catch (err) {
       next(err);
@@ -72,7 +92,11 @@ export const syllabusController = {
 
   async updateTopic(req: Request, res: Response, next: NextFunction) {
     try {
-      const item = await syllabusService.updateTopic(getTenantId(req), String(req.params.id), req.body);
+      const item = await syllabusService.updateTopic(
+        getTenantId(req),
+        String(req.params.id),
+        req.body,
+      );
       sendSuccess(res, item);
     } catch (err) {
       next(err);
@@ -153,10 +177,7 @@ export const syllabusController = {
 
   async listTopics(req: Request, res: Response, next: NextFunction) {
     try {
-      const items = await syllabusService.listTopics(
-        getTenantId(req),
-        String(req.query.chapterId),
-      );
+      const items = await syllabusService.listTopics(getTenantId(req), String(req.query.chapterId));
       sendSuccess(res, items);
     } catch (err) {
       next(err);
@@ -218,6 +239,24 @@ export const syllabusController = {
     try {
       await syllabusService.deleteTopic(getTenantId(req), String(req.params.id));
       sendSuccess(res, { message: 'Topic deleted' });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async bulkCreateClasses(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await syllabusService.bulkCreateClasses(getTenantId(req), req.body.classes);
+      sendSuccess(res, result, 201);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async bulkCreateSubjects(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await syllabusService.bulkCreateSubjects(getTenantId(req), req.body.subjects);
+      sendSuccess(res, result, 201);
     } catch (err) {
       next(err);
     }

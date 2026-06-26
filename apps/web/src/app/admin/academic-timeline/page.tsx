@@ -55,29 +55,40 @@ interface TimelineDay {
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 // Generate timeline days for visualization
-function generateTimelineDays(startDate: string, endDate: string, weeklyHolidays: number[], vacationDays: VacationDay[]): TimelineDay[] {
+function generateTimelineDays(
+  startDate: string,
+  endDate: string,
+  weeklyHolidays: number[],
+  vacationDays: VacationDay[],
+): TimelineDay[] {
   const days: TimelineDay[] = [];
   const start = new Date(startDate);
   const end = new Date(endDate);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const vacationSet = new Set(vacationDays.map(vd => {
-    // For date ranges, we need to generate all dates in the range
-    const dates: string[] = [];
-    const start = new Date(vd.startDate);
-    const end = new Date(vd.endDate);
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      dates.push(d.toDateString());
-    }
-    return dates;
-  }).flat());
+  const vacationSet = new Set(
+    vacationDays
+      .map((vd) => {
+        const dates: string[] = [];
+        const start = new Date(vd.startDate);
+        const end = new Date(vd.endDate);
+        // Normalize to UTC to avoid timezone shift
+        start.setUTCHours(0, 0, 0, 0);
+        end.setUTCHours(0, 0, 0, 0);
+        for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+          dates.push(d.toISOString().split('T')[0]!);
+        }
+        return dates;
+      })
+      .flat(),
+  );
 
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const dayOfWeek = d.getDay();
     const dateStr = d.toDateString();
     const isHoliday = weeklyHolidays.includes(dayOfWeek);
-    const isVacation = vacationSet.has(dateStr);
+    const isVacation = vacationSet.has(d.toISOString().split('T')[0]!);
     const isPast = d < today;
     const isToday = dateStr === today.toDateString();
 
@@ -103,7 +114,11 @@ export default function AcademicTimelinePage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [weeklyHolidays, setWeeklyHolidays] = useState<number[]>([0]);
-  const [newVacationDay, setNewVacationDay] = useState<VacationDay>({ startDate: '', endDate: '', reason: '' });
+  const [newVacationDay, setNewVacationDay] = useState<VacationDay>({
+    startDate: '',
+    endDate: '',
+    reason: '',
+  });
   const [selectedTermId, setSelectedTermId] = useState<string>('all');
   const [filterType, setFilterType] = useState<'all' | 'teacher' | 'class' | 'subject'>('all');
   const [dayEditOpen, setDayEditOpen] = useState(false);
@@ -111,12 +126,13 @@ export default function AcademicTimelinePage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['academic-terms', schoolId],
-    queryFn: () => api.getPaginated<AcademicTerm>('/academic-terms', schoolId ? { schoolId } : undefined),
+    queryFn: () =>
+      api.getPaginated<AcademicTerm>('/academic-terms', schoolId ? { schoolId } : undefined),
     enabled: Boolean(schoolId),
   });
 
   const terms = data?.items ?? [];
-  const selectedTerm = terms.find(t => t.id === selectedTermId) || terms[0];
+  const selectedTerm = terms.find((t) => t.id === selectedTermId) || terms[0];
 
   const handleCreateClick = () => {
     setEditingTerm(null);
@@ -197,7 +213,11 @@ export default function AcademicTimelinePage() {
 
     try {
       await api.post(`/academic-terms/${editingTerm.id}/vacation-days`, newVacationDay);
-      qc.invalidateQueries({ queryKey: ['academic-terms', schoolId] });
+      await qc.invalidateQueries({ queryKey: ['academic-terms', schoolId] });
+      // Now query cache is fresh, get the updated term
+      const cached = qc.getQueryData<{ items: AcademicTerm[] }>(['academic-terms', schoolId]);
+      const fresh = cached?.items.find((t) => t.id === editingTerm.id);
+      if (fresh) setEditingTerm(fresh);
       setNewVacationDay({ startDate: '', endDate: '', reason: '' });
       toast.success('Vacation day added');
     } catch (e: any) {
@@ -209,7 +229,10 @@ export default function AcademicTimelinePage() {
     if (!editingTerm) return;
     try {
       await api.delete(`/academic-terms/${editingTerm.id}/vacation-days/${vacationId}`);
-      qc.invalidateQueries({ queryKey: ['academic-terms', schoolId] });
+      await qc.invalidateQueries({ queryKey: ['academic-terms', schoolId] });
+      const cached = qc.getQueryData<{ items: AcademicTerm[] }>(['academic-terms', schoolId]);
+      const fresh = cached?.items.find((t) => t.id === editingTerm.id);
+      if (fresh) setEditingTerm(fresh);
       toast.success('Vacation day removed');
     } catch (e: any) {
       toast.error(e.message);
@@ -223,10 +246,10 @@ export default function AcademicTimelinePage() {
 
   const toggleDayAsVacation = async () => {
     if (!selectedTerm || !selectedDay) return;
-    
+
     try {
       // Check if this date is already in a vacation range
-      const existingVacation = selectedTerm.vacationDays?.find(vd => {
+      const existingVacation = selectedTerm.vacationDays?.find((vd) => {
         const start = new Date(vd.startDate);
         const end = new Date(vd.endDate);
         const dayDate = new Date(selectedDay.date);
@@ -246,7 +269,7 @@ export default function AcademicTimelinePage() {
         });
         toast.success('Day marked as vacation');
       }
-      
+
       qc.invalidateQueries({ queryKey: ['academic-terms', schoolId] });
       setDayEditOpen(false);
     } catch (e: any) {
@@ -255,16 +278,19 @@ export default function AcademicTimelinePage() {
   };
 
   // Generate timeline for selected term
-  const timelineDays = selectedTerm ? generateTimelineDays(
-    selectedTerm.startDate,
-    selectedTerm.endDate,
-    JSON.parse(selectedTerm.weeklyHolidays as unknown as string),
-    selectedTerm.vacationDays
-  ) : [];
+  const timelineDays = selectedTerm
+    ? generateTimelineDays(
+        selectedTerm.startDate,
+        selectedTerm.endDate,
+        JSON.parse(selectedTerm.weeklyHolidays as unknown as string),
+        selectedTerm.vacationDays,
+      )
+    : [];
 
-  const teachingDays = timelineDays.filter(d => !d.isHoliday && !d.isVacation);
-  const completedDays = teachingDays.filter(d => d.isPast).length;
-  const progressPercentage = teachingDays.length > 0 ? (completedDays / teachingDays.length) * 100 : 0;
+  const teachingDays = timelineDays.filter((d) => !d.isHoliday && !d.isVacation);
+  const completedDays = teachingDays.filter((d) => d.isPast).length;
+  const progressPercentage =
+    teachingDays.length > 0 ? (completedDays / teachingDays.length) * 100 : 0;
 
   return (
     <DashboardShell title="Academic Timeline Configuration">
@@ -273,8 +299,9 @@ export default function AcademicTimelinePage() {
         <div className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-lg font-semibold">Academic Terms</h2>
-            <p className="text-sm text-muted-foreground">
-              Manage academic terms, holidays, and vacation days to calculate available teaching days.
+            <p className="text-muted-foreground text-sm">
+              Manage academic terms, holidays, and vacation days to calculate available teaching
+              days.
             </p>
           </div>
           <Button onClick={handleCreateClick}>
@@ -284,12 +311,12 @@ export default function AcademicTimelinePage() {
 
         {/* Filters */}
         <div className="flex flex-wrap gap-3">
-          <div className="flex items-center gap-2 rounded-md border px-3 py-1.5 bg-background shadow-sm">
+          <div className="bg-background flex items-center gap-2 rounded-md border px-3 py-1.5 shadow-sm">
             <Filter className="text-muted-foreground h-4 w-4" />
             <select
               value={selectedTermId}
               onChange={(e) => setSelectedTermId(e.target.value)}
-              className="bg-transparent text-sm font-medium focus:outline-none cursor-pointer"
+              className="cursor-pointer bg-transparent text-sm font-medium focus:outline-none"
             >
               <option value="all">All Terms</option>
               {terms.map((term) => (
@@ -300,11 +327,11 @@ export default function AcademicTimelinePage() {
             </select>
           </div>
 
-          <div className="flex items-center gap-2 rounded-md border px-3 py-1.5 bg-background shadow-sm">
+          <div className="bg-background flex items-center gap-2 rounded-md border px-3 py-1.5 shadow-sm">
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value as any)}
-              className="bg-transparent text-sm font-medium focus:outline-none cursor-pointer"
+              className="cursor-pointer bg-transparent text-sm font-medium focus:outline-none"
             >
               <option value="all">All Progress</option>
               <option value="teacher">By Teacher</option>
@@ -337,7 +364,7 @@ export default function AcademicTimelinePage() {
                     <CardTitle className="text-lg font-bold">
                       {selectedTerm.name} - Timeline Progress
                     </CardTitle>
-                    <Badge className="bg-blue-100 text-blue-800 border-none">
+                    <Badge className="border-none bg-blue-100 text-blue-800">
                       {selectedTerm.status}
                     </Badge>
                   </div>
@@ -345,12 +372,11 @@ export default function AcademicTimelinePage() {
                 <CardContent className="space-y-4">
                   {/* Progress Bar */}
                   <div>
-                    <div className="flex items-center justify-between text-sm mb-2">
-                      <span className="text-muted-foreground">
-                        Teaching Days Progress
-                      </span>
+                    <div className="mb-2 flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Teaching Days Progress</span>
                       <span className="font-medium">
-                        {completedDays} / {teachingDays.length} days ({Math.round(progressPercentage)}%)
+                        {completedDays} / {teachingDays.length} days (
+                        {Math.round(progressPercentage)}%)
                       </span>
                     </div>
                     <Progress value={progressPercentage} className="h-3" />
@@ -362,7 +388,7 @@ export default function AcademicTimelinePage() {
                     <div className="space-y-3">
                       {(() => {
                         const monthGroups: { [key: string]: TimelineDay[] } = {};
-                        timelineDays.forEach(day => {
+                        timelineDays.forEach((day) => {
                           const date = new Date(day.date);
                           const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
                           if (!monthGroups[monthKey]) {
@@ -371,15 +397,30 @@ export default function AcademicTimelinePage() {
                           monthGroups[monthKey].push(day);
                         });
 
-                        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                        const monthNames = [
+                          'Jan',
+                          'Feb',
+                          'Mar',
+                          'Apr',
+                          'May',
+                          'Jun',
+                          'Jul',
+                          'Aug',
+                          'Sep',
+                          'Oct',
+                          'Nov',
+                          'Dec',
+                        ];
 
                         return Object.entries(monthGroups).map(([monthKey, days]) => {
                           const [year, month] = monthKey.split('-').map(Number);
                           return (
                             <div key={monthKey} className="space-y-1">
-                              <div className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
-                                <span>{monthNames[month as number]} {year}</span>
-                                <div className="flex-1 h-px bg-border" />
+                              <div className="text-muted-foreground flex items-center gap-2 text-xs font-semibold">
+                                <span>
+                                  {monthNames[month as number]} {year}
+                                </span>
+                                <div className="bg-border h-px flex-1" />
                               </div>
                               <div className="flex gap-1 overflow-x-auto pb-2">
                                 {days.map((day, idx) => {
@@ -389,12 +430,20 @@ export default function AcademicTimelinePage() {
                                       key={idx}
                                       onClick={() => handleDayClick(day)}
                                       className={cn(
-                                        'flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center text-xs font-medium border cursor-pointer hover:opacity-80 transition-opacity',
-                                        isTeachingDay && day.isPast && 'bg-green-500 text-white border-green-600',
-                                        isTeachingDay && day.isToday && 'bg-blue-500 text-white border-blue-600 ring-2 ring-blue-300',
-                                        isTeachingDay && !day.isPast && !day.isToday && 'bg-blue-100 text-blue-700 border-blue-200',
-                                        day.isHoliday && 'bg-red-100 text-red-700 border-red-200',
-                                        day.isVacation && 'bg-orange-100 text-orange-700 border-orange-200',
+                                        'flex h-8 w-8 flex-shrink-0 cursor-pointer items-center justify-center rounded-md border text-xs font-medium transition-opacity hover:opacity-80',
+                                        isTeachingDay &&
+                                          day.isPast &&
+                                          'border-green-600 bg-green-500 text-white',
+                                        isTeachingDay &&
+                                          day.isToday &&
+                                          'border-blue-600 bg-blue-500 text-white ring-2 ring-blue-300',
+                                        isTeachingDay &&
+                                          !day.isPast &&
+                                          !day.isToday &&
+                                          'border-blue-200 bg-blue-100 text-blue-700',
+                                        day.isHoliday && 'border-red-200 bg-red-100 text-red-700',
+                                        day.isVacation &&
+                                          'border-orange-200 bg-orange-100 text-orange-700',
                                       )}
                                       title={`${day.date} - ${day.isHoliday ? 'Holiday' : day.isVacation ? 'Vacation' : 'Teaching Day'} (Click to edit)`}
                                     >
@@ -408,51 +457,51 @@ export default function AcademicTimelinePage() {
                         });
                       })()}
                     </div>
-                    <div className="flex gap-4 text-xs text-muted-foreground">
+                    <div className="text-muted-foreground flex gap-4 text-xs">
                       <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 rounded bg-green-500" />
+                        <div className="h-3 w-3 rounded bg-green-500" />
                         <span>Completed</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 rounded bg-blue-500 ring-2 ring-blue-300" />
+                        <div className="h-3 w-3 rounded bg-blue-500 ring-2 ring-blue-300" />
                         <span>Today</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 rounded bg-blue-100 border border-blue-200" />
+                        <div className="h-3 w-3 rounded border border-blue-200 bg-blue-100" />
                         <span>Upcoming</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 rounded bg-red-100 border border-red-200" />
+                        <div className="h-3 w-3 rounded border border-red-200 bg-red-100" />
                         <span>Holiday</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 rounded bg-orange-100 border border-orange-200" />
+                        <div className="h-3 w-3 rounded border border-orange-200 bg-orange-100" />
                         <span>Vacation</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Stats */}
-                  <div className="grid grid-cols-4 gap-3 pt-3 border-t">
+                  <div className="grid grid-cols-4 gap-3 border-t pt-3">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-blue-600">{teachingDays.length}</div>
-                      <div className="text-xs text-muted-foreground">Teaching Days</div>
+                      <div className="text-muted-foreground text-xs">Teaching Days</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-green-600">{completedDays}</div>
-                      <div className="text-xs text-muted-foreground">Completed</div>
+                      <div className="text-muted-foreground text-xs">Completed</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-red-600">
-                        {timelineDays.filter(d => d.isHoliday).length}
+                        {timelineDays.filter((d) => d.isHoliday).length}
                       </div>
-                      <div className="text-xs text-muted-foreground">Weekly Holidays</div>
+                      <div className="text-muted-foreground text-xs">Weekly Holidays</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-orange-600">
-                        {timelineDays.filter(d => d.isVacation).length}
+                        {timelineDays.filter((d) => d.isVacation).length}
                       </div>
-                      <div className="text-xs text-muted-foreground">Vacation Days</div>
+                      <div className="text-muted-foreground text-xs">Vacation Days</div>
                     </div>
                   </div>
                 </CardContent>
@@ -466,49 +515,56 @@ export default function AcademicTimelinePage() {
                   key={term.id}
                   className="animate-in fade-in group relative rounded-xl duration-200"
                 >
-                  <Card className={cn(
-                    'h-full border transition-all duration-300 hover:shadow-md',
-                    selectedTermId === term.id ? 'ring-2 ring-blue-500' : 'bg-blue-50/40 border-blue-200 dark:bg-blue-950/10 dark:border-blue-900/50'
-                  )}>
+                  <Card
+                    className={cn(
+                      'h-full border transition-all duration-300 hover:shadow-md',
+                      selectedTermId === term.id
+                        ? 'ring-2 ring-blue-500'
+                        : 'border-blue-200 bg-blue-50/40 dark:border-blue-900/50 dark:bg-blue-950/10',
+                    )}
+                  >
                     <CardHeader className="pr-32">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="line-clamp-1 text-lg font-bold tracking-tight">
                             {term.name}
                           </CardTitle>
-                          <p className="text-sm text-muted-foreground mt-1">
+                          <p className="text-muted-foreground mt-1 text-sm">
                             {new Date(term.startDate).toLocaleDateString()} -{' '}
                             {new Date(term.endDate).toLocaleDateString()}
                           </p>
                         </div>
-                        <Badge
-                          className="bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border-none font-semibold shadow-none"
-                        >
+                        <Badge className="border-none bg-blue-100 font-semibold text-blue-800 shadow-none dark:bg-blue-900/40 dark:text-blue-300">
                           {term.status}
                         </Badge>
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-3 gap-3 mb-4">
-                        <div className="bg-white/50 dark:bg-gray-800/50 p-3 rounded-lg border">
-                          <div className="text-xs text-muted-foreground">Total Days</div>
-                          <div className="text-xl font-bold text-blue-600">{term.totalWorkingDays}</div>
+                      <div className="mb-4 grid grid-cols-3 gap-3">
+                        <div className="rounded-lg border bg-white/50 p-3 dark:bg-gray-800/50">
+                          <div className="text-muted-foreground text-xs">Total Days</div>
+                          <div className="text-xl font-bold text-blue-600">
+                            {term.totalWorkingDays}
+                          </div>
                         </div>
-                        <div className="bg-white/50 dark:bg-gray-800/50 p-3 rounded-lg border">
-                          <div className="text-xs text-muted-foreground">Available</div>
+                        <div className="rounded-lg border bg-white/50 p-3 dark:bg-gray-800/50">
+                          <div className="text-muted-foreground text-xs">Available</div>
                           <div className="text-xl font-bold text-green-600">
                             {term.actualAvailableDays}
                           </div>
                         </div>
-                        <div className="bg-white/50 dark:bg-gray-800/50 p-3 rounded-lg border">
-                          <div className="text-xs text-muted-foreground">Holidays</div>
+                        <div className="rounded-lg border bg-white/50 p-3 dark:bg-gray-800/50">
+                          <div className="text-muted-foreground text-xs">Holidays</div>
                           <div className="text-xl font-bold text-purple-600">
                             {JSON.parse(term.weeklyHolidays as unknown as string).length}
                           </div>
                         </div>
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        Weekly: {JSON.parse(term.weeklyHolidays as unknown as string).map((d: number) => dayNames[d]).join(', ')}
+                      <div className="text-muted-foreground text-xs">
+                        Weekly:{' '}
+                        {JSON.parse(term.weeklyHolidays as unknown as string)
+                          .map((d: number) => dayNames[d])
+                          .join(', ')}
                       </div>
                     </CardContent>
                   </Card>
@@ -556,7 +612,10 @@ export default function AcademicTimelinePage() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent aria-describedby={undefined} className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent
+          aria-describedby={undefined}
+          className="max-h-[90vh] overflow-y-auto sm:max-w-lg"
+        >
           <DialogHeader>
             <DialogTitle className="text-lg font-bold">
               {editingTerm ? 'Edit Academic Term' : 'New Academic Term'}
@@ -596,10 +655,10 @@ export default function AcademicTimelinePage() {
                     type="button"
                     onClick={() => toggleWeeklyHoliday(index)}
                     className={cn(
-                      'px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors',
+                      'rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors',
                       weeklyHolidays.includes(index)
-                        ? 'bg-red-100 border-red-500 text-red-700 dark:bg-red-900/40 dark:text-red-300'
-                        : 'bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300',
+                        ? 'border-red-500 bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                        : 'border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300',
                     )}
                   >
                     {day}
@@ -609,7 +668,7 @@ export default function AcademicTimelinePage() {
             </div>
 
             {editingTerm && (
-              <div className="space-y-3 pt-3 border-t">
+              <div className="space-y-3 border-t pt-3">
                 <Label className="text-xs font-semibold">Vacation Days</Label>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
@@ -617,7 +676,9 @@ export default function AcademicTimelinePage() {
                     <Input
                       type="date"
                       value={newVacationDay.startDate}
-                      onChange={(e) => setNewVacationDay({ ...newVacationDay, startDate: e.target.value })}
+                      onChange={(e) =>
+                        setNewVacationDay({ ...newVacationDay, startDate: e.target.value })
+                      }
                     />
                   </div>
                   <div className="space-y-1">
@@ -625,7 +686,9 @@ export default function AcademicTimelinePage() {
                     <Input
                       type="date"
                       value={newVacationDay.endDate}
-                      onChange={(e) => setNewVacationDay({ ...newVacationDay, endDate: e.target.value })}
+                      onChange={(e) =>
+                        setNewVacationDay({ ...newVacationDay, endDate: e.target.value })
+                      }
                     />
                   </div>
                 </div>
@@ -646,24 +709,25 @@ export default function AcademicTimelinePage() {
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
-                <div className="space-y-2 max-h-32 overflow-y-auto">
-                  {editingTerm.vacationDays.map((vd) => (
+                <div className="max-h-32 space-y-2 overflow-y-auto">
+                  {(terms.find((t) => t.id === editingTerm?.id)?.vacationDays ?? []).map((vd) => (
                     <div
                       key={vd.id}
-                      className="flex items-center justify-between bg-gray-50 dark:bg-gray-800 p-2 rounded-lg border"
+                      className="flex items-center justify-between rounded-lg border bg-gray-50 p-2 dark:bg-gray-800"
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium">
-                          {new Date(vd.startDate).toLocaleDateString()} - {new Date(vd.endDate).toLocaleDateString()}
+                          {new Date(vd.startDate).toLocaleDateString()} -{' '}
+                          {new Date(vd.endDate).toLocaleDateString()}
                         </span>
                         {vd.reason && (
-                          <span className="text-xs text-muted-foreground">- {vd.reason}</span>
+                          <span className="text-muted-foreground text-xs">- {vd.reason}</span>
                         )}
                       </div>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 text-destructive hover:text-destructive"
+                        className="text-destructive hover:text-destructive h-6 w-6"
                         onClick={() => removeVacationDay(vd.id!)}
                       >
                         <Trash2 className="h-3 w-3" />
@@ -677,7 +741,13 @@ export default function AcademicTimelinePage() {
             <Button
               className="mt-2 w-full"
               onClick={handleSubmit}
-              disabled={!name.trim() || !startDate || !endDate || createMutation.isPending || updateMutation.isPending}
+              disabled={
+                !name.trim() ||
+                !startDate ||
+                !endDate ||
+                createMutation.isPending ||
+                updateMutation.isPending
+              }
             >
               {editingTerm ? 'Save Changes' : 'Create Academic Term'}
             </Button>
@@ -691,29 +761,41 @@ export default function AcademicTimelinePage() {
           <DialogHeader>
             <DialogTitle>Edit Day</DialogTitle>
             <DialogDescription>
-              {selectedDay && new Date(selectedDay.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              {selectedDay &&
+                new Date(selectedDay.date).toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Current Status</Label>
               <div className="flex items-center gap-2">
-                {selectedDay?.isHoliday && <span className="text-red-600 font-medium">Holiday</span>}
-                {selectedDay?.isVacation && <span className="text-orange-600 font-medium">Vacation</span>}
-                {!selectedDay?.isHoliday && !selectedDay?.isVacation && <span className="text-blue-600 font-medium">Teaching Day</span>}
+                {selectedDay?.isHoliday && (
+                  <span className="font-medium text-red-600">Weekly Holiday</span>
+                )}
+                {selectedDay?.isVacation && (
+                  <span className="font-medium text-orange-600">Vacation</span>
+                )}
+                {!selectedDay?.isHoliday && !selectedDay?.isVacation && (
+                  <span className="font-medium text-blue-600">Teaching Day</span>
+                )}
               </div>
             </div>
             {!selectedDay?.isHoliday && (
               <Button
                 onClick={toggleDayAsVacation}
-                variant={selectedDay?.isVacation ? "destructive" : "default"}
+                variant={selectedDay?.isVacation ? 'destructive' : 'default'}
                 className="w-full"
               >
                 {selectedDay?.isVacation ? 'Remove from Vacation' : 'Mark as Vacation'}
               </Button>
             )}
             {selectedDay?.isHoliday && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 This is a weekly holiday. To change it, edit the academic term settings.
               </p>
             )}
@@ -728,4 +810,3 @@ export default function AcademicTimelinePage() {
     </DashboardShell>
   );
 }
-

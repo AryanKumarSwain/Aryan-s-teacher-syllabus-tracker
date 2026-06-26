@@ -2,9 +2,22 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { GraduationCap, Plus, Trash2, Pencil, Eye, Filter } from 'lucide-react';
+import {
+  GraduationCap,
+  Plus,
+  Trash2,
+  Pencil,
+  Eye,
+  Filter,
+  Upload,
+  Download,
+  X,
+  AlertCircle,
+  CheckCircle2,
+} from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +49,23 @@ interface ClassItem {
   section: string | null;
   description?: string | null;
   _count?: { subjects: number };
+}
+
+interface BulkClassRow {
+  name: string;
+  section?: string;
+  description?: string;
+}
+
+interface BulkCreateResponse {
+  created: number;
+  items: ClassItem[];
+}
+
+interface BulkResult {
+  name: string;
+  success: boolean;
+  error?: string;
 }
 
 // Utility to reliably compute matching visual colors uniquely mapped to each Class Name layout
@@ -82,10 +112,15 @@ export default function AdminClassesPage() {
 
   // Dialog & Form States
   const [open, setOpen] = useState(false);
+  const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<ClassItem | null>(null);
   const [name, setName] = useState('');
   const [section, setSection] = useState('');
   const [description, setDescription] = useState('');
+  const [bulkPreview, setBulkPreview] = useState<BulkClassRow[]>([]);
+  const [bulkResults, setBulkResults] = useState<BulkResult[] | null>(null);
+  const [parsing, setParsing] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   // Dropdown Filtering State
   const [selectedClassId, setSelectedClassId] = useState<string>('all');
@@ -198,6 +233,111 @@ export default function AdminClassesPage() {
     }
   };
 
+  // Bulk Upload Mutation
+  const bulkCreateClasses = useMutation({
+    mutationFn: (classes: Array<{ name: string; section?: string; description?: string }>) =>
+      api.post<BulkCreateResponse>('/syllabus/classes/bulk', { classes }),
+    onSuccess: async (result) => {
+      await qc.invalidateQueries({ queryKey: syllabusKeys.classes(schoolId) });
+      await invalidateSyllabusStructure(qc, schoolId);
+      toast.success(`${result.created} classes created successfully`);
+      setBulkUploadOpen(false);
+      resetBulkUpload();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const resetBulkUpload = () => {
+    setBulkPreview([]);
+    setBulkResults(null);
+    if (fileRef.current) fileRef.current.value = '';
+  };
+
+  const downloadTemplate = () => {
+    const ws = XLSX.utils.aoa_to_sheet([
+      ['Name', 'Section', 'Description'],
+      ['Class 1', 'Section A', 'Description for Class 1'],
+      ['Class 2', 'Section B', 'Description for Class 2'],
+      ['Class 3', 'Section A', 'Description for Class 3'],
+    ]);
+    ws['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 30 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Classes');
+    XLSX.writeFile(wb, 'classes_template.xlsx');
+  };
+
+  const parseExcel = (file: File): Promise<BulkClassRow[]> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target!.result as ArrayBuffer);
+          const wb = XLSX.read(data, { type: 'array' });
+          const sheetName = wb.SheetNames[0];
+          if (!sheetName) {
+            reject(new Error('No sheet found in Excel file'));
+            return;
+          }
+          const ws = wb.Sheets[sheetName];
+          if (!ws) {
+            reject(new Error('Sheet not found'));
+            return;
+          }
+          const rows: any[] = XLSX.utils.sheet_to_json(ws, { defval: '' });
+          const parsed: BulkClassRow[] = rows
+            .map((r) => ({
+              name: String(r['Name'] || r['name'] || '').trim(),
+              section: String(r['Section'] || r['section'] || '').trim() || undefined,
+              description: String(r['Description'] || r['description'] || '').trim() || undefined,
+            }))
+            .filter((r) => r.name);
+          resolve(parsed);
+        } catch {
+          reject(new Error('Failed to parse Excel file'));
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
+  const handleFile = async (file: File) => {
+    if (!file.name.match(/\.(xlsx|xls)$/i)) {
+      toast.error('Please upload an Excel file (.xlsx or .xls)');
+      return;
+    }
+    setParsing(true);
+    try {
+      const rows = await parseExcel(file);
+      if (rows.length === 0) {
+        toast.error('No valid rows found');
+        return;
+      }
+      if (rows.length > 100) {
+        toast.error('Maximum 100 classes per import');
+        return;
+      }
+      setBulkPreview(rows);
+      setBulkResults(null);
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setParsing(false);
+    }
+  };
+
+  const handleBulkUpload = () => {
+    bulkCreateClasses.mutate(bulkPreview, {
+      onSuccess: () => {
+        const results: BulkResult[] = bulkPreview.map((row) => ({
+          name: row.name,
+          success: true,
+        }));
+        setBulkResults(results);
+      },
+    });
+  };
+
   return (
     <DashboardShell title="Classes Management">
       <div className="space-y-6">
@@ -219,9 +359,14 @@ export default function AdminClassesPage() {
             </select>
           </div>
 
-          <Button onClick={handleCreateClick} className="self-end sm:self-auto">
-            <Plus className="mr-2 h-4 w-4" /> Add class
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => setBulkUploadOpen(true)} variant="outline">
+              <Upload className="mr-2 h-4 w-4" /> Bulk Upload
+            </Button>
+            <Button onClick={handleCreateClick}>
+              <Plus className="mr-2 h-4 w-4" /> Add class
+            </Button>
+          </div>
         </div>
 
         {isLoading && !data ? (
@@ -417,6 +562,180 @@ export default function AdminClassesPage() {
               Confirm Delete
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Bulk Upload Dialog ── */}
+      <Dialog
+        open={bulkUploadOpen}
+        onOpenChange={(v) => {
+          if (!v) resetBulkUpload();
+          setBulkUploadOpen(v);
+        }}
+      >
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Bulk import classes</DialogTitle>
+            <DialogDescription>
+              Download the template, fill it in, then upload to import multiple classes at once.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Step 1 */}
+            <div className="bg-muted/40 rounded-lg border p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">Step 1 — Download template</p>
+                  <p className="text-muted-foreground mt-0.5 text-xs">
+                    Columns: <span className="font-mono">Name · Section · Description</span>
+                  </p>
+                </div>
+                <Button size="sm" variant="outline" onClick={downloadTemplate}>
+                  <Download className="mr-2 h-4 w-4" /> Download
+                </Button>
+              </div>
+            </div>
+
+            {/* Step 2 — upload or preview */}
+            {!bulkResults && (
+              <div>
+                <p className="mb-2 text-sm font-medium">Step 2 — Upload filled Excel</p>
+                {bulkPreview.length === 0 ? (
+                  <label
+                    className="border-muted-foreground/30 hover:border-primary flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed py-10 transition"
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const f = e.dataTransfer.files[0];
+                      if (f) handleFile(f);
+                    }}
+                  >
+                    <Upload className="text-muted-foreground mb-2 h-8 w-8" />
+                    <p className="text-muted-foreground text-sm">
+                      {parsing ? 'Parsing...' : 'Click or drag & drop Excel file here'}
+                    </p>
+                    <input
+                      ref={fileRef}
+                      type="file"
+                      accept=".xlsx,.xls"
+                      className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) handleFile(f);
+                      }}
+                    />
+                  </label>
+                ) : (
+                  <div>
+                    <div className="mb-2 flex items-center justify-between">
+                      <p className="text-muted-foreground text-sm">
+                        {bulkPreview.length} class{bulkPreview.length > 1 ? 'es' : ''} ready to
+                        import
+                      </p>
+                      <Button size="sm" variant="ghost" onClick={resetBulkUpload}>
+                        <X className="mr-1 h-3 w-3" /> Clear
+                      </Button>
+                    </div>
+                    <div className="max-h-52 overflow-y-auto rounded-lg border">
+                      <table className="w-full text-sm">
+                        <thead className="bg-muted text-muted-foreground sticky top-0 text-xs">
+                          <tr>
+                            <th className="px-3 py-2 text-left">#</th>
+                            <th className="px-3 py-2 text-left">Name</th>
+                            <th className="px-3 py-2 text-left">Section</th>
+                            <th className="px-3 py-2 text-left">Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {bulkPreview.map((row, i) => (
+                            <tr key={i} className="border-t">
+                              <td className="text-muted-foreground px-3 py-2">{i + 1}</td>
+                              <td className="px-3 py-2 font-medium">{row.name}</td>
+                              <td className="text-muted-foreground px-3 py-2">
+                                {row.section || '—'}
+                              </td>
+                              <td className="text-muted-foreground px-3 py-2">
+                                {row.description || '—'}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Results */}
+            {bulkResults && (
+              <div>
+                <p className="mb-2 text-sm font-medium">Import results</p>
+                <div className="max-h-60 overflow-y-auto rounded-lg border">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted text-muted-foreground sticky top-0 text-xs">
+                      <tr>
+                        <th className="px-3 py-2 text-left">Name</th>
+                        <th className="px-3 py-2 text-left">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bulkResults.map((r, i) => (
+                        <tr key={i} className="border-t">
+                          <td className="px-3 py-2 font-medium">{r.name}</td>
+                          <td className="px-3 py-2">
+                            {r.success ? (
+                              <span className="flex items-center gap-1 text-green-600">
+                                <CheckCircle2 className="h-4 w-4" /> Imported
+                              </span>
+                            ) : (
+                              <span className="text-destructive flex items-center gap-1">
+                                <AlertCircle className="h-4 w-4" /> {r.error}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <Button
+                  className="mt-3 w-full"
+                  variant="outline"
+                  onClick={() => {
+                    resetBulkUpload();
+                    setBulkUploadOpen(false);
+                  }}
+                >
+                  Done
+                </Button>
+              </div>
+            )}
+
+            {/* Footer */}
+            {bulkPreview.length > 0 && !bulkResults && (
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={resetBulkUpload}
+                  disabled={bulkCreateClasses.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1"
+                  disabled={bulkCreateClasses.isPending}
+                  onClick={handleBulkUpload}
+                >
+                  {bulkCreateClasses.isPending
+                    ? `Importing ${bulkPreview.length} classes...`
+                    : `Import ${bulkPreview.length} classes`}
+                </Button>
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </DashboardShell>

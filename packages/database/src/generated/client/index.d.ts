@@ -2375,20 +2375,20 @@ export namespace Prisma {
    */
 
   export type UserCountOutputType = {
-    refreshTokens: number
-    notifications: number
     activityLogs: number
     auditLogs: number
     chapterProgress: number
+    notifications: number
+    refreshTokens: number
     topicProgress: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    refreshTokens?: boolean | UserCountOutputTypeCountRefreshTokensArgs
-    notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
     activityLogs?: boolean | UserCountOutputTypeCountActivityLogsArgs
     auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
     chapterProgress?: boolean | UserCountOutputTypeCountChapterProgressArgs
+    notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
+    refreshTokens?: boolean | UserCountOutputTypeCountRefreshTokensArgs
     topicProgress?: boolean | UserCountOutputTypeCountTopicProgressArgs
   }
 
@@ -2401,20 +2401,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the UserCountOutputType
      */
     select?: UserCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountRefreshTokensArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: RefreshTokenWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: NotificationWhereInput
   }
 
   /**
@@ -2441,6 +2427,20 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
+  export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NotificationWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountRefreshTokensArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RefreshTokenWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
   export type UserCountOutputTypeCountTopicProgressArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TopicProgressWhereInput
   }
@@ -2451,31 +2451,31 @@ export namespace Prisma {
    */
 
   export type SchoolCountOutputType = {
-    users: number
-    subscriptions: number
-    teachers: number
-    classes: number
-    subjects: number
-    chapters: number
-    topics: number
-    notifications: number
+    academicTerms: number
     activityLogs: number
     auditLogs: number
-    academicTerms: number
+    chapters: number
+    classes: number
+    notifications: number
+    subjects: number
+    subscriptions: number
+    teachers: number
+    topics: number
+    users: number
   }
 
   export type SchoolCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    users?: boolean | SchoolCountOutputTypeCountUsersArgs
-    subscriptions?: boolean | SchoolCountOutputTypeCountSubscriptionsArgs
-    teachers?: boolean | SchoolCountOutputTypeCountTeachersArgs
-    classes?: boolean | SchoolCountOutputTypeCountClassesArgs
-    subjects?: boolean | SchoolCountOutputTypeCountSubjectsArgs
-    chapters?: boolean | SchoolCountOutputTypeCountChaptersArgs
-    topics?: boolean | SchoolCountOutputTypeCountTopicsArgs
-    notifications?: boolean | SchoolCountOutputTypeCountNotificationsArgs
+    academicTerms?: boolean | SchoolCountOutputTypeCountAcademicTermsArgs
     activityLogs?: boolean | SchoolCountOutputTypeCountActivityLogsArgs
     auditLogs?: boolean | SchoolCountOutputTypeCountAuditLogsArgs
-    academicTerms?: boolean | SchoolCountOutputTypeCountAcademicTermsArgs
+    chapters?: boolean | SchoolCountOutputTypeCountChaptersArgs
+    classes?: boolean | SchoolCountOutputTypeCountClassesArgs
+    notifications?: boolean | SchoolCountOutputTypeCountNotificationsArgs
+    subjects?: boolean | SchoolCountOutputTypeCountSubjectsArgs
+    subscriptions?: boolean | SchoolCountOutputTypeCountSubscriptionsArgs
+    teachers?: boolean | SchoolCountOutputTypeCountTeachersArgs
+    topics?: boolean | SchoolCountOutputTypeCountTopicsArgs
+    users?: boolean | SchoolCountOutputTypeCountUsersArgs
   }
 
   // Custom InputTypes
@@ -2492,57 +2492,8 @@ export namespace Prisma {
   /**
    * SchoolCountOutputType without action
    */
-  export type SchoolCountOutputTypeCountUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: UserWhereInput
-  }
-
-  /**
-   * SchoolCountOutputType without action
-   */
-  export type SchoolCountOutputTypeCountSubscriptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SubscriptionWhereInput
-  }
-
-  /**
-   * SchoolCountOutputType without action
-   */
-  export type SchoolCountOutputTypeCountTeachersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TeacherWhereInput
-  }
-
-  /**
-   * SchoolCountOutputType without action
-   */
-  export type SchoolCountOutputTypeCountClassesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ClassWhereInput
-  }
-
-  /**
-   * SchoolCountOutputType without action
-   */
-  export type SchoolCountOutputTypeCountSubjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SubjectWhereInput
-  }
-
-  /**
-   * SchoolCountOutputType without action
-   */
-  export type SchoolCountOutputTypeCountChaptersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ChapterWhereInput
-  }
-
-  /**
-   * SchoolCountOutputType without action
-   */
-  export type SchoolCountOutputTypeCountTopicsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TopicWhereInput
-  }
-
-  /**
-   * SchoolCountOutputType without action
-   */
-  export type SchoolCountOutputTypeCountNotificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: NotificationWhereInput
+  export type SchoolCountOutputTypeCountAcademicTermsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AcademicTermWhereInput
   }
 
   /**
@@ -2562,8 +2513,57 @@ export namespace Prisma {
   /**
    * SchoolCountOutputType without action
    */
-  export type SchoolCountOutputTypeCountAcademicTermsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AcademicTermWhereInput
+  export type SchoolCountOutputTypeCountChaptersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ChapterWhereInput
+  }
+
+  /**
+   * SchoolCountOutputType without action
+   */
+  export type SchoolCountOutputTypeCountClassesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClassWhereInput
+  }
+
+  /**
+   * SchoolCountOutputType without action
+   */
+  export type SchoolCountOutputTypeCountNotificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NotificationWhereInput
+  }
+
+  /**
+   * SchoolCountOutputType without action
+   */
+  export type SchoolCountOutputTypeCountSubjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SubjectWhereInput
+  }
+
+  /**
+   * SchoolCountOutputType without action
+   */
+  export type SchoolCountOutputTypeCountSubscriptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SubscriptionWhereInput
+  }
+
+  /**
+   * SchoolCountOutputType without action
+   */
+  export type SchoolCountOutputTypeCountTeachersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TeacherWhereInput
+  }
+
+  /**
+   * SchoolCountOutputType without action
+   */
+  export type SchoolCountOutputTypeCountTopicsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TopicWhereInput
+  }
+
+  /**
+   * SchoolCountOutputType without action
+   */
+  export type SchoolCountOutputTypeCountUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserWhereInput
   }
 
 
@@ -2603,14 +2603,14 @@ export namespace Prisma {
    */
 
   export type TeacherCountOutputType = {
-    teacherClasses: number
     chapterProgress: number
+    teacherClasses: number
     topicProgress: number
   }
 
   export type TeacherCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    teacherClasses?: boolean | TeacherCountOutputTypeCountTeacherClassesArgs
     chapterProgress?: boolean | TeacherCountOutputTypeCountChapterProgressArgs
+    teacherClasses?: boolean | TeacherCountOutputTypeCountTeacherClassesArgs
     topicProgress?: boolean | TeacherCountOutputTypeCountTopicProgressArgs
   }
 
@@ -2628,15 +2628,15 @@ export namespace Prisma {
   /**
    * TeacherCountOutputType without action
    */
-  export type TeacherCountOutputTypeCountTeacherClassesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TeacherClassWhereInput
+  export type TeacherCountOutputTypeCountChapterProgressArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ChapterProgressWhereInput
   }
 
   /**
    * TeacherCountOutputType without action
    */
-  export type TeacherCountOutputTypeCountChapterProgressArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ChapterProgressWhereInput
+  export type TeacherCountOutputTypeCountTeacherClassesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TeacherClassWhereInput
   }
 
   /**
@@ -2652,15 +2652,15 @@ export namespace Prisma {
    */
 
   export type ClassCountOutputType = {
+    chapters: number
     subjects: number
     teacherClasses: number
-    chapters: number
   }
 
   export type ClassCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    chapters?: boolean | ClassCountOutputTypeCountChaptersArgs
     subjects?: boolean | ClassCountOutputTypeCountSubjectsArgs
     teacherClasses?: boolean | ClassCountOutputTypeCountTeacherClassesArgs
-    chapters?: boolean | ClassCountOutputTypeCountChaptersArgs
   }
 
   // Custom InputTypes
@@ -2677,6 +2677,13 @@ export namespace Prisma {
   /**
    * ClassCountOutputType without action
    */
+  export type ClassCountOutputTypeCountChaptersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ChapterWhereInput
+  }
+
+  /**
+   * ClassCountOutputType without action
+   */
   export type ClassCountOutputTypeCountSubjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SubjectWhereInput
   }
@@ -2688,26 +2695,19 @@ export namespace Prisma {
     where?: TeacherClassWhereInput
   }
 
-  /**
-   * ClassCountOutputType without action
-   */
-  export type ClassCountOutputTypeCountChaptersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ChapterWhereInput
-  }
-
 
   /**
    * Count Type SubjectCountOutputType
    */
 
   export type SubjectCountOutputType = {
-    teacherClasses: number
     chapters: number
+    teacherClasses: number
   }
 
   export type SubjectCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    teacherClasses?: boolean | SubjectCountOutputTypeCountTeacherClassesArgs
     chapters?: boolean | SubjectCountOutputTypeCountChaptersArgs
+    teacherClasses?: boolean | SubjectCountOutputTypeCountTeacherClassesArgs
   }
 
   // Custom InputTypes
@@ -2724,15 +2724,15 @@ export namespace Prisma {
   /**
    * SubjectCountOutputType without action
    */
-  export type SubjectCountOutputTypeCountTeacherClassesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TeacherClassWhereInput
+  export type SubjectCountOutputTypeCountChaptersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ChapterWhereInput
   }
 
   /**
    * SubjectCountOutputType without action
    */
-  export type SubjectCountOutputTypeCountChaptersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ChapterWhereInput
+  export type SubjectCountOutputTypeCountTeacherClassesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TeacherClassWhereInput
   }
 
 
@@ -2741,13 +2741,13 @@ export namespace Prisma {
    */
 
   export type ChapterCountOutputType = {
-    topics: number
     chapterProgress: number
+    topics: number
   }
 
   export type ChapterCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    topics?: boolean | ChapterCountOutputTypeCountTopicsArgs
     chapterProgress?: boolean | ChapterCountOutputTypeCountChapterProgressArgs
+    topics?: boolean | ChapterCountOutputTypeCountTopicsArgs
   }
 
   // Custom InputTypes
@@ -2764,15 +2764,15 @@ export namespace Prisma {
   /**
    * ChapterCountOutputType without action
    */
-  export type ChapterCountOutputTypeCountTopicsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TopicWhereInput
+  export type ChapterCountOutputTypeCountChapterProgressArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ChapterProgressWhereInput
   }
 
   /**
    * ChapterCountOutputType without action
    */
-  export type ChapterCountOutputTypeCountChapterProgressArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ChapterProgressWhereInput
+  export type ChapterCountOutputTypeCountTopicsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TopicWhereInput
   }
 
 
@@ -3070,14 +3070,14 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
-    school?: boolean | User$schoolArgs<ExtArgs>
-    teacher?: boolean | User$teacherArgs<ExtArgs>
-    refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
-    notifications?: boolean | User$notificationsArgs<ExtArgs>
     activityLogs?: boolean | User$activityLogsArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
     chapterProgress?: boolean | User$chapterProgressArgs<ExtArgs>
+    notifications?: boolean | User$notificationsArgs<ExtArgs>
+    refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
+    teacher?: boolean | User$teacherArgs<ExtArgs>
     topicProgress?: boolean | User$topicProgressArgs<ExtArgs>
+    school?: boolean | User$schoolArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -3101,28 +3101,28 @@ export namespace Prisma {
 
   export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "passwordHash" | "name" | "role" | "schoolId" | "avatar" | "phone" | "status" | "lastLoginAt" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    school?: boolean | User$schoolArgs<ExtArgs>
-    teacher?: boolean | User$teacherArgs<ExtArgs>
-    refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
-    notifications?: boolean | User$notificationsArgs<ExtArgs>
     activityLogs?: boolean | User$activityLogsArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
     chapterProgress?: boolean | User$chapterProgressArgs<ExtArgs>
+    notifications?: boolean | User$notificationsArgs<ExtArgs>
+    refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
+    teacher?: boolean | User$teacherArgs<ExtArgs>
     topicProgress?: boolean | User$topicProgressArgs<ExtArgs>
+    school?: boolean | User$schoolArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
 
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
     objects: {
-      school: Prisma.$SchoolPayload<ExtArgs> | null
-      teacher: Prisma.$TeacherPayload<ExtArgs> | null
-      refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
-      notifications: Prisma.$NotificationPayload<ExtArgs>[]
       activityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
       auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
       chapterProgress: Prisma.$ChapterProgressPayload<ExtArgs>[]
+      notifications: Prisma.$NotificationPayload<ExtArgs>[]
+      refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
+      teacher: Prisma.$TeacherPayload<ExtArgs> | null
       topicProgress: Prisma.$TopicProgressPayload<ExtArgs>[]
+      school: Prisma.$SchoolPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3478,14 +3478,14 @@ export namespace Prisma {
    */
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    school<T extends User$schoolArgs<ExtArgs> = {}>(args?: Subset<T, User$schoolArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    teacher<T extends User$teacherArgs<ExtArgs> = {}>(args?: Subset<T, User$teacherArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    refreshTokens<T extends User$refreshTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     activityLogs<T extends User$activityLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     auditLogs<T extends User$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     chapterProgress<T extends User$chapterProgressArgs<ExtArgs> = {}>(args?: Subset<T, User$chapterProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    refreshTokens<T extends User$refreshTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    teacher<T extends User$teacherArgs<ExtArgs> = {}>(args?: Subset<T, User$teacherArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     topicProgress<T extends User$topicProgressArgs<ExtArgs> = {}>(args?: Subset<T, User$topicProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    school<T extends User$schoolArgs<ExtArgs> = {}>(args?: Subset<T, User$schoolArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3871,92 +3871,6 @@ export namespace Prisma {
   }
 
   /**
-   * User.school
-   */
-  export type User$schoolArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the School
-     */
-    select?: SchoolSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the School
-     */
-    omit?: SchoolOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SchoolInclude<ExtArgs> | null
-    where?: SchoolWhereInput
-  }
-
-  /**
-   * User.teacher
-   */
-  export type User$teacherArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Teacher
-     */
-    select?: TeacherSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Teacher
-     */
-    omit?: TeacherOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TeacherInclude<ExtArgs> | null
-    where?: TeacherWhereInput
-  }
-
-  /**
-   * User.refreshTokens
-   */
-  export type User$refreshTokensArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RefreshToken
-     */
-    select?: RefreshTokenSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RefreshToken
-     */
-    omit?: RefreshTokenOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RefreshTokenInclude<ExtArgs> | null
-    where?: RefreshTokenWhereInput
-    orderBy?: RefreshTokenOrderByWithRelationInput | RefreshTokenOrderByWithRelationInput[]
-    cursor?: RefreshTokenWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: RefreshTokenScalarFieldEnum | RefreshTokenScalarFieldEnum[]
-  }
-
-  /**
-   * User.notifications
-   */
-  export type User$notificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Notification
-     */
-    select?: NotificationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Notification
-     */
-    omit?: NotificationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NotificationInclude<ExtArgs> | null
-    where?: NotificationWhereInput
-    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
-    cursor?: NotificationWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
-  }
-
-  /**
    * User.activityLogs
    */
   export type User$activityLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4029,6 +3943,73 @@ export namespace Prisma {
   }
 
   /**
+   * User.notifications
+   */
+  export type User$notificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    where?: NotificationWhereInput
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    cursor?: NotificationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
+   * User.refreshTokens
+   */
+  export type User$refreshTokensArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RefreshToken
+     */
+    select?: RefreshTokenSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RefreshToken
+     */
+    omit?: RefreshTokenOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RefreshTokenInclude<ExtArgs> | null
+    where?: RefreshTokenWhereInput
+    orderBy?: RefreshTokenOrderByWithRelationInput | RefreshTokenOrderByWithRelationInput[]
+    cursor?: RefreshTokenWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: RefreshTokenScalarFieldEnum | RefreshTokenScalarFieldEnum[]
+  }
+
+  /**
+   * User.teacher
+   */
+  export type User$teacherArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Teacher
+     */
+    select?: TeacherSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Teacher
+     */
+    omit?: TeacherOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TeacherInclude<ExtArgs> | null
+    where?: TeacherWhereInput
+  }
+
+  /**
    * User.topicProgress
    */
   export type User$topicProgressArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4050,6 +4031,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: TopicProgressScalarFieldEnum | TopicProgressScalarFieldEnum[]
+  }
+
+  /**
+   * User.school
+   */
+  export type User$schoolArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the School
+     */
+    select?: SchoolSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the School
+     */
+    omit?: SchoolOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolInclude<ExtArgs> | null
+    where?: SchoolWhereInput
   }
 
   /**
@@ -5223,17 +5223,17 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
-    users?: boolean | School$usersArgs<ExtArgs>
-    subscriptions?: boolean | School$subscriptionsArgs<ExtArgs>
-    teachers?: boolean | School$teachersArgs<ExtArgs>
-    classes?: boolean | School$classesArgs<ExtArgs>
-    subjects?: boolean | School$subjectsArgs<ExtArgs>
-    chapters?: boolean | School$chaptersArgs<ExtArgs>
-    topics?: boolean | School$topicsArgs<ExtArgs>
-    notifications?: boolean | School$notificationsArgs<ExtArgs>
+    academicTerms?: boolean | School$academicTermsArgs<ExtArgs>
     activityLogs?: boolean | School$activityLogsArgs<ExtArgs>
     auditLogs?: boolean | School$auditLogsArgs<ExtArgs>
-    academicTerms?: boolean | School$academicTermsArgs<ExtArgs>
+    chapters?: boolean | School$chaptersArgs<ExtArgs>
+    classes?: boolean | School$classesArgs<ExtArgs>
+    notifications?: boolean | School$notificationsArgs<ExtArgs>
+    subjects?: boolean | School$subjectsArgs<ExtArgs>
+    subscriptions?: boolean | School$subscriptionsArgs<ExtArgs>
+    teachers?: boolean | School$teachersArgs<ExtArgs>
+    topics?: boolean | School$topicsArgs<ExtArgs>
+    users?: boolean | School$usersArgs<ExtArgs>
     _count?: boolean | SchoolCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["school"]>
 
@@ -5255,34 +5255,34 @@ export namespace Prisma {
 
   export type SchoolOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "email" | "phone" | "address" | "logo" | "status" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["school"]>
   export type SchoolInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    users?: boolean | School$usersArgs<ExtArgs>
-    subscriptions?: boolean | School$subscriptionsArgs<ExtArgs>
-    teachers?: boolean | School$teachersArgs<ExtArgs>
-    classes?: boolean | School$classesArgs<ExtArgs>
-    subjects?: boolean | School$subjectsArgs<ExtArgs>
-    chapters?: boolean | School$chaptersArgs<ExtArgs>
-    topics?: boolean | School$topicsArgs<ExtArgs>
-    notifications?: boolean | School$notificationsArgs<ExtArgs>
+    academicTerms?: boolean | School$academicTermsArgs<ExtArgs>
     activityLogs?: boolean | School$activityLogsArgs<ExtArgs>
     auditLogs?: boolean | School$auditLogsArgs<ExtArgs>
-    academicTerms?: boolean | School$academicTermsArgs<ExtArgs>
+    chapters?: boolean | School$chaptersArgs<ExtArgs>
+    classes?: boolean | School$classesArgs<ExtArgs>
+    notifications?: boolean | School$notificationsArgs<ExtArgs>
+    subjects?: boolean | School$subjectsArgs<ExtArgs>
+    subscriptions?: boolean | School$subscriptionsArgs<ExtArgs>
+    teachers?: boolean | School$teachersArgs<ExtArgs>
+    topics?: boolean | School$topicsArgs<ExtArgs>
+    users?: boolean | School$usersArgs<ExtArgs>
     _count?: boolean | SchoolCountOutputTypeDefaultArgs<ExtArgs>
   }
 
   export type $SchoolPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "School"
     objects: {
-      users: Prisma.$UserPayload<ExtArgs>[]
-      subscriptions: Prisma.$SubscriptionPayload<ExtArgs>[]
-      teachers: Prisma.$TeacherPayload<ExtArgs>[]
-      classes: Prisma.$ClassPayload<ExtArgs>[]
-      subjects: Prisma.$SubjectPayload<ExtArgs>[]
-      chapters: Prisma.$ChapterPayload<ExtArgs>[]
-      topics: Prisma.$TopicPayload<ExtArgs>[]
-      notifications: Prisma.$NotificationPayload<ExtArgs>[]
+      academicTerms: Prisma.$AcademicTermPayload<ExtArgs>[]
       activityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
       auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
-      academicTerms: Prisma.$AcademicTermPayload<ExtArgs>[]
+      chapters: Prisma.$ChapterPayload<ExtArgs>[]
+      classes: Prisma.$ClassPayload<ExtArgs>[]
+      notifications: Prisma.$NotificationPayload<ExtArgs>[]
+      subjects: Prisma.$SubjectPayload<ExtArgs>[]
+      subscriptions: Prisma.$SubscriptionPayload<ExtArgs>[]
+      teachers: Prisma.$TeacherPayload<ExtArgs>[]
+      topics: Prisma.$TopicPayload<ExtArgs>[]
+      users: Prisma.$UserPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -5636,17 +5636,17 @@ export namespace Prisma {
    */
   export interface Prisma__SchoolClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    users<T extends School$usersArgs<ExtArgs> = {}>(args?: Subset<T, School$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    subscriptions<T extends School$subscriptionsArgs<ExtArgs> = {}>(args?: Subset<T, School$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    teachers<T extends School$teachersArgs<ExtArgs> = {}>(args?: Subset<T, School$teachersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    classes<T extends School$classesArgs<ExtArgs> = {}>(args?: Subset<T, School$classesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    subjects<T extends School$subjectsArgs<ExtArgs> = {}>(args?: Subset<T, School$subjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    chapters<T extends School$chaptersArgs<ExtArgs> = {}>(args?: Subset<T, School$chaptersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    topics<T extends School$topicsArgs<ExtArgs> = {}>(args?: Subset<T, School$topicsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    notifications<T extends School$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, School$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    academicTerms<T extends School$academicTermsArgs<ExtArgs> = {}>(args?: Subset<T, School$academicTermsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     activityLogs<T extends School$activityLogsArgs<ExtArgs> = {}>(args?: Subset<T, School$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     auditLogs<T extends School$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, School$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    academicTerms<T extends School$academicTermsArgs<ExtArgs> = {}>(args?: Subset<T, School$academicTermsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    chapters<T extends School$chaptersArgs<ExtArgs> = {}>(args?: Subset<T, School$chaptersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    classes<T extends School$classesArgs<ExtArgs> = {}>(args?: Subset<T, School$classesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    notifications<T extends School$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, School$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    subjects<T extends School$subjectsArgs<ExtArgs> = {}>(args?: Subset<T, School$subjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    subscriptions<T extends School$subscriptionsArgs<ExtArgs> = {}>(args?: Subset<T, School$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    teachers<T extends School$teachersArgs<ExtArgs> = {}>(args?: Subset<T, School$teachersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    topics<T extends School$topicsArgs<ExtArgs> = {}>(args?: Subset<T, School$topicsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    users<T extends School$usersArgs<ExtArgs> = {}>(args?: Subset<T, School$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6030,195 +6030,27 @@ export namespace Prisma {
   }
 
   /**
-   * School.users
+   * School.academicTerms
    */
-  export type School$usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type School$academicTermsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the User
+     * Select specific fields to fetch from the AcademicTerm
      */
-    select?: UserSelect<ExtArgs> | null
+    select?: AcademicTermSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the User
+     * Omit specific fields from the AcademicTerm
      */
-    omit?: UserOmit<ExtArgs> | null
+    omit?: AcademicTermOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: UserInclude<ExtArgs> | null
-    where?: UserWhereInput
-    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
-    cursor?: UserWhereUniqueInput
+    include?: AcademicTermInclude<ExtArgs> | null
+    where?: AcademicTermWhereInput
+    orderBy?: AcademicTermOrderByWithRelationInput | AcademicTermOrderByWithRelationInput[]
+    cursor?: AcademicTermWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
-  }
-
-  /**
-   * School.subscriptions
-   */
-  export type School$subscriptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Subscription
-     */
-    select?: SubscriptionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Subscription
-     */
-    omit?: SubscriptionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SubscriptionInclude<ExtArgs> | null
-    where?: SubscriptionWhereInput
-    orderBy?: SubscriptionOrderByWithRelationInput | SubscriptionOrderByWithRelationInput[]
-    cursor?: SubscriptionWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: SubscriptionScalarFieldEnum | SubscriptionScalarFieldEnum[]
-  }
-
-  /**
-   * School.teachers
-   */
-  export type School$teachersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Teacher
-     */
-    select?: TeacherSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Teacher
-     */
-    omit?: TeacherOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TeacherInclude<ExtArgs> | null
-    where?: TeacherWhereInput
-    orderBy?: TeacherOrderByWithRelationInput | TeacherOrderByWithRelationInput[]
-    cursor?: TeacherWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: TeacherScalarFieldEnum | TeacherScalarFieldEnum[]
-  }
-
-  /**
-   * School.classes
-   */
-  export type School$classesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Class
-     */
-    select?: ClassSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Class
-     */
-    omit?: ClassOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ClassInclude<ExtArgs> | null
-    where?: ClassWhereInput
-    orderBy?: ClassOrderByWithRelationInput | ClassOrderByWithRelationInput[]
-    cursor?: ClassWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: ClassScalarFieldEnum | ClassScalarFieldEnum[]
-  }
-
-  /**
-   * School.subjects
-   */
-  export type School$subjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Subject
-     */
-    select?: SubjectSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Subject
-     */
-    omit?: SubjectOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SubjectInclude<ExtArgs> | null
-    where?: SubjectWhereInput
-    orderBy?: SubjectOrderByWithRelationInput | SubjectOrderByWithRelationInput[]
-    cursor?: SubjectWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: SubjectScalarFieldEnum | SubjectScalarFieldEnum[]
-  }
-
-  /**
-   * School.chapters
-   */
-  export type School$chaptersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Chapter
-     */
-    select?: ChapterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChapterInclude<ExtArgs> | null
-    where?: ChapterWhereInput
-    orderBy?: ChapterOrderByWithRelationInput | ChapterOrderByWithRelationInput[]
-    cursor?: ChapterWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: ChapterScalarFieldEnum | ChapterScalarFieldEnum[]
-  }
-
-  /**
-   * School.topics
-   */
-  export type School$topicsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Topic
-     */
-    select?: TopicSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Topic
-     */
-    omit?: TopicOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TopicInclude<ExtArgs> | null
-    where?: TopicWhereInput
-    orderBy?: TopicOrderByWithRelationInput | TopicOrderByWithRelationInput[]
-    cursor?: TopicWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: TopicScalarFieldEnum | TopicScalarFieldEnum[]
-  }
-
-  /**
-   * School.notifications
-   */
-  export type School$notificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Notification
-     */
-    select?: NotificationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Notification
-     */
-    omit?: NotificationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NotificationInclude<ExtArgs> | null
-    where?: NotificationWhereInput
-    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
-    cursor?: NotificationWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+    distinct?: AcademicTermScalarFieldEnum | AcademicTermScalarFieldEnum[]
   }
 
   /**
@@ -6270,27 +6102,195 @@ export namespace Prisma {
   }
 
   /**
-   * School.academicTerms
+   * School.chapters
    */
-  export type School$academicTermsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type School$chaptersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AcademicTerm
+     * Select specific fields to fetch from the Chapter
      */
-    select?: AcademicTermSelect<ExtArgs> | null
+    select?: ChapterSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AcademicTerm
+     * Omit specific fields from the Chapter
      */
-    omit?: AcademicTermOmit<ExtArgs> | null
+    omit?: ChapterOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AcademicTermInclude<ExtArgs> | null
-    where?: AcademicTermWhereInput
-    orderBy?: AcademicTermOrderByWithRelationInput | AcademicTermOrderByWithRelationInput[]
-    cursor?: AcademicTermWhereUniqueInput
+    include?: ChapterInclude<ExtArgs> | null
+    where?: ChapterWhereInput
+    orderBy?: ChapterOrderByWithRelationInput | ChapterOrderByWithRelationInput[]
+    cursor?: ChapterWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: AcademicTermScalarFieldEnum | AcademicTermScalarFieldEnum[]
+    distinct?: ChapterScalarFieldEnum | ChapterScalarFieldEnum[]
+  }
+
+  /**
+   * School.classes
+   */
+  export type School$classesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Class
+     */
+    select?: ClassSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Class
+     */
+    omit?: ClassOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassInclude<ExtArgs> | null
+    where?: ClassWhereInput
+    orderBy?: ClassOrderByWithRelationInput | ClassOrderByWithRelationInput[]
+    cursor?: ClassWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ClassScalarFieldEnum | ClassScalarFieldEnum[]
+  }
+
+  /**
+   * School.notifications
+   */
+  export type School$notificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    where?: NotificationWhereInput
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    cursor?: NotificationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
+   * School.subjects
+   */
+  export type School$subjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subject
+     */
+    select?: SubjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subject
+     */
+    omit?: SubjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubjectInclude<ExtArgs> | null
+    where?: SubjectWhereInput
+    orderBy?: SubjectOrderByWithRelationInput | SubjectOrderByWithRelationInput[]
+    cursor?: SubjectWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SubjectScalarFieldEnum | SubjectScalarFieldEnum[]
+  }
+
+  /**
+   * School.subscriptions
+   */
+  export type School$subscriptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionInclude<ExtArgs> | null
+    where?: SubscriptionWhereInput
+    orderBy?: SubscriptionOrderByWithRelationInput | SubscriptionOrderByWithRelationInput[]
+    cursor?: SubscriptionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SubscriptionScalarFieldEnum | SubscriptionScalarFieldEnum[]
+  }
+
+  /**
+   * School.teachers
+   */
+  export type School$teachersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Teacher
+     */
+    select?: TeacherSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Teacher
+     */
+    omit?: TeacherOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TeacherInclude<ExtArgs> | null
+    where?: TeacherWhereInput
+    orderBy?: TeacherOrderByWithRelationInput | TeacherOrderByWithRelationInput[]
+    cursor?: TeacherWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TeacherScalarFieldEnum | TeacherScalarFieldEnum[]
+  }
+
+  /**
+   * School.topics
+   */
+  export type School$topicsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Topic
+     */
+    select?: TopicSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Topic
+     */
+    omit?: TopicOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TopicInclude<ExtArgs> | null
+    where?: TopicWhereInput
+    orderBy?: TopicOrderByWithRelationInput | TopicOrderByWithRelationInput[]
+    cursor?: TopicWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TopicScalarFieldEnum | TopicScalarFieldEnum[]
+  }
+
+  /**
+   * School.users
+   */
+  export type School$usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    cursor?: UserWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
   }
 
   /**
@@ -7585,8 +7585,8 @@ export namespace Prisma {
     endDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    school?: boolean | SchoolDefaultArgs<ExtArgs>
     plan?: boolean | SubscriptionPlanDefaultArgs<ExtArgs>
+    school?: boolean | SchoolDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["subscription"]>
 
 
@@ -7604,15 +7604,15 @@ export namespace Prisma {
 
   export type SubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "planId" | "status" | "startDate" | "endDate" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
   export type SubscriptionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    school?: boolean | SchoolDefaultArgs<ExtArgs>
     plan?: boolean | SubscriptionPlanDefaultArgs<ExtArgs>
+    school?: boolean | SchoolDefaultArgs<ExtArgs>
   }
 
   export type $SubscriptionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Subscription"
     objects: {
-      school: Prisma.$SchoolPayload<ExtArgs>
       plan: Prisma.$SubscriptionPlanPayload<ExtArgs>
+      school: Prisma.$SchoolPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7963,8 +7963,8 @@ export namespace Prisma {
    */
   export interface Prisma__SubscriptionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     plan<T extends SubscriptionPlanDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SubscriptionPlanDefaultArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8543,10 +8543,10 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
+    chapterProgress?: boolean | Teacher$chapterProgressArgs<ExtArgs>
+    teacherClasses?: boolean | Teacher$teacherClassesArgs<ExtArgs>
     school?: boolean | SchoolDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
-    teacherClasses?: boolean | Teacher$teacherClassesArgs<ExtArgs>
-    chapterProgress?: boolean | Teacher$chapterProgressArgs<ExtArgs>
     topicProgress?: boolean | Teacher$topicProgressArgs<ExtArgs>
     _count?: boolean | TeacherCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["teacher"]>
@@ -8565,10 +8565,10 @@ export namespace Prisma {
 
   export type TeacherOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "userId" | "status" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["teacher"]>
   export type TeacherInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    chapterProgress?: boolean | Teacher$chapterProgressArgs<ExtArgs>
+    teacherClasses?: boolean | Teacher$teacherClassesArgs<ExtArgs>
     school?: boolean | SchoolDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
-    teacherClasses?: boolean | Teacher$teacherClassesArgs<ExtArgs>
-    chapterProgress?: boolean | Teacher$chapterProgressArgs<ExtArgs>
     topicProgress?: boolean | Teacher$topicProgressArgs<ExtArgs>
     _count?: boolean | TeacherCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -8576,10 +8576,10 @@ export namespace Prisma {
   export type $TeacherPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Teacher"
     objects: {
+      chapterProgress: Prisma.$ChapterProgressPayload<ExtArgs>[]
+      teacherClasses: Prisma.$TeacherClassPayload<ExtArgs>[]
       school: Prisma.$SchoolPayload<ExtArgs>
       user: Prisma.$UserPayload<ExtArgs>
-      teacherClasses: Prisma.$TeacherClassPayload<ExtArgs>[]
-      chapterProgress: Prisma.$ChapterProgressPayload<ExtArgs>[]
       topicProgress: Prisma.$TopicProgressPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -8930,10 +8930,10 @@ export namespace Prisma {
    */
   export interface Prisma__TeacherClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    chapterProgress<T extends Teacher$chapterProgressArgs<ExtArgs> = {}>(args?: Subset<T, Teacher$chapterProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    teacherClasses<T extends Teacher$teacherClassesArgs<ExtArgs> = {}>(args?: Subset<T, Teacher$teacherClassesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    teacherClasses<T extends Teacher$teacherClassesArgs<ExtArgs> = {}>(args?: Subset<T, Teacher$teacherClassesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    chapterProgress<T extends Teacher$chapterProgressArgs<ExtArgs> = {}>(args?: Subset<T, Teacher$chapterProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     topicProgress<T extends Teacher$topicProgressArgs<ExtArgs> = {}>(args?: Subset<T, Teacher$topicProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -9314,30 +9314,6 @@ export namespace Prisma {
   }
 
   /**
-   * Teacher.teacherClasses
-   */
-  export type Teacher$teacherClassesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TeacherClass
-     */
-    select?: TeacherClassSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TeacherClass
-     */
-    omit?: TeacherClassOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TeacherClassInclude<ExtArgs> | null
-    where?: TeacherClassWhereInput
-    orderBy?: TeacherClassOrderByWithRelationInput | TeacherClassOrderByWithRelationInput[]
-    cursor?: TeacherClassWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: TeacherClassScalarFieldEnum | TeacherClassScalarFieldEnum[]
-  }
-
-  /**
    * Teacher.chapterProgress
    */
   export type Teacher$chapterProgressArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9359,6 +9335,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ChapterProgressScalarFieldEnum | ChapterProgressScalarFieldEnum[]
+  }
+
+  /**
+   * Teacher.teacherClasses
+   */
+  export type Teacher$teacherClassesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeacherClass
+     */
+    select?: TeacherClassSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeacherClass
+     */
+    omit?: TeacherClassOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TeacherClassInclude<ExtArgs> | null
+    where?: TeacherClassWhereInput
+    orderBy?: TeacherClassOrderByWithRelationInput | TeacherClassOrderByWithRelationInput[]
+    cursor?: TeacherClassWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TeacherClassScalarFieldEnum | TeacherClassScalarFieldEnum[]
   }
 
   /**
@@ -9642,10 +9642,10 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
+    chapters?: boolean | Class$chaptersArgs<ExtArgs>
     school?: boolean | SchoolDefaultArgs<ExtArgs>
     subjects?: boolean | Class$subjectsArgs<ExtArgs>
     teacherClasses?: boolean | Class$teacherClassesArgs<ExtArgs>
-    chapters?: boolean | Class$chaptersArgs<ExtArgs>
     _count?: boolean | ClassCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["class"]>
 
@@ -9666,20 +9666,20 @@ export namespace Prisma {
 
   export type ClassOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "name" | "grade" | "section" | "description" | "sortOrder" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["class"]>
   export type ClassInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    chapters?: boolean | Class$chaptersArgs<ExtArgs>
     school?: boolean | SchoolDefaultArgs<ExtArgs>
     subjects?: boolean | Class$subjectsArgs<ExtArgs>
     teacherClasses?: boolean | Class$teacherClassesArgs<ExtArgs>
-    chapters?: boolean | Class$chaptersArgs<ExtArgs>
     _count?: boolean | ClassCountOutputTypeDefaultArgs<ExtArgs>
   }
 
   export type $ClassPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Class"
     objects: {
+      chapters: Prisma.$ChapterPayload<ExtArgs>[]
       school: Prisma.$SchoolPayload<ExtArgs>
       subjects: Prisma.$SubjectPayload<ExtArgs>[]
       teacherClasses: Prisma.$TeacherClassPayload<ExtArgs>[]
-      chapters: Prisma.$ChapterPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -10032,10 +10032,10 @@ export namespace Prisma {
    */
   export interface Prisma__ClassClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    chapters<T extends Class$chaptersArgs<ExtArgs> = {}>(args?: Subset<T, Class$chaptersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     subjects<T extends Class$subjectsArgs<ExtArgs> = {}>(args?: Subset<T, Class$subjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     teacherClasses<T extends Class$teacherClassesArgs<ExtArgs> = {}>(args?: Subset<T, Class$teacherClassesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    chapters<T extends Class$chaptersArgs<ExtArgs> = {}>(args?: Subset<T, Class$chaptersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10418,6 +10418,30 @@ export namespace Prisma {
   }
 
   /**
+   * Class.chapters
+   */
+  export type Class$chaptersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Chapter
+     */
+    select?: ChapterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Chapter
+     */
+    omit?: ChapterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ChapterInclude<ExtArgs> | null
+    where?: ChapterWhereInput
+    orderBy?: ChapterOrderByWithRelationInput | ChapterOrderByWithRelationInput[]
+    cursor?: ChapterWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ChapterScalarFieldEnum | ChapterScalarFieldEnum[]
+  }
+
+  /**
    * Class.subjects
    */
   export type Class$subjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10463,30 +10487,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: TeacherClassScalarFieldEnum | TeacherClassScalarFieldEnum[]
-  }
-
-  /**
-   * Class.chapters
-   */
-  export type Class$chaptersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Chapter
-     */
-    select?: ChapterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChapterInclude<ExtArgs> | null
-    where?: ChapterWhereInput
-    orderBy?: ChapterOrderByWithRelationInput | ChapterOrderByWithRelationInput[]
-    cursor?: ChapterWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: ChapterScalarFieldEnum | ChapterScalarFieldEnum[]
   }
 
   /**
@@ -10754,10 +10754,10 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
-    school?: boolean | SchoolDefaultArgs<ExtArgs>
-    class?: boolean | Subject$classArgs<ExtArgs>
-    teacherClasses?: boolean | Subject$teacherClassesArgs<ExtArgs>
     chapters?: boolean | Subject$chaptersArgs<ExtArgs>
+    class?: boolean | Subject$classArgs<ExtArgs>
+    school?: boolean | SchoolDefaultArgs<ExtArgs>
+    teacherClasses?: boolean | Subject$teacherClassesArgs<ExtArgs>
     _count?: boolean | SubjectCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["subject"]>
 
@@ -10779,20 +10779,20 @@ export namespace Prisma {
 
   export type SubjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "classId" | "name" | "code" | "description" | "color" | "sortOrder" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["subject"]>
   export type SubjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    school?: boolean | SchoolDefaultArgs<ExtArgs>
-    class?: boolean | Subject$classArgs<ExtArgs>
-    teacherClasses?: boolean | Subject$teacherClassesArgs<ExtArgs>
     chapters?: boolean | Subject$chaptersArgs<ExtArgs>
+    class?: boolean | Subject$classArgs<ExtArgs>
+    school?: boolean | SchoolDefaultArgs<ExtArgs>
+    teacherClasses?: boolean | Subject$teacherClassesArgs<ExtArgs>
     _count?: boolean | SubjectCountOutputTypeDefaultArgs<ExtArgs>
   }
 
   export type $SubjectPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Subject"
     objects: {
-      school: Prisma.$SchoolPayload<ExtArgs>
-      class: Prisma.$ClassPayload<ExtArgs> | null
-      teacherClasses: Prisma.$TeacherClassPayload<ExtArgs>[]
       chapters: Prisma.$ChapterPayload<ExtArgs>[]
+      class: Prisma.$ClassPayload<ExtArgs> | null
+      school: Prisma.$SchoolPayload<ExtArgs>
+      teacherClasses: Prisma.$TeacherClassPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -11146,10 +11146,10 @@ export namespace Prisma {
    */
   export interface Prisma__SubjectClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    class<T extends Subject$classArgs<ExtArgs> = {}>(args?: Subset<T, Subject$classArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    teacherClasses<T extends Subject$teacherClassesArgs<ExtArgs> = {}>(args?: Subset<T, Subject$teacherClassesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     chapters<T extends Subject$chaptersArgs<ExtArgs> = {}>(args?: Subset<T, Subject$chaptersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    class<T extends Subject$classArgs<ExtArgs> = {}>(args?: Subset<T, Subject$classArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    teacherClasses<T extends Subject$teacherClassesArgs<ExtArgs> = {}>(args?: Subset<T, Subject$teacherClassesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -11533,6 +11533,30 @@ export namespace Prisma {
   }
 
   /**
+   * Subject.chapters
+   */
+  export type Subject$chaptersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Chapter
+     */
+    select?: ChapterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Chapter
+     */
+    omit?: ChapterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ChapterInclude<ExtArgs> | null
+    where?: ChapterWhereInput
+    orderBy?: ChapterOrderByWithRelationInput | ChapterOrderByWithRelationInput[]
+    cursor?: ChapterWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ChapterScalarFieldEnum | ChapterScalarFieldEnum[]
+  }
+
+  /**
    * Subject.class
    */
   export type Subject$classArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11573,30 +11597,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: TeacherClassScalarFieldEnum | TeacherClassScalarFieldEnum[]
-  }
-
-  /**
-   * Subject.chapters
-   */
-  export type Subject$chaptersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Chapter
-     */
-    select?: ChapterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChapterInclude<ExtArgs> | null
-    where?: ChapterWhereInput
-    orderBy?: ChapterOrderByWithRelationInput | ChapterOrderByWithRelationInput[]
-    cursor?: ChapterWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: ChapterScalarFieldEnum | ChapterScalarFieldEnum[]
   }
 
   /**
@@ -11876,11 +11876,11 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
+    chapterProgress?: boolean | Chapter$chapterProgressArgs<ExtArgs>
+    class?: boolean | ClassDefaultArgs<ExtArgs>
     school?: boolean | SchoolDefaultArgs<ExtArgs>
     subject?: boolean | SubjectDefaultArgs<ExtArgs>
-    class?: boolean | ClassDefaultArgs<ExtArgs>
     topics?: boolean | Chapter$topicsArgs<ExtArgs>
-    chapterProgress?: boolean | Chapter$chapterProgressArgs<ExtArgs>
     _count?: boolean | ChapterCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["chapter"]>
 
@@ -11903,22 +11903,22 @@ export namespace Prisma {
 
   export type ChapterOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "subjectId" | "classId" | "title" | "description" | "notes" | "estimatedTeachingDays" | "sortOrder" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["chapter"]>
   export type ChapterInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    chapterProgress?: boolean | Chapter$chapterProgressArgs<ExtArgs>
+    class?: boolean | ClassDefaultArgs<ExtArgs>
     school?: boolean | SchoolDefaultArgs<ExtArgs>
     subject?: boolean | SubjectDefaultArgs<ExtArgs>
-    class?: boolean | ClassDefaultArgs<ExtArgs>
     topics?: boolean | Chapter$topicsArgs<ExtArgs>
-    chapterProgress?: boolean | Chapter$chapterProgressArgs<ExtArgs>
     _count?: boolean | ChapterCountOutputTypeDefaultArgs<ExtArgs>
   }
 
   export type $ChapterPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Chapter"
     objects: {
+      chapterProgress: Prisma.$ChapterProgressPayload<ExtArgs>[]
+      class: Prisma.$ClassPayload<ExtArgs>
       school: Prisma.$SchoolPayload<ExtArgs>
       subject: Prisma.$SubjectPayload<ExtArgs>
-      class: Prisma.$ClassPayload<ExtArgs>
       topics: Prisma.$TopicPayload<ExtArgs>[]
-      chapterProgress: Prisma.$ChapterProgressPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -12273,11 +12273,11 @@ export namespace Prisma {
    */
   export interface Prisma__ChapterClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    chapterProgress<T extends Chapter$chapterProgressArgs<ExtArgs> = {}>(args?: Subset<T, Chapter$chapterProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    class<T extends ClassDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClassDefaultArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     subject<T extends SubjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SubjectDefaultArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    class<T extends ClassDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClassDefaultArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     topics<T extends Chapter$topicsArgs<ExtArgs> = {}>(args?: Subset<T, Chapter$topicsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    chapterProgress<T extends Chapter$chapterProgressArgs<ExtArgs> = {}>(args?: Subset<T, Chapter$chapterProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -12662,30 +12662,6 @@ export namespace Prisma {
   }
 
   /**
-   * Chapter.topics
-   */
-  export type Chapter$topicsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Topic
-     */
-    select?: TopicSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Topic
-     */
-    omit?: TopicOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TopicInclude<ExtArgs> | null
-    where?: TopicWhereInput
-    orderBy?: TopicOrderByWithRelationInput | TopicOrderByWithRelationInput[]
-    cursor?: TopicWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: TopicScalarFieldEnum | TopicScalarFieldEnum[]
-  }
-
-  /**
    * Chapter.chapterProgress
    */
   export type Chapter$chapterProgressArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12707,6 +12683,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ChapterProgressScalarFieldEnum | ChapterProgressScalarFieldEnum[]
+  }
+
+  /**
+   * Chapter.topics
+   */
+  export type Chapter$topicsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Topic
+     */
+    select?: TopicSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Topic
+     */
+    omit?: TopicOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TopicInclude<ExtArgs> | null
+    where?: TopicWhereInput
+    orderBy?: TopicOrderByWithRelationInput | TopicOrderByWithRelationInput[]
+    cursor?: TopicWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TopicScalarFieldEnum | TopicScalarFieldEnum[]
   }
 
   /**
@@ -12966,9 +12966,9 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
-    school?: boolean | SchoolDefaultArgs<ExtArgs>
-    chapter?: boolean | ChapterDefaultArgs<ExtArgs>
     topicProgress?: boolean | Topic$topicProgressArgs<ExtArgs>
+    chapter?: boolean | ChapterDefaultArgs<ExtArgs>
+    school?: boolean | SchoolDefaultArgs<ExtArgs>
     _count?: boolean | TopicCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["topic"]>
 
@@ -12989,18 +12989,18 @@ export namespace Prisma {
 
   export type TopicOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "chapterId" | "title" | "description" | "notes" | "sortOrder" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["topic"]>
   export type TopicInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    school?: boolean | SchoolDefaultArgs<ExtArgs>
-    chapter?: boolean | ChapterDefaultArgs<ExtArgs>
     topicProgress?: boolean | Topic$topicProgressArgs<ExtArgs>
+    chapter?: boolean | ChapterDefaultArgs<ExtArgs>
+    school?: boolean | SchoolDefaultArgs<ExtArgs>
     _count?: boolean | TopicCountOutputTypeDefaultArgs<ExtArgs>
   }
 
   export type $TopicPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Topic"
     objects: {
-      school: Prisma.$SchoolPayload<ExtArgs>
-      chapter: Prisma.$ChapterPayload<ExtArgs>
       topicProgress: Prisma.$TopicProgressPayload<ExtArgs>[]
+      chapter: Prisma.$ChapterPayload<ExtArgs>
+      school: Prisma.$SchoolPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -13353,9 +13353,9 @@ export namespace Prisma {
    */
   export interface Prisma__TopicClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    chapter<T extends ChapterDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ChapterDefaultArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     topicProgress<T extends Topic$topicProgressArgs<ExtArgs> = {}>(args?: Subset<T, Topic$topicProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    chapter<T extends ChapterDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ChapterDefaultArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13952,9 +13952,9 @@ export namespace Prisma {
     classId?: boolean
     subjectId?: boolean
     createdAt?: boolean
-    teacher?: boolean | TeacherDefaultArgs<ExtArgs>
     class?: boolean | ClassDefaultArgs<ExtArgs>
     subject?: boolean | TeacherClass$subjectArgs<ExtArgs>
+    teacher?: boolean | TeacherDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["teacherClass"]>
 
 
@@ -13970,17 +13970,17 @@ export namespace Prisma {
 
   export type TeacherClassOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "teacherId" | "classId" | "subjectId" | "createdAt", ExtArgs["result"]["teacherClass"]>
   export type TeacherClassInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    teacher?: boolean | TeacherDefaultArgs<ExtArgs>
     class?: boolean | ClassDefaultArgs<ExtArgs>
     subject?: boolean | TeacherClass$subjectArgs<ExtArgs>
+    teacher?: boolean | TeacherDefaultArgs<ExtArgs>
   }
 
   export type $TeacherClassPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "TeacherClass"
     objects: {
-      teacher: Prisma.$TeacherPayload<ExtArgs>
       class: Prisma.$ClassPayload<ExtArgs>
       subject: Prisma.$SubjectPayload<ExtArgs> | null
+      teacher: Prisma.$TeacherPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -14329,9 +14329,9 @@ export namespace Prisma {
    */
   export interface Prisma__TeacherClassClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    teacher<T extends TeacherDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TeacherDefaultArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     class<T extends ClassDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClassDefaultArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     subject<T extends TeacherClass$subjectArgs<ExtArgs> = {}>(args?: Subset<T, TeacherClass$subjectArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    teacher<T extends TeacherDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TeacherDefaultArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -16021,8 +16021,8 @@ export namespace Prisma {
     updatedById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    topic?: boolean | TopicDefaultArgs<ExtArgs>
     teacher?: boolean | TeacherDefaultArgs<ExtArgs>
+    topic?: boolean | TopicDefaultArgs<ExtArgs>
     updatedBy?: boolean | TopicProgress$updatedByArgs<ExtArgs>
   }, ExtArgs["result"]["topicProgress"]>
 
@@ -16042,16 +16042,16 @@ export namespace Prisma {
 
   export type TopicProgressOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "topicId" | "teacherId" | "status" | "completedAt" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["topicProgress"]>
   export type TopicProgressInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    topic?: boolean | TopicDefaultArgs<ExtArgs>
     teacher?: boolean | TeacherDefaultArgs<ExtArgs>
+    topic?: boolean | TopicDefaultArgs<ExtArgs>
     updatedBy?: boolean | TopicProgress$updatedByArgs<ExtArgs>
   }
 
   export type $TopicProgressPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "TopicProgress"
     objects: {
-      topic: Prisma.$TopicPayload<ExtArgs>
       teacher: Prisma.$TeacherPayload<ExtArgs>
+      topic: Prisma.$TopicPayload<ExtArgs>
       updatedBy: Prisma.$UserPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -16404,8 +16404,8 @@ export namespace Prisma {
    */
   export interface Prisma__TopicProgressClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    topic<T extends TopicDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TopicDefaultArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     teacher<T extends TeacherDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TeacherDefaultArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    topic<T extends TopicDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TopicDefaultArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     updatedBy<T extends TopicProgress$updatedByArgs<ExtArgs> = {}>(args?: Subset<T, TopicProgress$updatedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -19005,8 +19005,8 @@ export namespace Prisma {
     newValues?: boolean
     ipAddress?: boolean
     createdAt?: boolean
-    school?: boolean | AuditLog$schoolArgs<ExtArgs>
     actor?: boolean | UserDefaultArgs<ExtArgs>
+    school?: boolean | AuditLog$schoolArgs<ExtArgs>
   }, ExtArgs["result"]["auditLog"]>
 
 
@@ -19026,15 +19026,15 @@ export namespace Prisma {
 
   export type AuditLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "actorId" | "action" | "entityType" | "entityId" | "oldValues" | "newValues" | "ipAddress" | "createdAt", ExtArgs["result"]["auditLog"]>
   export type AuditLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    school?: boolean | AuditLog$schoolArgs<ExtArgs>
     actor?: boolean | UserDefaultArgs<ExtArgs>
+    school?: boolean | AuditLog$schoolArgs<ExtArgs>
   }
 
   export type $AuditLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AuditLog"
     objects: {
-      school: Prisma.$SchoolPayload<ExtArgs> | null
       actor: Prisma.$UserPayload<ExtArgs>
+      school: Prisma.$SchoolPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -19387,8 +19387,8 @@ export namespace Prisma {
    */
   export interface Prisma__AuditLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    school<T extends AuditLog$schoolArgs<ExtArgs> = {}>(args?: Subset<T, AuditLog$schoolArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     actor<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    school<T extends AuditLog$schoolArgs<ExtArgs> = {}>(args?: Subset<T, AuditLog$schoolArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -22501,14 +22501,14 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     deletedAt?: DateTimeNullableFilter<"User"> | Date | string | null
-    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
-    teacher?: XOR<TeacherNullableScalarRelationFilter, TeacherWhereInput> | null
-    refreshTokens?: RefreshTokenListRelationFilter
-    notifications?: NotificationListRelationFilter
     activityLogs?: ActivityLogListRelationFilter
     auditLogs?: AuditLogListRelationFilter
     chapterProgress?: ChapterProgressListRelationFilter
+    notifications?: NotificationListRelationFilter
+    refreshTokens?: RefreshTokenListRelationFilter
+    teacher?: XOR<TeacherNullableScalarRelationFilter, TeacherWhereInput> | null
     topicProgress?: TopicProgressListRelationFilter
+    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
   }
 
   export type UserOrderByWithRelationInput = {
@@ -22525,14 +22525,14 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
-    school?: SchoolOrderByWithRelationInput
-    teacher?: TeacherOrderByWithRelationInput
-    refreshTokens?: RefreshTokenOrderByRelationAggregateInput
-    notifications?: NotificationOrderByRelationAggregateInput
     activityLogs?: ActivityLogOrderByRelationAggregateInput
     auditLogs?: AuditLogOrderByRelationAggregateInput
     chapterProgress?: ChapterProgressOrderByRelationAggregateInput
+    notifications?: NotificationOrderByRelationAggregateInput
+    refreshTokens?: RefreshTokenOrderByRelationAggregateInput
+    teacher?: TeacherOrderByWithRelationInput
     topicProgress?: TopicProgressOrderByRelationAggregateInput
+    school?: SchoolOrderByWithRelationInput
     _relevance?: UserOrderByRelevanceInput
   }
 
@@ -22553,14 +22553,14 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     deletedAt?: DateTimeNullableFilter<"User"> | Date | string | null
-    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
-    teacher?: XOR<TeacherNullableScalarRelationFilter, TeacherWhereInput> | null
-    refreshTokens?: RefreshTokenListRelationFilter
-    notifications?: NotificationListRelationFilter
     activityLogs?: ActivityLogListRelationFilter
     auditLogs?: AuditLogListRelationFilter
     chapterProgress?: ChapterProgressListRelationFilter
+    notifications?: NotificationListRelationFilter
+    refreshTokens?: RefreshTokenListRelationFilter
+    teacher?: XOR<TeacherNullableScalarRelationFilter, TeacherWhereInput> | null
     topicProgress?: TopicProgressListRelationFilter
+    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -22677,17 +22677,17 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"School"> | Date | string
     updatedAt?: DateTimeFilter<"School"> | Date | string
     deletedAt?: DateTimeNullableFilter<"School"> | Date | string | null
-    users?: UserListRelationFilter
-    subscriptions?: SubscriptionListRelationFilter
-    teachers?: TeacherListRelationFilter
-    classes?: ClassListRelationFilter
-    subjects?: SubjectListRelationFilter
-    chapters?: ChapterListRelationFilter
-    topics?: TopicListRelationFilter
-    notifications?: NotificationListRelationFilter
+    academicTerms?: AcademicTermListRelationFilter
     activityLogs?: ActivityLogListRelationFilter
     auditLogs?: AuditLogListRelationFilter
-    academicTerms?: AcademicTermListRelationFilter
+    chapters?: ChapterListRelationFilter
+    classes?: ClassListRelationFilter
+    notifications?: NotificationListRelationFilter
+    subjects?: SubjectListRelationFilter
+    subscriptions?: SubscriptionListRelationFilter
+    teachers?: TeacherListRelationFilter
+    topics?: TopicListRelationFilter
+    users?: UserListRelationFilter
   }
 
   export type SchoolOrderByWithRelationInput = {
@@ -22702,17 +22702,17 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
-    users?: UserOrderByRelationAggregateInput
-    subscriptions?: SubscriptionOrderByRelationAggregateInput
-    teachers?: TeacherOrderByRelationAggregateInput
-    classes?: ClassOrderByRelationAggregateInput
-    subjects?: SubjectOrderByRelationAggregateInput
-    chapters?: ChapterOrderByRelationAggregateInput
-    topics?: TopicOrderByRelationAggregateInput
-    notifications?: NotificationOrderByRelationAggregateInput
+    academicTerms?: AcademicTermOrderByRelationAggregateInput
     activityLogs?: ActivityLogOrderByRelationAggregateInput
     auditLogs?: AuditLogOrderByRelationAggregateInput
-    academicTerms?: AcademicTermOrderByRelationAggregateInput
+    chapters?: ChapterOrderByRelationAggregateInput
+    classes?: ClassOrderByRelationAggregateInput
+    notifications?: NotificationOrderByRelationAggregateInput
+    subjects?: SubjectOrderByRelationAggregateInput
+    subscriptions?: SubscriptionOrderByRelationAggregateInput
+    teachers?: TeacherOrderByRelationAggregateInput
+    topics?: TopicOrderByRelationAggregateInput
+    users?: UserOrderByRelationAggregateInput
     _relevance?: SchoolOrderByRelevanceInput
   }
 
@@ -22731,17 +22731,17 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"School"> | Date | string
     updatedAt?: DateTimeFilter<"School"> | Date | string
     deletedAt?: DateTimeNullableFilter<"School"> | Date | string | null
-    users?: UserListRelationFilter
-    subscriptions?: SubscriptionListRelationFilter
-    teachers?: TeacherListRelationFilter
-    classes?: ClassListRelationFilter
-    subjects?: SubjectListRelationFilter
-    chapters?: ChapterListRelationFilter
-    topics?: TopicListRelationFilter
-    notifications?: NotificationListRelationFilter
+    academicTerms?: AcademicTermListRelationFilter
     activityLogs?: ActivityLogListRelationFilter
     auditLogs?: AuditLogListRelationFilter
-    academicTerms?: AcademicTermListRelationFilter
+    chapters?: ChapterListRelationFilter
+    classes?: ClassListRelationFilter
+    notifications?: NotificationListRelationFilter
+    subjects?: SubjectListRelationFilter
+    subscriptions?: SubscriptionListRelationFilter
+    teachers?: TeacherListRelationFilter
+    topics?: TopicListRelationFilter
+    users?: UserListRelationFilter
   }, "id" | "slug">
 
   export type SchoolOrderByWithAggregationInput = {
@@ -22888,8 +22888,8 @@ export namespace Prisma {
     endDate?: DateTimeFilter<"Subscription"> | Date | string
     createdAt?: DateTimeFilter<"Subscription"> | Date | string
     updatedAt?: DateTimeFilter<"Subscription"> | Date | string
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
     plan?: XOR<SubscriptionPlanScalarRelationFilter, SubscriptionPlanWhereInput>
+    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
   }
 
   export type SubscriptionOrderByWithRelationInput = {
@@ -22901,8 +22901,8 @@ export namespace Prisma {
     endDate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    school?: SchoolOrderByWithRelationInput
     plan?: SubscriptionPlanOrderByWithRelationInput
+    school?: SchoolOrderByWithRelationInput
     _relevance?: SubscriptionOrderByRelevanceInput
   }
 
@@ -22918,8 +22918,8 @@ export namespace Prisma {
     endDate?: DateTimeFilter<"Subscription"> | Date | string
     createdAt?: DateTimeFilter<"Subscription"> | Date | string
     updatedAt?: DateTimeFilter<"Subscription"> | Date | string
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
     plan?: XOR<SubscriptionPlanScalarRelationFilter, SubscriptionPlanWhereInput>
+    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
   }, "id">
 
   export type SubscriptionOrderByWithAggregationInput = {
@@ -22961,10 +22961,10 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Teacher"> | Date | string
     updatedAt?: DateTimeFilter<"Teacher"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Teacher"> | Date | string | null
+    chapterProgress?: ChapterProgressListRelationFilter
+    teacherClasses?: TeacherClassListRelationFilter
     school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-    teacherClasses?: TeacherClassListRelationFilter
-    chapterProgress?: ChapterProgressListRelationFilter
     topicProgress?: TopicProgressListRelationFilter
   }
 
@@ -22976,10 +22976,10 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
+    chapterProgress?: ChapterProgressOrderByRelationAggregateInput
+    teacherClasses?: TeacherClassOrderByRelationAggregateInput
     school?: SchoolOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
-    teacherClasses?: TeacherClassOrderByRelationAggregateInput
-    chapterProgress?: ChapterProgressOrderByRelationAggregateInput
     topicProgress?: TopicProgressOrderByRelationAggregateInput
     _relevance?: TeacherOrderByRelevanceInput
   }
@@ -22996,10 +22996,10 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Teacher"> | Date | string
     updatedAt?: DateTimeFilter<"Teacher"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Teacher"> | Date | string | null
+    chapterProgress?: ChapterProgressListRelationFilter
+    teacherClasses?: TeacherClassListRelationFilter
     school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-    teacherClasses?: TeacherClassListRelationFilter
-    chapterProgress?: ChapterProgressListRelationFilter
     topicProgress?: TopicProgressListRelationFilter
   }, "id" | "userId" | "schoolId_userId">
 
@@ -23043,10 +23043,10 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Class"> | Date | string
     updatedAt?: DateTimeFilter<"Class"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Class"> | Date | string | null
+    chapters?: ChapterListRelationFilter
     school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
     subjects?: SubjectListRelationFilter
     teacherClasses?: TeacherClassListRelationFilter
-    chapters?: ChapterListRelationFilter
   }
 
   export type ClassOrderByWithRelationInput = {
@@ -23060,10 +23060,10 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
+    chapters?: ChapterOrderByRelationAggregateInput
     school?: SchoolOrderByWithRelationInput
     subjects?: SubjectOrderByRelationAggregateInput
     teacherClasses?: TeacherClassOrderByRelationAggregateInput
-    chapters?: ChapterOrderByRelationAggregateInput
     _relevance?: ClassOrderByRelevanceInput
   }
 
@@ -23082,10 +23082,10 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Class"> | Date | string
     updatedAt?: DateTimeFilter<"Class"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Class"> | Date | string | null
+    chapters?: ChapterListRelationFilter
     school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
     subjects?: SubjectListRelationFilter
     teacherClasses?: TeacherClassListRelationFilter
-    chapters?: ChapterListRelationFilter
   }, "id" | "schoolId_name_section">
 
   export type ClassOrderByWithAggregationInput = {
@@ -23137,10 +23137,10 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Subject"> | Date | string
     updatedAt?: DateTimeFilter<"Subject"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Subject"> | Date | string | null
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
-    class?: XOR<ClassNullableScalarRelationFilter, ClassWhereInput> | null
-    teacherClasses?: TeacherClassListRelationFilter
     chapters?: ChapterListRelationFilter
+    class?: XOR<ClassNullableScalarRelationFilter, ClassWhereInput> | null
+    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
+    teacherClasses?: TeacherClassListRelationFilter
   }
 
   export type SubjectOrderByWithRelationInput = {
@@ -23155,10 +23155,10 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
-    school?: SchoolOrderByWithRelationInput
-    class?: ClassOrderByWithRelationInput
-    teacherClasses?: TeacherClassOrderByRelationAggregateInput
     chapters?: ChapterOrderByRelationAggregateInput
+    class?: ClassOrderByWithRelationInput
+    school?: SchoolOrderByWithRelationInput
+    teacherClasses?: TeacherClassOrderByRelationAggregateInput
     _relevance?: SubjectOrderByRelevanceInput
   }
 
@@ -23178,10 +23178,10 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Subject"> | Date | string
     updatedAt?: DateTimeFilter<"Subject"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Subject"> | Date | string | null
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
-    class?: XOR<ClassNullableScalarRelationFilter, ClassWhereInput> | null
-    teacherClasses?: TeacherClassListRelationFilter
     chapters?: ChapterListRelationFilter
+    class?: XOR<ClassNullableScalarRelationFilter, ClassWhereInput> | null
+    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
+    teacherClasses?: TeacherClassListRelationFilter
   }, "id" | "schoolId_classId_name">
 
   export type SubjectOrderByWithAggregationInput = {
@@ -23236,11 +23236,11 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Chapter"> | Date | string
     updatedAt?: DateTimeFilter<"Chapter"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Chapter"> | Date | string | null
+    chapterProgress?: ChapterProgressListRelationFilter
+    class?: XOR<ClassScalarRelationFilter, ClassWhereInput>
     school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
     subject?: XOR<SubjectScalarRelationFilter, SubjectWhereInput>
-    class?: XOR<ClassScalarRelationFilter, ClassWhereInput>
     topics?: TopicListRelationFilter
-    chapterProgress?: ChapterProgressListRelationFilter
   }
 
   export type ChapterOrderByWithRelationInput = {
@@ -23256,11 +23256,11 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
+    chapterProgress?: ChapterProgressOrderByRelationAggregateInput
+    class?: ClassOrderByWithRelationInput
     school?: SchoolOrderByWithRelationInput
     subject?: SubjectOrderByWithRelationInput
-    class?: ClassOrderByWithRelationInput
     topics?: TopicOrderByRelationAggregateInput
-    chapterProgress?: ChapterProgressOrderByRelationAggregateInput
     _relevance?: ChapterOrderByRelevanceInput
   }
 
@@ -23280,11 +23280,11 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Chapter"> | Date | string
     updatedAt?: DateTimeFilter<"Chapter"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Chapter"> | Date | string | null
+    chapterProgress?: ChapterProgressListRelationFilter
+    class?: XOR<ClassScalarRelationFilter, ClassWhereInput>
     school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
     subject?: XOR<SubjectScalarRelationFilter, SubjectWhereInput>
-    class?: XOR<ClassScalarRelationFilter, ClassWhereInput>
     topics?: TopicListRelationFilter
-    chapterProgress?: ChapterProgressListRelationFilter
   }, "id">
 
   export type ChapterOrderByWithAggregationInput = {
@@ -23339,9 +23339,9 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Topic"> | Date | string
     updatedAt?: DateTimeFilter<"Topic"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Topic"> | Date | string | null
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
-    chapter?: XOR<ChapterScalarRelationFilter, ChapterWhereInput>
     topicProgress?: TopicProgressListRelationFilter
+    chapter?: XOR<ChapterScalarRelationFilter, ChapterWhereInput>
+    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
   }
 
   export type TopicOrderByWithRelationInput = {
@@ -23355,9 +23355,9 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
-    school?: SchoolOrderByWithRelationInput
-    chapter?: ChapterOrderByWithRelationInput
     topicProgress?: TopicProgressOrderByRelationAggregateInput
+    chapter?: ChapterOrderByWithRelationInput
+    school?: SchoolOrderByWithRelationInput
     _relevance?: TopicOrderByRelevanceInput
   }
 
@@ -23375,9 +23375,9 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Topic"> | Date | string
     updatedAt?: DateTimeFilter<"Topic"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Topic"> | Date | string | null
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
-    chapter?: XOR<ChapterScalarRelationFilter, ChapterWhereInput>
     topicProgress?: TopicProgressListRelationFilter
+    chapter?: XOR<ChapterScalarRelationFilter, ChapterWhereInput>
+    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
   }, "id">
 
   export type TopicOrderByWithAggregationInput = {
@@ -23424,9 +23424,9 @@ export namespace Prisma {
     classId?: StringFilter<"TeacherClass"> | string
     subjectId?: StringNullableFilter<"TeacherClass"> | string | null
     createdAt?: DateTimeFilter<"TeacherClass"> | Date | string
-    teacher?: XOR<TeacherScalarRelationFilter, TeacherWhereInput>
     class?: XOR<ClassScalarRelationFilter, ClassWhereInput>
     subject?: XOR<SubjectNullableScalarRelationFilter, SubjectWhereInput> | null
+    teacher?: XOR<TeacherScalarRelationFilter, TeacherWhereInput>
   }
 
   export type TeacherClassOrderByWithRelationInput = {
@@ -23436,9 +23436,9 @@ export namespace Prisma {
     classId?: SortOrder
     subjectId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
-    teacher?: TeacherOrderByWithRelationInput
     class?: ClassOrderByWithRelationInput
     subject?: SubjectOrderByWithRelationInput
+    teacher?: TeacherOrderByWithRelationInput
     _relevance?: TeacherClassOrderByRelevanceInput
   }
 
@@ -23453,9 +23453,9 @@ export namespace Prisma {
     classId?: StringFilter<"TeacherClass"> | string
     subjectId?: StringNullableFilter<"TeacherClass"> | string | null
     createdAt?: DateTimeFilter<"TeacherClass"> | Date | string
-    teacher?: XOR<TeacherScalarRelationFilter, TeacherWhereInput>
     class?: XOR<ClassScalarRelationFilter, ClassWhereInput>
     subject?: XOR<SubjectNullableScalarRelationFilter, SubjectWhereInput> | null
+    teacher?: XOR<TeacherScalarRelationFilter, TeacherWhereInput>
   }, "id" | "teacherId_classId_subjectId_schoolId">
 
   export type TeacherClassOrderByWithAggregationInput = {
@@ -23600,8 +23600,8 @@ export namespace Prisma {
     updatedById?: StringNullableFilter<"TopicProgress"> | string | null
     createdAt?: DateTimeFilter<"TopicProgress"> | Date | string
     updatedAt?: DateTimeFilter<"TopicProgress"> | Date | string
-    topic?: XOR<TopicScalarRelationFilter, TopicWhereInput>
     teacher?: XOR<TeacherScalarRelationFilter, TeacherWhereInput>
+    topic?: XOR<TopicScalarRelationFilter, TopicWhereInput>
     updatedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
 
@@ -23615,8 +23615,8 @@ export namespace Prisma {
     updatedById?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    topic?: TopicOrderByWithRelationInput
     teacher?: TeacherOrderByWithRelationInput
+    topic?: TopicOrderByWithRelationInput
     updatedBy?: UserOrderByWithRelationInput
     _relevance?: TopicProgressOrderByRelevanceInput
   }
@@ -23635,8 +23635,8 @@ export namespace Prisma {
     updatedById?: StringNullableFilter<"TopicProgress"> | string | null
     createdAt?: DateTimeFilter<"TopicProgress"> | Date | string
     updatedAt?: DateTimeFilter<"TopicProgress"> | Date | string
-    topic?: XOR<TopicScalarRelationFilter, TopicWhereInput>
     teacher?: XOR<TeacherScalarRelationFilter, TeacherWhereInput>
+    topic?: XOR<TopicScalarRelationFilter, TopicWhereInput>
     updatedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id" | "schoolId_topicId_teacherId">
 
@@ -23842,8 +23842,8 @@ export namespace Prisma {
     newValues?: JsonNullableFilter<"AuditLog">
     ipAddress?: StringNullableFilter<"AuditLog"> | string | null
     createdAt?: DateTimeFilter<"AuditLog"> | Date | string
-    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
     actor?: XOR<UserScalarRelationFilter, UserWhereInput>
+    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
   }
 
   export type AuditLogOrderByWithRelationInput = {
@@ -23857,8 +23857,8 @@ export namespace Prisma {
     newValues?: SortOrderInput | SortOrder
     ipAddress?: SortOrderInput | SortOrder
     createdAt?: SortOrder
-    school?: SchoolOrderByWithRelationInput
     actor?: UserOrderByWithRelationInput
+    school?: SchoolOrderByWithRelationInput
     _relevance?: AuditLogOrderByRelevanceInput
   }
 
@@ -23876,8 +23876,8 @@ export namespace Prisma {
     newValues?: JsonNullableFilter<"AuditLog">
     ipAddress?: StringNullableFilter<"AuditLog"> | string | null
     createdAt?: DateTimeFilter<"AuditLog"> | Date | string
-    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
     actor?: XOR<UserScalarRelationFilter, UserWhereInput>
+    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
   }, "id">
 
   export type AuditLogOrderByWithAggregationInput = {
@@ -24082,14 +24082,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    school?: SchoolCreateNestedOneWithoutUsersInput
-    teacher?: TeacherCreateNestedOneWithoutUserInput
-    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
-    notifications?: NotificationCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutActorInput
     chapterProgress?: ChapterProgressCreateNestedManyWithoutUpdatedByInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    teacher?: TeacherCreateNestedOneWithoutUserInput
     topicProgress?: TopicProgressCreateNestedManyWithoutUpdatedByInput
+    school?: SchoolCreateNestedOneWithoutUsersInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -24106,12 +24106,12 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    teacher?: TeacherUncheckedCreateNestedOneWithoutUserInput
-    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutActorInput
     chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutUpdatedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    teacher?: TeacherUncheckedCreateNestedOneWithoutUserInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutUpdatedByInput
   }
 
@@ -24128,14 +24128,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneWithoutUsersNestedInput
-    teacher?: TeacherUpdateOneWithoutUserNestedInput
-    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
-    notifications?: NotificationUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutActorNestedInput
     chapterProgress?: ChapterProgressUpdateManyWithoutUpdatedByNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    teacher?: TeacherUpdateOneWithoutUserNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutUpdatedByNestedInput
+    school?: SchoolUpdateOneWithoutUsersNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -24152,12 +24152,12 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
-    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutActorNestedInput
     chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
   }
 
@@ -24282,17 +24282,17 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    users?: UserCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherCreateNestedManyWithoutSchoolInput
-    classes?: ClassCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterCreateNestedManyWithoutSchoolInput
-    topics?: TopicCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
     activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterCreateNestedManyWithoutSchoolInput
+    classes?: ClassCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherCreateNestedManyWithoutSchoolInput
+    topics?: TopicCreateNestedManyWithoutSchoolInput
+    users?: UserCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateInput = {
@@ -24307,17 +24307,17 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
-    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
-    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
+    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
+    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUpdateInput = {
@@ -24332,17 +24332,17 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUpdateManyWithoutSchoolNestedInput
+    users?: UserUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateInput = {
@@ -24357,17 +24357,17 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolCreateManyInput = {
@@ -24420,7 +24420,7 @@ export namespace Prisma {
     priceMonthly: Decimal | DecimalJsLike | number | string
     priceYearly: Decimal | DecimalJsLike | number | string
     teacherLimit: number
-    features?: JsonNullValueInput | InputJsonValue
+    features: JsonNullValueInput | InputJsonValue
     isActive?: boolean
     sortOrder?: number
     createdAt?: Date | string
@@ -24437,7 +24437,7 @@ export namespace Prisma {
     priceMonthly: Decimal | DecimalJsLike | number | string
     priceYearly: Decimal | DecimalJsLike | number | string
     teacherLimit: number
-    features?: JsonNullValueInput | InputJsonValue
+    features: JsonNullValueInput | InputJsonValue
     isActive?: boolean
     sortOrder?: number
     createdAt?: Date | string
@@ -24488,7 +24488,7 @@ export namespace Prisma {
     priceMonthly: Decimal | DecimalJsLike | number | string
     priceYearly: Decimal | DecimalJsLike | number | string
     teacherLimit: number
-    features?: JsonNullValueInput | InputJsonValue
+    features: JsonNullValueInput | InputJsonValue
     isActive?: boolean
     sortOrder?: number
     createdAt?: Date | string
@@ -24535,8 +24535,8 @@ export namespace Prisma {
     endDate: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
-    school: SchoolCreateNestedOneWithoutSubscriptionsInput
     plan: SubscriptionPlanCreateNestedOneWithoutSubscriptionsInput
+    school: SchoolCreateNestedOneWithoutSubscriptionsInput
   }
 
   export type SubscriptionUncheckedCreateInput = {
@@ -24557,8 +24557,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    school?: SchoolUpdateOneRequiredWithoutSubscriptionsNestedInput
     plan?: SubscriptionPlanUpdateOneRequiredWithoutSubscriptionsNestedInput
+    school?: SchoolUpdateOneRequiredWithoutSubscriptionsNestedInput
   }
 
   export type SubscriptionUncheckedUpdateInput = {
@@ -24609,10 +24609,10 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
+    teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
     school: SchoolCreateNestedOneWithoutTeachersInput
     user: UserCreateNestedOneWithoutTeacherInput
-    teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
-    chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
     topicProgress?: TopicProgressCreateNestedManyWithoutTeacherInput
   }
 
@@ -24624,8 +24624,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutTeacherInput
     chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutTeacherInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTeacherInput
   }
 
@@ -24635,10 +24635,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
+    teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
     school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
     user?: UserUpdateOneRequiredWithoutTeacherNestedInput
-    teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
-    chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutTeacherNestedInput
   }
 
@@ -24650,8 +24650,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
     chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
+    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput
   }
 
@@ -24693,10 +24693,10 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
+    chapters?: ChapterCreateNestedManyWithoutClassInput
     school: SchoolCreateNestedOneWithoutClassesInput
     subjects?: SubjectCreateNestedManyWithoutClassInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutClassInput
-    chapters?: ChapterCreateNestedManyWithoutClassInput
   }
 
   export type ClassUncheckedCreateInput = {
@@ -24710,9 +24710,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
+    chapters?: ChapterUncheckedCreateNestedManyWithoutClassInput
     subjects?: SubjectUncheckedCreateNestedManyWithoutClassInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutClassInput
-    chapters?: ChapterUncheckedCreateNestedManyWithoutClassInput
   }
 
   export type ClassUpdateInput = {
@@ -24725,10 +24725,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapters?: ChapterUpdateManyWithoutClassNestedInput
     school?: SchoolUpdateOneRequiredWithoutClassesNestedInput
     subjects?: SubjectUpdateManyWithoutClassNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutClassNestedInput
-    chapters?: ChapterUpdateManyWithoutClassNestedInput
   }
 
   export type ClassUncheckedUpdateInput = {
@@ -24742,9 +24742,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapters?: ChapterUncheckedUpdateManyWithoutClassNestedInput
     subjects?: SubjectUncheckedUpdateManyWithoutClassNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutClassNestedInput
-    chapters?: ChapterUncheckedUpdateManyWithoutClassNestedInput
   }
 
   export type ClassCreateManyInput = {
@@ -24795,10 +24795,10 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    school: SchoolCreateNestedOneWithoutSubjectsInput
-    class?: ClassCreateNestedOneWithoutSubjectsInput
-    teacherClasses?: TeacherClassCreateNestedManyWithoutSubjectInput
     chapters?: ChapterCreateNestedManyWithoutSubjectInput
+    class?: ClassCreateNestedOneWithoutSubjectsInput
+    school: SchoolCreateNestedOneWithoutSubjectsInput
+    teacherClasses?: TeacherClassCreateNestedManyWithoutSubjectInput
   }
 
   export type SubjectUncheckedCreateInput = {
@@ -24813,8 +24813,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutSubjectInput
     chapters?: ChapterUncheckedCreateNestedManyWithoutSubjectInput
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutSubjectInput
   }
 
   export type SubjectUpdateInput = {
@@ -24827,10 +24827,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneRequiredWithoutSubjectsNestedInput
-    class?: ClassUpdateOneWithoutSubjectsNestedInput
-    teacherClasses?: TeacherClassUpdateManyWithoutSubjectNestedInput
     chapters?: ChapterUpdateManyWithoutSubjectNestedInput
+    class?: ClassUpdateOneWithoutSubjectsNestedInput
+    school?: SchoolUpdateOneRequiredWithoutSubjectsNestedInput
+    teacherClasses?: TeacherClassUpdateManyWithoutSubjectNestedInput
   }
 
   export type SubjectUncheckedUpdateInput = {
@@ -24845,8 +24845,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutSubjectNestedInput
     chapters?: ChapterUncheckedUpdateManyWithoutSubjectNestedInput
+    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutSubjectNestedInput
   }
 
   export type SubjectCreateManyInput = {
@@ -24899,11 +24899,11 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressCreateNestedManyWithoutChapterInput
+    class: ClassCreateNestedOneWithoutChaptersInput
     school: SchoolCreateNestedOneWithoutChaptersInput
     subject: SubjectCreateNestedOneWithoutChaptersInput
-    class: ClassCreateNestedOneWithoutChaptersInput
     topics?: TopicCreateNestedManyWithoutChapterInput
-    chapterProgress?: ChapterProgressCreateNestedManyWithoutChapterInput
   }
 
   export type ChapterUncheckedCreateInput = {
@@ -24919,8 +24919,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    topics?: TopicUncheckedCreateNestedManyWithoutChapterInput
     chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutChapterInput
+    topics?: TopicUncheckedCreateNestedManyWithoutChapterInput
   }
 
   export type ChapterUpdateInput = {
@@ -24933,11 +24933,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUpdateManyWithoutChapterNestedInput
+    class?: ClassUpdateOneRequiredWithoutChaptersNestedInput
     school?: SchoolUpdateOneRequiredWithoutChaptersNestedInput
     subject?: SubjectUpdateOneRequiredWithoutChaptersNestedInput
-    class?: ClassUpdateOneRequiredWithoutChaptersNestedInput
     topics?: TopicUpdateManyWithoutChapterNestedInput
-    chapterProgress?: ChapterProgressUpdateManyWithoutChapterNestedInput
   }
 
   export type ChapterUncheckedUpdateInput = {
@@ -24953,8 +24953,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    topics?: TopicUncheckedUpdateManyWithoutChapterNestedInput
     chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutChapterNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutChapterNestedInput
   }
 
   export type ChapterCreateManyInput = {
@@ -25008,9 +25008,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    school: SchoolCreateNestedOneWithoutTopicsInput
-    chapter: ChapterCreateNestedOneWithoutTopicsInput
     topicProgress?: TopicProgressCreateNestedManyWithoutTopicInput
+    chapter: ChapterCreateNestedOneWithoutTopicsInput
+    school: SchoolCreateNestedOneWithoutTopicsInput
   }
 
   export type TopicUncheckedCreateInput = {
@@ -25036,9 +25036,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneRequiredWithoutTopicsNestedInput
-    chapter?: ChapterUpdateOneRequiredWithoutTopicsNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutTopicNestedInput
+    chapter?: ChapterUpdateOneRequiredWithoutTopicsNestedInput
+    school?: SchoolUpdateOneRequiredWithoutTopicsNestedInput
   }
 
   export type TopicUncheckedUpdateInput = {
@@ -25096,9 +25096,9 @@ export namespace Prisma {
     id?: string
     schoolId: string
     createdAt?: Date | string
-    teacher: TeacherCreateNestedOneWithoutTeacherClassesInput
     class: ClassCreateNestedOneWithoutTeacherClassesInput
     subject?: SubjectCreateNestedOneWithoutTeacherClassesInput
+    teacher: TeacherCreateNestedOneWithoutTeacherClassesInput
   }
 
   export type TeacherClassUncheckedCreateInput = {
@@ -25114,9 +25114,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     schoolId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    teacher?: TeacherUpdateOneRequiredWithoutTeacherClassesNestedInput
     class?: ClassUpdateOneRequiredWithoutTeacherClassesNestedInput
     subject?: SubjectUpdateOneWithoutTeacherClassesNestedInput
+    teacher?: TeacherUpdateOneRequiredWithoutTeacherClassesNestedInput
   }
 
   export type TeacherClassUncheckedUpdateInput = {
@@ -25268,8 +25268,8 @@ export namespace Prisma {
     completedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    topic: TopicCreateNestedOneWithoutTopicProgressInput
     teacher: TeacherCreateNestedOneWithoutTopicProgressInput
+    topic: TopicCreateNestedOneWithoutTopicProgressInput
     updatedBy?: UserCreateNestedOneWithoutTopicProgressInput
   }
 
@@ -25292,8 +25292,8 @@ export namespace Prisma {
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    topic?: TopicUpdateOneRequiredWithoutTopicProgressNestedInput
     teacher?: TeacherUpdateOneRequiredWithoutTopicProgressNestedInput
+    topic?: TopicUpdateOneRequiredWithoutTopicProgressNestedInput
     updatedBy?: UserUpdateOneWithoutTopicProgressNestedInput
   }
 
@@ -25515,8 +25515,8 @@ export namespace Prisma {
     newValues?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
     createdAt?: Date | string
-    school?: SchoolCreateNestedOneWithoutAuditLogsInput
     actor: UserCreateNestedOneWithoutAuditLogsInput
+    school?: SchoolCreateNestedOneWithoutAuditLogsInput
   }
 
   export type AuditLogUncheckedCreateInput = {
@@ -25541,8 +25541,8 @@ export namespace Prisma {
     newValues?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    school?: SchoolUpdateOneWithoutAuditLogsNestedInput
     actor?: UserUpdateOneRequiredWithoutAuditLogsNestedInput
+    school?: SchoolUpdateOneWithoutAuditLogsNestedInput
   }
 
   export type AuditLogUncheckedUpdateInput = {
@@ -25602,7 +25602,7 @@ export namespace Prisma {
     endDate: Date | string
     totalWorkingDays: number
     actualAvailableDays: number
-    weeklyHolidays?: JsonNullValueInput | InputJsonValue
+    weeklyHolidays: JsonNullValueInput | InputJsonValue
     status?: $Enums.AcademicTermStatus
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -25619,7 +25619,7 @@ export namespace Prisma {
     endDate: Date | string
     totalWorkingDays: number
     actualAvailableDays: number
-    weeklyHolidays?: JsonNullValueInput | InputJsonValue
+    weeklyHolidays: JsonNullValueInput | InputJsonValue
     status?: $Enums.AcademicTermStatus
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -25667,7 +25667,7 @@ export namespace Prisma {
     endDate: Date | string
     totalWorkingDays: number
     actualAvailableDays: number
-    weeklyHolidays?: JsonNullValueInput | InputJsonValue
+    weeklyHolidays: JsonNullValueInput | InputJsonValue
     status?: $Enums.AcademicTermStatus
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -25831,28 +25831,6 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
-  export type SchoolNullableScalarRelationFilter = {
-    is?: SchoolWhereInput | null
-    isNot?: SchoolWhereInput | null
-  }
-
-  export type TeacherNullableScalarRelationFilter = {
-    is?: TeacherWhereInput | null
-    isNot?: TeacherWhereInput | null
-  }
-
-  export type RefreshTokenListRelationFilter = {
-    every?: RefreshTokenWhereInput
-    some?: RefreshTokenWhereInput
-    none?: RefreshTokenWhereInput
-  }
-
-  export type NotificationListRelationFilter = {
-    every?: NotificationWhereInput
-    some?: NotificationWhereInput
-    none?: NotificationWhereInput
-  }
-
   export type ActivityLogListRelationFilter = {
     every?: ActivityLogWhereInput
     some?: ActivityLogWhereInput
@@ -25871,23 +25849,37 @@ export namespace Prisma {
     none?: ChapterProgressWhereInput
   }
 
+  export type NotificationListRelationFilter = {
+    every?: NotificationWhereInput
+    some?: NotificationWhereInput
+    none?: NotificationWhereInput
+  }
+
+  export type RefreshTokenListRelationFilter = {
+    every?: RefreshTokenWhereInput
+    some?: RefreshTokenWhereInput
+    none?: RefreshTokenWhereInput
+  }
+
+  export type TeacherNullableScalarRelationFilter = {
+    is?: TeacherWhereInput | null
+    isNot?: TeacherWhereInput | null
+  }
+
   export type TopicProgressListRelationFilter = {
     every?: TopicProgressWhereInput
     some?: TopicProgressWhereInput
     none?: TopicProgressWhereInput
   }
 
+  export type SchoolNullableScalarRelationFilter = {
+    is?: SchoolWhereInput | null
+    isNot?: SchoolWhereInput | null
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
-  }
-
-  export type RefreshTokenOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type NotificationOrderByRelationAggregateInput = {
-    _count?: SortOrder
   }
 
   export type ActivityLogOrderByRelationAggregateInput = {
@@ -25899,6 +25891,14 @@ export namespace Prisma {
   }
 
   export type ChapterProgressOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type NotificationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type RefreshTokenOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -26089,22 +26089,16 @@ export namespace Prisma {
     not?: NestedEnumSchoolStatusFilter<$PrismaModel> | $Enums.SchoolStatus
   }
 
-  export type UserListRelationFilter = {
-    every?: UserWhereInput
-    some?: UserWhereInput
-    none?: UserWhereInput
+  export type AcademicTermListRelationFilter = {
+    every?: AcademicTermWhereInput
+    some?: AcademicTermWhereInput
+    none?: AcademicTermWhereInput
   }
 
-  export type SubscriptionListRelationFilter = {
-    every?: SubscriptionWhereInput
-    some?: SubscriptionWhereInput
-    none?: SubscriptionWhereInput
-  }
-
-  export type TeacherListRelationFilter = {
-    every?: TeacherWhereInput
-    some?: TeacherWhereInput
-    none?: TeacherWhereInput
+  export type ChapterListRelationFilter = {
+    every?: ChapterWhereInput
+    some?: ChapterWhereInput
+    none?: ChapterWhereInput
   }
 
   export type ClassListRelationFilter = {
@@ -26119,10 +26113,16 @@ export namespace Prisma {
     none?: SubjectWhereInput
   }
 
-  export type ChapterListRelationFilter = {
-    every?: ChapterWhereInput
-    some?: ChapterWhereInput
-    none?: ChapterWhereInput
+  export type SubscriptionListRelationFilter = {
+    every?: SubscriptionWhereInput
+    some?: SubscriptionWhereInput
+    none?: SubscriptionWhereInput
+  }
+
+  export type TeacherListRelationFilter = {
+    every?: TeacherWhereInput
+    some?: TeacherWhereInput
+    none?: TeacherWhereInput
   }
 
   export type TopicListRelationFilter = {
@@ -26131,21 +26131,17 @@ export namespace Prisma {
     none?: TopicWhereInput
   }
 
-  export type AcademicTermListRelationFilter = {
-    every?: AcademicTermWhereInput
-    some?: AcademicTermWhereInput
-    none?: AcademicTermWhereInput
+  export type UserListRelationFilter = {
+    every?: UserWhereInput
+    some?: UserWhereInput
+    none?: UserWhereInput
   }
 
-  export type UserOrderByRelationAggregateInput = {
+  export type AcademicTermOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type SubscriptionOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type TeacherOrderByRelationAggregateInput = {
+  export type ChapterOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -26157,7 +26153,11 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type ChapterOrderByRelationAggregateInput = {
+  export type SubscriptionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TeacherOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -26165,7 +26165,7 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type AcademicTermOrderByRelationAggregateInput = {
+  export type UserOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -26416,14 +26416,14 @@ export namespace Prisma {
     not?: NestedEnumSubscriptionStatusFilter<$PrismaModel> | $Enums.SubscriptionStatus
   }
 
-  export type SchoolScalarRelationFilter = {
-    is?: SchoolWhereInput
-    isNot?: SchoolWhereInput
-  }
-
   export type SubscriptionPlanScalarRelationFilter = {
     is?: SubscriptionPlanWhereInput
     isNot?: SubscriptionPlanWhereInput
+  }
+
+  export type SchoolScalarRelationFilter = {
+    is?: SchoolWhereInput
+    isNot?: SchoolWhereInput
   }
 
   export type SubscriptionOrderByRelevanceInput = {
@@ -26663,14 +26663,14 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
-  export type SubjectScalarRelationFilter = {
-    is?: SubjectWhereInput
-    isNot?: SubjectWhereInput
-  }
-
   export type ClassScalarRelationFilter = {
     is?: ClassWhereInput
     isNot?: ClassWhereInput
+  }
+
+  export type SubjectScalarRelationFilter = {
+    is?: SubjectWhereInput
+    isNot?: SubjectWhereInput
   }
 
   export type ChapterOrderByRelevanceInput = {
@@ -26808,14 +26808,14 @@ export namespace Prisma {
     sortOrder?: SortOrder
   }
 
-  export type TeacherScalarRelationFilter = {
-    is?: TeacherWhereInput
-    isNot?: TeacherWhereInput
-  }
-
   export type SubjectNullableScalarRelationFilter = {
     is?: SubjectWhereInput | null
     isNot?: SubjectWhereInput | null
+  }
+
+  export type TeacherScalarRelationFilter = {
+    is?: TeacherWhereInput
+    isNot?: TeacherWhereInput
   }
 
   export type TeacherClassOrderByRelevanceInput = {
@@ -27329,32 +27329,6 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
-  export type SchoolCreateNestedOneWithoutUsersInput = {
-    create?: XOR<SchoolCreateWithoutUsersInput, SchoolUncheckedCreateWithoutUsersInput>
-    connectOrCreate?: SchoolCreateOrConnectWithoutUsersInput
-    connect?: SchoolWhereUniqueInput
-  }
-
-  export type TeacherCreateNestedOneWithoutUserInput = {
-    create?: XOR<TeacherCreateWithoutUserInput, TeacherUncheckedCreateWithoutUserInput>
-    connectOrCreate?: TeacherCreateOrConnectWithoutUserInput
-    connect?: TeacherWhereUniqueInput
-  }
-
-  export type RefreshTokenCreateNestedManyWithoutUserInput = {
-    create?: XOR<RefreshTokenCreateWithoutUserInput, RefreshTokenUncheckedCreateWithoutUserInput> | RefreshTokenCreateWithoutUserInput[] | RefreshTokenUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: RefreshTokenCreateOrConnectWithoutUserInput | RefreshTokenCreateOrConnectWithoutUserInput[]
-    createMany?: RefreshTokenCreateManyUserInputEnvelope
-    connect?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
-  }
-
-  export type NotificationCreateNestedManyWithoutUserInput = {
-    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
-    createMany?: NotificationCreateManyUserInputEnvelope
-    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-  }
-
   export type ActivityLogCreateNestedManyWithoutUserInput = {
     create?: XOR<ActivityLogCreateWithoutUserInput, ActivityLogUncheckedCreateWithoutUserInput> | ActivityLogCreateWithoutUserInput[] | ActivityLogUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ActivityLogCreateOrConnectWithoutUserInput | ActivityLogCreateOrConnectWithoutUserInput[]
@@ -27376,6 +27350,26 @@ export namespace Prisma {
     connect?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
   }
 
+  export type NotificationCreateNestedManyWithoutUserInput = {
+    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
+    createMany?: NotificationCreateManyUserInputEnvelope
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  }
+
+  export type RefreshTokenCreateNestedManyWithoutUserInput = {
+    create?: XOR<RefreshTokenCreateWithoutUserInput, RefreshTokenUncheckedCreateWithoutUserInput> | RefreshTokenCreateWithoutUserInput[] | RefreshTokenUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: RefreshTokenCreateOrConnectWithoutUserInput | RefreshTokenCreateOrConnectWithoutUserInput[]
+    createMany?: RefreshTokenCreateManyUserInputEnvelope
+    connect?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
+  }
+
+  export type TeacherCreateNestedOneWithoutUserInput = {
+    create?: XOR<TeacherCreateWithoutUserInput, TeacherUncheckedCreateWithoutUserInput>
+    connectOrCreate?: TeacherCreateOrConnectWithoutUserInput
+    connect?: TeacherWhereUniqueInput
+  }
+
   export type TopicProgressCreateNestedManyWithoutUpdatedByInput = {
     create?: XOR<TopicProgressCreateWithoutUpdatedByInput, TopicProgressUncheckedCreateWithoutUpdatedByInput> | TopicProgressCreateWithoutUpdatedByInput[] | TopicProgressUncheckedCreateWithoutUpdatedByInput[]
     connectOrCreate?: TopicProgressCreateOrConnectWithoutUpdatedByInput | TopicProgressCreateOrConnectWithoutUpdatedByInput[]
@@ -27383,24 +27377,10 @@ export namespace Prisma {
     connect?: TopicProgressWhereUniqueInput | TopicProgressWhereUniqueInput[]
   }
 
-  export type TeacherUncheckedCreateNestedOneWithoutUserInput = {
-    create?: XOR<TeacherCreateWithoutUserInput, TeacherUncheckedCreateWithoutUserInput>
-    connectOrCreate?: TeacherCreateOrConnectWithoutUserInput
-    connect?: TeacherWhereUniqueInput
-  }
-
-  export type RefreshTokenUncheckedCreateNestedManyWithoutUserInput = {
-    create?: XOR<RefreshTokenCreateWithoutUserInput, RefreshTokenUncheckedCreateWithoutUserInput> | RefreshTokenCreateWithoutUserInput[] | RefreshTokenUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: RefreshTokenCreateOrConnectWithoutUserInput | RefreshTokenCreateOrConnectWithoutUserInput[]
-    createMany?: RefreshTokenCreateManyUserInputEnvelope
-    connect?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
-  }
-
-  export type NotificationUncheckedCreateNestedManyWithoutUserInput = {
-    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
-    createMany?: NotificationCreateManyUserInputEnvelope
-    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  export type SchoolCreateNestedOneWithoutUsersInput = {
+    create?: XOR<SchoolCreateWithoutUsersInput, SchoolUncheckedCreateWithoutUsersInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutUsersInput
+    connect?: SchoolWhereUniqueInput
   }
 
   export type ActivityLogUncheckedCreateNestedManyWithoutUserInput = {
@@ -27422,6 +27402,26 @@ export namespace Prisma {
     connectOrCreate?: ChapterProgressCreateOrConnectWithoutUpdatedByInput | ChapterProgressCreateOrConnectWithoutUpdatedByInput[]
     createMany?: ChapterProgressCreateManyUpdatedByInputEnvelope
     connect?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
+  }
+
+  export type NotificationUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
+    createMany?: NotificationCreateManyUserInputEnvelope
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  }
+
+  export type RefreshTokenUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<RefreshTokenCreateWithoutUserInput, RefreshTokenUncheckedCreateWithoutUserInput> | RefreshTokenCreateWithoutUserInput[] | RefreshTokenUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: RefreshTokenCreateOrConnectWithoutUserInput | RefreshTokenCreateOrConnectWithoutUserInput[]
+    createMany?: RefreshTokenCreateManyUserInputEnvelope
+    connect?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
+  }
+
+  export type TeacherUncheckedCreateNestedOneWithoutUserInput = {
+    create?: XOR<TeacherCreateWithoutUserInput, TeacherUncheckedCreateWithoutUserInput>
+    connectOrCreate?: TeacherCreateOrConnectWithoutUserInput
+    connect?: TeacherWhereUniqueInput
   }
 
   export type TopicProgressUncheckedCreateNestedManyWithoutUpdatedByInput = {
@@ -27453,54 +27453,6 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
-  }
-
-  export type SchoolUpdateOneWithoutUsersNestedInput = {
-    create?: XOR<SchoolCreateWithoutUsersInput, SchoolUncheckedCreateWithoutUsersInput>
-    connectOrCreate?: SchoolCreateOrConnectWithoutUsersInput
-    upsert?: SchoolUpsertWithoutUsersInput
-    disconnect?: SchoolWhereInput | boolean
-    delete?: SchoolWhereInput | boolean
-    connect?: SchoolWhereUniqueInput
-    update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutUsersInput, SchoolUpdateWithoutUsersInput>, SchoolUncheckedUpdateWithoutUsersInput>
-  }
-
-  export type TeacherUpdateOneWithoutUserNestedInput = {
-    create?: XOR<TeacherCreateWithoutUserInput, TeacherUncheckedCreateWithoutUserInput>
-    connectOrCreate?: TeacherCreateOrConnectWithoutUserInput
-    upsert?: TeacherUpsertWithoutUserInput
-    disconnect?: TeacherWhereInput | boolean
-    delete?: TeacherWhereInput | boolean
-    connect?: TeacherWhereUniqueInput
-    update?: XOR<XOR<TeacherUpdateToOneWithWhereWithoutUserInput, TeacherUpdateWithoutUserInput>, TeacherUncheckedUpdateWithoutUserInput>
-  }
-
-  export type RefreshTokenUpdateManyWithoutUserNestedInput = {
-    create?: XOR<RefreshTokenCreateWithoutUserInput, RefreshTokenUncheckedCreateWithoutUserInput> | RefreshTokenCreateWithoutUserInput[] | RefreshTokenUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: RefreshTokenCreateOrConnectWithoutUserInput | RefreshTokenCreateOrConnectWithoutUserInput[]
-    upsert?: RefreshTokenUpsertWithWhereUniqueWithoutUserInput | RefreshTokenUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: RefreshTokenCreateManyUserInputEnvelope
-    set?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
-    disconnect?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
-    delete?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
-    connect?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
-    update?: RefreshTokenUpdateWithWhereUniqueWithoutUserInput | RefreshTokenUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: RefreshTokenUpdateManyWithWhereWithoutUserInput | RefreshTokenUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: RefreshTokenScalarWhereInput | RefreshTokenScalarWhereInput[]
-  }
-
-  export type NotificationUpdateManyWithoutUserNestedInput = {
-    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
-    upsert?: NotificationUpsertWithWhereUniqueWithoutUserInput | NotificationUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: NotificationCreateManyUserInputEnvelope
-    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-    update?: NotificationUpdateWithWhereUniqueWithoutUserInput | NotificationUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: NotificationUpdateManyWithWhereWithoutUserInput | NotificationUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
   }
 
   export type ActivityLogUpdateManyWithoutUserNestedInput = {
@@ -27545,6 +27497,44 @@ export namespace Prisma {
     deleteMany?: ChapterProgressScalarWhereInput | ChapterProgressScalarWhereInput[]
   }
 
+  export type NotificationUpdateManyWithoutUserNestedInput = {
+    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
+    upsert?: NotificationUpsertWithWhereUniqueWithoutUserInput | NotificationUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: NotificationCreateManyUserInputEnvelope
+    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    update?: NotificationUpdateWithWhereUniqueWithoutUserInput | NotificationUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: NotificationUpdateManyWithWhereWithoutUserInput | NotificationUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  }
+
+  export type RefreshTokenUpdateManyWithoutUserNestedInput = {
+    create?: XOR<RefreshTokenCreateWithoutUserInput, RefreshTokenUncheckedCreateWithoutUserInput> | RefreshTokenCreateWithoutUserInput[] | RefreshTokenUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: RefreshTokenCreateOrConnectWithoutUserInput | RefreshTokenCreateOrConnectWithoutUserInput[]
+    upsert?: RefreshTokenUpsertWithWhereUniqueWithoutUserInput | RefreshTokenUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: RefreshTokenCreateManyUserInputEnvelope
+    set?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
+    disconnect?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
+    delete?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
+    connect?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
+    update?: RefreshTokenUpdateWithWhereUniqueWithoutUserInput | RefreshTokenUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: RefreshTokenUpdateManyWithWhereWithoutUserInput | RefreshTokenUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: RefreshTokenScalarWhereInput | RefreshTokenScalarWhereInput[]
+  }
+
+  export type TeacherUpdateOneWithoutUserNestedInput = {
+    create?: XOR<TeacherCreateWithoutUserInput, TeacherUncheckedCreateWithoutUserInput>
+    connectOrCreate?: TeacherCreateOrConnectWithoutUserInput
+    upsert?: TeacherUpsertWithoutUserInput
+    disconnect?: TeacherWhereInput | boolean
+    delete?: TeacherWhereInput | boolean
+    connect?: TeacherWhereUniqueInput
+    update?: XOR<XOR<TeacherUpdateToOneWithWhereWithoutUserInput, TeacherUpdateWithoutUserInput>, TeacherUncheckedUpdateWithoutUserInput>
+  }
+
   export type TopicProgressUpdateManyWithoutUpdatedByNestedInput = {
     create?: XOR<TopicProgressCreateWithoutUpdatedByInput, TopicProgressUncheckedCreateWithoutUpdatedByInput> | TopicProgressCreateWithoutUpdatedByInput[] | TopicProgressUncheckedCreateWithoutUpdatedByInput[]
     connectOrCreate?: TopicProgressCreateOrConnectWithoutUpdatedByInput | TopicProgressCreateOrConnectWithoutUpdatedByInput[]
@@ -27559,42 +27549,14 @@ export namespace Prisma {
     deleteMany?: TopicProgressScalarWhereInput | TopicProgressScalarWhereInput[]
   }
 
-  export type TeacherUncheckedUpdateOneWithoutUserNestedInput = {
-    create?: XOR<TeacherCreateWithoutUserInput, TeacherUncheckedCreateWithoutUserInput>
-    connectOrCreate?: TeacherCreateOrConnectWithoutUserInput
-    upsert?: TeacherUpsertWithoutUserInput
-    disconnect?: TeacherWhereInput | boolean
-    delete?: TeacherWhereInput | boolean
-    connect?: TeacherWhereUniqueInput
-    update?: XOR<XOR<TeacherUpdateToOneWithWhereWithoutUserInput, TeacherUpdateWithoutUserInput>, TeacherUncheckedUpdateWithoutUserInput>
-  }
-
-  export type RefreshTokenUncheckedUpdateManyWithoutUserNestedInput = {
-    create?: XOR<RefreshTokenCreateWithoutUserInput, RefreshTokenUncheckedCreateWithoutUserInput> | RefreshTokenCreateWithoutUserInput[] | RefreshTokenUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: RefreshTokenCreateOrConnectWithoutUserInput | RefreshTokenCreateOrConnectWithoutUserInput[]
-    upsert?: RefreshTokenUpsertWithWhereUniqueWithoutUserInput | RefreshTokenUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: RefreshTokenCreateManyUserInputEnvelope
-    set?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
-    disconnect?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
-    delete?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
-    connect?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
-    update?: RefreshTokenUpdateWithWhereUniqueWithoutUserInput | RefreshTokenUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: RefreshTokenUpdateManyWithWhereWithoutUserInput | RefreshTokenUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: RefreshTokenScalarWhereInput | RefreshTokenScalarWhereInput[]
-  }
-
-  export type NotificationUncheckedUpdateManyWithoutUserNestedInput = {
-    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
-    upsert?: NotificationUpsertWithWhereUniqueWithoutUserInput | NotificationUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: NotificationCreateManyUserInputEnvelope
-    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-    update?: NotificationUpdateWithWhereUniqueWithoutUserInput | NotificationUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: NotificationUpdateManyWithWhereWithoutUserInput | NotificationUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  export type SchoolUpdateOneWithoutUsersNestedInput = {
+    create?: XOR<SchoolCreateWithoutUsersInput, SchoolUncheckedCreateWithoutUsersInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutUsersInput
+    upsert?: SchoolUpsertWithoutUsersInput
+    disconnect?: SchoolWhereInput | boolean
+    delete?: SchoolWhereInput | boolean
+    connect?: SchoolWhereUniqueInput
+    update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutUsersInput, SchoolUpdateWithoutUsersInput>, SchoolUncheckedUpdateWithoutUsersInput>
   }
 
   export type ActivityLogUncheckedUpdateManyWithoutUserNestedInput = {
@@ -27639,6 +27601,44 @@ export namespace Prisma {
     deleteMany?: ChapterProgressScalarWhereInput | ChapterProgressScalarWhereInput[]
   }
 
+  export type NotificationUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
+    upsert?: NotificationUpsertWithWhereUniqueWithoutUserInput | NotificationUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: NotificationCreateManyUserInputEnvelope
+    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    update?: NotificationUpdateWithWhereUniqueWithoutUserInput | NotificationUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: NotificationUpdateManyWithWhereWithoutUserInput | NotificationUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  }
+
+  export type RefreshTokenUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<RefreshTokenCreateWithoutUserInput, RefreshTokenUncheckedCreateWithoutUserInput> | RefreshTokenCreateWithoutUserInput[] | RefreshTokenUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: RefreshTokenCreateOrConnectWithoutUserInput | RefreshTokenCreateOrConnectWithoutUserInput[]
+    upsert?: RefreshTokenUpsertWithWhereUniqueWithoutUserInput | RefreshTokenUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: RefreshTokenCreateManyUserInputEnvelope
+    set?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
+    disconnect?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
+    delete?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
+    connect?: RefreshTokenWhereUniqueInput | RefreshTokenWhereUniqueInput[]
+    update?: RefreshTokenUpdateWithWhereUniqueWithoutUserInput | RefreshTokenUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: RefreshTokenUpdateManyWithWhereWithoutUserInput | RefreshTokenUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: RefreshTokenScalarWhereInput | RefreshTokenScalarWhereInput[]
+  }
+
+  export type TeacherUncheckedUpdateOneWithoutUserNestedInput = {
+    create?: XOR<TeacherCreateWithoutUserInput, TeacherUncheckedCreateWithoutUserInput>
+    connectOrCreate?: TeacherCreateOrConnectWithoutUserInput
+    upsert?: TeacherUpsertWithoutUserInput
+    disconnect?: TeacherWhereInput | boolean
+    delete?: TeacherWhereInput | boolean
+    connect?: TeacherWhereUniqueInput
+    update?: XOR<XOR<TeacherUpdateToOneWithWhereWithoutUserInput, TeacherUpdateWithoutUserInput>, TeacherUncheckedUpdateWithoutUserInput>
+  }
+
   export type TopicProgressUncheckedUpdateManyWithoutUpdatedByNestedInput = {
     create?: XOR<TopicProgressCreateWithoutUpdatedByInput, TopicProgressUncheckedCreateWithoutUpdatedByInput> | TopicProgressCreateWithoutUpdatedByInput[] | TopicProgressUncheckedCreateWithoutUpdatedByInput[]
     connectOrCreate?: TopicProgressCreateOrConnectWithoutUpdatedByInput | TopicProgressCreateOrConnectWithoutUpdatedByInput[]
@@ -27667,60 +27667,11 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutRefreshTokensInput, UserUpdateWithoutRefreshTokensInput>, UserUncheckedUpdateWithoutRefreshTokensInput>
   }
 
-  export type UserCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
-    createMany?: UserCreateManySchoolInputEnvelope
-    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-  }
-
-  export type SubscriptionCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<SubscriptionCreateWithoutSchoolInput, SubscriptionUncheckedCreateWithoutSchoolInput> | SubscriptionCreateWithoutSchoolInput[] | SubscriptionUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: SubscriptionCreateOrConnectWithoutSchoolInput | SubscriptionCreateOrConnectWithoutSchoolInput[]
-    createMany?: SubscriptionCreateManySchoolInputEnvelope
-    connect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
-  }
-
-  export type TeacherCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<TeacherCreateWithoutSchoolInput, TeacherUncheckedCreateWithoutSchoolInput> | TeacherCreateWithoutSchoolInput[] | TeacherUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: TeacherCreateOrConnectWithoutSchoolInput | TeacherCreateOrConnectWithoutSchoolInput[]
-    createMany?: TeacherCreateManySchoolInputEnvelope
-    connect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
-  }
-
-  export type ClassCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<ClassCreateWithoutSchoolInput, ClassUncheckedCreateWithoutSchoolInput> | ClassCreateWithoutSchoolInput[] | ClassUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: ClassCreateOrConnectWithoutSchoolInput | ClassCreateOrConnectWithoutSchoolInput[]
-    createMany?: ClassCreateManySchoolInputEnvelope
-    connect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
-  }
-
-  export type SubjectCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<SubjectCreateWithoutSchoolInput, SubjectUncheckedCreateWithoutSchoolInput> | SubjectCreateWithoutSchoolInput[] | SubjectUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: SubjectCreateOrConnectWithoutSchoolInput | SubjectCreateOrConnectWithoutSchoolInput[]
-    createMany?: SubjectCreateManySchoolInputEnvelope
-    connect?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
-  }
-
-  export type ChapterCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<ChapterCreateWithoutSchoolInput, ChapterUncheckedCreateWithoutSchoolInput> | ChapterCreateWithoutSchoolInput[] | ChapterUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: ChapterCreateOrConnectWithoutSchoolInput | ChapterCreateOrConnectWithoutSchoolInput[]
-    createMany?: ChapterCreateManySchoolInputEnvelope
-    connect?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
-  }
-
-  export type TopicCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<TopicCreateWithoutSchoolInput, TopicUncheckedCreateWithoutSchoolInput> | TopicCreateWithoutSchoolInput[] | TopicUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: TopicCreateOrConnectWithoutSchoolInput | TopicCreateOrConnectWithoutSchoolInput[]
-    createMany?: TopicCreateManySchoolInputEnvelope
-    connect?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
-  }
-
-  export type NotificationCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<NotificationCreateWithoutSchoolInput, NotificationUncheckedCreateWithoutSchoolInput> | NotificationCreateWithoutSchoolInput[] | NotificationUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: NotificationCreateOrConnectWithoutSchoolInput | NotificationCreateOrConnectWithoutSchoolInput[]
-    createMany?: NotificationCreateManySchoolInputEnvelope
-    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  export type AcademicTermCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<AcademicTermCreateWithoutSchoolInput, AcademicTermUncheckedCreateWithoutSchoolInput> | AcademicTermCreateWithoutSchoolInput[] | AcademicTermUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: AcademicTermCreateOrConnectWithoutSchoolInput | AcademicTermCreateOrConnectWithoutSchoolInput[]
+    createMany?: AcademicTermCreateManySchoolInputEnvelope
+    connect?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
   }
 
   export type ActivityLogCreateNestedManyWithoutSchoolInput = {
@@ -27737,67 +27688,67 @@ export namespace Prisma {
     connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
   }
 
-  export type AcademicTermCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<AcademicTermCreateWithoutSchoolInput, AcademicTermUncheckedCreateWithoutSchoolInput> | AcademicTermCreateWithoutSchoolInput[] | AcademicTermUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: AcademicTermCreateOrConnectWithoutSchoolInput | AcademicTermCreateOrConnectWithoutSchoolInput[]
-    createMany?: AcademicTermCreateManySchoolInputEnvelope
-    connect?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
-  }
-
-  export type UserUncheckedCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
-    createMany?: UserCreateManySchoolInputEnvelope
-    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-  }
-
-  export type SubscriptionUncheckedCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<SubscriptionCreateWithoutSchoolInput, SubscriptionUncheckedCreateWithoutSchoolInput> | SubscriptionCreateWithoutSchoolInput[] | SubscriptionUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: SubscriptionCreateOrConnectWithoutSchoolInput | SubscriptionCreateOrConnectWithoutSchoolInput[]
-    createMany?: SubscriptionCreateManySchoolInputEnvelope
-    connect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
-  }
-
-  export type TeacherUncheckedCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<TeacherCreateWithoutSchoolInput, TeacherUncheckedCreateWithoutSchoolInput> | TeacherCreateWithoutSchoolInput[] | TeacherUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: TeacherCreateOrConnectWithoutSchoolInput | TeacherCreateOrConnectWithoutSchoolInput[]
-    createMany?: TeacherCreateManySchoolInputEnvelope
-    connect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
-  }
-
-  export type ClassUncheckedCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<ClassCreateWithoutSchoolInput, ClassUncheckedCreateWithoutSchoolInput> | ClassCreateWithoutSchoolInput[] | ClassUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: ClassCreateOrConnectWithoutSchoolInput | ClassCreateOrConnectWithoutSchoolInput[]
-    createMany?: ClassCreateManySchoolInputEnvelope
-    connect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
-  }
-
-  export type SubjectUncheckedCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<SubjectCreateWithoutSchoolInput, SubjectUncheckedCreateWithoutSchoolInput> | SubjectCreateWithoutSchoolInput[] | SubjectUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: SubjectCreateOrConnectWithoutSchoolInput | SubjectCreateOrConnectWithoutSchoolInput[]
-    createMany?: SubjectCreateManySchoolInputEnvelope
-    connect?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
-  }
-
-  export type ChapterUncheckedCreateNestedManyWithoutSchoolInput = {
+  export type ChapterCreateNestedManyWithoutSchoolInput = {
     create?: XOR<ChapterCreateWithoutSchoolInput, ChapterUncheckedCreateWithoutSchoolInput> | ChapterCreateWithoutSchoolInput[] | ChapterUncheckedCreateWithoutSchoolInput[]
     connectOrCreate?: ChapterCreateOrConnectWithoutSchoolInput | ChapterCreateOrConnectWithoutSchoolInput[]
     createMany?: ChapterCreateManySchoolInputEnvelope
     connect?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
   }
 
-  export type TopicUncheckedCreateNestedManyWithoutSchoolInput = {
+  export type ClassCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<ClassCreateWithoutSchoolInput, ClassUncheckedCreateWithoutSchoolInput> | ClassCreateWithoutSchoolInput[] | ClassUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: ClassCreateOrConnectWithoutSchoolInput | ClassCreateOrConnectWithoutSchoolInput[]
+    createMany?: ClassCreateManySchoolInputEnvelope
+    connect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+  }
+
+  export type NotificationCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<NotificationCreateWithoutSchoolInput, NotificationUncheckedCreateWithoutSchoolInput> | NotificationCreateWithoutSchoolInput[] | NotificationUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutSchoolInput | NotificationCreateOrConnectWithoutSchoolInput[]
+    createMany?: NotificationCreateManySchoolInputEnvelope
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  }
+
+  export type SubjectCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<SubjectCreateWithoutSchoolInput, SubjectUncheckedCreateWithoutSchoolInput> | SubjectCreateWithoutSchoolInput[] | SubjectUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: SubjectCreateOrConnectWithoutSchoolInput | SubjectCreateOrConnectWithoutSchoolInput[]
+    createMany?: SubjectCreateManySchoolInputEnvelope
+    connect?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
+  }
+
+  export type SubscriptionCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<SubscriptionCreateWithoutSchoolInput, SubscriptionUncheckedCreateWithoutSchoolInput> | SubscriptionCreateWithoutSchoolInput[] | SubscriptionUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutSchoolInput | SubscriptionCreateOrConnectWithoutSchoolInput[]
+    createMany?: SubscriptionCreateManySchoolInputEnvelope
+    connect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
+  }
+
+  export type TeacherCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<TeacherCreateWithoutSchoolInput, TeacherUncheckedCreateWithoutSchoolInput> | TeacherCreateWithoutSchoolInput[] | TeacherUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: TeacherCreateOrConnectWithoutSchoolInput | TeacherCreateOrConnectWithoutSchoolInput[]
+    createMany?: TeacherCreateManySchoolInputEnvelope
+    connect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+  }
+
+  export type TopicCreateNestedManyWithoutSchoolInput = {
     create?: XOR<TopicCreateWithoutSchoolInput, TopicUncheckedCreateWithoutSchoolInput> | TopicCreateWithoutSchoolInput[] | TopicUncheckedCreateWithoutSchoolInput[]
     connectOrCreate?: TopicCreateOrConnectWithoutSchoolInput | TopicCreateOrConnectWithoutSchoolInput[]
     createMany?: TopicCreateManySchoolInputEnvelope
     connect?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
   }
 
-  export type NotificationUncheckedCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<NotificationCreateWithoutSchoolInput, NotificationUncheckedCreateWithoutSchoolInput> | NotificationCreateWithoutSchoolInput[] | NotificationUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: NotificationCreateOrConnectWithoutSchoolInput | NotificationCreateOrConnectWithoutSchoolInput[]
-    createMany?: NotificationCreateManySchoolInputEnvelope
-    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  export type UserCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
+    createMany?: UserCreateManySchoolInputEnvelope
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+  }
+
+  export type AcademicTermUncheckedCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<AcademicTermCreateWithoutSchoolInput, AcademicTermUncheckedCreateWithoutSchoolInput> | AcademicTermCreateWithoutSchoolInput[] | AcademicTermUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: AcademicTermCreateOrConnectWithoutSchoolInput | AcademicTermCreateOrConnectWithoutSchoolInput[]
+    createMany?: AcademicTermCreateManySchoolInputEnvelope
+    connect?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
   }
 
   export type ActivityLogUncheckedCreateNestedManyWithoutSchoolInput = {
@@ -27814,127 +27765,78 @@ export namespace Prisma {
     connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
   }
 
-  export type AcademicTermUncheckedCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<AcademicTermCreateWithoutSchoolInput, AcademicTermUncheckedCreateWithoutSchoolInput> | AcademicTermCreateWithoutSchoolInput[] | AcademicTermUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: AcademicTermCreateOrConnectWithoutSchoolInput | AcademicTermCreateOrConnectWithoutSchoolInput[]
-    createMany?: AcademicTermCreateManySchoolInputEnvelope
-    connect?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
+  export type ChapterUncheckedCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<ChapterCreateWithoutSchoolInput, ChapterUncheckedCreateWithoutSchoolInput> | ChapterCreateWithoutSchoolInput[] | ChapterUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: ChapterCreateOrConnectWithoutSchoolInput | ChapterCreateOrConnectWithoutSchoolInput[]
+    createMany?: ChapterCreateManySchoolInputEnvelope
+    connect?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
+  }
+
+  export type ClassUncheckedCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<ClassCreateWithoutSchoolInput, ClassUncheckedCreateWithoutSchoolInput> | ClassCreateWithoutSchoolInput[] | ClassUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: ClassCreateOrConnectWithoutSchoolInput | ClassCreateOrConnectWithoutSchoolInput[]
+    createMany?: ClassCreateManySchoolInputEnvelope
+    connect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+  }
+
+  export type NotificationUncheckedCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<NotificationCreateWithoutSchoolInput, NotificationUncheckedCreateWithoutSchoolInput> | NotificationCreateWithoutSchoolInput[] | NotificationUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutSchoolInput | NotificationCreateOrConnectWithoutSchoolInput[]
+    createMany?: NotificationCreateManySchoolInputEnvelope
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  }
+
+  export type SubjectUncheckedCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<SubjectCreateWithoutSchoolInput, SubjectUncheckedCreateWithoutSchoolInput> | SubjectCreateWithoutSchoolInput[] | SubjectUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: SubjectCreateOrConnectWithoutSchoolInput | SubjectCreateOrConnectWithoutSchoolInput[]
+    createMany?: SubjectCreateManySchoolInputEnvelope
+    connect?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
+  }
+
+  export type SubscriptionUncheckedCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<SubscriptionCreateWithoutSchoolInput, SubscriptionUncheckedCreateWithoutSchoolInput> | SubscriptionCreateWithoutSchoolInput[] | SubscriptionUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutSchoolInput | SubscriptionCreateOrConnectWithoutSchoolInput[]
+    createMany?: SubscriptionCreateManySchoolInputEnvelope
+    connect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
+  }
+
+  export type TeacherUncheckedCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<TeacherCreateWithoutSchoolInput, TeacherUncheckedCreateWithoutSchoolInput> | TeacherCreateWithoutSchoolInput[] | TeacherUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: TeacherCreateOrConnectWithoutSchoolInput | TeacherCreateOrConnectWithoutSchoolInput[]
+    createMany?: TeacherCreateManySchoolInputEnvelope
+    connect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+  }
+
+  export type TopicUncheckedCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<TopicCreateWithoutSchoolInput, TopicUncheckedCreateWithoutSchoolInput> | TopicCreateWithoutSchoolInput[] | TopicUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: TopicCreateOrConnectWithoutSchoolInput | TopicCreateOrConnectWithoutSchoolInput[]
+    createMany?: TopicCreateManySchoolInputEnvelope
+    connect?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
+  }
+
+  export type UserUncheckedCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
+    createMany?: UserCreateManySchoolInputEnvelope
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
   export type EnumSchoolStatusFieldUpdateOperationsInput = {
     set?: $Enums.SchoolStatus
   }
 
-  export type UserUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
-    upsert?: UserUpsertWithWhereUniqueWithoutSchoolInput | UserUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: UserCreateManySchoolInputEnvelope
-    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    update?: UserUpdateWithWhereUniqueWithoutSchoolInput | UserUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: UserUpdateManyWithWhereWithoutSchoolInput | UserUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
-  }
-
-  export type SubscriptionUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<SubscriptionCreateWithoutSchoolInput, SubscriptionUncheckedCreateWithoutSchoolInput> | SubscriptionCreateWithoutSchoolInput[] | SubscriptionUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: SubscriptionCreateOrConnectWithoutSchoolInput | SubscriptionCreateOrConnectWithoutSchoolInput[]
-    upsert?: SubscriptionUpsertWithWhereUniqueWithoutSchoolInput | SubscriptionUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: SubscriptionCreateManySchoolInputEnvelope
-    set?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
-    disconnect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
-    delete?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
-    connect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
-    update?: SubscriptionUpdateWithWhereUniqueWithoutSchoolInput | SubscriptionUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: SubscriptionUpdateManyWithWhereWithoutSchoolInput | SubscriptionUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: SubscriptionScalarWhereInput | SubscriptionScalarWhereInput[]
-  }
-
-  export type TeacherUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<TeacherCreateWithoutSchoolInput, TeacherUncheckedCreateWithoutSchoolInput> | TeacherCreateWithoutSchoolInput[] | TeacherUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: TeacherCreateOrConnectWithoutSchoolInput | TeacherCreateOrConnectWithoutSchoolInput[]
-    upsert?: TeacherUpsertWithWhereUniqueWithoutSchoolInput | TeacherUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: TeacherCreateManySchoolInputEnvelope
-    set?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
-    disconnect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
-    delete?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
-    connect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
-    update?: TeacherUpdateWithWhereUniqueWithoutSchoolInput | TeacherUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: TeacherUpdateManyWithWhereWithoutSchoolInput | TeacherUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: TeacherScalarWhereInput | TeacherScalarWhereInput[]
-  }
-
-  export type ClassUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<ClassCreateWithoutSchoolInput, ClassUncheckedCreateWithoutSchoolInput> | ClassCreateWithoutSchoolInput[] | ClassUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: ClassCreateOrConnectWithoutSchoolInput | ClassCreateOrConnectWithoutSchoolInput[]
-    upsert?: ClassUpsertWithWhereUniqueWithoutSchoolInput | ClassUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: ClassCreateManySchoolInputEnvelope
-    set?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
-    disconnect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
-    delete?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
-    connect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
-    update?: ClassUpdateWithWhereUniqueWithoutSchoolInput | ClassUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: ClassUpdateManyWithWhereWithoutSchoolInput | ClassUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: ClassScalarWhereInput | ClassScalarWhereInput[]
-  }
-
-  export type SubjectUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<SubjectCreateWithoutSchoolInput, SubjectUncheckedCreateWithoutSchoolInput> | SubjectCreateWithoutSchoolInput[] | SubjectUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: SubjectCreateOrConnectWithoutSchoolInput | SubjectCreateOrConnectWithoutSchoolInput[]
-    upsert?: SubjectUpsertWithWhereUniqueWithoutSchoolInput | SubjectUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: SubjectCreateManySchoolInputEnvelope
-    set?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
-    disconnect?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
-    delete?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
-    connect?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
-    update?: SubjectUpdateWithWhereUniqueWithoutSchoolInput | SubjectUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: SubjectUpdateManyWithWhereWithoutSchoolInput | SubjectUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: SubjectScalarWhereInput | SubjectScalarWhereInput[]
-  }
-
-  export type ChapterUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<ChapterCreateWithoutSchoolInput, ChapterUncheckedCreateWithoutSchoolInput> | ChapterCreateWithoutSchoolInput[] | ChapterUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: ChapterCreateOrConnectWithoutSchoolInput | ChapterCreateOrConnectWithoutSchoolInput[]
-    upsert?: ChapterUpsertWithWhereUniqueWithoutSchoolInput | ChapterUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: ChapterCreateManySchoolInputEnvelope
-    set?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
-    disconnect?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
-    delete?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
-    connect?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
-    update?: ChapterUpdateWithWhereUniqueWithoutSchoolInput | ChapterUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: ChapterUpdateManyWithWhereWithoutSchoolInput | ChapterUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: ChapterScalarWhereInput | ChapterScalarWhereInput[]
-  }
-
-  export type TopicUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<TopicCreateWithoutSchoolInput, TopicUncheckedCreateWithoutSchoolInput> | TopicCreateWithoutSchoolInput[] | TopicUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: TopicCreateOrConnectWithoutSchoolInput | TopicCreateOrConnectWithoutSchoolInput[]
-    upsert?: TopicUpsertWithWhereUniqueWithoutSchoolInput | TopicUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: TopicCreateManySchoolInputEnvelope
-    set?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
-    disconnect?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
-    delete?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
-    connect?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
-    update?: TopicUpdateWithWhereUniqueWithoutSchoolInput | TopicUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: TopicUpdateManyWithWhereWithoutSchoolInput | TopicUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: TopicScalarWhereInput | TopicScalarWhereInput[]
-  }
-
-  export type NotificationUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<NotificationCreateWithoutSchoolInput, NotificationUncheckedCreateWithoutSchoolInput> | NotificationCreateWithoutSchoolInput[] | NotificationUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: NotificationCreateOrConnectWithoutSchoolInput | NotificationCreateOrConnectWithoutSchoolInput[]
-    upsert?: NotificationUpsertWithWhereUniqueWithoutSchoolInput | NotificationUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: NotificationCreateManySchoolInputEnvelope
-    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-    update?: NotificationUpdateWithWhereUniqueWithoutSchoolInput | NotificationUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: NotificationUpdateManyWithWhereWithoutSchoolInput | NotificationUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  export type AcademicTermUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<AcademicTermCreateWithoutSchoolInput, AcademicTermUncheckedCreateWithoutSchoolInput> | AcademicTermCreateWithoutSchoolInput[] | AcademicTermUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: AcademicTermCreateOrConnectWithoutSchoolInput | AcademicTermCreateOrConnectWithoutSchoolInput[]
+    upsert?: AcademicTermUpsertWithWhereUniqueWithoutSchoolInput | AcademicTermUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: AcademicTermCreateManySchoolInputEnvelope
+    set?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
+    disconnect?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
+    delete?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
+    connect?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
+    update?: AcademicTermUpdateWithWhereUniqueWithoutSchoolInput | AcademicTermUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: AcademicTermUpdateManyWithWhereWithoutSchoolInput | AcademicTermUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: AcademicTermScalarWhereInput | AcademicTermScalarWhereInput[]
   }
 
   export type ActivityLogUpdateManyWithoutSchoolNestedInput = {
@@ -27965,91 +27867,7 @@ export namespace Prisma {
     deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
   }
 
-  export type AcademicTermUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<AcademicTermCreateWithoutSchoolInput, AcademicTermUncheckedCreateWithoutSchoolInput> | AcademicTermCreateWithoutSchoolInput[] | AcademicTermUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: AcademicTermCreateOrConnectWithoutSchoolInput | AcademicTermCreateOrConnectWithoutSchoolInput[]
-    upsert?: AcademicTermUpsertWithWhereUniqueWithoutSchoolInput | AcademicTermUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: AcademicTermCreateManySchoolInputEnvelope
-    set?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
-    disconnect?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
-    delete?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
-    connect?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
-    update?: AcademicTermUpdateWithWhereUniqueWithoutSchoolInput | AcademicTermUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: AcademicTermUpdateManyWithWhereWithoutSchoolInput | AcademicTermUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: AcademicTermScalarWhereInput | AcademicTermScalarWhereInput[]
-  }
-
-  export type UserUncheckedUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
-    upsert?: UserUpsertWithWhereUniqueWithoutSchoolInput | UserUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: UserCreateManySchoolInputEnvelope
-    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    update?: UserUpdateWithWhereUniqueWithoutSchoolInput | UserUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: UserUpdateManyWithWhereWithoutSchoolInput | UserUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
-  }
-
-  export type SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<SubscriptionCreateWithoutSchoolInput, SubscriptionUncheckedCreateWithoutSchoolInput> | SubscriptionCreateWithoutSchoolInput[] | SubscriptionUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: SubscriptionCreateOrConnectWithoutSchoolInput | SubscriptionCreateOrConnectWithoutSchoolInput[]
-    upsert?: SubscriptionUpsertWithWhereUniqueWithoutSchoolInput | SubscriptionUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: SubscriptionCreateManySchoolInputEnvelope
-    set?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
-    disconnect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
-    delete?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
-    connect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
-    update?: SubscriptionUpdateWithWhereUniqueWithoutSchoolInput | SubscriptionUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: SubscriptionUpdateManyWithWhereWithoutSchoolInput | SubscriptionUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: SubscriptionScalarWhereInput | SubscriptionScalarWhereInput[]
-  }
-
-  export type TeacherUncheckedUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<TeacherCreateWithoutSchoolInput, TeacherUncheckedCreateWithoutSchoolInput> | TeacherCreateWithoutSchoolInput[] | TeacherUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: TeacherCreateOrConnectWithoutSchoolInput | TeacherCreateOrConnectWithoutSchoolInput[]
-    upsert?: TeacherUpsertWithWhereUniqueWithoutSchoolInput | TeacherUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: TeacherCreateManySchoolInputEnvelope
-    set?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
-    disconnect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
-    delete?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
-    connect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
-    update?: TeacherUpdateWithWhereUniqueWithoutSchoolInput | TeacherUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: TeacherUpdateManyWithWhereWithoutSchoolInput | TeacherUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: TeacherScalarWhereInput | TeacherScalarWhereInput[]
-  }
-
-  export type ClassUncheckedUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<ClassCreateWithoutSchoolInput, ClassUncheckedCreateWithoutSchoolInput> | ClassCreateWithoutSchoolInput[] | ClassUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: ClassCreateOrConnectWithoutSchoolInput | ClassCreateOrConnectWithoutSchoolInput[]
-    upsert?: ClassUpsertWithWhereUniqueWithoutSchoolInput | ClassUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: ClassCreateManySchoolInputEnvelope
-    set?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
-    disconnect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
-    delete?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
-    connect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
-    update?: ClassUpdateWithWhereUniqueWithoutSchoolInput | ClassUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: ClassUpdateManyWithWhereWithoutSchoolInput | ClassUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: ClassScalarWhereInput | ClassScalarWhereInput[]
-  }
-
-  export type SubjectUncheckedUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<SubjectCreateWithoutSchoolInput, SubjectUncheckedCreateWithoutSchoolInput> | SubjectCreateWithoutSchoolInput[] | SubjectUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: SubjectCreateOrConnectWithoutSchoolInput | SubjectCreateOrConnectWithoutSchoolInput[]
-    upsert?: SubjectUpsertWithWhereUniqueWithoutSchoolInput | SubjectUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: SubjectCreateManySchoolInputEnvelope
-    set?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
-    disconnect?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
-    delete?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
-    connect?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
-    update?: SubjectUpdateWithWhereUniqueWithoutSchoolInput | SubjectUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: SubjectUpdateManyWithWhereWithoutSchoolInput | SubjectUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: SubjectScalarWhereInput | SubjectScalarWhereInput[]
-  }
-
-  export type ChapterUncheckedUpdateManyWithoutSchoolNestedInput = {
+  export type ChapterUpdateManyWithoutSchoolNestedInput = {
     create?: XOR<ChapterCreateWithoutSchoolInput, ChapterUncheckedCreateWithoutSchoolInput> | ChapterCreateWithoutSchoolInput[] | ChapterUncheckedCreateWithoutSchoolInput[]
     connectOrCreate?: ChapterCreateOrConnectWithoutSchoolInput | ChapterCreateOrConnectWithoutSchoolInput[]
     upsert?: ChapterUpsertWithWhereUniqueWithoutSchoolInput | ChapterUpsertWithWhereUniqueWithoutSchoolInput[]
@@ -28063,7 +27881,77 @@ export namespace Prisma {
     deleteMany?: ChapterScalarWhereInput | ChapterScalarWhereInput[]
   }
 
-  export type TopicUncheckedUpdateManyWithoutSchoolNestedInput = {
+  export type ClassUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<ClassCreateWithoutSchoolInput, ClassUncheckedCreateWithoutSchoolInput> | ClassCreateWithoutSchoolInput[] | ClassUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: ClassCreateOrConnectWithoutSchoolInput | ClassCreateOrConnectWithoutSchoolInput[]
+    upsert?: ClassUpsertWithWhereUniqueWithoutSchoolInput | ClassUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: ClassCreateManySchoolInputEnvelope
+    set?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+    disconnect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+    delete?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+    connect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+    update?: ClassUpdateWithWhereUniqueWithoutSchoolInput | ClassUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: ClassUpdateManyWithWhereWithoutSchoolInput | ClassUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: ClassScalarWhereInput | ClassScalarWhereInput[]
+  }
+
+  export type NotificationUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<NotificationCreateWithoutSchoolInput, NotificationUncheckedCreateWithoutSchoolInput> | NotificationCreateWithoutSchoolInput[] | NotificationUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutSchoolInput | NotificationCreateOrConnectWithoutSchoolInput[]
+    upsert?: NotificationUpsertWithWhereUniqueWithoutSchoolInput | NotificationUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: NotificationCreateManySchoolInputEnvelope
+    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    update?: NotificationUpdateWithWhereUniqueWithoutSchoolInput | NotificationUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: NotificationUpdateManyWithWhereWithoutSchoolInput | NotificationUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  }
+
+  export type SubjectUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<SubjectCreateWithoutSchoolInput, SubjectUncheckedCreateWithoutSchoolInput> | SubjectCreateWithoutSchoolInput[] | SubjectUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: SubjectCreateOrConnectWithoutSchoolInput | SubjectCreateOrConnectWithoutSchoolInput[]
+    upsert?: SubjectUpsertWithWhereUniqueWithoutSchoolInput | SubjectUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: SubjectCreateManySchoolInputEnvelope
+    set?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
+    disconnect?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
+    delete?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
+    connect?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
+    update?: SubjectUpdateWithWhereUniqueWithoutSchoolInput | SubjectUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: SubjectUpdateManyWithWhereWithoutSchoolInput | SubjectUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: SubjectScalarWhereInput | SubjectScalarWhereInput[]
+  }
+
+  export type SubscriptionUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<SubscriptionCreateWithoutSchoolInput, SubscriptionUncheckedCreateWithoutSchoolInput> | SubscriptionCreateWithoutSchoolInput[] | SubscriptionUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutSchoolInput | SubscriptionCreateOrConnectWithoutSchoolInput[]
+    upsert?: SubscriptionUpsertWithWhereUniqueWithoutSchoolInput | SubscriptionUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: SubscriptionCreateManySchoolInputEnvelope
+    set?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
+    disconnect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
+    delete?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
+    connect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
+    update?: SubscriptionUpdateWithWhereUniqueWithoutSchoolInput | SubscriptionUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: SubscriptionUpdateManyWithWhereWithoutSchoolInput | SubscriptionUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: SubscriptionScalarWhereInput | SubscriptionScalarWhereInput[]
+  }
+
+  export type TeacherUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<TeacherCreateWithoutSchoolInput, TeacherUncheckedCreateWithoutSchoolInput> | TeacherCreateWithoutSchoolInput[] | TeacherUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: TeacherCreateOrConnectWithoutSchoolInput | TeacherCreateOrConnectWithoutSchoolInput[]
+    upsert?: TeacherUpsertWithWhereUniqueWithoutSchoolInput | TeacherUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: TeacherCreateManySchoolInputEnvelope
+    set?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+    disconnect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+    delete?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+    connect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+    update?: TeacherUpdateWithWhereUniqueWithoutSchoolInput | TeacherUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: TeacherUpdateManyWithWhereWithoutSchoolInput | TeacherUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: TeacherScalarWhereInput | TeacherScalarWhereInput[]
+  }
+
+  export type TopicUpdateManyWithoutSchoolNestedInput = {
     create?: XOR<TopicCreateWithoutSchoolInput, TopicUncheckedCreateWithoutSchoolInput> | TopicCreateWithoutSchoolInput[] | TopicUncheckedCreateWithoutSchoolInput[]
     connectOrCreate?: TopicCreateOrConnectWithoutSchoolInput | TopicCreateOrConnectWithoutSchoolInput[]
     upsert?: TopicUpsertWithWhereUniqueWithoutSchoolInput | TopicUpsertWithWhereUniqueWithoutSchoolInput[]
@@ -28077,18 +27965,32 @@ export namespace Prisma {
     deleteMany?: TopicScalarWhereInput | TopicScalarWhereInput[]
   }
 
-  export type NotificationUncheckedUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<NotificationCreateWithoutSchoolInput, NotificationUncheckedCreateWithoutSchoolInput> | NotificationCreateWithoutSchoolInput[] | NotificationUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: NotificationCreateOrConnectWithoutSchoolInput | NotificationCreateOrConnectWithoutSchoolInput[]
-    upsert?: NotificationUpsertWithWhereUniqueWithoutSchoolInput | NotificationUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: NotificationCreateManySchoolInputEnvelope
-    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
-    update?: NotificationUpdateWithWhereUniqueWithoutSchoolInput | NotificationUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: NotificationUpdateManyWithWhereWithoutSchoolInput | NotificationUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  export type UserUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutSchoolInput | UserUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: UserCreateManySchoolInputEnvelope
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutSchoolInput | UserUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutSchoolInput | UserUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
+  }
+
+  export type AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<AcademicTermCreateWithoutSchoolInput, AcademicTermUncheckedCreateWithoutSchoolInput> | AcademicTermCreateWithoutSchoolInput[] | AcademicTermUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: AcademicTermCreateOrConnectWithoutSchoolInput | AcademicTermCreateOrConnectWithoutSchoolInput[]
+    upsert?: AcademicTermUpsertWithWhereUniqueWithoutSchoolInput | AcademicTermUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: AcademicTermCreateManySchoolInputEnvelope
+    set?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
+    disconnect?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
+    delete?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
+    connect?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
+    update?: AcademicTermUpdateWithWhereUniqueWithoutSchoolInput | AcademicTermUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: AcademicTermUpdateManyWithWhereWithoutSchoolInput | AcademicTermUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: AcademicTermScalarWhereInput | AcademicTermScalarWhereInput[]
   }
 
   export type ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput = {
@@ -28119,18 +28021,116 @@ export namespace Prisma {
     deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
   }
 
-  export type AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<AcademicTermCreateWithoutSchoolInput, AcademicTermUncheckedCreateWithoutSchoolInput> | AcademicTermCreateWithoutSchoolInput[] | AcademicTermUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: AcademicTermCreateOrConnectWithoutSchoolInput | AcademicTermCreateOrConnectWithoutSchoolInput[]
-    upsert?: AcademicTermUpsertWithWhereUniqueWithoutSchoolInput | AcademicTermUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: AcademicTermCreateManySchoolInputEnvelope
-    set?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
-    disconnect?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
-    delete?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
-    connect?: AcademicTermWhereUniqueInput | AcademicTermWhereUniqueInput[]
-    update?: AcademicTermUpdateWithWhereUniqueWithoutSchoolInput | AcademicTermUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: AcademicTermUpdateManyWithWhereWithoutSchoolInput | AcademicTermUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: AcademicTermScalarWhereInput | AcademicTermScalarWhereInput[]
+  export type ChapterUncheckedUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<ChapterCreateWithoutSchoolInput, ChapterUncheckedCreateWithoutSchoolInput> | ChapterCreateWithoutSchoolInput[] | ChapterUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: ChapterCreateOrConnectWithoutSchoolInput | ChapterCreateOrConnectWithoutSchoolInput[]
+    upsert?: ChapterUpsertWithWhereUniqueWithoutSchoolInput | ChapterUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: ChapterCreateManySchoolInputEnvelope
+    set?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
+    disconnect?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
+    delete?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
+    connect?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
+    update?: ChapterUpdateWithWhereUniqueWithoutSchoolInput | ChapterUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: ChapterUpdateManyWithWhereWithoutSchoolInput | ChapterUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: ChapterScalarWhereInput | ChapterScalarWhereInput[]
+  }
+
+  export type ClassUncheckedUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<ClassCreateWithoutSchoolInput, ClassUncheckedCreateWithoutSchoolInput> | ClassCreateWithoutSchoolInput[] | ClassUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: ClassCreateOrConnectWithoutSchoolInput | ClassCreateOrConnectWithoutSchoolInput[]
+    upsert?: ClassUpsertWithWhereUniqueWithoutSchoolInput | ClassUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: ClassCreateManySchoolInputEnvelope
+    set?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+    disconnect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+    delete?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+    connect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+    update?: ClassUpdateWithWhereUniqueWithoutSchoolInput | ClassUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: ClassUpdateManyWithWhereWithoutSchoolInput | ClassUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: ClassScalarWhereInput | ClassScalarWhereInput[]
+  }
+
+  export type NotificationUncheckedUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<NotificationCreateWithoutSchoolInput, NotificationUncheckedCreateWithoutSchoolInput> | NotificationCreateWithoutSchoolInput[] | NotificationUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutSchoolInput | NotificationCreateOrConnectWithoutSchoolInput[]
+    upsert?: NotificationUpsertWithWhereUniqueWithoutSchoolInput | NotificationUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: NotificationCreateManySchoolInputEnvelope
+    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    update?: NotificationUpdateWithWhereUniqueWithoutSchoolInput | NotificationUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: NotificationUpdateManyWithWhereWithoutSchoolInput | NotificationUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  }
+
+  export type SubjectUncheckedUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<SubjectCreateWithoutSchoolInput, SubjectUncheckedCreateWithoutSchoolInput> | SubjectCreateWithoutSchoolInput[] | SubjectUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: SubjectCreateOrConnectWithoutSchoolInput | SubjectCreateOrConnectWithoutSchoolInput[]
+    upsert?: SubjectUpsertWithWhereUniqueWithoutSchoolInput | SubjectUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: SubjectCreateManySchoolInputEnvelope
+    set?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
+    disconnect?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
+    delete?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
+    connect?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
+    update?: SubjectUpdateWithWhereUniqueWithoutSchoolInput | SubjectUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: SubjectUpdateManyWithWhereWithoutSchoolInput | SubjectUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: SubjectScalarWhereInput | SubjectScalarWhereInput[]
+  }
+
+  export type SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<SubscriptionCreateWithoutSchoolInput, SubscriptionUncheckedCreateWithoutSchoolInput> | SubscriptionCreateWithoutSchoolInput[] | SubscriptionUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutSchoolInput | SubscriptionCreateOrConnectWithoutSchoolInput[]
+    upsert?: SubscriptionUpsertWithWhereUniqueWithoutSchoolInput | SubscriptionUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: SubscriptionCreateManySchoolInputEnvelope
+    set?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
+    disconnect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
+    delete?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
+    connect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
+    update?: SubscriptionUpdateWithWhereUniqueWithoutSchoolInput | SubscriptionUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: SubscriptionUpdateManyWithWhereWithoutSchoolInput | SubscriptionUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: SubscriptionScalarWhereInput | SubscriptionScalarWhereInput[]
+  }
+
+  export type TeacherUncheckedUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<TeacherCreateWithoutSchoolInput, TeacherUncheckedCreateWithoutSchoolInput> | TeacherCreateWithoutSchoolInput[] | TeacherUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: TeacherCreateOrConnectWithoutSchoolInput | TeacherCreateOrConnectWithoutSchoolInput[]
+    upsert?: TeacherUpsertWithWhereUniqueWithoutSchoolInput | TeacherUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: TeacherCreateManySchoolInputEnvelope
+    set?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+    disconnect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+    delete?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+    connect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+    update?: TeacherUpdateWithWhereUniqueWithoutSchoolInput | TeacherUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: TeacherUpdateManyWithWhereWithoutSchoolInput | TeacherUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: TeacherScalarWhereInput | TeacherScalarWhereInput[]
+  }
+
+  export type TopicUncheckedUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<TopicCreateWithoutSchoolInput, TopicUncheckedCreateWithoutSchoolInput> | TopicCreateWithoutSchoolInput[] | TopicUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: TopicCreateOrConnectWithoutSchoolInput | TopicCreateOrConnectWithoutSchoolInput[]
+    upsert?: TopicUpsertWithWhereUniqueWithoutSchoolInput | TopicUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: TopicCreateManySchoolInputEnvelope
+    set?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
+    disconnect?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
+    delete?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
+    connect?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
+    update?: TopicUpdateWithWhereUniqueWithoutSchoolInput | TopicUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: TopicUpdateManyWithWhereWithoutSchoolInput | TopicUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: TopicScalarWhereInput | TopicScalarWhereInput[]
+  }
+
+  export type UserUncheckedUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutSchoolInput | UserUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: UserCreateManySchoolInputEnvelope
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutSchoolInput | UserUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutSchoolInput | UserUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
   export type SubscriptionCreateNestedManyWithoutPlanInput = {
@@ -28195,20 +28195,28 @@ export namespace Prisma {
     deleteMany?: SubscriptionScalarWhereInput | SubscriptionScalarWhereInput[]
   }
 
-  export type SchoolCreateNestedOneWithoutSubscriptionsInput = {
-    create?: XOR<SchoolCreateWithoutSubscriptionsInput, SchoolUncheckedCreateWithoutSubscriptionsInput>
-    connectOrCreate?: SchoolCreateOrConnectWithoutSubscriptionsInput
-    connect?: SchoolWhereUniqueInput
-  }
-
   export type SubscriptionPlanCreateNestedOneWithoutSubscriptionsInput = {
     create?: XOR<SubscriptionPlanCreateWithoutSubscriptionsInput, SubscriptionPlanUncheckedCreateWithoutSubscriptionsInput>
     connectOrCreate?: SubscriptionPlanCreateOrConnectWithoutSubscriptionsInput
     connect?: SubscriptionPlanWhereUniqueInput
   }
 
+  export type SchoolCreateNestedOneWithoutSubscriptionsInput = {
+    create?: XOR<SchoolCreateWithoutSubscriptionsInput, SchoolUncheckedCreateWithoutSubscriptionsInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutSubscriptionsInput
+    connect?: SchoolWhereUniqueInput
+  }
+
   export type EnumSubscriptionStatusFieldUpdateOperationsInput = {
     set?: $Enums.SubscriptionStatus
+  }
+
+  export type SubscriptionPlanUpdateOneRequiredWithoutSubscriptionsNestedInput = {
+    create?: XOR<SubscriptionPlanCreateWithoutSubscriptionsInput, SubscriptionPlanUncheckedCreateWithoutSubscriptionsInput>
+    connectOrCreate?: SubscriptionPlanCreateOrConnectWithoutSubscriptionsInput
+    upsert?: SubscriptionPlanUpsertWithoutSubscriptionsInput
+    connect?: SubscriptionPlanWhereUniqueInput
+    update?: XOR<XOR<SubscriptionPlanUpdateToOneWithWhereWithoutSubscriptionsInput, SubscriptionPlanUpdateWithoutSubscriptionsInput>, SubscriptionPlanUncheckedUpdateWithoutSubscriptionsInput>
   }
 
   export type SchoolUpdateOneRequiredWithoutSubscriptionsNestedInput = {
@@ -28219,12 +28227,18 @@ export namespace Prisma {
     update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutSubscriptionsInput, SchoolUpdateWithoutSubscriptionsInput>, SchoolUncheckedUpdateWithoutSubscriptionsInput>
   }
 
-  export type SubscriptionPlanUpdateOneRequiredWithoutSubscriptionsNestedInput = {
-    create?: XOR<SubscriptionPlanCreateWithoutSubscriptionsInput, SubscriptionPlanUncheckedCreateWithoutSubscriptionsInput>
-    connectOrCreate?: SubscriptionPlanCreateOrConnectWithoutSubscriptionsInput
-    upsert?: SubscriptionPlanUpsertWithoutSubscriptionsInput
-    connect?: SubscriptionPlanWhereUniqueInput
-    update?: XOR<XOR<SubscriptionPlanUpdateToOneWithWhereWithoutSubscriptionsInput, SubscriptionPlanUpdateWithoutSubscriptionsInput>, SubscriptionPlanUncheckedUpdateWithoutSubscriptionsInput>
+  export type ChapterProgressCreateNestedManyWithoutTeacherInput = {
+    create?: XOR<ChapterProgressCreateWithoutTeacherInput, ChapterProgressUncheckedCreateWithoutTeacherInput> | ChapterProgressCreateWithoutTeacherInput[] | ChapterProgressUncheckedCreateWithoutTeacherInput[]
+    connectOrCreate?: ChapterProgressCreateOrConnectWithoutTeacherInput | ChapterProgressCreateOrConnectWithoutTeacherInput[]
+    createMany?: ChapterProgressCreateManyTeacherInputEnvelope
+    connect?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
+  }
+
+  export type TeacherClassCreateNestedManyWithoutTeacherInput = {
+    create?: XOR<TeacherClassCreateWithoutTeacherInput, TeacherClassUncheckedCreateWithoutTeacherInput> | TeacherClassCreateWithoutTeacherInput[] | TeacherClassUncheckedCreateWithoutTeacherInput[]
+    connectOrCreate?: TeacherClassCreateOrConnectWithoutTeacherInput | TeacherClassCreateOrConnectWithoutTeacherInput[]
+    createMany?: TeacherClassCreateManyTeacherInputEnvelope
+    connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
   }
 
   export type SchoolCreateNestedOneWithoutTeachersInput = {
@@ -28239,32 +28253,11 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
-  export type TeacherClassCreateNestedManyWithoutTeacherInput = {
-    create?: XOR<TeacherClassCreateWithoutTeacherInput, TeacherClassUncheckedCreateWithoutTeacherInput> | TeacherClassCreateWithoutTeacherInput[] | TeacherClassUncheckedCreateWithoutTeacherInput[]
-    connectOrCreate?: TeacherClassCreateOrConnectWithoutTeacherInput | TeacherClassCreateOrConnectWithoutTeacherInput[]
-    createMany?: TeacherClassCreateManyTeacherInputEnvelope
-    connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
-  }
-
-  export type ChapterProgressCreateNestedManyWithoutTeacherInput = {
-    create?: XOR<ChapterProgressCreateWithoutTeacherInput, ChapterProgressUncheckedCreateWithoutTeacherInput> | ChapterProgressCreateWithoutTeacherInput[] | ChapterProgressUncheckedCreateWithoutTeacherInput[]
-    connectOrCreate?: ChapterProgressCreateOrConnectWithoutTeacherInput | ChapterProgressCreateOrConnectWithoutTeacherInput[]
-    createMany?: ChapterProgressCreateManyTeacherInputEnvelope
-    connect?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
-  }
-
   export type TopicProgressCreateNestedManyWithoutTeacherInput = {
     create?: XOR<TopicProgressCreateWithoutTeacherInput, TopicProgressUncheckedCreateWithoutTeacherInput> | TopicProgressCreateWithoutTeacherInput[] | TopicProgressUncheckedCreateWithoutTeacherInput[]
     connectOrCreate?: TopicProgressCreateOrConnectWithoutTeacherInput | TopicProgressCreateOrConnectWithoutTeacherInput[]
     createMany?: TopicProgressCreateManyTeacherInputEnvelope
     connect?: TopicProgressWhereUniqueInput | TopicProgressWhereUniqueInput[]
-  }
-
-  export type TeacherClassUncheckedCreateNestedManyWithoutTeacherInput = {
-    create?: XOR<TeacherClassCreateWithoutTeacherInput, TeacherClassUncheckedCreateWithoutTeacherInput> | TeacherClassCreateWithoutTeacherInput[] | TeacherClassUncheckedCreateWithoutTeacherInput[]
-    connectOrCreate?: TeacherClassCreateOrConnectWithoutTeacherInput | TeacherClassCreateOrConnectWithoutTeacherInput[]
-    createMany?: TeacherClassCreateManyTeacherInputEnvelope
-    connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
   }
 
   export type ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput = {
@@ -28274,11 +28267,46 @@ export namespace Prisma {
     connect?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
   }
 
+  export type TeacherClassUncheckedCreateNestedManyWithoutTeacherInput = {
+    create?: XOR<TeacherClassCreateWithoutTeacherInput, TeacherClassUncheckedCreateWithoutTeacherInput> | TeacherClassCreateWithoutTeacherInput[] | TeacherClassUncheckedCreateWithoutTeacherInput[]
+    connectOrCreate?: TeacherClassCreateOrConnectWithoutTeacherInput | TeacherClassCreateOrConnectWithoutTeacherInput[]
+    createMany?: TeacherClassCreateManyTeacherInputEnvelope
+    connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
+  }
+
   export type TopicProgressUncheckedCreateNestedManyWithoutTeacherInput = {
     create?: XOR<TopicProgressCreateWithoutTeacherInput, TopicProgressUncheckedCreateWithoutTeacherInput> | TopicProgressCreateWithoutTeacherInput[] | TopicProgressUncheckedCreateWithoutTeacherInput[]
     connectOrCreate?: TopicProgressCreateOrConnectWithoutTeacherInput | TopicProgressCreateOrConnectWithoutTeacherInput[]
     createMany?: TopicProgressCreateManyTeacherInputEnvelope
     connect?: TopicProgressWhereUniqueInput | TopicProgressWhereUniqueInput[]
+  }
+
+  export type ChapterProgressUpdateManyWithoutTeacherNestedInput = {
+    create?: XOR<ChapterProgressCreateWithoutTeacherInput, ChapterProgressUncheckedCreateWithoutTeacherInput> | ChapterProgressCreateWithoutTeacherInput[] | ChapterProgressUncheckedCreateWithoutTeacherInput[]
+    connectOrCreate?: ChapterProgressCreateOrConnectWithoutTeacherInput | ChapterProgressCreateOrConnectWithoutTeacherInput[]
+    upsert?: ChapterProgressUpsertWithWhereUniqueWithoutTeacherInput | ChapterProgressUpsertWithWhereUniqueWithoutTeacherInput[]
+    createMany?: ChapterProgressCreateManyTeacherInputEnvelope
+    set?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
+    disconnect?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
+    delete?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
+    connect?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
+    update?: ChapterProgressUpdateWithWhereUniqueWithoutTeacherInput | ChapterProgressUpdateWithWhereUniqueWithoutTeacherInput[]
+    updateMany?: ChapterProgressUpdateManyWithWhereWithoutTeacherInput | ChapterProgressUpdateManyWithWhereWithoutTeacherInput[]
+    deleteMany?: ChapterProgressScalarWhereInput | ChapterProgressScalarWhereInput[]
+  }
+
+  export type TeacherClassUpdateManyWithoutTeacherNestedInput = {
+    create?: XOR<TeacherClassCreateWithoutTeacherInput, TeacherClassUncheckedCreateWithoutTeacherInput> | TeacherClassCreateWithoutTeacherInput[] | TeacherClassUncheckedCreateWithoutTeacherInput[]
+    connectOrCreate?: TeacherClassCreateOrConnectWithoutTeacherInput | TeacherClassCreateOrConnectWithoutTeacherInput[]
+    upsert?: TeacherClassUpsertWithWhereUniqueWithoutTeacherInput | TeacherClassUpsertWithWhereUniqueWithoutTeacherInput[]
+    createMany?: TeacherClassCreateManyTeacherInputEnvelope
+    set?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
+    disconnect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
+    delete?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
+    connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
+    update?: TeacherClassUpdateWithWhereUniqueWithoutTeacherInput | TeacherClassUpdateWithWhereUniqueWithoutTeacherInput[]
+    updateMany?: TeacherClassUpdateManyWithWhereWithoutTeacherInput | TeacherClassUpdateManyWithWhereWithoutTeacherInput[]
+    deleteMany?: TeacherClassScalarWhereInput | TeacherClassScalarWhereInput[]
   }
 
   export type SchoolUpdateOneRequiredWithoutTeachersNestedInput = {
@@ -28297,34 +28325,6 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTeacherInput, UserUpdateWithoutTeacherInput>, UserUncheckedUpdateWithoutTeacherInput>
   }
 
-  export type TeacherClassUpdateManyWithoutTeacherNestedInput = {
-    create?: XOR<TeacherClassCreateWithoutTeacherInput, TeacherClassUncheckedCreateWithoutTeacherInput> | TeacherClassCreateWithoutTeacherInput[] | TeacherClassUncheckedCreateWithoutTeacherInput[]
-    connectOrCreate?: TeacherClassCreateOrConnectWithoutTeacherInput | TeacherClassCreateOrConnectWithoutTeacherInput[]
-    upsert?: TeacherClassUpsertWithWhereUniqueWithoutTeacherInput | TeacherClassUpsertWithWhereUniqueWithoutTeacherInput[]
-    createMany?: TeacherClassCreateManyTeacherInputEnvelope
-    set?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
-    disconnect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
-    delete?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
-    connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
-    update?: TeacherClassUpdateWithWhereUniqueWithoutTeacherInput | TeacherClassUpdateWithWhereUniqueWithoutTeacherInput[]
-    updateMany?: TeacherClassUpdateManyWithWhereWithoutTeacherInput | TeacherClassUpdateManyWithWhereWithoutTeacherInput[]
-    deleteMany?: TeacherClassScalarWhereInput | TeacherClassScalarWhereInput[]
-  }
-
-  export type ChapterProgressUpdateManyWithoutTeacherNestedInput = {
-    create?: XOR<ChapterProgressCreateWithoutTeacherInput, ChapterProgressUncheckedCreateWithoutTeacherInput> | ChapterProgressCreateWithoutTeacherInput[] | ChapterProgressUncheckedCreateWithoutTeacherInput[]
-    connectOrCreate?: ChapterProgressCreateOrConnectWithoutTeacherInput | ChapterProgressCreateOrConnectWithoutTeacherInput[]
-    upsert?: ChapterProgressUpsertWithWhereUniqueWithoutTeacherInput | ChapterProgressUpsertWithWhereUniqueWithoutTeacherInput[]
-    createMany?: ChapterProgressCreateManyTeacherInputEnvelope
-    set?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
-    disconnect?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
-    delete?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
-    connect?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
-    update?: ChapterProgressUpdateWithWhereUniqueWithoutTeacherInput | ChapterProgressUpdateWithWhereUniqueWithoutTeacherInput[]
-    updateMany?: ChapterProgressUpdateManyWithWhereWithoutTeacherInput | ChapterProgressUpdateManyWithWhereWithoutTeacherInput[]
-    deleteMany?: ChapterProgressScalarWhereInput | ChapterProgressScalarWhereInput[]
-  }
-
   export type TopicProgressUpdateManyWithoutTeacherNestedInput = {
     create?: XOR<TopicProgressCreateWithoutTeacherInput, TopicProgressUncheckedCreateWithoutTeacherInput> | TopicProgressCreateWithoutTeacherInput[] | TopicProgressUncheckedCreateWithoutTeacherInput[]
     connectOrCreate?: TopicProgressCreateOrConnectWithoutTeacherInput | TopicProgressCreateOrConnectWithoutTeacherInput[]
@@ -28337,20 +28337,6 @@ export namespace Prisma {
     update?: TopicProgressUpdateWithWhereUniqueWithoutTeacherInput | TopicProgressUpdateWithWhereUniqueWithoutTeacherInput[]
     updateMany?: TopicProgressUpdateManyWithWhereWithoutTeacherInput | TopicProgressUpdateManyWithWhereWithoutTeacherInput[]
     deleteMany?: TopicProgressScalarWhereInput | TopicProgressScalarWhereInput[]
-  }
-
-  export type TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput = {
-    create?: XOR<TeacherClassCreateWithoutTeacherInput, TeacherClassUncheckedCreateWithoutTeacherInput> | TeacherClassCreateWithoutTeacherInput[] | TeacherClassUncheckedCreateWithoutTeacherInput[]
-    connectOrCreate?: TeacherClassCreateOrConnectWithoutTeacherInput | TeacherClassCreateOrConnectWithoutTeacherInput[]
-    upsert?: TeacherClassUpsertWithWhereUniqueWithoutTeacherInput | TeacherClassUpsertWithWhereUniqueWithoutTeacherInput[]
-    createMany?: TeacherClassCreateManyTeacherInputEnvelope
-    set?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
-    disconnect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
-    delete?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
-    connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
-    update?: TeacherClassUpdateWithWhereUniqueWithoutTeacherInput | TeacherClassUpdateWithWhereUniqueWithoutTeacherInput[]
-    updateMany?: TeacherClassUpdateManyWithWhereWithoutTeacherInput | TeacherClassUpdateManyWithWhereWithoutTeacherInput[]
-    deleteMany?: TeacherClassScalarWhereInput | TeacherClassScalarWhereInput[]
   }
 
   export type ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput = {
@@ -28367,6 +28353,20 @@ export namespace Prisma {
     deleteMany?: ChapterProgressScalarWhereInput | ChapterProgressScalarWhereInput[]
   }
 
+  export type TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput = {
+    create?: XOR<TeacherClassCreateWithoutTeacherInput, TeacherClassUncheckedCreateWithoutTeacherInput> | TeacherClassCreateWithoutTeacherInput[] | TeacherClassUncheckedCreateWithoutTeacherInput[]
+    connectOrCreate?: TeacherClassCreateOrConnectWithoutTeacherInput | TeacherClassCreateOrConnectWithoutTeacherInput[]
+    upsert?: TeacherClassUpsertWithWhereUniqueWithoutTeacherInput | TeacherClassUpsertWithWhereUniqueWithoutTeacherInput[]
+    createMany?: TeacherClassCreateManyTeacherInputEnvelope
+    set?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
+    disconnect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
+    delete?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
+    connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
+    update?: TeacherClassUpdateWithWhereUniqueWithoutTeacherInput | TeacherClassUpdateWithWhereUniqueWithoutTeacherInput[]
+    updateMany?: TeacherClassUpdateManyWithWhereWithoutTeacherInput | TeacherClassUpdateManyWithWhereWithoutTeacherInput[]
+    deleteMany?: TeacherClassScalarWhereInput | TeacherClassScalarWhereInput[]
+  }
+
   export type TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput = {
     create?: XOR<TopicProgressCreateWithoutTeacherInput, TopicProgressUncheckedCreateWithoutTeacherInput> | TopicProgressCreateWithoutTeacherInput[] | TopicProgressUncheckedCreateWithoutTeacherInput[]
     connectOrCreate?: TopicProgressCreateOrConnectWithoutTeacherInput | TopicProgressCreateOrConnectWithoutTeacherInput[]
@@ -28379,6 +28379,13 @@ export namespace Prisma {
     update?: TopicProgressUpdateWithWhereUniqueWithoutTeacherInput | TopicProgressUpdateWithWhereUniqueWithoutTeacherInput[]
     updateMany?: TopicProgressUpdateManyWithWhereWithoutTeacherInput | TopicProgressUpdateManyWithWhereWithoutTeacherInput[]
     deleteMany?: TopicProgressScalarWhereInput | TopicProgressScalarWhereInput[]
+  }
+
+  export type ChapterCreateNestedManyWithoutClassInput = {
+    create?: XOR<ChapterCreateWithoutClassInput, ChapterUncheckedCreateWithoutClassInput> | ChapterCreateWithoutClassInput[] | ChapterUncheckedCreateWithoutClassInput[]
+    connectOrCreate?: ChapterCreateOrConnectWithoutClassInput | ChapterCreateOrConnectWithoutClassInput[]
+    createMany?: ChapterCreateManyClassInputEnvelope
+    connect?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
   }
 
   export type SchoolCreateNestedOneWithoutClassesInput = {
@@ -28401,7 +28408,7 @@ export namespace Prisma {
     connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
   }
 
-  export type ChapterCreateNestedManyWithoutClassInput = {
+  export type ChapterUncheckedCreateNestedManyWithoutClassInput = {
     create?: XOR<ChapterCreateWithoutClassInput, ChapterUncheckedCreateWithoutClassInput> | ChapterCreateWithoutClassInput[] | ChapterUncheckedCreateWithoutClassInput[]
     connectOrCreate?: ChapterCreateOrConnectWithoutClassInput | ChapterCreateOrConnectWithoutClassInput[]
     createMany?: ChapterCreateManyClassInputEnvelope
@@ -28422,11 +28429,18 @@ export namespace Prisma {
     connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
   }
 
-  export type ChapterUncheckedCreateNestedManyWithoutClassInput = {
+  export type ChapterUpdateManyWithoutClassNestedInput = {
     create?: XOR<ChapterCreateWithoutClassInput, ChapterUncheckedCreateWithoutClassInput> | ChapterCreateWithoutClassInput[] | ChapterUncheckedCreateWithoutClassInput[]
     connectOrCreate?: ChapterCreateOrConnectWithoutClassInput | ChapterCreateOrConnectWithoutClassInput[]
+    upsert?: ChapterUpsertWithWhereUniqueWithoutClassInput | ChapterUpsertWithWhereUniqueWithoutClassInput[]
     createMany?: ChapterCreateManyClassInputEnvelope
+    set?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
+    disconnect?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
+    delete?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
     connect?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
+    update?: ChapterUpdateWithWhereUniqueWithoutClassInput | ChapterUpdateWithWhereUniqueWithoutClassInput[]
+    updateMany?: ChapterUpdateManyWithWhereWithoutClassInput | ChapterUpdateManyWithWhereWithoutClassInput[]
+    deleteMany?: ChapterScalarWhereInput | ChapterScalarWhereInput[]
   }
 
   export type SchoolUpdateOneRequiredWithoutClassesNestedInput = {
@@ -28465,7 +28479,7 @@ export namespace Prisma {
     deleteMany?: TeacherClassScalarWhereInput | TeacherClassScalarWhereInput[]
   }
 
-  export type ChapterUpdateManyWithoutClassNestedInput = {
+  export type ChapterUncheckedUpdateManyWithoutClassNestedInput = {
     create?: XOR<ChapterCreateWithoutClassInput, ChapterUncheckedCreateWithoutClassInput> | ChapterCreateWithoutClassInput[] | ChapterUncheckedCreateWithoutClassInput[]
     connectOrCreate?: ChapterCreateOrConnectWithoutClassInput | ChapterCreateOrConnectWithoutClassInput[]
     upsert?: ChapterUpsertWithWhereUniqueWithoutClassInput | ChapterUpsertWithWhereUniqueWithoutClassInput[]
@@ -28507,24 +28521,11 @@ export namespace Prisma {
     deleteMany?: TeacherClassScalarWhereInput | TeacherClassScalarWhereInput[]
   }
 
-  export type ChapterUncheckedUpdateManyWithoutClassNestedInput = {
-    create?: XOR<ChapterCreateWithoutClassInput, ChapterUncheckedCreateWithoutClassInput> | ChapterCreateWithoutClassInput[] | ChapterUncheckedCreateWithoutClassInput[]
-    connectOrCreate?: ChapterCreateOrConnectWithoutClassInput | ChapterCreateOrConnectWithoutClassInput[]
-    upsert?: ChapterUpsertWithWhereUniqueWithoutClassInput | ChapterUpsertWithWhereUniqueWithoutClassInput[]
-    createMany?: ChapterCreateManyClassInputEnvelope
-    set?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
-    disconnect?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
-    delete?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
+  export type ChapterCreateNestedManyWithoutSubjectInput = {
+    create?: XOR<ChapterCreateWithoutSubjectInput, ChapterUncheckedCreateWithoutSubjectInput> | ChapterCreateWithoutSubjectInput[] | ChapterUncheckedCreateWithoutSubjectInput[]
+    connectOrCreate?: ChapterCreateOrConnectWithoutSubjectInput | ChapterCreateOrConnectWithoutSubjectInput[]
+    createMany?: ChapterCreateManySubjectInputEnvelope
     connect?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
-    update?: ChapterUpdateWithWhereUniqueWithoutClassInput | ChapterUpdateWithWhereUniqueWithoutClassInput[]
-    updateMany?: ChapterUpdateManyWithWhereWithoutClassInput | ChapterUpdateManyWithWhereWithoutClassInput[]
-    deleteMany?: ChapterScalarWhereInput | ChapterScalarWhereInput[]
-  }
-
-  export type SchoolCreateNestedOneWithoutSubjectsInput = {
-    create?: XOR<SchoolCreateWithoutSubjectsInput, SchoolUncheckedCreateWithoutSubjectsInput>
-    connectOrCreate?: SchoolCreateOrConnectWithoutSubjectsInput
-    connect?: SchoolWhereUniqueInput
   }
 
   export type ClassCreateNestedOneWithoutSubjectsInput = {
@@ -28533,21 +28534,13 @@ export namespace Prisma {
     connect?: ClassWhereUniqueInput
   }
 
+  export type SchoolCreateNestedOneWithoutSubjectsInput = {
+    create?: XOR<SchoolCreateWithoutSubjectsInput, SchoolUncheckedCreateWithoutSubjectsInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutSubjectsInput
+    connect?: SchoolWhereUniqueInput
+  }
+
   export type TeacherClassCreateNestedManyWithoutSubjectInput = {
-    create?: XOR<TeacherClassCreateWithoutSubjectInput, TeacherClassUncheckedCreateWithoutSubjectInput> | TeacherClassCreateWithoutSubjectInput[] | TeacherClassUncheckedCreateWithoutSubjectInput[]
-    connectOrCreate?: TeacherClassCreateOrConnectWithoutSubjectInput | TeacherClassCreateOrConnectWithoutSubjectInput[]
-    createMany?: TeacherClassCreateManySubjectInputEnvelope
-    connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
-  }
-
-  export type ChapterCreateNestedManyWithoutSubjectInput = {
-    create?: XOR<ChapterCreateWithoutSubjectInput, ChapterUncheckedCreateWithoutSubjectInput> | ChapterCreateWithoutSubjectInput[] | ChapterUncheckedCreateWithoutSubjectInput[]
-    connectOrCreate?: ChapterCreateOrConnectWithoutSubjectInput | ChapterCreateOrConnectWithoutSubjectInput[]
-    createMany?: ChapterCreateManySubjectInputEnvelope
-    connect?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
-  }
-
-  export type TeacherClassUncheckedCreateNestedManyWithoutSubjectInput = {
     create?: XOR<TeacherClassCreateWithoutSubjectInput, TeacherClassUncheckedCreateWithoutSubjectInput> | TeacherClassCreateWithoutSubjectInput[] | TeacherClassUncheckedCreateWithoutSubjectInput[]
     connectOrCreate?: TeacherClassCreateOrConnectWithoutSubjectInput | TeacherClassCreateOrConnectWithoutSubjectInput[]
     createMany?: TeacherClassCreateManySubjectInputEnvelope
@@ -28561,36 +28554,11 @@ export namespace Prisma {
     connect?: ChapterWhereUniqueInput | ChapterWhereUniqueInput[]
   }
 
-  export type SchoolUpdateOneRequiredWithoutSubjectsNestedInput = {
-    create?: XOR<SchoolCreateWithoutSubjectsInput, SchoolUncheckedCreateWithoutSubjectsInput>
-    connectOrCreate?: SchoolCreateOrConnectWithoutSubjectsInput
-    upsert?: SchoolUpsertWithoutSubjectsInput
-    connect?: SchoolWhereUniqueInput
-    update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutSubjectsInput, SchoolUpdateWithoutSubjectsInput>, SchoolUncheckedUpdateWithoutSubjectsInput>
-  }
-
-  export type ClassUpdateOneWithoutSubjectsNestedInput = {
-    create?: XOR<ClassCreateWithoutSubjectsInput, ClassUncheckedCreateWithoutSubjectsInput>
-    connectOrCreate?: ClassCreateOrConnectWithoutSubjectsInput
-    upsert?: ClassUpsertWithoutSubjectsInput
-    disconnect?: ClassWhereInput | boolean
-    delete?: ClassWhereInput | boolean
-    connect?: ClassWhereUniqueInput
-    update?: XOR<XOR<ClassUpdateToOneWithWhereWithoutSubjectsInput, ClassUpdateWithoutSubjectsInput>, ClassUncheckedUpdateWithoutSubjectsInput>
-  }
-
-  export type TeacherClassUpdateManyWithoutSubjectNestedInput = {
+  export type TeacherClassUncheckedCreateNestedManyWithoutSubjectInput = {
     create?: XOR<TeacherClassCreateWithoutSubjectInput, TeacherClassUncheckedCreateWithoutSubjectInput> | TeacherClassCreateWithoutSubjectInput[] | TeacherClassUncheckedCreateWithoutSubjectInput[]
     connectOrCreate?: TeacherClassCreateOrConnectWithoutSubjectInput | TeacherClassCreateOrConnectWithoutSubjectInput[]
-    upsert?: TeacherClassUpsertWithWhereUniqueWithoutSubjectInput | TeacherClassUpsertWithWhereUniqueWithoutSubjectInput[]
     createMany?: TeacherClassCreateManySubjectInputEnvelope
-    set?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
-    disconnect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
-    delete?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
     connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
-    update?: TeacherClassUpdateWithWhereUniqueWithoutSubjectInput | TeacherClassUpdateWithWhereUniqueWithoutSubjectInput[]
-    updateMany?: TeacherClassUpdateManyWithWhereWithoutSubjectInput | TeacherClassUpdateManyWithWhereWithoutSubjectInput[]
-    deleteMany?: TeacherClassScalarWhereInput | TeacherClassScalarWhereInput[]
   }
 
   export type ChapterUpdateManyWithoutSubjectNestedInput = {
@@ -28607,7 +28575,25 @@ export namespace Prisma {
     deleteMany?: ChapterScalarWhereInput | ChapterScalarWhereInput[]
   }
 
-  export type TeacherClassUncheckedUpdateManyWithoutSubjectNestedInput = {
+  export type ClassUpdateOneWithoutSubjectsNestedInput = {
+    create?: XOR<ClassCreateWithoutSubjectsInput, ClassUncheckedCreateWithoutSubjectsInput>
+    connectOrCreate?: ClassCreateOrConnectWithoutSubjectsInput
+    upsert?: ClassUpsertWithoutSubjectsInput
+    disconnect?: ClassWhereInput | boolean
+    delete?: ClassWhereInput | boolean
+    connect?: ClassWhereUniqueInput
+    update?: XOR<XOR<ClassUpdateToOneWithWhereWithoutSubjectsInput, ClassUpdateWithoutSubjectsInput>, ClassUncheckedUpdateWithoutSubjectsInput>
+  }
+
+  export type SchoolUpdateOneRequiredWithoutSubjectsNestedInput = {
+    create?: XOR<SchoolCreateWithoutSubjectsInput, SchoolUncheckedCreateWithoutSubjectsInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutSubjectsInput
+    upsert?: SchoolUpsertWithoutSubjectsInput
+    connect?: SchoolWhereUniqueInput
+    update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutSubjectsInput, SchoolUpdateWithoutSubjectsInput>, SchoolUncheckedUpdateWithoutSubjectsInput>
+  }
+
+  export type TeacherClassUpdateManyWithoutSubjectNestedInput = {
     create?: XOR<TeacherClassCreateWithoutSubjectInput, TeacherClassUncheckedCreateWithoutSubjectInput> | TeacherClassCreateWithoutSubjectInput[] | TeacherClassUncheckedCreateWithoutSubjectInput[]
     connectOrCreate?: TeacherClassCreateOrConnectWithoutSubjectInput | TeacherClassCreateOrConnectWithoutSubjectInput[]
     upsert?: TeacherClassUpsertWithWhereUniqueWithoutSubjectInput | TeacherClassUpsertWithWhereUniqueWithoutSubjectInput[]
@@ -28635,6 +28621,33 @@ export namespace Prisma {
     deleteMany?: ChapterScalarWhereInput | ChapterScalarWhereInput[]
   }
 
+  export type TeacherClassUncheckedUpdateManyWithoutSubjectNestedInput = {
+    create?: XOR<TeacherClassCreateWithoutSubjectInput, TeacherClassUncheckedCreateWithoutSubjectInput> | TeacherClassCreateWithoutSubjectInput[] | TeacherClassUncheckedCreateWithoutSubjectInput[]
+    connectOrCreate?: TeacherClassCreateOrConnectWithoutSubjectInput | TeacherClassCreateOrConnectWithoutSubjectInput[]
+    upsert?: TeacherClassUpsertWithWhereUniqueWithoutSubjectInput | TeacherClassUpsertWithWhereUniqueWithoutSubjectInput[]
+    createMany?: TeacherClassCreateManySubjectInputEnvelope
+    set?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
+    disconnect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
+    delete?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
+    connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
+    update?: TeacherClassUpdateWithWhereUniqueWithoutSubjectInput | TeacherClassUpdateWithWhereUniqueWithoutSubjectInput[]
+    updateMany?: TeacherClassUpdateManyWithWhereWithoutSubjectInput | TeacherClassUpdateManyWithWhereWithoutSubjectInput[]
+    deleteMany?: TeacherClassScalarWhereInput | TeacherClassScalarWhereInput[]
+  }
+
+  export type ChapterProgressCreateNestedManyWithoutChapterInput = {
+    create?: XOR<ChapterProgressCreateWithoutChapterInput, ChapterProgressUncheckedCreateWithoutChapterInput> | ChapterProgressCreateWithoutChapterInput[] | ChapterProgressUncheckedCreateWithoutChapterInput[]
+    connectOrCreate?: ChapterProgressCreateOrConnectWithoutChapterInput | ChapterProgressCreateOrConnectWithoutChapterInput[]
+    createMany?: ChapterProgressCreateManyChapterInputEnvelope
+    connect?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
+  }
+
+  export type ClassCreateNestedOneWithoutChaptersInput = {
+    create?: XOR<ClassCreateWithoutChaptersInput, ClassUncheckedCreateWithoutChaptersInput>
+    connectOrCreate?: ClassCreateOrConnectWithoutChaptersInput
+    connect?: ClassWhereUniqueInput
+  }
+
   export type SchoolCreateNestedOneWithoutChaptersInput = {
     create?: XOR<SchoolCreateWithoutChaptersInput, SchoolUncheckedCreateWithoutChaptersInput>
     connectOrCreate?: SchoolCreateOrConnectWithoutChaptersInput
@@ -28647,27 +28660,7 @@ export namespace Prisma {
     connect?: SubjectWhereUniqueInput
   }
 
-  export type ClassCreateNestedOneWithoutChaptersInput = {
-    create?: XOR<ClassCreateWithoutChaptersInput, ClassUncheckedCreateWithoutChaptersInput>
-    connectOrCreate?: ClassCreateOrConnectWithoutChaptersInput
-    connect?: ClassWhereUniqueInput
-  }
-
   export type TopicCreateNestedManyWithoutChapterInput = {
-    create?: XOR<TopicCreateWithoutChapterInput, TopicUncheckedCreateWithoutChapterInput> | TopicCreateWithoutChapterInput[] | TopicUncheckedCreateWithoutChapterInput[]
-    connectOrCreate?: TopicCreateOrConnectWithoutChapterInput | TopicCreateOrConnectWithoutChapterInput[]
-    createMany?: TopicCreateManyChapterInputEnvelope
-    connect?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
-  }
-
-  export type ChapterProgressCreateNestedManyWithoutChapterInput = {
-    create?: XOR<ChapterProgressCreateWithoutChapterInput, ChapterProgressUncheckedCreateWithoutChapterInput> | ChapterProgressCreateWithoutChapterInput[] | ChapterProgressUncheckedCreateWithoutChapterInput[]
-    connectOrCreate?: ChapterProgressCreateOrConnectWithoutChapterInput | ChapterProgressCreateOrConnectWithoutChapterInput[]
-    createMany?: ChapterProgressCreateManyChapterInputEnvelope
-    connect?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
-  }
-
-  export type TopicUncheckedCreateNestedManyWithoutChapterInput = {
     create?: XOR<TopicCreateWithoutChapterInput, TopicUncheckedCreateWithoutChapterInput> | TopicCreateWithoutChapterInput[] | TopicUncheckedCreateWithoutChapterInput[]
     connectOrCreate?: TopicCreateOrConnectWithoutChapterInput | TopicCreateOrConnectWithoutChapterInput[]
     createMany?: TopicCreateManyChapterInputEnvelope
@@ -28681,12 +28674,41 @@ export namespace Prisma {
     connect?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
   }
 
+  export type TopicUncheckedCreateNestedManyWithoutChapterInput = {
+    create?: XOR<TopicCreateWithoutChapterInput, TopicUncheckedCreateWithoutChapterInput> | TopicCreateWithoutChapterInput[] | TopicUncheckedCreateWithoutChapterInput[]
+    connectOrCreate?: TopicCreateOrConnectWithoutChapterInput | TopicCreateOrConnectWithoutChapterInput[]
+    createMany?: TopicCreateManyChapterInputEnvelope
+    connect?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
+  }
+
   export type NullableIntFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type ChapterProgressUpdateManyWithoutChapterNestedInput = {
+    create?: XOR<ChapterProgressCreateWithoutChapterInput, ChapterProgressUncheckedCreateWithoutChapterInput> | ChapterProgressCreateWithoutChapterInput[] | ChapterProgressUncheckedCreateWithoutChapterInput[]
+    connectOrCreate?: ChapterProgressCreateOrConnectWithoutChapterInput | ChapterProgressCreateOrConnectWithoutChapterInput[]
+    upsert?: ChapterProgressUpsertWithWhereUniqueWithoutChapterInput | ChapterProgressUpsertWithWhereUniqueWithoutChapterInput[]
+    createMany?: ChapterProgressCreateManyChapterInputEnvelope
+    set?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
+    disconnect?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
+    delete?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
+    connect?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
+    update?: ChapterProgressUpdateWithWhereUniqueWithoutChapterInput | ChapterProgressUpdateWithWhereUniqueWithoutChapterInput[]
+    updateMany?: ChapterProgressUpdateManyWithWhereWithoutChapterInput | ChapterProgressUpdateManyWithWhereWithoutChapterInput[]
+    deleteMany?: ChapterProgressScalarWhereInput | ChapterProgressScalarWhereInput[]
+  }
+
+  export type ClassUpdateOneRequiredWithoutChaptersNestedInput = {
+    create?: XOR<ClassCreateWithoutChaptersInput, ClassUncheckedCreateWithoutChaptersInput>
+    connectOrCreate?: ClassCreateOrConnectWithoutChaptersInput
+    upsert?: ClassUpsertWithoutChaptersInput
+    connect?: ClassWhereUniqueInput
+    update?: XOR<XOR<ClassUpdateToOneWithWhereWithoutChaptersInput, ClassUpdateWithoutChaptersInput>, ClassUncheckedUpdateWithoutChaptersInput>
   }
 
   export type SchoolUpdateOneRequiredWithoutChaptersNestedInput = {
@@ -28705,43 +28727,7 @@ export namespace Prisma {
     update?: XOR<XOR<SubjectUpdateToOneWithWhereWithoutChaptersInput, SubjectUpdateWithoutChaptersInput>, SubjectUncheckedUpdateWithoutChaptersInput>
   }
 
-  export type ClassUpdateOneRequiredWithoutChaptersNestedInput = {
-    create?: XOR<ClassCreateWithoutChaptersInput, ClassUncheckedCreateWithoutChaptersInput>
-    connectOrCreate?: ClassCreateOrConnectWithoutChaptersInput
-    upsert?: ClassUpsertWithoutChaptersInput
-    connect?: ClassWhereUniqueInput
-    update?: XOR<XOR<ClassUpdateToOneWithWhereWithoutChaptersInput, ClassUpdateWithoutChaptersInput>, ClassUncheckedUpdateWithoutChaptersInput>
-  }
-
   export type TopicUpdateManyWithoutChapterNestedInput = {
-    create?: XOR<TopicCreateWithoutChapterInput, TopicUncheckedCreateWithoutChapterInput> | TopicCreateWithoutChapterInput[] | TopicUncheckedCreateWithoutChapterInput[]
-    connectOrCreate?: TopicCreateOrConnectWithoutChapterInput | TopicCreateOrConnectWithoutChapterInput[]
-    upsert?: TopicUpsertWithWhereUniqueWithoutChapterInput | TopicUpsertWithWhereUniqueWithoutChapterInput[]
-    createMany?: TopicCreateManyChapterInputEnvelope
-    set?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
-    disconnect?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
-    delete?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
-    connect?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
-    update?: TopicUpdateWithWhereUniqueWithoutChapterInput | TopicUpdateWithWhereUniqueWithoutChapterInput[]
-    updateMany?: TopicUpdateManyWithWhereWithoutChapterInput | TopicUpdateManyWithWhereWithoutChapterInput[]
-    deleteMany?: TopicScalarWhereInput | TopicScalarWhereInput[]
-  }
-
-  export type ChapterProgressUpdateManyWithoutChapterNestedInput = {
-    create?: XOR<ChapterProgressCreateWithoutChapterInput, ChapterProgressUncheckedCreateWithoutChapterInput> | ChapterProgressCreateWithoutChapterInput[] | ChapterProgressUncheckedCreateWithoutChapterInput[]
-    connectOrCreate?: ChapterProgressCreateOrConnectWithoutChapterInput | ChapterProgressCreateOrConnectWithoutChapterInput[]
-    upsert?: ChapterProgressUpsertWithWhereUniqueWithoutChapterInput | ChapterProgressUpsertWithWhereUniqueWithoutChapterInput[]
-    createMany?: ChapterProgressCreateManyChapterInputEnvelope
-    set?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
-    disconnect?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
-    delete?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
-    connect?: ChapterProgressWhereUniqueInput | ChapterProgressWhereUniqueInput[]
-    update?: ChapterProgressUpdateWithWhereUniqueWithoutChapterInput | ChapterProgressUpdateWithWhereUniqueWithoutChapterInput[]
-    updateMany?: ChapterProgressUpdateManyWithWhereWithoutChapterInput | ChapterProgressUpdateManyWithWhereWithoutChapterInput[]
-    deleteMany?: ChapterProgressScalarWhereInput | ChapterProgressScalarWhereInput[]
-  }
-
-  export type TopicUncheckedUpdateManyWithoutChapterNestedInput = {
     create?: XOR<TopicCreateWithoutChapterInput, TopicUncheckedCreateWithoutChapterInput> | TopicCreateWithoutChapterInput[] | TopicUncheckedCreateWithoutChapterInput[]
     connectOrCreate?: TopicCreateOrConnectWithoutChapterInput | TopicCreateOrConnectWithoutChapterInput[]
     upsert?: TopicUpsertWithWhereUniqueWithoutChapterInput | TopicUpsertWithWhereUniqueWithoutChapterInput[]
@@ -28769,16 +28755,18 @@ export namespace Prisma {
     deleteMany?: ChapterProgressScalarWhereInput | ChapterProgressScalarWhereInput[]
   }
 
-  export type SchoolCreateNestedOneWithoutTopicsInput = {
-    create?: XOR<SchoolCreateWithoutTopicsInput, SchoolUncheckedCreateWithoutTopicsInput>
-    connectOrCreate?: SchoolCreateOrConnectWithoutTopicsInput
-    connect?: SchoolWhereUniqueInput
-  }
-
-  export type ChapterCreateNestedOneWithoutTopicsInput = {
-    create?: XOR<ChapterCreateWithoutTopicsInput, ChapterUncheckedCreateWithoutTopicsInput>
-    connectOrCreate?: ChapterCreateOrConnectWithoutTopicsInput
-    connect?: ChapterWhereUniqueInput
+  export type TopicUncheckedUpdateManyWithoutChapterNestedInput = {
+    create?: XOR<TopicCreateWithoutChapterInput, TopicUncheckedCreateWithoutChapterInput> | TopicCreateWithoutChapterInput[] | TopicUncheckedCreateWithoutChapterInput[]
+    connectOrCreate?: TopicCreateOrConnectWithoutChapterInput | TopicCreateOrConnectWithoutChapterInput[]
+    upsert?: TopicUpsertWithWhereUniqueWithoutChapterInput | TopicUpsertWithWhereUniqueWithoutChapterInput[]
+    createMany?: TopicCreateManyChapterInputEnvelope
+    set?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
+    disconnect?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
+    delete?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
+    connect?: TopicWhereUniqueInput | TopicWhereUniqueInput[]
+    update?: TopicUpdateWithWhereUniqueWithoutChapterInput | TopicUpdateWithWhereUniqueWithoutChapterInput[]
+    updateMany?: TopicUpdateManyWithWhereWithoutChapterInput | TopicUpdateManyWithWhereWithoutChapterInput[]
+    deleteMany?: TopicScalarWhereInput | TopicScalarWhereInput[]
   }
 
   export type TopicProgressCreateNestedManyWithoutTopicInput = {
@@ -28788,27 +28776,23 @@ export namespace Prisma {
     connect?: TopicProgressWhereUniqueInput | TopicProgressWhereUniqueInput[]
   }
 
+  export type ChapterCreateNestedOneWithoutTopicsInput = {
+    create?: XOR<ChapterCreateWithoutTopicsInput, ChapterUncheckedCreateWithoutTopicsInput>
+    connectOrCreate?: ChapterCreateOrConnectWithoutTopicsInput
+    connect?: ChapterWhereUniqueInput
+  }
+
+  export type SchoolCreateNestedOneWithoutTopicsInput = {
+    create?: XOR<SchoolCreateWithoutTopicsInput, SchoolUncheckedCreateWithoutTopicsInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutTopicsInput
+    connect?: SchoolWhereUniqueInput
+  }
+
   export type TopicProgressUncheckedCreateNestedManyWithoutTopicInput = {
     create?: XOR<TopicProgressCreateWithoutTopicInput, TopicProgressUncheckedCreateWithoutTopicInput> | TopicProgressCreateWithoutTopicInput[] | TopicProgressUncheckedCreateWithoutTopicInput[]
     connectOrCreate?: TopicProgressCreateOrConnectWithoutTopicInput | TopicProgressCreateOrConnectWithoutTopicInput[]
     createMany?: TopicProgressCreateManyTopicInputEnvelope
     connect?: TopicProgressWhereUniqueInput | TopicProgressWhereUniqueInput[]
-  }
-
-  export type SchoolUpdateOneRequiredWithoutTopicsNestedInput = {
-    create?: XOR<SchoolCreateWithoutTopicsInput, SchoolUncheckedCreateWithoutTopicsInput>
-    connectOrCreate?: SchoolCreateOrConnectWithoutTopicsInput
-    upsert?: SchoolUpsertWithoutTopicsInput
-    connect?: SchoolWhereUniqueInput
-    update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutTopicsInput, SchoolUpdateWithoutTopicsInput>, SchoolUncheckedUpdateWithoutTopicsInput>
-  }
-
-  export type ChapterUpdateOneRequiredWithoutTopicsNestedInput = {
-    create?: XOR<ChapterCreateWithoutTopicsInput, ChapterUncheckedCreateWithoutTopicsInput>
-    connectOrCreate?: ChapterCreateOrConnectWithoutTopicsInput
-    upsert?: ChapterUpsertWithoutTopicsInput
-    connect?: ChapterWhereUniqueInput
-    update?: XOR<XOR<ChapterUpdateToOneWithWhereWithoutTopicsInput, ChapterUpdateWithoutTopicsInput>, ChapterUncheckedUpdateWithoutTopicsInput>
   }
 
   export type TopicProgressUpdateManyWithoutTopicNestedInput = {
@@ -28825,6 +28809,22 @@ export namespace Prisma {
     deleteMany?: TopicProgressScalarWhereInput | TopicProgressScalarWhereInput[]
   }
 
+  export type ChapterUpdateOneRequiredWithoutTopicsNestedInput = {
+    create?: XOR<ChapterCreateWithoutTopicsInput, ChapterUncheckedCreateWithoutTopicsInput>
+    connectOrCreate?: ChapterCreateOrConnectWithoutTopicsInput
+    upsert?: ChapterUpsertWithoutTopicsInput
+    connect?: ChapterWhereUniqueInput
+    update?: XOR<XOR<ChapterUpdateToOneWithWhereWithoutTopicsInput, ChapterUpdateWithoutTopicsInput>, ChapterUncheckedUpdateWithoutTopicsInput>
+  }
+
+  export type SchoolUpdateOneRequiredWithoutTopicsNestedInput = {
+    create?: XOR<SchoolCreateWithoutTopicsInput, SchoolUncheckedCreateWithoutTopicsInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutTopicsInput
+    upsert?: SchoolUpsertWithoutTopicsInput
+    connect?: SchoolWhereUniqueInput
+    update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutTopicsInput, SchoolUpdateWithoutTopicsInput>, SchoolUncheckedUpdateWithoutTopicsInput>
+  }
+
   export type TopicProgressUncheckedUpdateManyWithoutTopicNestedInput = {
     create?: XOR<TopicProgressCreateWithoutTopicInput, TopicProgressUncheckedCreateWithoutTopicInput> | TopicProgressCreateWithoutTopicInput[] | TopicProgressUncheckedCreateWithoutTopicInput[]
     connectOrCreate?: TopicProgressCreateOrConnectWithoutTopicInput | TopicProgressCreateOrConnectWithoutTopicInput[]
@@ -28839,12 +28839,6 @@ export namespace Prisma {
     deleteMany?: TopicProgressScalarWhereInput | TopicProgressScalarWhereInput[]
   }
 
-  export type TeacherCreateNestedOneWithoutTeacherClassesInput = {
-    create?: XOR<TeacherCreateWithoutTeacherClassesInput, TeacherUncheckedCreateWithoutTeacherClassesInput>
-    connectOrCreate?: TeacherCreateOrConnectWithoutTeacherClassesInput
-    connect?: TeacherWhereUniqueInput
-  }
-
   export type ClassCreateNestedOneWithoutTeacherClassesInput = {
     create?: XOR<ClassCreateWithoutTeacherClassesInput, ClassUncheckedCreateWithoutTeacherClassesInput>
     connectOrCreate?: ClassCreateOrConnectWithoutTeacherClassesInput
@@ -28857,12 +28851,10 @@ export namespace Prisma {
     connect?: SubjectWhereUniqueInput
   }
 
-  export type TeacherUpdateOneRequiredWithoutTeacherClassesNestedInput = {
+  export type TeacherCreateNestedOneWithoutTeacherClassesInput = {
     create?: XOR<TeacherCreateWithoutTeacherClassesInput, TeacherUncheckedCreateWithoutTeacherClassesInput>
     connectOrCreate?: TeacherCreateOrConnectWithoutTeacherClassesInput
-    upsert?: TeacherUpsertWithoutTeacherClassesInput
     connect?: TeacherWhereUniqueInput
-    update?: XOR<XOR<TeacherUpdateToOneWithWhereWithoutTeacherClassesInput, TeacherUpdateWithoutTeacherClassesInput>, TeacherUncheckedUpdateWithoutTeacherClassesInput>
   }
 
   export type ClassUpdateOneRequiredWithoutTeacherClassesNestedInput = {
@@ -28881,6 +28873,14 @@ export namespace Prisma {
     delete?: SubjectWhereInput | boolean
     connect?: SubjectWhereUniqueInput
     update?: XOR<XOR<SubjectUpdateToOneWithWhereWithoutTeacherClassesInput, SubjectUpdateWithoutTeacherClassesInput>, SubjectUncheckedUpdateWithoutTeacherClassesInput>
+  }
+
+  export type TeacherUpdateOneRequiredWithoutTeacherClassesNestedInput = {
+    create?: XOR<TeacherCreateWithoutTeacherClassesInput, TeacherUncheckedCreateWithoutTeacherClassesInput>
+    connectOrCreate?: TeacherCreateOrConnectWithoutTeacherClassesInput
+    upsert?: TeacherUpsertWithoutTeacherClassesInput
+    connect?: TeacherWhereUniqueInput
+    update?: XOR<XOR<TeacherUpdateToOneWithWhereWithoutTeacherClassesInput, TeacherUpdateWithoutTeacherClassesInput>, TeacherUncheckedUpdateWithoutTeacherClassesInput>
   }
 
   export type ChapterCreateNestedOneWithoutChapterProgressInput = {
@@ -28931,16 +28931,16 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutChapterProgressInput, UserUpdateWithoutChapterProgressInput>, UserUncheckedUpdateWithoutChapterProgressInput>
   }
 
-  export type TopicCreateNestedOneWithoutTopicProgressInput = {
-    create?: XOR<TopicCreateWithoutTopicProgressInput, TopicUncheckedCreateWithoutTopicProgressInput>
-    connectOrCreate?: TopicCreateOrConnectWithoutTopicProgressInput
-    connect?: TopicWhereUniqueInput
-  }
-
   export type TeacherCreateNestedOneWithoutTopicProgressInput = {
     create?: XOR<TeacherCreateWithoutTopicProgressInput, TeacherUncheckedCreateWithoutTopicProgressInput>
     connectOrCreate?: TeacherCreateOrConnectWithoutTopicProgressInput
     connect?: TeacherWhereUniqueInput
+  }
+
+  export type TopicCreateNestedOneWithoutTopicProgressInput = {
+    create?: XOR<TopicCreateWithoutTopicProgressInput, TopicUncheckedCreateWithoutTopicProgressInput>
+    connectOrCreate?: TopicCreateOrConnectWithoutTopicProgressInput
+    connect?: TopicWhereUniqueInput
   }
 
   export type UserCreateNestedOneWithoutTopicProgressInput = {
@@ -28953,20 +28953,20 @@ export namespace Prisma {
     set?: $Enums.TopicStatus
   }
 
-  export type TopicUpdateOneRequiredWithoutTopicProgressNestedInput = {
-    create?: XOR<TopicCreateWithoutTopicProgressInput, TopicUncheckedCreateWithoutTopicProgressInput>
-    connectOrCreate?: TopicCreateOrConnectWithoutTopicProgressInput
-    upsert?: TopicUpsertWithoutTopicProgressInput
-    connect?: TopicWhereUniqueInput
-    update?: XOR<XOR<TopicUpdateToOneWithWhereWithoutTopicProgressInput, TopicUpdateWithoutTopicProgressInput>, TopicUncheckedUpdateWithoutTopicProgressInput>
-  }
-
   export type TeacherUpdateOneRequiredWithoutTopicProgressNestedInput = {
     create?: XOR<TeacherCreateWithoutTopicProgressInput, TeacherUncheckedCreateWithoutTopicProgressInput>
     connectOrCreate?: TeacherCreateOrConnectWithoutTopicProgressInput
     upsert?: TeacherUpsertWithoutTopicProgressInput
     connect?: TeacherWhereUniqueInput
     update?: XOR<XOR<TeacherUpdateToOneWithWhereWithoutTopicProgressInput, TeacherUpdateWithoutTopicProgressInput>, TeacherUncheckedUpdateWithoutTopicProgressInput>
+  }
+
+  export type TopicUpdateOneRequiredWithoutTopicProgressNestedInput = {
+    create?: XOR<TopicCreateWithoutTopicProgressInput, TopicUncheckedCreateWithoutTopicProgressInput>
+    connectOrCreate?: TopicCreateOrConnectWithoutTopicProgressInput
+    upsert?: TopicUpsertWithoutTopicProgressInput
+    connect?: TopicWhereUniqueInput
+    update?: XOR<XOR<TopicUpdateToOneWithWhereWithoutTopicProgressInput, TopicUpdateWithoutTopicProgressInput>, TopicUncheckedUpdateWithoutTopicProgressInput>
   }
 
   export type UserUpdateOneWithoutTopicProgressNestedInput = {
@@ -29043,16 +29043,24 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutActivityLogsInput, UserUpdateWithoutActivityLogsInput>, UserUncheckedUpdateWithoutActivityLogsInput>
   }
 
+  export type UserCreateNestedOneWithoutAuditLogsInput = {
+    create?: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAuditLogsInput
+    connect?: UserWhereUniqueInput
+  }
+
   export type SchoolCreateNestedOneWithoutAuditLogsInput = {
     create?: XOR<SchoolCreateWithoutAuditLogsInput, SchoolUncheckedCreateWithoutAuditLogsInput>
     connectOrCreate?: SchoolCreateOrConnectWithoutAuditLogsInput
     connect?: SchoolWhereUniqueInput
   }
 
-  export type UserCreateNestedOneWithoutAuditLogsInput = {
+  export type UserUpdateOneRequiredWithoutAuditLogsNestedInput = {
     create?: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
     connectOrCreate?: UserCreateOrConnectWithoutAuditLogsInput
+    upsert?: UserUpsertWithoutAuditLogsInput
     connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAuditLogsInput, UserUpdateWithoutAuditLogsInput>, UserUncheckedUpdateWithoutAuditLogsInput>
   }
 
   export type SchoolUpdateOneWithoutAuditLogsNestedInput = {
@@ -29063,14 +29071,6 @@ export namespace Prisma {
     delete?: SchoolWhereInput | boolean
     connect?: SchoolWhereUniqueInput
     update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutAuditLogsInput, SchoolUpdateWithoutAuditLogsInput>, SchoolUncheckedUpdateWithoutAuditLogsInput>
-  }
-
-  export type UserUpdateOneRequiredWithoutAuditLogsNestedInput = {
-    create?: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutAuditLogsInput
-    upsert?: UserUpsertWithoutAuditLogsInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAuditLogsInput, UserUpdateWithoutAuditLogsInput>, UserUncheckedUpdateWithoutAuditLogsInput>
   }
 
   export type SchoolCreateNestedOneWithoutAcademicTermsInput = {
@@ -29561,146 +29561,6 @@ export namespace Prisma {
     _max?: NestedEnumAcademicTermStatusFilter<$PrismaModel>
   }
 
-  export type SchoolCreateWithoutUsersInput = {
-    id?: string
-    name: string
-    slug: string
-    email: string
-    phone?: string | null
-    address?: string | null
-    logo?: string | null
-    status?: $Enums.SchoolStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherCreateNestedManyWithoutSchoolInput
-    classes?: ClassCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterCreateNestedManyWithoutSchoolInput
-    topics?: TopicCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationCreateNestedManyWithoutSchoolInput
-    activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
-    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
-  }
-
-  export type SchoolUncheckedCreateWithoutUsersInput = {
-    id?: string
-    name: string
-    slug: string
-    email: string
-    phone?: string | null
-    address?: string | null
-    logo?: string | null
-    status?: $Enums.SchoolStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
-    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
-    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
-    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
-  }
-
-  export type SchoolCreateOrConnectWithoutUsersInput = {
-    where: SchoolWhereUniqueInput
-    create: XOR<SchoolCreateWithoutUsersInput, SchoolUncheckedCreateWithoutUsersInput>
-  }
-
-  export type TeacherCreateWithoutUserInput = {
-    id?: string
-    status?: $Enums.UserStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    school: SchoolCreateNestedOneWithoutTeachersInput
-    teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
-    chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
-    topicProgress?: TopicProgressCreateNestedManyWithoutTeacherInput
-  }
-
-  export type TeacherUncheckedCreateWithoutUserInput = {
-    id?: string
-    schoolId: string
-    status?: $Enums.UserStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutTeacherInput
-    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
-    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTeacherInput
-  }
-
-  export type TeacherCreateOrConnectWithoutUserInput = {
-    where: TeacherWhereUniqueInput
-    create: XOR<TeacherCreateWithoutUserInput, TeacherUncheckedCreateWithoutUserInput>
-  }
-
-  export type RefreshTokenCreateWithoutUserInput = {
-    id?: string
-    tokenHash: string
-    expiresAt: Date | string
-    createdAt?: Date | string
-    revokedAt?: Date | string | null
-  }
-
-  export type RefreshTokenUncheckedCreateWithoutUserInput = {
-    id?: string
-    tokenHash: string
-    expiresAt: Date | string
-    createdAt?: Date | string
-    revokedAt?: Date | string | null
-  }
-
-  export type RefreshTokenCreateOrConnectWithoutUserInput = {
-    where: RefreshTokenWhereUniqueInput
-    create: XOR<RefreshTokenCreateWithoutUserInput, RefreshTokenUncheckedCreateWithoutUserInput>
-  }
-
-  export type RefreshTokenCreateManyUserInputEnvelope = {
-    data: RefreshTokenCreateManyUserInput | RefreshTokenCreateManyUserInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type NotificationCreateWithoutUserInput = {
-    id?: string
-    title: string
-    message: string
-    type?: $Enums.NotificationType
-    isRead?: boolean
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    school?: SchoolCreateNestedOneWithoutNotificationsInput
-  }
-
-  export type NotificationUncheckedCreateWithoutUserInput = {
-    id?: string
-    schoolId?: string | null
-    title: string
-    message: string
-    type?: $Enums.NotificationType
-    isRead?: boolean
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-  }
-
-  export type NotificationCreateOrConnectWithoutUserInput = {
-    where: NotificationWhereUniqueInput
-    create: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput>
-  }
-
-  export type NotificationCreateManyUserInputEnvelope = {
-    data: NotificationCreateManyUserInput | NotificationCreateManyUserInput[]
-    skipDuplicates?: boolean
-  }
-
   export type ActivityLogCreateWithoutUserInput = {
     id?: string
     action: string
@@ -29807,6 +29667,93 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type NotificationCreateWithoutUserInput = {
+    id?: string
+    title: string
+    message: string
+    type?: $Enums.NotificationType
+    isRead?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    school?: SchoolCreateNestedOneWithoutNotificationsInput
+  }
+
+  export type NotificationUncheckedCreateWithoutUserInput = {
+    id?: string
+    schoolId?: string | null
+    title: string
+    message: string
+    type?: $Enums.NotificationType
+    isRead?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type NotificationCreateOrConnectWithoutUserInput = {
+    where: NotificationWhereUniqueInput
+    create: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput>
+  }
+
+  export type NotificationCreateManyUserInputEnvelope = {
+    data: NotificationCreateManyUserInput | NotificationCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type RefreshTokenCreateWithoutUserInput = {
+    id?: string
+    tokenHash: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+    revokedAt?: Date | string | null
+  }
+
+  export type RefreshTokenUncheckedCreateWithoutUserInput = {
+    id?: string
+    tokenHash: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+    revokedAt?: Date | string | null
+  }
+
+  export type RefreshTokenCreateOrConnectWithoutUserInput = {
+    where: RefreshTokenWhereUniqueInput
+    create: XOR<RefreshTokenCreateWithoutUserInput, RefreshTokenUncheckedCreateWithoutUserInput>
+  }
+
+  export type RefreshTokenCreateManyUserInputEnvelope = {
+    data: RefreshTokenCreateManyUserInput | RefreshTokenCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TeacherCreateWithoutUserInput = {
+    id?: string
+    status?: $Enums.UserStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
+    teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
+    school: SchoolCreateNestedOneWithoutTeachersInput
+    topicProgress?: TopicProgressCreateNestedManyWithoutTeacherInput
+  }
+
+  export type TeacherUncheckedCreateWithoutUserInput = {
+    id?: string
+    schoolId: string
+    status?: $Enums.UserStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutTeacherInput
+    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTeacherInput
+  }
+
+  export type TeacherCreateOrConnectWithoutUserInput = {
+    where: TeacherWhereUniqueInput
+    create: XOR<TeacherCreateWithoutUserInput, TeacherUncheckedCreateWithoutUserInput>
+  }
+
   export type TopicProgressCreateWithoutUpdatedByInput = {
     id?: string
     schoolId: string
@@ -29814,8 +29761,8 @@ export namespace Prisma {
     completedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    topic: TopicCreateNestedOneWithoutTopicProgressInput
     teacher: TeacherCreateNestedOneWithoutTopicProgressInput
+    topic: TopicCreateNestedOneWithoutTopicProgressInput
   }
 
   export type TopicProgressUncheckedCreateWithoutUpdatedByInput = {
@@ -29839,157 +29786,57 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type SchoolUpsertWithoutUsersInput = {
-    update: XOR<SchoolUpdateWithoutUsersInput, SchoolUncheckedUpdateWithoutUsersInput>
+  export type SchoolCreateWithoutUsersInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterCreateNestedManyWithoutSchoolInput
+    classes?: ClassCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherCreateNestedManyWithoutSchoolInput
+    topics?: TopicCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolUncheckedCreateWithoutUsersInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
+    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
+    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolCreateOrConnectWithoutUsersInput = {
+    where: SchoolWhereUniqueInput
     create: XOR<SchoolCreateWithoutUsersInput, SchoolUncheckedCreateWithoutUsersInput>
-    where?: SchoolWhereInput
-  }
-
-  export type SchoolUpdateToOneWithWhereWithoutUsersInput = {
-    where?: SchoolWhereInput
-    data: XOR<SchoolUpdateWithoutUsersInput, SchoolUncheckedUpdateWithoutUsersInput>
-  }
-
-  export type SchoolUpdateWithoutUsersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    logo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
-    activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
-  }
-
-  export type SchoolUncheckedUpdateWithoutUsersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    logo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
-    activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
-  }
-
-  export type TeacherUpsertWithoutUserInput = {
-    update: XOR<TeacherUpdateWithoutUserInput, TeacherUncheckedUpdateWithoutUserInput>
-    create: XOR<TeacherCreateWithoutUserInput, TeacherUncheckedCreateWithoutUserInput>
-    where?: TeacherWhereInput
-  }
-
-  export type TeacherUpdateToOneWithWhereWithoutUserInput = {
-    where?: TeacherWhereInput
-    data: XOR<TeacherUpdateWithoutUserInput, TeacherUncheckedUpdateWithoutUserInput>
-  }
-
-  export type TeacherUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
-    teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
-    chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
-    topicProgress?: TopicProgressUpdateManyWithoutTeacherNestedInput
-  }
-
-  export type TeacherUncheckedUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: StringFieldUpdateOperationsInput | string
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
-    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
-    topicProgress?: TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput
-  }
-
-  export type RefreshTokenUpsertWithWhereUniqueWithoutUserInput = {
-    where: RefreshTokenWhereUniqueInput
-    update: XOR<RefreshTokenUpdateWithoutUserInput, RefreshTokenUncheckedUpdateWithoutUserInput>
-    create: XOR<RefreshTokenCreateWithoutUserInput, RefreshTokenUncheckedCreateWithoutUserInput>
-  }
-
-  export type RefreshTokenUpdateWithWhereUniqueWithoutUserInput = {
-    where: RefreshTokenWhereUniqueInput
-    data: XOR<RefreshTokenUpdateWithoutUserInput, RefreshTokenUncheckedUpdateWithoutUserInput>
-  }
-
-  export type RefreshTokenUpdateManyWithWhereWithoutUserInput = {
-    where: RefreshTokenScalarWhereInput
-    data: XOR<RefreshTokenUpdateManyMutationInput, RefreshTokenUncheckedUpdateManyWithoutUserInput>
-  }
-
-  export type RefreshTokenScalarWhereInput = {
-    AND?: RefreshTokenScalarWhereInput | RefreshTokenScalarWhereInput[]
-    OR?: RefreshTokenScalarWhereInput[]
-    NOT?: RefreshTokenScalarWhereInput | RefreshTokenScalarWhereInput[]
-    id?: StringFilter<"RefreshToken"> | string
-    userId?: StringFilter<"RefreshToken"> | string
-    tokenHash?: StringFilter<"RefreshToken"> | string
-    expiresAt?: DateTimeFilter<"RefreshToken"> | Date | string
-    createdAt?: DateTimeFilter<"RefreshToken"> | Date | string
-    revokedAt?: DateTimeNullableFilter<"RefreshToken"> | Date | string | null
-  }
-
-  export type NotificationUpsertWithWhereUniqueWithoutUserInput = {
-    where: NotificationWhereUniqueInput
-    update: XOR<NotificationUpdateWithoutUserInput, NotificationUncheckedUpdateWithoutUserInput>
-    create: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput>
-  }
-
-  export type NotificationUpdateWithWhereUniqueWithoutUserInput = {
-    where: NotificationWhereUniqueInput
-    data: XOR<NotificationUpdateWithoutUserInput, NotificationUncheckedUpdateWithoutUserInput>
-  }
-
-  export type NotificationUpdateManyWithWhereWithoutUserInput = {
-    where: NotificationScalarWhereInput
-    data: XOR<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyWithoutUserInput>
-  }
-
-  export type NotificationScalarWhereInput = {
-    AND?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
-    OR?: NotificationScalarWhereInput[]
-    NOT?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
-    id?: StringFilter<"Notification"> | string
-    schoolId?: StringNullableFilter<"Notification"> | string | null
-    userId?: StringFilter<"Notification"> | string
-    title?: StringFilter<"Notification"> | string
-    message?: StringFilter<"Notification"> | string
-    type?: EnumNotificationTypeFilter<"Notification"> | $Enums.NotificationType
-    isRead?: BoolFilter<"Notification"> | boolean
-    metadata?: JsonNullableFilter<"Notification">
-    createdAt?: DateTimeFilter<"Notification"> | Date | string
   }
 
   export type ActivityLogUpsertWithWhereUniqueWithoutUserInput = {
@@ -30090,6 +29937,100 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"ChapterProgress"> | Date | string
   }
 
+  export type NotificationUpsertWithWhereUniqueWithoutUserInput = {
+    where: NotificationWhereUniqueInput
+    update: XOR<NotificationUpdateWithoutUserInput, NotificationUncheckedUpdateWithoutUserInput>
+    create: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput>
+  }
+
+  export type NotificationUpdateWithWhereUniqueWithoutUserInput = {
+    where: NotificationWhereUniqueInput
+    data: XOR<NotificationUpdateWithoutUserInput, NotificationUncheckedUpdateWithoutUserInput>
+  }
+
+  export type NotificationUpdateManyWithWhereWithoutUserInput = {
+    where: NotificationScalarWhereInput
+    data: XOR<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type NotificationScalarWhereInput = {
+    AND?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+    OR?: NotificationScalarWhereInput[]
+    NOT?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+    id?: StringFilter<"Notification"> | string
+    schoolId?: StringNullableFilter<"Notification"> | string | null
+    userId?: StringFilter<"Notification"> | string
+    title?: StringFilter<"Notification"> | string
+    message?: StringFilter<"Notification"> | string
+    type?: EnumNotificationTypeFilter<"Notification"> | $Enums.NotificationType
+    isRead?: BoolFilter<"Notification"> | boolean
+    metadata?: JsonNullableFilter<"Notification">
+    createdAt?: DateTimeFilter<"Notification"> | Date | string
+  }
+
+  export type RefreshTokenUpsertWithWhereUniqueWithoutUserInput = {
+    where: RefreshTokenWhereUniqueInput
+    update: XOR<RefreshTokenUpdateWithoutUserInput, RefreshTokenUncheckedUpdateWithoutUserInput>
+    create: XOR<RefreshTokenCreateWithoutUserInput, RefreshTokenUncheckedCreateWithoutUserInput>
+  }
+
+  export type RefreshTokenUpdateWithWhereUniqueWithoutUserInput = {
+    where: RefreshTokenWhereUniqueInput
+    data: XOR<RefreshTokenUpdateWithoutUserInput, RefreshTokenUncheckedUpdateWithoutUserInput>
+  }
+
+  export type RefreshTokenUpdateManyWithWhereWithoutUserInput = {
+    where: RefreshTokenScalarWhereInput
+    data: XOR<RefreshTokenUpdateManyMutationInput, RefreshTokenUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type RefreshTokenScalarWhereInput = {
+    AND?: RefreshTokenScalarWhereInput | RefreshTokenScalarWhereInput[]
+    OR?: RefreshTokenScalarWhereInput[]
+    NOT?: RefreshTokenScalarWhereInput | RefreshTokenScalarWhereInput[]
+    id?: StringFilter<"RefreshToken"> | string
+    userId?: StringFilter<"RefreshToken"> | string
+    tokenHash?: StringFilter<"RefreshToken"> | string
+    expiresAt?: DateTimeFilter<"RefreshToken"> | Date | string
+    createdAt?: DateTimeFilter<"RefreshToken"> | Date | string
+    revokedAt?: DateTimeNullableFilter<"RefreshToken"> | Date | string | null
+  }
+
+  export type TeacherUpsertWithoutUserInput = {
+    update: XOR<TeacherUpdateWithoutUserInput, TeacherUncheckedUpdateWithoutUserInput>
+    create: XOR<TeacherCreateWithoutUserInput, TeacherUncheckedCreateWithoutUserInput>
+    where?: TeacherWhereInput
+  }
+
+  export type TeacherUpdateToOneWithWhereWithoutUserInput = {
+    where?: TeacherWhereInput
+    data: XOR<TeacherUpdateWithoutUserInput, TeacherUncheckedUpdateWithoutUserInput>
+  }
+
+  export type TeacherUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
+    teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
+    school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
+    topicProgress?: TopicProgressUpdateManyWithoutTeacherNestedInput
+  }
+
+  export type TeacherUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
+    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
+    topicProgress?: TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput
+  }
+
   export type TopicProgressUpsertWithWhereUniqueWithoutUpdatedByInput = {
     where: TopicProgressWhereUniqueInput
     update: XOR<TopicProgressUpdateWithoutUpdatedByInput, TopicProgressUncheckedUpdateWithoutUpdatedByInput>
@@ -30121,6 +30062,65 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"TopicProgress"> | Date | string
   }
 
+  export type SchoolUpsertWithoutUsersInput = {
+    update: XOR<SchoolUpdateWithoutUsersInput, SchoolUncheckedUpdateWithoutUsersInput>
+    create: XOR<SchoolCreateWithoutUsersInput, SchoolUncheckedCreateWithoutUsersInput>
+    where?: SchoolWhereInput
+  }
+
+  export type SchoolUpdateToOneWithWhereWithoutUsersInput = {
+    where?: SchoolWhereInput
+    data: XOR<SchoolUpdateWithoutUsersInput, SchoolUncheckedUpdateWithoutUsersInput>
+  }
+
+  export type SchoolUpdateWithoutUsersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUpdateManyWithoutSchoolNestedInput
+  }
+
+  export type SchoolUncheckedUpdateWithoutUsersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
+  }
+
   export type UserCreateWithoutRefreshTokensInput = {
     id?: string
     email: string
@@ -30134,13 +30134,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    school?: SchoolCreateNestedOneWithoutUsersInput
-    teacher?: TeacherCreateNestedOneWithoutUserInput
-    notifications?: NotificationCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutActorInput
     chapterProgress?: ChapterProgressCreateNestedManyWithoutUpdatedByInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    teacher?: TeacherCreateNestedOneWithoutUserInput
     topicProgress?: TopicProgressCreateNestedManyWithoutUpdatedByInput
+    school?: SchoolCreateNestedOneWithoutUsersInput
   }
 
   export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -30157,11 +30157,11 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    teacher?: TeacherUncheckedCreateNestedOneWithoutUserInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutActorInput
     chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutUpdatedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    teacher?: TeacherUncheckedCreateNestedOneWithoutUserInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutUpdatedByInput
   }
 
@@ -30194,13 +30194,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneWithoutUsersNestedInput
-    teacher?: TeacherUpdateOneWithoutUserNestedInput
-    notifications?: NotificationUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutActorNestedInput
     chapterProgress?: ChapterProgressUpdateManyWithoutUpdatedByNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    teacher?: TeacherUpdateOneWithoutUserNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutUpdatedByNestedInput
+    school?: SchoolUpdateOneWithoutUsersNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -30217,319 +30217,51 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutActorNestedInput
     chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
   }
 
-  export type UserCreateWithoutSchoolInput = {
+  export type AcademicTermCreateWithoutSchoolInput = {
     id?: string
-    email: string
-    passwordHash: string
     name: string
-    role: $Enums.UserRole
-    avatar?: string | null
-    phone?: string | null
-    status?: $Enums.UserStatus
-    lastLoginAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    teacher?: TeacherCreateNestedOneWithoutUserInput
-    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
-    notifications?: NotificationCreateNestedManyWithoutUserInput
-    activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
-    auditLogs?: AuditLogCreateNestedManyWithoutActorInput
-    chapterProgress?: ChapterProgressCreateNestedManyWithoutUpdatedByInput
-    topicProgress?: TopicProgressCreateNestedManyWithoutUpdatedByInput
-  }
-
-  export type UserUncheckedCreateWithoutSchoolInput = {
-    id?: string
-    email: string
-    passwordHash: string
-    name: string
-    role: $Enums.UserRole
-    avatar?: string | null
-    phone?: string | null
-    status?: $Enums.UserStatus
-    lastLoginAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    teacher?: TeacherUncheckedCreateNestedOneWithoutUserInput
-    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
-    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutActorInput
-    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutUpdatedByInput
-    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutUpdatedByInput
-  }
-
-  export type UserCreateOrConnectWithoutSchoolInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput>
-  }
-
-  export type UserCreateManySchoolInputEnvelope = {
-    data: UserCreateManySchoolInput | UserCreateManySchoolInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type SubscriptionCreateWithoutSchoolInput = {
-    id?: string
-    status?: $Enums.SubscriptionStatus
     startDate: Date | string
     endDate: Date | string
+    totalWorkingDays: number
+    actualAvailableDays: number
+    weeklyHolidays: JsonNullValueInput | InputJsonValue
+    status?: $Enums.AcademicTermStatus
     createdAt?: Date | string
     updatedAt?: Date | string
-    plan: SubscriptionPlanCreateNestedOneWithoutSubscriptionsInput
+    deletedAt?: Date | string | null
+    vacationDays?: VacationDayCreateNestedManyWithoutAcademicTermInput
   }
 
-  export type SubscriptionUncheckedCreateWithoutSchoolInput = {
+  export type AcademicTermUncheckedCreateWithoutSchoolInput = {
     id?: string
-    planId: string
-    status?: $Enums.SubscriptionStatus
+    name: string
     startDate: Date | string
     endDate: Date | string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type SubscriptionCreateOrConnectWithoutSchoolInput = {
-    where: SubscriptionWhereUniqueInput
-    create: XOR<SubscriptionCreateWithoutSchoolInput, SubscriptionUncheckedCreateWithoutSchoolInput>
-  }
-
-  export type SubscriptionCreateManySchoolInputEnvelope = {
-    data: SubscriptionCreateManySchoolInput | SubscriptionCreateManySchoolInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type TeacherCreateWithoutSchoolInput = {
-    id?: string
-    status?: $Enums.UserStatus
+    totalWorkingDays: number
+    actualAvailableDays: number
+    weeklyHolidays: JsonNullValueInput | InputJsonValue
+    status?: $Enums.AcademicTermStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    user: UserCreateNestedOneWithoutTeacherInput
-    teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
-    chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
-    topicProgress?: TopicProgressCreateNestedManyWithoutTeacherInput
+    vacationDays?: VacationDayUncheckedCreateNestedManyWithoutAcademicTermInput
   }
 
-  export type TeacherUncheckedCreateWithoutSchoolInput = {
-    id?: string
-    userId: string
-    status?: $Enums.UserStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutTeacherInput
-    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
-    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTeacherInput
+  export type AcademicTermCreateOrConnectWithoutSchoolInput = {
+    where: AcademicTermWhereUniqueInput
+    create: XOR<AcademicTermCreateWithoutSchoolInput, AcademicTermUncheckedCreateWithoutSchoolInput>
   }
 
-  export type TeacherCreateOrConnectWithoutSchoolInput = {
-    where: TeacherWhereUniqueInput
-    create: XOR<TeacherCreateWithoutSchoolInput, TeacherUncheckedCreateWithoutSchoolInput>
-  }
-
-  export type TeacherCreateManySchoolInputEnvelope = {
-    data: TeacherCreateManySchoolInput | TeacherCreateManySchoolInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type ClassCreateWithoutSchoolInput = {
-    id?: string
-    name: string
-    grade?: string | null
-    section?: string | null
-    description?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    subjects?: SubjectCreateNestedManyWithoutClassInput
-    teacherClasses?: TeacherClassCreateNestedManyWithoutClassInput
-    chapters?: ChapterCreateNestedManyWithoutClassInput
-  }
-
-  export type ClassUncheckedCreateWithoutSchoolInput = {
-    id?: string
-    name: string
-    grade?: string | null
-    section?: string | null
-    description?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    subjects?: SubjectUncheckedCreateNestedManyWithoutClassInput
-    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutClassInput
-    chapters?: ChapterUncheckedCreateNestedManyWithoutClassInput
-  }
-
-  export type ClassCreateOrConnectWithoutSchoolInput = {
-    where: ClassWhereUniqueInput
-    create: XOR<ClassCreateWithoutSchoolInput, ClassUncheckedCreateWithoutSchoolInput>
-  }
-
-  export type ClassCreateManySchoolInputEnvelope = {
-    data: ClassCreateManySchoolInput | ClassCreateManySchoolInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type SubjectCreateWithoutSchoolInput = {
-    id?: string
-    name: string
-    code?: string | null
-    description?: string | null
-    color?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    class?: ClassCreateNestedOneWithoutSubjectsInput
-    teacherClasses?: TeacherClassCreateNestedManyWithoutSubjectInput
-    chapters?: ChapterCreateNestedManyWithoutSubjectInput
-  }
-
-  export type SubjectUncheckedCreateWithoutSchoolInput = {
-    id?: string
-    classId?: string | null
-    name: string
-    code?: string | null
-    description?: string | null
-    color?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutSubjectInput
-    chapters?: ChapterUncheckedCreateNestedManyWithoutSubjectInput
-  }
-
-  export type SubjectCreateOrConnectWithoutSchoolInput = {
-    where: SubjectWhereUniqueInput
-    create: XOR<SubjectCreateWithoutSchoolInput, SubjectUncheckedCreateWithoutSchoolInput>
-  }
-
-  export type SubjectCreateManySchoolInputEnvelope = {
-    data: SubjectCreateManySchoolInput | SubjectCreateManySchoolInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type ChapterCreateWithoutSchoolInput = {
-    id?: string
-    title: string
-    description?: string | null
-    notes?: string | null
-    estimatedTeachingDays?: number | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    subject: SubjectCreateNestedOneWithoutChaptersInput
-    class: ClassCreateNestedOneWithoutChaptersInput
-    topics?: TopicCreateNestedManyWithoutChapterInput
-    chapterProgress?: ChapterProgressCreateNestedManyWithoutChapterInput
-  }
-
-  export type ChapterUncheckedCreateWithoutSchoolInput = {
-    id?: string
-    subjectId: string
-    classId: string
-    title: string
-    description?: string | null
-    notes?: string | null
-    estimatedTeachingDays?: number | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    topics?: TopicUncheckedCreateNestedManyWithoutChapterInput
-    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutChapterInput
-  }
-
-  export type ChapterCreateOrConnectWithoutSchoolInput = {
-    where: ChapterWhereUniqueInput
-    create: XOR<ChapterCreateWithoutSchoolInput, ChapterUncheckedCreateWithoutSchoolInput>
-  }
-
-  export type ChapterCreateManySchoolInputEnvelope = {
-    data: ChapterCreateManySchoolInput | ChapterCreateManySchoolInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type TopicCreateWithoutSchoolInput = {
-    id?: string
-    title: string
-    description?: string | null
-    notes?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    chapter: ChapterCreateNestedOneWithoutTopicsInput
-    topicProgress?: TopicProgressCreateNestedManyWithoutTopicInput
-  }
-
-  export type TopicUncheckedCreateWithoutSchoolInput = {
-    id?: string
-    chapterId: string
-    title: string
-    description?: string | null
-    notes?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTopicInput
-  }
-
-  export type TopicCreateOrConnectWithoutSchoolInput = {
-    where: TopicWhereUniqueInput
-    create: XOR<TopicCreateWithoutSchoolInput, TopicUncheckedCreateWithoutSchoolInput>
-  }
-
-  export type TopicCreateManySchoolInputEnvelope = {
-    data: TopicCreateManySchoolInput | TopicCreateManySchoolInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type NotificationCreateWithoutSchoolInput = {
-    id?: string
-    title: string
-    message: string
-    type?: $Enums.NotificationType
-    isRead?: boolean
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    user: UserCreateNestedOneWithoutNotificationsInput
-  }
-
-  export type NotificationUncheckedCreateWithoutSchoolInput = {
-    id?: string
-    userId: string
-    title: string
-    message: string
-    type?: $Enums.NotificationType
-    isRead?: boolean
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-  }
-
-  export type NotificationCreateOrConnectWithoutSchoolInput = {
-    where: NotificationWhereUniqueInput
-    create: XOR<NotificationCreateWithoutSchoolInput, NotificationUncheckedCreateWithoutSchoolInput>
-  }
-
-  export type NotificationCreateManySchoolInputEnvelope = {
-    data: NotificationCreateManySchoolInput | NotificationCreateManySchoolInput[]
+  export type AcademicTermCreateManySchoolInputEnvelope = {
+    data: AcademicTermCreateManySchoolInput | AcademicTermCreateManySchoolInput[]
     skipDuplicates?: boolean
   }
 
@@ -30599,79 +30331,493 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type AcademicTermCreateWithoutSchoolInput = {
+  export type ChapterCreateWithoutSchoolInput = {
     id?: string
-    name: string
-    startDate: Date | string
-    endDate: Date | string
-    totalWorkingDays: number
-    actualAvailableDays: number
-    weeklyHolidays?: JsonNullValueInput | InputJsonValue
-    status?: $Enums.AcademicTermStatus
+    title: string
+    description?: string | null
+    notes?: string | null
+    estimatedTeachingDays?: number | null
+    sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    vacationDays?: VacationDayCreateNestedManyWithoutAcademicTermInput
+    chapterProgress?: ChapterProgressCreateNestedManyWithoutChapterInput
+    class: ClassCreateNestedOneWithoutChaptersInput
+    subject: SubjectCreateNestedOneWithoutChaptersInput
+    topics?: TopicCreateNestedManyWithoutChapterInput
   }
 
-  export type AcademicTermUncheckedCreateWithoutSchoolInput = {
+  export type ChapterUncheckedCreateWithoutSchoolInput = {
     id?: string
-    name: string
-    startDate: Date | string
-    endDate: Date | string
-    totalWorkingDays: number
-    actualAvailableDays: number
-    weeklyHolidays?: JsonNullValueInput | InputJsonValue
-    status?: $Enums.AcademicTermStatus
+    subjectId: string
+    classId: string
+    title: string
+    description?: string | null
+    notes?: string | null
+    estimatedTeachingDays?: number | null
+    sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    vacationDays?: VacationDayUncheckedCreateNestedManyWithoutAcademicTermInput
+    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutChapterInput
+    topics?: TopicUncheckedCreateNestedManyWithoutChapterInput
   }
 
-  export type AcademicTermCreateOrConnectWithoutSchoolInput = {
-    where: AcademicTermWhereUniqueInput
-    create: XOR<AcademicTermCreateWithoutSchoolInput, AcademicTermUncheckedCreateWithoutSchoolInput>
+  export type ChapterCreateOrConnectWithoutSchoolInput = {
+    where: ChapterWhereUniqueInput
+    create: XOR<ChapterCreateWithoutSchoolInput, ChapterUncheckedCreateWithoutSchoolInput>
   }
 
-  export type AcademicTermCreateManySchoolInputEnvelope = {
-    data: AcademicTermCreateManySchoolInput | AcademicTermCreateManySchoolInput[]
+  export type ChapterCreateManySchoolInputEnvelope = {
+    data: ChapterCreateManySchoolInput | ChapterCreateManySchoolInput[]
     skipDuplicates?: boolean
   }
 
-  export type UserUpsertWithWhereUniqueWithoutSchoolInput = {
+  export type ClassCreateWithoutSchoolInput = {
+    id?: string
+    name: string
+    grade?: string | null
+    section?: string | null
+    description?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapters?: ChapterCreateNestedManyWithoutClassInput
+    subjects?: SubjectCreateNestedManyWithoutClassInput
+    teacherClasses?: TeacherClassCreateNestedManyWithoutClassInput
+  }
+
+  export type ClassUncheckedCreateWithoutSchoolInput = {
+    id?: string
+    name: string
+    grade?: string | null
+    section?: string | null
+    description?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapters?: ChapterUncheckedCreateNestedManyWithoutClassInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutClassInput
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutClassInput
+  }
+
+  export type ClassCreateOrConnectWithoutSchoolInput = {
+    where: ClassWhereUniqueInput
+    create: XOR<ClassCreateWithoutSchoolInput, ClassUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type ClassCreateManySchoolInputEnvelope = {
+    data: ClassCreateManySchoolInput | ClassCreateManySchoolInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type NotificationCreateWithoutSchoolInput = {
+    id?: string
+    title: string
+    message: string
+    type?: $Enums.NotificationType
+    isRead?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutNotificationsInput
+  }
+
+  export type NotificationUncheckedCreateWithoutSchoolInput = {
+    id?: string
+    userId: string
+    title: string
+    message: string
+    type?: $Enums.NotificationType
+    isRead?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type NotificationCreateOrConnectWithoutSchoolInput = {
+    where: NotificationWhereUniqueInput
+    create: XOR<NotificationCreateWithoutSchoolInput, NotificationUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type NotificationCreateManySchoolInputEnvelope = {
+    data: NotificationCreateManySchoolInput | NotificationCreateManySchoolInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SubjectCreateWithoutSchoolInput = {
+    id?: string
+    name: string
+    code?: string | null
+    description?: string | null
+    color?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapters?: ChapterCreateNestedManyWithoutSubjectInput
+    class?: ClassCreateNestedOneWithoutSubjectsInput
+    teacherClasses?: TeacherClassCreateNestedManyWithoutSubjectInput
+  }
+
+  export type SubjectUncheckedCreateWithoutSchoolInput = {
+    id?: string
+    classId?: string | null
+    name: string
+    code?: string | null
+    description?: string | null
+    color?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapters?: ChapterUncheckedCreateNestedManyWithoutSubjectInput
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutSubjectInput
+  }
+
+  export type SubjectCreateOrConnectWithoutSchoolInput = {
+    where: SubjectWhereUniqueInput
+    create: XOR<SubjectCreateWithoutSchoolInput, SubjectUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type SubjectCreateManySchoolInputEnvelope = {
+    data: SubjectCreateManySchoolInput | SubjectCreateManySchoolInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SubscriptionCreateWithoutSchoolInput = {
+    id?: string
+    status?: $Enums.SubscriptionStatus
+    startDate: Date | string
+    endDate: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    plan: SubscriptionPlanCreateNestedOneWithoutSubscriptionsInput
+  }
+
+  export type SubscriptionUncheckedCreateWithoutSchoolInput = {
+    id?: string
+    planId: string
+    status?: $Enums.SubscriptionStatus
+    startDate: Date | string
+    endDate: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SubscriptionCreateOrConnectWithoutSchoolInput = {
+    where: SubscriptionWhereUniqueInput
+    create: XOR<SubscriptionCreateWithoutSchoolInput, SubscriptionUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type SubscriptionCreateManySchoolInputEnvelope = {
+    data: SubscriptionCreateManySchoolInput | SubscriptionCreateManySchoolInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TeacherCreateWithoutSchoolInput = {
+    id?: string
+    status?: $Enums.UserStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
+    teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
+    user: UserCreateNestedOneWithoutTeacherInput
+    topicProgress?: TopicProgressCreateNestedManyWithoutTeacherInput
+  }
+
+  export type TeacherUncheckedCreateWithoutSchoolInput = {
+    id?: string
+    userId: string
+    status?: $Enums.UserStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutTeacherInput
+    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTeacherInput
+  }
+
+  export type TeacherCreateOrConnectWithoutSchoolInput = {
+    where: TeacherWhereUniqueInput
+    create: XOR<TeacherCreateWithoutSchoolInput, TeacherUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type TeacherCreateManySchoolInputEnvelope = {
+    data: TeacherCreateManySchoolInput | TeacherCreateManySchoolInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TopicCreateWithoutSchoolInput = {
+    id?: string
+    title: string
+    description?: string | null
+    notes?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    topicProgress?: TopicProgressCreateNestedManyWithoutTopicInput
+    chapter: ChapterCreateNestedOneWithoutTopicsInput
+  }
+
+  export type TopicUncheckedCreateWithoutSchoolInput = {
+    id?: string
+    chapterId: string
+    title: string
+    description?: string | null
+    notes?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTopicInput
+  }
+
+  export type TopicCreateOrConnectWithoutSchoolInput = {
+    where: TopicWhereUniqueInput
+    create: XOR<TopicCreateWithoutSchoolInput, TopicUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type TopicCreateManySchoolInputEnvelope = {
+    data: TopicCreateManySchoolInput | TopicCreateManySchoolInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserCreateWithoutSchoolInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    name: string
+    role: $Enums.UserRole
+    avatar?: string | null
+    phone?: string | null
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutActorInput
+    chapterProgress?: ChapterProgressCreateNestedManyWithoutUpdatedByInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    teacher?: TeacherCreateNestedOneWithoutUserInput
+    topicProgress?: TopicProgressCreateNestedManyWithoutUpdatedByInput
+  }
+
+  export type UserUncheckedCreateWithoutSchoolInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    name: string
+    role: $Enums.UserRole
+    avatar?: string | null
+    phone?: string | null
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutActorInput
+    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutUpdatedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    teacher?: TeacherUncheckedCreateNestedOneWithoutUserInput
+    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutUpdatedByInput
+  }
+
+  export type UserCreateOrConnectWithoutSchoolInput = {
     where: UserWhereUniqueInput
-    update: XOR<UserUpdateWithoutSchoolInput, UserUncheckedUpdateWithoutSchoolInput>
     create: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput>
   }
 
-  export type UserUpdateWithWhereUniqueWithoutSchoolInput = {
-    where: UserWhereUniqueInput
-    data: XOR<UserUpdateWithoutSchoolInput, UserUncheckedUpdateWithoutSchoolInput>
+  export type UserCreateManySchoolInputEnvelope = {
+    data: UserCreateManySchoolInput | UserCreateManySchoolInput[]
+    skipDuplicates?: boolean
   }
 
-  export type UserUpdateManyWithWhereWithoutSchoolInput = {
-    where: UserScalarWhereInput
-    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutSchoolInput>
+  export type AcademicTermUpsertWithWhereUniqueWithoutSchoolInput = {
+    where: AcademicTermWhereUniqueInput
+    update: XOR<AcademicTermUpdateWithoutSchoolInput, AcademicTermUncheckedUpdateWithoutSchoolInput>
+    create: XOR<AcademicTermCreateWithoutSchoolInput, AcademicTermUncheckedCreateWithoutSchoolInput>
   }
 
-  export type UserScalarWhereInput = {
-    AND?: UserScalarWhereInput | UserScalarWhereInput[]
-    OR?: UserScalarWhereInput[]
-    NOT?: UserScalarWhereInput | UserScalarWhereInput[]
-    id?: StringFilter<"User"> | string
-    email?: StringFilter<"User"> | string
-    passwordHash?: StringFilter<"User"> | string
-    name?: StringFilter<"User"> | string
-    role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
-    schoolId?: StringNullableFilter<"User"> | string | null
-    avatar?: StringNullableFilter<"User"> | string | null
-    phone?: StringNullableFilter<"User"> | string | null
-    status?: EnumUserStatusFilter<"User"> | $Enums.UserStatus
-    lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
-    createdAt?: DateTimeFilter<"User"> | Date | string
-    updatedAt?: DateTimeFilter<"User"> | Date | string
-    deletedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+  export type AcademicTermUpdateWithWhereUniqueWithoutSchoolInput = {
+    where: AcademicTermWhereUniqueInput
+    data: XOR<AcademicTermUpdateWithoutSchoolInput, AcademicTermUncheckedUpdateWithoutSchoolInput>
+  }
+
+  export type AcademicTermUpdateManyWithWhereWithoutSchoolInput = {
+    where: AcademicTermScalarWhereInput
+    data: XOR<AcademicTermUpdateManyMutationInput, AcademicTermUncheckedUpdateManyWithoutSchoolInput>
+  }
+
+  export type AcademicTermScalarWhereInput = {
+    AND?: AcademicTermScalarWhereInput | AcademicTermScalarWhereInput[]
+    OR?: AcademicTermScalarWhereInput[]
+    NOT?: AcademicTermScalarWhereInput | AcademicTermScalarWhereInput[]
+    id?: StringFilter<"AcademicTerm"> | string
+    schoolId?: StringFilter<"AcademicTerm"> | string
+    name?: StringFilter<"AcademicTerm"> | string
+    startDate?: DateTimeFilter<"AcademicTerm"> | Date | string
+    endDate?: DateTimeFilter<"AcademicTerm"> | Date | string
+    totalWorkingDays?: IntFilter<"AcademicTerm"> | number
+    actualAvailableDays?: IntFilter<"AcademicTerm"> | number
+    weeklyHolidays?: JsonFilter<"AcademicTerm">
+    status?: EnumAcademicTermStatusFilter<"AcademicTerm"> | $Enums.AcademicTermStatus
+    createdAt?: DateTimeFilter<"AcademicTerm"> | Date | string
+    updatedAt?: DateTimeFilter<"AcademicTerm"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"AcademicTerm"> | Date | string | null
+  }
+
+  export type ActivityLogUpsertWithWhereUniqueWithoutSchoolInput = {
+    where: ActivityLogWhereUniqueInput
+    update: XOR<ActivityLogUpdateWithoutSchoolInput, ActivityLogUncheckedUpdateWithoutSchoolInput>
+    create: XOR<ActivityLogCreateWithoutSchoolInput, ActivityLogUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type ActivityLogUpdateWithWhereUniqueWithoutSchoolInput = {
+    where: ActivityLogWhereUniqueInput
+    data: XOR<ActivityLogUpdateWithoutSchoolInput, ActivityLogUncheckedUpdateWithoutSchoolInput>
+  }
+
+  export type ActivityLogUpdateManyWithWhereWithoutSchoolInput = {
+    where: ActivityLogScalarWhereInput
+    data: XOR<ActivityLogUpdateManyMutationInput, ActivityLogUncheckedUpdateManyWithoutSchoolInput>
+  }
+
+  export type AuditLogUpsertWithWhereUniqueWithoutSchoolInput = {
+    where: AuditLogWhereUniqueInput
+    update: XOR<AuditLogUpdateWithoutSchoolInput, AuditLogUncheckedUpdateWithoutSchoolInput>
+    create: XOR<AuditLogCreateWithoutSchoolInput, AuditLogUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type AuditLogUpdateWithWhereUniqueWithoutSchoolInput = {
+    where: AuditLogWhereUniqueInput
+    data: XOR<AuditLogUpdateWithoutSchoolInput, AuditLogUncheckedUpdateWithoutSchoolInput>
+  }
+
+  export type AuditLogUpdateManyWithWhereWithoutSchoolInput = {
+    where: AuditLogScalarWhereInput
+    data: XOR<AuditLogUpdateManyMutationInput, AuditLogUncheckedUpdateManyWithoutSchoolInput>
+  }
+
+  export type ChapterUpsertWithWhereUniqueWithoutSchoolInput = {
+    where: ChapterWhereUniqueInput
+    update: XOR<ChapterUpdateWithoutSchoolInput, ChapterUncheckedUpdateWithoutSchoolInput>
+    create: XOR<ChapterCreateWithoutSchoolInput, ChapterUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type ChapterUpdateWithWhereUniqueWithoutSchoolInput = {
+    where: ChapterWhereUniqueInput
+    data: XOR<ChapterUpdateWithoutSchoolInput, ChapterUncheckedUpdateWithoutSchoolInput>
+  }
+
+  export type ChapterUpdateManyWithWhereWithoutSchoolInput = {
+    where: ChapterScalarWhereInput
+    data: XOR<ChapterUpdateManyMutationInput, ChapterUncheckedUpdateManyWithoutSchoolInput>
+  }
+
+  export type ChapterScalarWhereInput = {
+    AND?: ChapterScalarWhereInput | ChapterScalarWhereInput[]
+    OR?: ChapterScalarWhereInput[]
+    NOT?: ChapterScalarWhereInput | ChapterScalarWhereInput[]
+    id?: StringFilter<"Chapter"> | string
+    schoolId?: StringFilter<"Chapter"> | string
+    subjectId?: StringFilter<"Chapter"> | string
+    classId?: StringFilter<"Chapter"> | string
+    title?: StringFilter<"Chapter"> | string
+    description?: StringNullableFilter<"Chapter"> | string | null
+    notes?: StringNullableFilter<"Chapter"> | string | null
+    estimatedTeachingDays?: IntNullableFilter<"Chapter"> | number | null
+    sortOrder?: IntFilter<"Chapter"> | number
+    createdAt?: DateTimeFilter<"Chapter"> | Date | string
+    updatedAt?: DateTimeFilter<"Chapter"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"Chapter"> | Date | string | null
+  }
+
+  export type ClassUpsertWithWhereUniqueWithoutSchoolInput = {
+    where: ClassWhereUniqueInput
+    update: XOR<ClassUpdateWithoutSchoolInput, ClassUncheckedUpdateWithoutSchoolInput>
+    create: XOR<ClassCreateWithoutSchoolInput, ClassUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type ClassUpdateWithWhereUniqueWithoutSchoolInput = {
+    where: ClassWhereUniqueInput
+    data: XOR<ClassUpdateWithoutSchoolInput, ClassUncheckedUpdateWithoutSchoolInput>
+  }
+
+  export type ClassUpdateManyWithWhereWithoutSchoolInput = {
+    where: ClassScalarWhereInput
+    data: XOR<ClassUpdateManyMutationInput, ClassUncheckedUpdateManyWithoutSchoolInput>
+  }
+
+  export type ClassScalarWhereInput = {
+    AND?: ClassScalarWhereInput | ClassScalarWhereInput[]
+    OR?: ClassScalarWhereInput[]
+    NOT?: ClassScalarWhereInput | ClassScalarWhereInput[]
+    id?: StringFilter<"Class"> | string
+    schoolId?: StringFilter<"Class"> | string
+    name?: StringFilter<"Class"> | string
+    grade?: StringNullableFilter<"Class"> | string | null
+    section?: StringNullableFilter<"Class"> | string | null
+    description?: StringNullableFilter<"Class"> | string | null
+    sortOrder?: IntFilter<"Class"> | number
+    createdAt?: DateTimeFilter<"Class"> | Date | string
+    updatedAt?: DateTimeFilter<"Class"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"Class"> | Date | string | null
+  }
+
+  export type NotificationUpsertWithWhereUniqueWithoutSchoolInput = {
+    where: NotificationWhereUniqueInput
+    update: XOR<NotificationUpdateWithoutSchoolInput, NotificationUncheckedUpdateWithoutSchoolInput>
+    create: XOR<NotificationCreateWithoutSchoolInput, NotificationUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type NotificationUpdateWithWhereUniqueWithoutSchoolInput = {
+    where: NotificationWhereUniqueInput
+    data: XOR<NotificationUpdateWithoutSchoolInput, NotificationUncheckedUpdateWithoutSchoolInput>
+  }
+
+  export type NotificationUpdateManyWithWhereWithoutSchoolInput = {
+    where: NotificationScalarWhereInput
+    data: XOR<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyWithoutSchoolInput>
+  }
+
+  export type SubjectUpsertWithWhereUniqueWithoutSchoolInput = {
+    where: SubjectWhereUniqueInput
+    update: XOR<SubjectUpdateWithoutSchoolInput, SubjectUncheckedUpdateWithoutSchoolInput>
+    create: XOR<SubjectCreateWithoutSchoolInput, SubjectUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type SubjectUpdateWithWhereUniqueWithoutSchoolInput = {
+    where: SubjectWhereUniqueInput
+    data: XOR<SubjectUpdateWithoutSchoolInput, SubjectUncheckedUpdateWithoutSchoolInput>
+  }
+
+  export type SubjectUpdateManyWithWhereWithoutSchoolInput = {
+    where: SubjectScalarWhereInput
+    data: XOR<SubjectUpdateManyMutationInput, SubjectUncheckedUpdateManyWithoutSchoolInput>
+  }
+
+  export type SubjectScalarWhereInput = {
+    AND?: SubjectScalarWhereInput | SubjectScalarWhereInput[]
+    OR?: SubjectScalarWhereInput[]
+    NOT?: SubjectScalarWhereInput | SubjectScalarWhereInput[]
+    id?: StringFilter<"Subject"> | string
+    schoolId?: StringFilter<"Subject"> | string
+    classId?: StringNullableFilter<"Subject"> | string | null
+    name?: StringFilter<"Subject"> | string
+    code?: StringNullableFilter<"Subject"> | string | null
+    description?: StringNullableFilter<"Subject"> | string | null
+    color?: StringNullableFilter<"Subject"> | string | null
+    sortOrder?: IntFilter<"Subject"> | number
+    createdAt?: DateTimeFilter<"Subject"> | Date | string
+    updatedAt?: DateTimeFilter<"Subject"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"Subject"> | Date | string | null
   }
 
   export type SubscriptionUpsertWithWhereUniqueWithoutSchoolInput = {
@@ -30733,105 +30879,6 @@ export namespace Prisma {
     deletedAt?: DateTimeNullableFilter<"Teacher"> | Date | string | null
   }
 
-  export type ClassUpsertWithWhereUniqueWithoutSchoolInput = {
-    where: ClassWhereUniqueInput
-    update: XOR<ClassUpdateWithoutSchoolInput, ClassUncheckedUpdateWithoutSchoolInput>
-    create: XOR<ClassCreateWithoutSchoolInput, ClassUncheckedCreateWithoutSchoolInput>
-  }
-
-  export type ClassUpdateWithWhereUniqueWithoutSchoolInput = {
-    where: ClassWhereUniqueInput
-    data: XOR<ClassUpdateWithoutSchoolInput, ClassUncheckedUpdateWithoutSchoolInput>
-  }
-
-  export type ClassUpdateManyWithWhereWithoutSchoolInput = {
-    where: ClassScalarWhereInput
-    data: XOR<ClassUpdateManyMutationInput, ClassUncheckedUpdateManyWithoutSchoolInput>
-  }
-
-  export type ClassScalarWhereInput = {
-    AND?: ClassScalarWhereInput | ClassScalarWhereInput[]
-    OR?: ClassScalarWhereInput[]
-    NOT?: ClassScalarWhereInput | ClassScalarWhereInput[]
-    id?: StringFilter<"Class"> | string
-    schoolId?: StringFilter<"Class"> | string
-    name?: StringFilter<"Class"> | string
-    grade?: StringNullableFilter<"Class"> | string | null
-    section?: StringNullableFilter<"Class"> | string | null
-    description?: StringNullableFilter<"Class"> | string | null
-    sortOrder?: IntFilter<"Class"> | number
-    createdAt?: DateTimeFilter<"Class"> | Date | string
-    updatedAt?: DateTimeFilter<"Class"> | Date | string
-    deletedAt?: DateTimeNullableFilter<"Class"> | Date | string | null
-  }
-
-  export type SubjectUpsertWithWhereUniqueWithoutSchoolInput = {
-    where: SubjectWhereUniqueInput
-    update: XOR<SubjectUpdateWithoutSchoolInput, SubjectUncheckedUpdateWithoutSchoolInput>
-    create: XOR<SubjectCreateWithoutSchoolInput, SubjectUncheckedCreateWithoutSchoolInput>
-  }
-
-  export type SubjectUpdateWithWhereUniqueWithoutSchoolInput = {
-    where: SubjectWhereUniqueInput
-    data: XOR<SubjectUpdateWithoutSchoolInput, SubjectUncheckedUpdateWithoutSchoolInput>
-  }
-
-  export type SubjectUpdateManyWithWhereWithoutSchoolInput = {
-    where: SubjectScalarWhereInput
-    data: XOR<SubjectUpdateManyMutationInput, SubjectUncheckedUpdateManyWithoutSchoolInput>
-  }
-
-  export type SubjectScalarWhereInput = {
-    AND?: SubjectScalarWhereInput | SubjectScalarWhereInput[]
-    OR?: SubjectScalarWhereInput[]
-    NOT?: SubjectScalarWhereInput | SubjectScalarWhereInput[]
-    id?: StringFilter<"Subject"> | string
-    schoolId?: StringFilter<"Subject"> | string
-    classId?: StringNullableFilter<"Subject"> | string | null
-    name?: StringFilter<"Subject"> | string
-    code?: StringNullableFilter<"Subject"> | string | null
-    description?: StringNullableFilter<"Subject"> | string | null
-    color?: StringNullableFilter<"Subject"> | string | null
-    sortOrder?: IntFilter<"Subject"> | number
-    createdAt?: DateTimeFilter<"Subject"> | Date | string
-    updatedAt?: DateTimeFilter<"Subject"> | Date | string
-    deletedAt?: DateTimeNullableFilter<"Subject"> | Date | string | null
-  }
-
-  export type ChapterUpsertWithWhereUniqueWithoutSchoolInput = {
-    where: ChapterWhereUniqueInput
-    update: XOR<ChapterUpdateWithoutSchoolInput, ChapterUncheckedUpdateWithoutSchoolInput>
-    create: XOR<ChapterCreateWithoutSchoolInput, ChapterUncheckedCreateWithoutSchoolInput>
-  }
-
-  export type ChapterUpdateWithWhereUniqueWithoutSchoolInput = {
-    where: ChapterWhereUniqueInput
-    data: XOR<ChapterUpdateWithoutSchoolInput, ChapterUncheckedUpdateWithoutSchoolInput>
-  }
-
-  export type ChapterUpdateManyWithWhereWithoutSchoolInput = {
-    where: ChapterScalarWhereInput
-    data: XOR<ChapterUpdateManyMutationInput, ChapterUncheckedUpdateManyWithoutSchoolInput>
-  }
-
-  export type ChapterScalarWhereInput = {
-    AND?: ChapterScalarWhereInput | ChapterScalarWhereInput[]
-    OR?: ChapterScalarWhereInput[]
-    NOT?: ChapterScalarWhereInput | ChapterScalarWhereInput[]
-    id?: StringFilter<"Chapter"> | string
-    schoolId?: StringFilter<"Chapter"> | string
-    subjectId?: StringFilter<"Chapter"> | string
-    classId?: StringFilter<"Chapter"> | string
-    title?: StringFilter<"Chapter"> | string
-    description?: StringNullableFilter<"Chapter"> | string | null
-    notes?: StringNullableFilter<"Chapter"> | string | null
-    estimatedTeachingDays?: IntNullableFilter<"Chapter"> | number | null
-    sortOrder?: IntFilter<"Chapter"> | number
-    createdAt?: DateTimeFilter<"Chapter"> | Date | string
-    updatedAt?: DateTimeFilter<"Chapter"> | Date | string
-    deletedAt?: DateTimeNullableFilter<"Chapter"> | Date | string | null
-  }
-
   export type TopicUpsertWithWhereUniqueWithoutSchoolInput = {
     where: TopicWhereUniqueInput
     update: XOR<TopicUpdateWithoutSchoolInput, TopicUncheckedUpdateWithoutSchoolInput>
@@ -30864,86 +30911,39 @@ export namespace Prisma {
     deletedAt?: DateTimeNullableFilter<"Topic"> | Date | string | null
   }
 
-  export type NotificationUpsertWithWhereUniqueWithoutSchoolInput = {
-    where: NotificationWhereUniqueInput
-    update: XOR<NotificationUpdateWithoutSchoolInput, NotificationUncheckedUpdateWithoutSchoolInput>
-    create: XOR<NotificationCreateWithoutSchoolInput, NotificationUncheckedCreateWithoutSchoolInput>
+  export type UserUpsertWithWhereUniqueWithoutSchoolInput = {
+    where: UserWhereUniqueInput
+    update: XOR<UserUpdateWithoutSchoolInput, UserUncheckedUpdateWithoutSchoolInput>
+    create: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput>
   }
 
-  export type NotificationUpdateWithWhereUniqueWithoutSchoolInput = {
-    where: NotificationWhereUniqueInput
-    data: XOR<NotificationUpdateWithoutSchoolInput, NotificationUncheckedUpdateWithoutSchoolInput>
+  export type UserUpdateWithWhereUniqueWithoutSchoolInput = {
+    where: UserWhereUniqueInput
+    data: XOR<UserUpdateWithoutSchoolInput, UserUncheckedUpdateWithoutSchoolInput>
   }
 
-  export type NotificationUpdateManyWithWhereWithoutSchoolInput = {
-    where: NotificationScalarWhereInput
-    data: XOR<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyWithoutSchoolInput>
+  export type UserUpdateManyWithWhereWithoutSchoolInput = {
+    where: UserScalarWhereInput
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutSchoolInput>
   }
 
-  export type ActivityLogUpsertWithWhereUniqueWithoutSchoolInput = {
-    where: ActivityLogWhereUniqueInput
-    update: XOR<ActivityLogUpdateWithoutSchoolInput, ActivityLogUncheckedUpdateWithoutSchoolInput>
-    create: XOR<ActivityLogCreateWithoutSchoolInput, ActivityLogUncheckedCreateWithoutSchoolInput>
-  }
-
-  export type ActivityLogUpdateWithWhereUniqueWithoutSchoolInput = {
-    where: ActivityLogWhereUniqueInput
-    data: XOR<ActivityLogUpdateWithoutSchoolInput, ActivityLogUncheckedUpdateWithoutSchoolInput>
-  }
-
-  export type ActivityLogUpdateManyWithWhereWithoutSchoolInput = {
-    where: ActivityLogScalarWhereInput
-    data: XOR<ActivityLogUpdateManyMutationInput, ActivityLogUncheckedUpdateManyWithoutSchoolInput>
-  }
-
-  export type AuditLogUpsertWithWhereUniqueWithoutSchoolInput = {
-    where: AuditLogWhereUniqueInput
-    update: XOR<AuditLogUpdateWithoutSchoolInput, AuditLogUncheckedUpdateWithoutSchoolInput>
-    create: XOR<AuditLogCreateWithoutSchoolInput, AuditLogUncheckedCreateWithoutSchoolInput>
-  }
-
-  export type AuditLogUpdateWithWhereUniqueWithoutSchoolInput = {
-    where: AuditLogWhereUniqueInput
-    data: XOR<AuditLogUpdateWithoutSchoolInput, AuditLogUncheckedUpdateWithoutSchoolInput>
-  }
-
-  export type AuditLogUpdateManyWithWhereWithoutSchoolInput = {
-    where: AuditLogScalarWhereInput
-    data: XOR<AuditLogUpdateManyMutationInput, AuditLogUncheckedUpdateManyWithoutSchoolInput>
-  }
-
-  export type AcademicTermUpsertWithWhereUniqueWithoutSchoolInput = {
-    where: AcademicTermWhereUniqueInput
-    update: XOR<AcademicTermUpdateWithoutSchoolInput, AcademicTermUncheckedUpdateWithoutSchoolInput>
-    create: XOR<AcademicTermCreateWithoutSchoolInput, AcademicTermUncheckedCreateWithoutSchoolInput>
-  }
-
-  export type AcademicTermUpdateWithWhereUniqueWithoutSchoolInput = {
-    where: AcademicTermWhereUniqueInput
-    data: XOR<AcademicTermUpdateWithoutSchoolInput, AcademicTermUncheckedUpdateWithoutSchoolInput>
-  }
-
-  export type AcademicTermUpdateManyWithWhereWithoutSchoolInput = {
-    where: AcademicTermScalarWhereInput
-    data: XOR<AcademicTermUpdateManyMutationInput, AcademicTermUncheckedUpdateManyWithoutSchoolInput>
-  }
-
-  export type AcademicTermScalarWhereInput = {
-    AND?: AcademicTermScalarWhereInput | AcademicTermScalarWhereInput[]
-    OR?: AcademicTermScalarWhereInput[]
-    NOT?: AcademicTermScalarWhereInput | AcademicTermScalarWhereInput[]
-    id?: StringFilter<"AcademicTerm"> | string
-    schoolId?: StringFilter<"AcademicTerm"> | string
-    name?: StringFilter<"AcademicTerm"> | string
-    startDate?: DateTimeFilter<"AcademicTerm"> | Date | string
-    endDate?: DateTimeFilter<"AcademicTerm"> | Date | string
-    totalWorkingDays?: IntFilter<"AcademicTerm"> | number
-    actualAvailableDays?: IntFilter<"AcademicTerm"> | number
-    weeklyHolidays?: JsonFilter<"AcademicTerm">
-    status?: EnumAcademicTermStatusFilter<"AcademicTerm"> | $Enums.AcademicTermStatus
-    createdAt?: DateTimeFilter<"AcademicTerm"> | Date | string
-    updatedAt?: DateTimeFilter<"AcademicTerm"> | Date | string
-    deletedAt?: DateTimeNullableFilter<"AcademicTerm"> | Date | string | null
+  export type UserScalarWhereInput = {
+    AND?: UserScalarWhereInput | UserScalarWhereInput[]
+    OR?: UserScalarWhereInput[]
+    NOT?: UserScalarWhereInput | UserScalarWhereInput[]
+    id?: StringFilter<"User"> | string
+    email?: StringFilter<"User"> | string
+    passwordHash?: StringFilter<"User"> | string
+    name?: StringFilter<"User"> | string
+    role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
+    schoolId?: StringNullableFilter<"User"> | string | null
+    avatar?: StringNullableFilter<"User"> | string | null
+    phone?: StringNullableFilter<"User"> | string | null
+    status?: EnumUserStatusFilter<"User"> | $Enums.UserStatus
+    lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    createdAt?: DateTimeFilter<"User"> | Date | string
+    updatedAt?: DateTimeFilter<"User"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"User"> | Date | string | null
   }
 
   export type SubscriptionCreateWithoutPlanInput = {
@@ -30992,59 +30992,6 @@ export namespace Prisma {
     data: XOR<SubscriptionUpdateManyMutationInput, SubscriptionUncheckedUpdateManyWithoutPlanInput>
   }
 
-  export type SchoolCreateWithoutSubscriptionsInput = {
-    id?: string
-    name: string
-    slug: string
-    email: string
-    phone?: string | null
-    address?: string | null
-    logo?: string | null
-    status?: $Enums.SchoolStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    users?: UserCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherCreateNestedManyWithoutSchoolInput
-    classes?: ClassCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterCreateNestedManyWithoutSchoolInput
-    topics?: TopicCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationCreateNestedManyWithoutSchoolInput
-    activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
-    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
-  }
-
-  export type SchoolUncheckedCreateWithoutSubscriptionsInput = {
-    id?: string
-    name: string
-    slug: string
-    email: string
-    phone?: string | null
-    address?: string | null
-    logo?: string | null
-    status?: $Enums.SchoolStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
-    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
-    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
-    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
-  }
-
-  export type SchoolCreateOrConnectWithoutSubscriptionsInput = {
-    where: SchoolWhereUniqueInput
-    create: XOR<SchoolCreateWithoutSubscriptionsInput, SchoolUncheckedCreateWithoutSubscriptionsInput>
-  }
-
   export type SubscriptionPlanCreateWithoutSubscriptionsInput = {
     id?: string
     name: string
@@ -31053,7 +31000,7 @@ export namespace Prisma {
     priceMonthly: Decimal | DecimalJsLike | number | string
     priceYearly: Decimal | DecimalJsLike | number | string
     teacherLimit: number
-    features?: JsonNullValueInput | InputJsonValue
+    features: JsonNullValueInput | InputJsonValue
     isActive?: boolean
     sortOrder?: number
     createdAt?: Date | string
@@ -31069,7 +31016,7 @@ export namespace Prisma {
     priceMonthly: Decimal | DecimalJsLike | number | string
     priceYearly: Decimal | DecimalJsLike | number | string
     teacherLimit: number
-    features?: JsonNullValueInput | InputJsonValue
+    features: JsonNullValueInput | InputJsonValue
     isActive?: boolean
     sortOrder?: number
     createdAt?: Date | string
@@ -31082,63 +31029,57 @@ export namespace Prisma {
     create: XOR<SubscriptionPlanCreateWithoutSubscriptionsInput, SubscriptionPlanUncheckedCreateWithoutSubscriptionsInput>
   }
 
-  export type SchoolUpsertWithoutSubscriptionsInput = {
-    update: XOR<SchoolUpdateWithoutSubscriptionsInput, SchoolUncheckedUpdateWithoutSubscriptionsInput>
+  export type SchoolCreateWithoutSubscriptionsInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterCreateNestedManyWithoutSchoolInput
+    classes?: ClassCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherCreateNestedManyWithoutSchoolInput
+    topics?: TopicCreateNestedManyWithoutSchoolInput
+    users?: UserCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolUncheckedCreateWithoutSubscriptionsInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
+    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
+    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolCreateOrConnectWithoutSubscriptionsInput = {
+    where: SchoolWhereUniqueInput
     create: XOR<SchoolCreateWithoutSubscriptionsInput, SchoolUncheckedCreateWithoutSubscriptionsInput>
-    where?: SchoolWhereInput
-  }
-
-  export type SchoolUpdateToOneWithWhereWithoutSubscriptionsInput = {
-    where?: SchoolWhereInput
-    data: XOR<SchoolUpdateWithoutSubscriptionsInput, SchoolUncheckedUpdateWithoutSubscriptionsInput>
-  }
-
-  export type SchoolUpdateWithoutSubscriptionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    logo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
-    activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
-  }
-
-  export type SchoolUncheckedUpdateWithoutSubscriptionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    logo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
-    activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type SubscriptionPlanUpsertWithoutSubscriptionsInput = {
@@ -31184,132 +31125,63 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
-  export type SchoolCreateWithoutTeachersInput = {
-    id?: string
-    name: string
-    slug: string
-    email: string
-    phone?: string | null
-    address?: string | null
-    logo?: string | null
-    status?: $Enums.SchoolStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    users?: UserCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
-    classes?: ClassCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterCreateNestedManyWithoutSchoolInput
-    topics?: TopicCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationCreateNestedManyWithoutSchoolInput
-    activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
-    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
+  export type SchoolUpsertWithoutSubscriptionsInput = {
+    update: XOR<SchoolUpdateWithoutSubscriptionsInput, SchoolUncheckedUpdateWithoutSubscriptionsInput>
+    create: XOR<SchoolCreateWithoutSubscriptionsInput, SchoolUncheckedCreateWithoutSubscriptionsInput>
+    where?: SchoolWhereInput
   }
 
-  export type SchoolUncheckedCreateWithoutTeachersInput = {
-    id?: string
-    name: string
-    slug: string
-    email: string
-    phone?: string | null
-    address?: string | null
-    logo?: string | null
-    status?: $Enums.SchoolStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
-    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
-    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
-    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
+  export type SchoolUpdateToOneWithWhereWithoutSubscriptionsInput = {
+    where?: SchoolWhereInput
+    data: XOR<SchoolUpdateWithoutSubscriptionsInput, SchoolUncheckedUpdateWithoutSubscriptionsInput>
   }
 
-  export type SchoolCreateOrConnectWithoutTeachersInput = {
-    where: SchoolWhereUniqueInput
-    create: XOR<SchoolCreateWithoutTeachersInput, SchoolUncheckedCreateWithoutTeachersInput>
+  export type SchoolUpdateWithoutSubscriptionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUpdateManyWithoutSchoolNestedInput
+    users?: UserUpdateManyWithoutSchoolNestedInput
   }
 
-  export type UserCreateWithoutTeacherInput = {
-    id?: string
-    email: string
-    passwordHash: string
-    name: string
-    role: $Enums.UserRole
-    avatar?: string | null
-    phone?: string | null
-    status?: $Enums.UserStatus
-    lastLoginAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    school?: SchoolCreateNestedOneWithoutUsersInput
-    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
-    notifications?: NotificationCreateNestedManyWithoutUserInput
-    activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
-    auditLogs?: AuditLogCreateNestedManyWithoutActorInput
-    chapterProgress?: ChapterProgressCreateNestedManyWithoutUpdatedByInput
-    topicProgress?: TopicProgressCreateNestedManyWithoutUpdatedByInput
-  }
-
-  export type UserUncheckedCreateWithoutTeacherInput = {
-    id?: string
-    email: string
-    passwordHash: string
-    name: string
-    role: $Enums.UserRole
-    schoolId?: string | null
-    avatar?: string | null
-    phone?: string | null
-    status?: $Enums.UserStatus
-    lastLoginAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
-    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutActorInput
-    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutUpdatedByInput
-    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutUpdatedByInput
-  }
-
-  export type UserCreateOrConnectWithoutTeacherInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutTeacherInput, UserUncheckedCreateWithoutTeacherInput>
-  }
-
-  export type TeacherClassCreateWithoutTeacherInput = {
-    id?: string
-    schoolId: string
-    createdAt?: Date | string
-    class: ClassCreateNestedOneWithoutTeacherClassesInput
-    subject?: SubjectCreateNestedOneWithoutTeacherClassesInput
-  }
-
-  export type TeacherClassUncheckedCreateWithoutTeacherInput = {
-    id?: string
-    schoolId: string
-    classId: string
-    subjectId?: string | null
-    createdAt?: Date | string
-  }
-
-  export type TeacherClassCreateOrConnectWithoutTeacherInput = {
-    where: TeacherClassWhereUniqueInput
-    create: XOR<TeacherClassCreateWithoutTeacherInput, TeacherClassUncheckedCreateWithoutTeacherInput>
-  }
-
-  export type TeacherClassCreateManyTeacherInputEnvelope = {
-    data: TeacherClassCreateManyTeacherInput | TeacherClassCreateManyTeacherInput[]
-    skipDuplicates?: boolean
+  export type SchoolUncheckedUpdateWithoutSubscriptionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type ChapterProgressCreateWithoutTeacherInput = {
@@ -31352,6 +31224,134 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type TeacherClassCreateWithoutTeacherInput = {
+    id?: string
+    schoolId: string
+    createdAt?: Date | string
+    class: ClassCreateNestedOneWithoutTeacherClassesInput
+    subject?: SubjectCreateNestedOneWithoutTeacherClassesInput
+  }
+
+  export type TeacherClassUncheckedCreateWithoutTeacherInput = {
+    id?: string
+    schoolId: string
+    classId: string
+    subjectId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type TeacherClassCreateOrConnectWithoutTeacherInput = {
+    where: TeacherClassWhereUniqueInput
+    create: XOR<TeacherClassCreateWithoutTeacherInput, TeacherClassUncheckedCreateWithoutTeacherInput>
+  }
+
+  export type TeacherClassCreateManyTeacherInputEnvelope = {
+    data: TeacherClassCreateManyTeacherInput | TeacherClassCreateManyTeacherInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SchoolCreateWithoutTeachersInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterCreateNestedManyWithoutSchoolInput
+    classes?: ClassCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
+    topics?: TopicCreateNestedManyWithoutSchoolInput
+    users?: UserCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolUncheckedCreateWithoutTeachersInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
+    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
+    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolCreateOrConnectWithoutTeachersInput = {
+    where: SchoolWhereUniqueInput
+    create: XOR<SchoolCreateWithoutTeachersInput, SchoolUncheckedCreateWithoutTeachersInput>
+  }
+
+  export type UserCreateWithoutTeacherInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    name: string
+    role: $Enums.UserRole
+    avatar?: string | null
+    phone?: string | null
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutActorInput
+    chapterProgress?: ChapterProgressCreateNestedManyWithoutUpdatedByInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    topicProgress?: TopicProgressCreateNestedManyWithoutUpdatedByInput
+    school?: SchoolCreateNestedOneWithoutUsersInput
+  }
+
+  export type UserUncheckedCreateWithoutTeacherInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    name: string
+    role: $Enums.UserRole
+    schoolId?: string | null
+    avatar?: string | null
+    phone?: string | null
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutActorInput
+    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutUpdatedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutUpdatedByInput
+  }
+
+  export type UserCreateOrConnectWithoutTeacherInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutTeacherInput, UserUncheckedCreateWithoutTeacherInput>
+  }
+
   export type TopicProgressCreateWithoutTeacherInput = {
     id?: string
     schoolId: string
@@ -31384,118 +31384,20 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type SchoolUpsertWithoutTeachersInput = {
-    update: XOR<SchoolUpdateWithoutTeachersInput, SchoolUncheckedUpdateWithoutTeachersInput>
-    create: XOR<SchoolCreateWithoutTeachersInput, SchoolUncheckedCreateWithoutTeachersInput>
-    where?: SchoolWhereInput
+  export type ChapterProgressUpsertWithWhereUniqueWithoutTeacherInput = {
+    where: ChapterProgressWhereUniqueInput
+    update: XOR<ChapterProgressUpdateWithoutTeacherInput, ChapterProgressUncheckedUpdateWithoutTeacherInput>
+    create: XOR<ChapterProgressCreateWithoutTeacherInput, ChapterProgressUncheckedCreateWithoutTeacherInput>
   }
 
-  export type SchoolUpdateToOneWithWhereWithoutTeachersInput = {
-    where?: SchoolWhereInput
-    data: XOR<SchoolUpdateWithoutTeachersInput, SchoolUncheckedUpdateWithoutTeachersInput>
+  export type ChapterProgressUpdateWithWhereUniqueWithoutTeacherInput = {
+    where: ChapterProgressWhereUniqueInput
+    data: XOR<ChapterProgressUpdateWithoutTeacherInput, ChapterProgressUncheckedUpdateWithoutTeacherInput>
   }
 
-  export type SchoolUpdateWithoutTeachersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    logo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
-    activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
-  }
-
-  export type SchoolUncheckedUpdateWithoutTeachersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    logo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
-    activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
-  }
-
-  export type UserUpsertWithoutTeacherInput = {
-    update: XOR<UserUpdateWithoutTeacherInput, UserUncheckedUpdateWithoutTeacherInput>
-    create: XOR<UserCreateWithoutTeacherInput, UserUncheckedCreateWithoutTeacherInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutTeacherInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutTeacherInput, UserUncheckedUpdateWithoutTeacherInput>
-  }
-
-  export type UserUpdateWithoutTeacherInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    avatar?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneWithoutUsersNestedInput
-    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
-    notifications?: NotificationUpdateManyWithoutUserNestedInput
-    activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutActorNestedInput
-    chapterProgress?: ChapterProgressUpdateManyWithoutUpdatedByNestedInput
-    topicProgress?: TopicProgressUpdateManyWithoutUpdatedByNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutTeacherInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
-    avatar?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
-    activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutActorNestedInput
-    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
-    topicProgress?: TopicProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
+  export type ChapterProgressUpdateManyWithWhereWithoutTeacherInput = {
+    where: ChapterProgressScalarWhereInput
+    data: XOR<ChapterProgressUpdateManyMutationInput, ChapterProgressUncheckedUpdateManyWithoutTeacherInput>
   }
 
   export type TeacherClassUpsertWithWhereUniqueWithoutTeacherInput = {
@@ -31526,20 +31428,118 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"TeacherClass"> | Date | string
   }
 
-  export type ChapterProgressUpsertWithWhereUniqueWithoutTeacherInput = {
-    where: ChapterProgressWhereUniqueInput
-    update: XOR<ChapterProgressUpdateWithoutTeacherInput, ChapterProgressUncheckedUpdateWithoutTeacherInput>
-    create: XOR<ChapterProgressCreateWithoutTeacherInput, ChapterProgressUncheckedCreateWithoutTeacherInput>
+  export type SchoolUpsertWithoutTeachersInput = {
+    update: XOR<SchoolUpdateWithoutTeachersInput, SchoolUncheckedUpdateWithoutTeachersInput>
+    create: XOR<SchoolCreateWithoutTeachersInput, SchoolUncheckedCreateWithoutTeachersInput>
+    where?: SchoolWhereInput
   }
 
-  export type ChapterProgressUpdateWithWhereUniqueWithoutTeacherInput = {
-    where: ChapterProgressWhereUniqueInput
-    data: XOR<ChapterProgressUpdateWithoutTeacherInput, ChapterProgressUncheckedUpdateWithoutTeacherInput>
+  export type SchoolUpdateToOneWithWhereWithoutTeachersInput = {
+    where?: SchoolWhereInput
+    data: XOR<SchoolUpdateWithoutTeachersInput, SchoolUncheckedUpdateWithoutTeachersInput>
   }
 
-  export type ChapterProgressUpdateManyWithWhereWithoutTeacherInput = {
-    where: ChapterProgressScalarWhereInput
-    data: XOR<ChapterProgressUpdateManyMutationInput, ChapterProgressUncheckedUpdateManyWithoutTeacherInput>
+  export type SchoolUpdateWithoutTeachersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUpdateManyWithoutSchoolNestedInput
+    users?: UserUpdateManyWithoutSchoolNestedInput
+  }
+
+  export type SchoolUncheckedUpdateWithoutTeachersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+  }
+
+  export type UserUpsertWithoutTeacherInput = {
+    update: XOR<UserUpdateWithoutTeacherInput, UserUncheckedUpdateWithoutTeacherInput>
+    create: XOR<UserCreateWithoutTeacherInput, UserUncheckedCreateWithoutTeacherInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutTeacherInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutTeacherInput, UserUncheckedUpdateWithoutTeacherInput>
+  }
+
+  export type UserUpdateWithoutTeacherInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutActorNestedInput
+    chapterProgress?: ChapterProgressUpdateManyWithoutUpdatedByNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    topicProgress?: TopicProgressUpdateManyWithoutUpdatedByNestedInput
+    school?: SchoolUpdateOneWithoutUsersNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutTeacherInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutActorNestedInput
+    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    topicProgress?: TopicProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
   }
 
   export type TopicProgressUpsertWithWhereUniqueWithoutTeacherInput = {
@@ -31558,6 +31558,48 @@ export namespace Prisma {
     data: XOR<TopicProgressUpdateManyMutationInput, TopicProgressUncheckedUpdateManyWithoutTeacherInput>
   }
 
+  export type ChapterCreateWithoutClassInput = {
+    id?: string
+    title: string
+    description?: string | null
+    notes?: string | null
+    estimatedTeachingDays?: number | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressCreateNestedManyWithoutChapterInput
+    school: SchoolCreateNestedOneWithoutChaptersInput
+    subject: SubjectCreateNestedOneWithoutChaptersInput
+    topics?: TopicCreateNestedManyWithoutChapterInput
+  }
+
+  export type ChapterUncheckedCreateWithoutClassInput = {
+    id?: string
+    schoolId: string
+    subjectId: string
+    title: string
+    description?: string | null
+    notes?: string | null
+    estimatedTeachingDays?: number | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutChapterInput
+    topics?: TopicUncheckedCreateNestedManyWithoutChapterInput
+  }
+
+  export type ChapterCreateOrConnectWithoutClassInput = {
+    where: ChapterWhereUniqueInput
+    create: XOR<ChapterCreateWithoutClassInput, ChapterUncheckedCreateWithoutClassInput>
+  }
+
+  export type ChapterCreateManyClassInputEnvelope = {
+    data: ChapterCreateManyClassInput | ChapterCreateManyClassInput[]
+    skipDuplicates?: boolean
+  }
+
   export type SchoolCreateWithoutClassesInput = {
     id?: string
     name: string
@@ -31570,16 +31612,16 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    users?: UserCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterCreateNestedManyWithoutSchoolInput
-    topics?: TopicCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
     activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherCreateNestedManyWithoutSchoolInput
+    topics?: TopicCreateNestedManyWithoutSchoolInput
+    users?: UserCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutClassesInput = {
@@ -31594,16 +31636,16 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
-    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
+    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutClassesInput = {
@@ -31621,9 +31663,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
+    chapters?: ChapterCreateNestedManyWithoutSubjectInput
     school: SchoolCreateNestedOneWithoutSubjectsInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutSubjectInput
-    chapters?: ChapterCreateNestedManyWithoutSubjectInput
   }
 
   export type SubjectUncheckedCreateWithoutClassInput = {
@@ -31637,8 +31679,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutSubjectInput
     chapters?: ChapterUncheckedCreateNestedManyWithoutSubjectInput
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutSubjectInput
   }
 
   export type SubjectCreateOrConnectWithoutClassInput = {
@@ -31655,8 +31697,8 @@ export namespace Prisma {
     id?: string
     schoolId: string
     createdAt?: Date | string
-    teacher: TeacherCreateNestedOneWithoutTeacherClassesInput
     subject?: SubjectCreateNestedOneWithoutTeacherClassesInput
+    teacher: TeacherCreateNestedOneWithoutTeacherClassesInput
   }
 
   export type TeacherClassUncheckedCreateWithoutClassInput = {
@@ -31677,46 +31719,20 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type ChapterCreateWithoutClassInput = {
-    id?: string
-    title: string
-    description?: string | null
-    notes?: string | null
-    estimatedTeachingDays?: number | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    school: SchoolCreateNestedOneWithoutChaptersInput
-    subject: SubjectCreateNestedOneWithoutChaptersInput
-    topics?: TopicCreateNestedManyWithoutChapterInput
-    chapterProgress?: ChapterProgressCreateNestedManyWithoutChapterInput
-  }
-
-  export type ChapterUncheckedCreateWithoutClassInput = {
-    id?: string
-    schoolId: string
-    subjectId: string
-    title: string
-    description?: string | null
-    notes?: string | null
-    estimatedTeachingDays?: number | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    topics?: TopicUncheckedCreateNestedManyWithoutChapterInput
-    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutChapterInput
-  }
-
-  export type ChapterCreateOrConnectWithoutClassInput = {
+  export type ChapterUpsertWithWhereUniqueWithoutClassInput = {
     where: ChapterWhereUniqueInput
+    update: XOR<ChapterUpdateWithoutClassInput, ChapterUncheckedUpdateWithoutClassInput>
     create: XOR<ChapterCreateWithoutClassInput, ChapterUncheckedCreateWithoutClassInput>
   }
 
-  export type ChapterCreateManyClassInputEnvelope = {
-    data: ChapterCreateManyClassInput | ChapterCreateManyClassInput[]
-    skipDuplicates?: boolean
+  export type ChapterUpdateWithWhereUniqueWithoutClassInput = {
+    where: ChapterWhereUniqueInput
+    data: XOR<ChapterUpdateWithoutClassInput, ChapterUncheckedUpdateWithoutClassInput>
+  }
+
+  export type ChapterUpdateManyWithWhereWithoutClassInput = {
+    where: ChapterScalarWhereInput
+    data: XOR<ChapterUpdateManyMutationInput, ChapterUncheckedUpdateManyWithoutClassInput>
   }
 
   export type SchoolUpsertWithoutClassesInput = {
@@ -31742,16 +31758,16 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUpdateManyWithoutSchoolNestedInput
+    users?: UserUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutClassesInput = {
@@ -31766,16 +31782,16 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type SubjectUpsertWithWhereUniqueWithoutClassInput = {
@@ -31810,20 +31826,81 @@ export namespace Prisma {
     data: XOR<TeacherClassUpdateManyMutationInput, TeacherClassUncheckedUpdateManyWithoutClassInput>
   }
 
-  export type ChapterUpsertWithWhereUniqueWithoutClassInput = {
-    where: ChapterWhereUniqueInput
-    update: XOR<ChapterUpdateWithoutClassInput, ChapterUncheckedUpdateWithoutClassInput>
-    create: XOR<ChapterCreateWithoutClassInput, ChapterUncheckedCreateWithoutClassInput>
+  export type ChapterCreateWithoutSubjectInput = {
+    id?: string
+    title: string
+    description?: string | null
+    notes?: string | null
+    estimatedTeachingDays?: number | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressCreateNestedManyWithoutChapterInput
+    class: ClassCreateNestedOneWithoutChaptersInput
+    school: SchoolCreateNestedOneWithoutChaptersInput
+    topics?: TopicCreateNestedManyWithoutChapterInput
   }
 
-  export type ChapterUpdateWithWhereUniqueWithoutClassInput = {
-    where: ChapterWhereUniqueInput
-    data: XOR<ChapterUpdateWithoutClassInput, ChapterUncheckedUpdateWithoutClassInput>
+  export type ChapterUncheckedCreateWithoutSubjectInput = {
+    id?: string
+    schoolId: string
+    classId: string
+    title: string
+    description?: string | null
+    notes?: string | null
+    estimatedTeachingDays?: number | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutChapterInput
+    topics?: TopicUncheckedCreateNestedManyWithoutChapterInput
   }
 
-  export type ChapterUpdateManyWithWhereWithoutClassInput = {
-    where: ChapterScalarWhereInput
-    data: XOR<ChapterUpdateManyMutationInput, ChapterUncheckedUpdateManyWithoutClassInput>
+  export type ChapterCreateOrConnectWithoutSubjectInput = {
+    where: ChapterWhereUniqueInput
+    create: XOR<ChapterCreateWithoutSubjectInput, ChapterUncheckedCreateWithoutSubjectInput>
+  }
+
+  export type ChapterCreateManySubjectInputEnvelope = {
+    data: ChapterCreateManySubjectInput | ChapterCreateManySubjectInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ClassCreateWithoutSubjectsInput = {
+    id?: string
+    name: string
+    grade?: string | null
+    section?: string | null
+    description?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapters?: ChapterCreateNestedManyWithoutClassInput
+    school: SchoolCreateNestedOneWithoutClassesInput
+    teacherClasses?: TeacherClassCreateNestedManyWithoutClassInput
+  }
+
+  export type ClassUncheckedCreateWithoutSubjectsInput = {
+    id?: string
+    schoolId: string
+    name: string
+    grade?: string | null
+    section?: string | null
+    description?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapters?: ChapterUncheckedCreateNestedManyWithoutClassInput
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutClassInput
+  }
+
+  export type ClassCreateOrConnectWithoutSubjectsInput = {
+    where: ClassWhereUniqueInput
+    create: XOR<ClassCreateWithoutSubjectsInput, ClassUncheckedCreateWithoutSubjectsInput>
   }
 
   export type SchoolCreateWithoutSubjectsInput = {
@@ -31838,16 +31915,16 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    users?: UserCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherCreateNestedManyWithoutSchoolInput
-    classes?: ClassCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterCreateNestedManyWithoutSchoolInput
-    topics?: TopicCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
     activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterCreateNestedManyWithoutSchoolInput
+    classes?: ClassCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherCreateNestedManyWithoutSchoolInput
+    topics?: TopicCreateNestedManyWithoutSchoolInput
+    users?: UserCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutSubjectsInput = {
@@ -31862,16 +31939,16 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
-    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
-    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
+    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
+    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutSubjectsInput = {
@@ -31879,47 +31956,12 @@ export namespace Prisma {
     create: XOR<SchoolCreateWithoutSubjectsInput, SchoolUncheckedCreateWithoutSubjectsInput>
   }
 
-  export type ClassCreateWithoutSubjectsInput = {
-    id?: string
-    name: string
-    grade?: string | null
-    section?: string | null
-    description?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    school: SchoolCreateNestedOneWithoutClassesInput
-    teacherClasses?: TeacherClassCreateNestedManyWithoutClassInput
-    chapters?: ChapterCreateNestedManyWithoutClassInput
-  }
-
-  export type ClassUncheckedCreateWithoutSubjectsInput = {
-    id?: string
-    schoolId: string
-    name: string
-    grade?: string | null
-    section?: string | null
-    description?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutClassInput
-    chapters?: ChapterUncheckedCreateNestedManyWithoutClassInput
-  }
-
-  export type ClassCreateOrConnectWithoutSubjectsInput = {
-    where: ClassWhereUniqueInput
-    create: XOR<ClassCreateWithoutSubjectsInput, ClassUncheckedCreateWithoutSubjectsInput>
-  }
-
   export type TeacherClassCreateWithoutSubjectInput = {
     id?: string
     schoolId: string
     createdAt?: Date | string
-    teacher: TeacherCreateNestedOneWithoutTeacherClassesInput
     class: ClassCreateNestedOneWithoutTeacherClassesInput
+    teacher: TeacherCreateNestedOneWithoutTeacherClassesInput
   }
 
   export type TeacherClassUncheckedCreateWithoutSubjectInput = {
@@ -31940,46 +31982,61 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type ChapterCreateWithoutSubjectInput = {
-    id?: string
-    title: string
-    description?: string | null
-    notes?: string | null
-    estimatedTeachingDays?: number | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    school: SchoolCreateNestedOneWithoutChaptersInput
-    class: ClassCreateNestedOneWithoutChaptersInput
-    topics?: TopicCreateNestedManyWithoutChapterInput
-    chapterProgress?: ChapterProgressCreateNestedManyWithoutChapterInput
-  }
-
-  export type ChapterUncheckedCreateWithoutSubjectInput = {
-    id?: string
-    schoolId: string
-    classId: string
-    title: string
-    description?: string | null
-    notes?: string | null
-    estimatedTeachingDays?: number | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    topics?: TopicUncheckedCreateNestedManyWithoutChapterInput
-    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutChapterInput
-  }
-
-  export type ChapterCreateOrConnectWithoutSubjectInput = {
+  export type ChapterUpsertWithWhereUniqueWithoutSubjectInput = {
     where: ChapterWhereUniqueInput
+    update: XOR<ChapterUpdateWithoutSubjectInput, ChapterUncheckedUpdateWithoutSubjectInput>
     create: XOR<ChapterCreateWithoutSubjectInput, ChapterUncheckedCreateWithoutSubjectInput>
   }
 
-  export type ChapterCreateManySubjectInputEnvelope = {
-    data: ChapterCreateManySubjectInput | ChapterCreateManySubjectInput[]
-    skipDuplicates?: boolean
+  export type ChapterUpdateWithWhereUniqueWithoutSubjectInput = {
+    where: ChapterWhereUniqueInput
+    data: XOR<ChapterUpdateWithoutSubjectInput, ChapterUncheckedUpdateWithoutSubjectInput>
+  }
+
+  export type ChapterUpdateManyWithWhereWithoutSubjectInput = {
+    where: ChapterScalarWhereInput
+    data: XOR<ChapterUpdateManyMutationInput, ChapterUncheckedUpdateManyWithoutSubjectInput>
+  }
+
+  export type ClassUpsertWithoutSubjectsInput = {
+    update: XOR<ClassUpdateWithoutSubjectsInput, ClassUncheckedUpdateWithoutSubjectsInput>
+    create: XOR<ClassCreateWithoutSubjectsInput, ClassUncheckedCreateWithoutSubjectsInput>
+    where?: ClassWhereInput
+  }
+
+  export type ClassUpdateToOneWithWhereWithoutSubjectsInput = {
+    where?: ClassWhereInput
+    data: XOR<ClassUpdateWithoutSubjectsInput, ClassUncheckedUpdateWithoutSubjectsInput>
+  }
+
+  export type ClassUpdateWithoutSubjectsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapters?: ChapterUpdateManyWithoutClassNestedInput
+    school?: SchoolUpdateOneRequiredWithoutClassesNestedInput
+    teacherClasses?: TeacherClassUpdateManyWithoutClassNestedInput
+  }
+
+  export type ClassUncheckedUpdateWithoutSubjectsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapters?: ChapterUncheckedUpdateManyWithoutClassNestedInput
+    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutClassNestedInput
   }
 
   export type SchoolUpsertWithoutSubjectsInput = {
@@ -32005,16 +32062,16 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUpdateManyWithoutSchoolNestedInput
+    users?: UserUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutSubjectsInput = {
@@ -32029,57 +32086,16 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
-  }
-
-  export type ClassUpsertWithoutSubjectsInput = {
-    update: XOR<ClassUpdateWithoutSubjectsInput, ClassUncheckedUpdateWithoutSubjectsInput>
-    create: XOR<ClassCreateWithoutSubjectsInput, ClassUncheckedCreateWithoutSubjectsInput>
-    where?: ClassWhereInput
-  }
-
-  export type ClassUpdateToOneWithWhereWithoutSubjectsInput = {
-    where?: ClassWhereInput
-    data: XOR<ClassUpdateWithoutSubjectsInput, ClassUncheckedUpdateWithoutSubjectsInput>
-  }
-
-  export type ClassUpdateWithoutSubjectsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    grade?: NullableStringFieldUpdateOperationsInput | string | null
-    section?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneRequiredWithoutClassesNestedInput
-    teacherClasses?: TeacherClassUpdateManyWithoutClassNestedInput
-    chapters?: ChapterUpdateManyWithoutClassNestedInput
-  }
-
-  export type ClassUncheckedUpdateWithoutSubjectsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    grade?: NullableStringFieldUpdateOperationsInput | string | null
-    section?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutClassNestedInput
-    chapters?: ChapterUncheckedUpdateManyWithoutClassNestedInput
+    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type TeacherClassUpsertWithWhereUniqueWithoutSubjectInput = {
@@ -32096,181 +32112,6 @@ export namespace Prisma {
   export type TeacherClassUpdateManyWithWhereWithoutSubjectInput = {
     where: TeacherClassScalarWhereInput
     data: XOR<TeacherClassUpdateManyMutationInput, TeacherClassUncheckedUpdateManyWithoutSubjectInput>
-  }
-
-  export type ChapterUpsertWithWhereUniqueWithoutSubjectInput = {
-    where: ChapterWhereUniqueInput
-    update: XOR<ChapterUpdateWithoutSubjectInput, ChapterUncheckedUpdateWithoutSubjectInput>
-    create: XOR<ChapterCreateWithoutSubjectInput, ChapterUncheckedCreateWithoutSubjectInput>
-  }
-
-  export type ChapterUpdateWithWhereUniqueWithoutSubjectInput = {
-    where: ChapterWhereUniqueInput
-    data: XOR<ChapterUpdateWithoutSubjectInput, ChapterUncheckedUpdateWithoutSubjectInput>
-  }
-
-  export type ChapterUpdateManyWithWhereWithoutSubjectInput = {
-    where: ChapterScalarWhereInput
-    data: XOR<ChapterUpdateManyMutationInput, ChapterUncheckedUpdateManyWithoutSubjectInput>
-  }
-
-  export type SchoolCreateWithoutChaptersInput = {
-    id?: string
-    name: string
-    slug: string
-    email: string
-    phone?: string | null
-    address?: string | null
-    logo?: string | null
-    status?: $Enums.SchoolStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    users?: UserCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherCreateNestedManyWithoutSchoolInput
-    classes?: ClassCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectCreateNestedManyWithoutSchoolInput
-    topics?: TopicCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationCreateNestedManyWithoutSchoolInput
-    activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
-    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
-  }
-
-  export type SchoolUncheckedCreateWithoutChaptersInput = {
-    id?: string
-    name: string
-    slug: string
-    email: string
-    phone?: string | null
-    address?: string | null
-    logo?: string | null
-    status?: $Enums.SchoolStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
-    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
-    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
-    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
-  }
-
-  export type SchoolCreateOrConnectWithoutChaptersInput = {
-    where: SchoolWhereUniqueInput
-    create: XOR<SchoolCreateWithoutChaptersInput, SchoolUncheckedCreateWithoutChaptersInput>
-  }
-
-  export type SubjectCreateWithoutChaptersInput = {
-    id?: string
-    name: string
-    code?: string | null
-    description?: string | null
-    color?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    school: SchoolCreateNestedOneWithoutSubjectsInput
-    class?: ClassCreateNestedOneWithoutSubjectsInput
-    teacherClasses?: TeacherClassCreateNestedManyWithoutSubjectInput
-  }
-
-  export type SubjectUncheckedCreateWithoutChaptersInput = {
-    id?: string
-    schoolId: string
-    classId?: string | null
-    name: string
-    code?: string | null
-    description?: string | null
-    color?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutSubjectInput
-  }
-
-  export type SubjectCreateOrConnectWithoutChaptersInput = {
-    where: SubjectWhereUniqueInput
-    create: XOR<SubjectCreateWithoutChaptersInput, SubjectUncheckedCreateWithoutChaptersInput>
-  }
-
-  export type ClassCreateWithoutChaptersInput = {
-    id?: string
-    name: string
-    grade?: string | null
-    section?: string | null
-    description?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    school: SchoolCreateNestedOneWithoutClassesInput
-    subjects?: SubjectCreateNestedManyWithoutClassInput
-    teacherClasses?: TeacherClassCreateNestedManyWithoutClassInput
-  }
-
-  export type ClassUncheckedCreateWithoutChaptersInput = {
-    id?: string
-    schoolId: string
-    name: string
-    grade?: string | null
-    section?: string | null
-    description?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    subjects?: SubjectUncheckedCreateNestedManyWithoutClassInput
-    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutClassInput
-  }
-
-  export type ClassCreateOrConnectWithoutChaptersInput = {
-    where: ClassWhereUniqueInput
-    create: XOR<ClassCreateWithoutChaptersInput, ClassUncheckedCreateWithoutChaptersInput>
-  }
-
-  export type TopicCreateWithoutChapterInput = {
-    id?: string
-    title: string
-    description?: string | null
-    notes?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    school: SchoolCreateNestedOneWithoutTopicsInput
-    topicProgress?: TopicProgressCreateNestedManyWithoutTopicInput
-  }
-
-  export type TopicUncheckedCreateWithoutChapterInput = {
-    id?: string
-    schoolId: string
-    title: string
-    description?: string | null
-    notes?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTopicInput
-  }
-
-  export type TopicCreateOrConnectWithoutChapterInput = {
-    where: TopicWhereUniqueInput
-    create: XOR<TopicCreateWithoutChapterInput, TopicUncheckedCreateWithoutChapterInput>
-  }
-
-  export type TopicCreateManyChapterInputEnvelope = {
-    data: TopicCreateManyChapterInput | TopicCreateManyChapterInput[]
-    skipDuplicates?: boolean
   }
 
   export type ChapterProgressCreateWithoutChapterInput = {
@@ -32313,104 +32154,179 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type SchoolUpsertWithoutChaptersInput = {
-    update: XOR<SchoolUpdateWithoutChaptersInput, SchoolUncheckedUpdateWithoutChaptersInput>
+  export type ClassCreateWithoutChaptersInput = {
+    id?: string
+    name: string
+    grade?: string | null
+    section?: string | null
+    description?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    school: SchoolCreateNestedOneWithoutClassesInput
+    subjects?: SubjectCreateNestedManyWithoutClassInput
+    teacherClasses?: TeacherClassCreateNestedManyWithoutClassInput
+  }
+
+  export type ClassUncheckedCreateWithoutChaptersInput = {
+    id?: string
+    schoolId: string
+    name: string
+    grade?: string | null
+    section?: string | null
+    description?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    subjects?: SubjectUncheckedCreateNestedManyWithoutClassInput
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutClassInput
+  }
+
+  export type ClassCreateOrConnectWithoutChaptersInput = {
+    where: ClassWhereUniqueInput
+    create: XOR<ClassCreateWithoutChaptersInput, ClassUncheckedCreateWithoutChaptersInput>
+  }
+
+  export type SchoolCreateWithoutChaptersInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
+    classes?: ClassCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherCreateNestedManyWithoutSchoolInput
+    topics?: TopicCreateNestedManyWithoutSchoolInput
+    users?: UserCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolUncheckedCreateWithoutChaptersInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
+    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
+    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolCreateOrConnectWithoutChaptersInput = {
+    where: SchoolWhereUniqueInput
     create: XOR<SchoolCreateWithoutChaptersInput, SchoolUncheckedCreateWithoutChaptersInput>
-    where?: SchoolWhereInput
   }
 
-  export type SchoolUpdateToOneWithWhereWithoutChaptersInput = {
-    where?: SchoolWhereInput
-    data: XOR<SchoolUpdateWithoutChaptersInput, SchoolUncheckedUpdateWithoutChaptersInput>
+  export type SubjectCreateWithoutChaptersInput = {
+    id?: string
+    name: string
+    code?: string | null
+    description?: string | null
+    color?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    class?: ClassCreateNestedOneWithoutSubjectsInput
+    school: SchoolCreateNestedOneWithoutSubjectsInput
+    teacherClasses?: TeacherClassCreateNestedManyWithoutSubjectInput
   }
 
-  export type SchoolUpdateWithoutChaptersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    logo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
-    activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+  export type SubjectUncheckedCreateWithoutChaptersInput = {
+    id?: string
+    schoolId: string
+    classId?: string | null
+    name: string
+    code?: string | null
+    description?: string | null
+    color?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutSubjectInput
   }
 
-  export type SchoolUncheckedUpdateWithoutChaptersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    logo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
-    activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
-  }
-
-  export type SubjectUpsertWithoutChaptersInput = {
-    update: XOR<SubjectUpdateWithoutChaptersInput, SubjectUncheckedUpdateWithoutChaptersInput>
+  export type SubjectCreateOrConnectWithoutChaptersInput = {
+    where: SubjectWhereUniqueInput
     create: XOR<SubjectCreateWithoutChaptersInput, SubjectUncheckedCreateWithoutChaptersInput>
-    where?: SubjectWhereInput
   }
 
-  export type SubjectUpdateToOneWithWhereWithoutChaptersInput = {
-    where?: SubjectWhereInput
-    data: XOR<SubjectUpdateWithoutChaptersInput, SubjectUncheckedUpdateWithoutChaptersInput>
+  export type TopicCreateWithoutChapterInput = {
+    id?: string
+    title: string
+    description?: string | null
+    notes?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    topicProgress?: TopicProgressCreateNestedManyWithoutTopicInput
+    school: SchoolCreateNestedOneWithoutTopicsInput
   }
 
-  export type SubjectUpdateWithoutChaptersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    code?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    color?: NullableStringFieldUpdateOperationsInput | string | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneRequiredWithoutSubjectsNestedInput
-    class?: ClassUpdateOneWithoutSubjectsNestedInput
-    teacherClasses?: TeacherClassUpdateManyWithoutSubjectNestedInput
+  export type TopicUncheckedCreateWithoutChapterInput = {
+    id?: string
+    schoolId: string
+    title: string
+    description?: string | null
+    notes?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTopicInput
   }
 
-  export type SubjectUncheckedUpdateWithoutChaptersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: StringFieldUpdateOperationsInput | string
-    classId?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    code?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    color?: NullableStringFieldUpdateOperationsInput | string | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutSubjectNestedInput
+  export type TopicCreateOrConnectWithoutChapterInput = {
+    where: TopicWhereUniqueInput
+    create: XOR<TopicCreateWithoutChapterInput, TopicUncheckedCreateWithoutChapterInput>
+  }
+
+  export type TopicCreateManyChapterInputEnvelope = {
+    data: TopicCreateManyChapterInput | TopicCreateManyChapterInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ChapterProgressUpsertWithWhereUniqueWithoutChapterInput = {
+    where: ChapterProgressWhereUniqueInput
+    update: XOR<ChapterProgressUpdateWithoutChapterInput, ChapterProgressUncheckedUpdateWithoutChapterInput>
+    create: XOR<ChapterProgressCreateWithoutChapterInput, ChapterProgressUncheckedCreateWithoutChapterInput>
+  }
+
+  export type ChapterProgressUpdateWithWhereUniqueWithoutChapterInput = {
+    where: ChapterProgressWhereUniqueInput
+    data: XOR<ChapterProgressUpdateWithoutChapterInput, ChapterProgressUncheckedUpdateWithoutChapterInput>
+  }
+
+  export type ChapterProgressUpdateManyWithWhereWithoutChapterInput = {
+    where: ChapterProgressScalarWhereInput
+    data: XOR<ChapterProgressUpdateManyMutationInput, ChapterProgressUncheckedUpdateManyWithoutChapterInput>
   }
 
   export type ClassUpsertWithoutChaptersInput = {
@@ -32454,6 +32370,106 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutClassNestedInput
   }
 
+  export type SchoolUpsertWithoutChaptersInput = {
+    update: XOR<SchoolUpdateWithoutChaptersInput, SchoolUncheckedUpdateWithoutChaptersInput>
+    create: XOR<SchoolCreateWithoutChaptersInput, SchoolUncheckedCreateWithoutChaptersInput>
+    where?: SchoolWhereInput
+  }
+
+  export type SchoolUpdateToOneWithWhereWithoutChaptersInput = {
+    where?: SchoolWhereInput
+    data: XOR<SchoolUpdateWithoutChaptersInput, SchoolUncheckedUpdateWithoutChaptersInput>
+  }
+
+  export type SchoolUpdateWithoutChaptersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUpdateManyWithoutSchoolNestedInput
+    users?: UserUpdateManyWithoutSchoolNestedInput
+  }
+
+  export type SchoolUncheckedUpdateWithoutChaptersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+  }
+
+  export type SubjectUpsertWithoutChaptersInput = {
+    update: XOR<SubjectUpdateWithoutChaptersInput, SubjectUncheckedUpdateWithoutChaptersInput>
+    create: XOR<SubjectCreateWithoutChaptersInput, SubjectUncheckedCreateWithoutChaptersInput>
+    where?: SubjectWhereInput
+  }
+
+  export type SubjectUpdateToOneWithWhereWithoutChaptersInput = {
+    where?: SubjectWhereInput
+    data: XOR<SubjectUpdateWithoutChaptersInput, SubjectUncheckedUpdateWithoutChaptersInput>
+  }
+
+  export type SubjectUpdateWithoutChaptersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    class?: ClassUpdateOneWithoutSubjectsNestedInput
+    school?: SchoolUpdateOneRequiredWithoutSubjectsNestedInput
+    teacherClasses?: TeacherClassUpdateManyWithoutSubjectNestedInput
+  }
+
+  export type SubjectUncheckedUpdateWithoutChaptersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    classId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutSubjectNestedInput
+  }
+
   export type TopicUpsertWithWhereUniqueWithoutChapterInput = {
     where: TopicWhereUniqueInput
     update: XOR<TopicUpdateWithoutChapterInput, TopicUncheckedUpdateWithoutChapterInput>
@@ -32468,112 +32484,6 @@ export namespace Prisma {
   export type TopicUpdateManyWithWhereWithoutChapterInput = {
     where: TopicScalarWhereInput
     data: XOR<TopicUpdateManyMutationInput, TopicUncheckedUpdateManyWithoutChapterInput>
-  }
-
-  export type ChapterProgressUpsertWithWhereUniqueWithoutChapterInput = {
-    where: ChapterProgressWhereUniqueInput
-    update: XOR<ChapterProgressUpdateWithoutChapterInput, ChapterProgressUncheckedUpdateWithoutChapterInput>
-    create: XOR<ChapterProgressCreateWithoutChapterInput, ChapterProgressUncheckedCreateWithoutChapterInput>
-  }
-
-  export type ChapterProgressUpdateWithWhereUniqueWithoutChapterInput = {
-    where: ChapterProgressWhereUniqueInput
-    data: XOR<ChapterProgressUpdateWithoutChapterInput, ChapterProgressUncheckedUpdateWithoutChapterInput>
-  }
-
-  export type ChapterProgressUpdateManyWithWhereWithoutChapterInput = {
-    where: ChapterProgressScalarWhereInput
-    data: XOR<ChapterProgressUpdateManyMutationInput, ChapterProgressUncheckedUpdateManyWithoutChapterInput>
-  }
-
-  export type SchoolCreateWithoutTopicsInput = {
-    id?: string
-    name: string
-    slug: string
-    email: string
-    phone?: string | null
-    address?: string | null
-    logo?: string | null
-    status?: $Enums.SchoolStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    users?: UserCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherCreateNestedManyWithoutSchoolInput
-    classes?: ClassCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationCreateNestedManyWithoutSchoolInput
-    activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
-    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
-  }
-
-  export type SchoolUncheckedCreateWithoutTopicsInput = {
-    id?: string
-    name: string
-    slug: string
-    email: string
-    phone?: string | null
-    address?: string | null
-    logo?: string | null
-    status?: $Enums.SchoolStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
-    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
-    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
-  }
-
-  export type SchoolCreateOrConnectWithoutTopicsInput = {
-    where: SchoolWhereUniqueInput
-    create: XOR<SchoolCreateWithoutTopicsInput, SchoolUncheckedCreateWithoutTopicsInput>
-  }
-
-  export type ChapterCreateWithoutTopicsInput = {
-    id?: string
-    title: string
-    description?: string | null
-    notes?: string | null
-    estimatedTeachingDays?: number | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    school: SchoolCreateNestedOneWithoutChaptersInput
-    subject: SubjectCreateNestedOneWithoutChaptersInput
-    class: ClassCreateNestedOneWithoutChaptersInput
-    chapterProgress?: ChapterProgressCreateNestedManyWithoutChapterInput
-  }
-
-  export type ChapterUncheckedCreateWithoutTopicsInput = {
-    id?: string
-    schoolId: string
-    subjectId: string
-    classId: string
-    title: string
-    description?: string | null
-    notes?: string | null
-    estimatedTeachingDays?: number | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutChapterInput
-  }
-
-  export type ChapterCreateOrConnectWithoutTopicsInput = {
-    where: ChapterWhereUniqueInput
-    create: XOR<ChapterCreateWithoutTopicsInput, ChapterUncheckedCreateWithoutTopicsInput>
   }
 
   export type TopicProgressCreateWithoutTopicInput = {
@@ -32608,63 +32518,110 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type SchoolUpsertWithoutTopicsInput = {
-    update: XOR<SchoolUpdateWithoutTopicsInput, SchoolUncheckedUpdateWithoutTopicsInput>
+  export type ChapterCreateWithoutTopicsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    notes?: string | null
+    estimatedTeachingDays?: number | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressCreateNestedManyWithoutChapterInput
+    class: ClassCreateNestedOneWithoutChaptersInput
+    school: SchoolCreateNestedOneWithoutChaptersInput
+    subject: SubjectCreateNestedOneWithoutChaptersInput
+  }
+
+  export type ChapterUncheckedCreateWithoutTopicsInput = {
+    id?: string
+    schoolId: string
+    subjectId: string
+    classId: string
+    title: string
+    description?: string | null
+    notes?: string | null
+    estimatedTeachingDays?: number | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutChapterInput
+  }
+
+  export type ChapterCreateOrConnectWithoutTopicsInput = {
+    where: ChapterWhereUniqueInput
+    create: XOR<ChapterCreateWithoutTopicsInput, ChapterUncheckedCreateWithoutTopicsInput>
+  }
+
+  export type SchoolCreateWithoutTopicsInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterCreateNestedManyWithoutSchoolInput
+    classes?: ClassCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherCreateNestedManyWithoutSchoolInput
+    users?: UserCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolUncheckedCreateWithoutTopicsInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
+    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolCreateOrConnectWithoutTopicsInput = {
+    where: SchoolWhereUniqueInput
     create: XOR<SchoolCreateWithoutTopicsInput, SchoolUncheckedCreateWithoutTopicsInput>
-    where?: SchoolWhereInput
   }
 
-  export type SchoolUpdateToOneWithWhereWithoutTopicsInput = {
-    where?: SchoolWhereInput
-    data: XOR<SchoolUpdateWithoutTopicsInput, SchoolUncheckedUpdateWithoutTopicsInput>
+  export type TopicProgressUpsertWithWhereUniqueWithoutTopicInput = {
+    where: TopicProgressWhereUniqueInput
+    update: XOR<TopicProgressUpdateWithoutTopicInput, TopicProgressUncheckedUpdateWithoutTopicInput>
+    create: XOR<TopicProgressCreateWithoutTopicInput, TopicProgressUncheckedCreateWithoutTopicInput>
   }
 
-  export type SchoolUpdateWithoutTopicsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    logo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
-    activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+  export type TopicProgressUpdateWithWhereUniqueWithoutTopicInput = {
+    where: TopicProgressWhereUniqueInput
+    data: XOR<TopicProgressUpdateWithoutTopicInput, TopicProgressUncheckedUpdateWithoutTopicInput>
   }
 
-  export type SchoolUncheckedUpdateWithoutTopicsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    logo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
-    activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
+  export type TopicProgressUpdateManyWithWhereWithoutTopicInput = {
+    where: TopicProgressScalarWhereInput
+    data: XOR<TopicProgressUpdateManyMutationInput, TopicProgressUncheckedUpdateManyWithoutTopicInput>
   }
 
   export type ChapterUpsertWithoutTopicsInput = {
@@ -32688,10 +32645,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUpdateManyWithoutChapterNestedInput
+    class?: ClassUpdateOneRequiredWithoutChaptersNestedInput
     school?: SchoolUpdateOneRequiredWithoutChaptersNestedInput
     subject?: SubjectUpdateOneRequiredWithoutChaptersNestedInput
-    class?: ClassUpdateOneRequiredWithoutChaptersNestedInput
-    chapterProgress?: ChapterProgressUpdateManyWithoutChapterNestedInput
   }
 
   export type ChapterUncheckedUpdateWithoutTopicsInput = {
@@ -32710,49 +32667,63 @@ export namespace Prisma {
     chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutChapterNestedInput
   }
 
-  export type TopicProgressUpsertWithWhereUniqueWithoutTopicInput = {
-    where: TopicProgressWhereUniqueInput
-    update: XOR<TopicProgressUpdateWithoutTopicInput, TopicProgressUncheckedUpdateWithoutTopicInput>
-    create: XOR<TopicProgressCreateWithoutTopicInput, TopicProgressUncheckedCreateWithoutTopicInput>
+  export type SchoolUpsertWithoutTopicsInput = {
+    update: XOR<SchoolUpdateWithoutTopicsInput, SchoolUncheckedUpdateWithoutTopicsInput>
+    create: XOR<SchoolCreateWithoutTopicsInput, SchoolUncheckedCreateWithoutTopicsInput>
+    where?: SchoolWhereInput
   }
 
-  export type TopicProgressUpdateWithWhereUniqueWithoutTopicInput = {
-    where: TopicProgressWhereUniqueInput
-    data: XOR<TopicProgressUpdateWithoutTopicInput, TopicProgressUncheckedUpdateWithoutTopicInput>
+  export type SchoolUpdateToOneWithWhereWithoutTopicsInput = {
+    where?: SchoolWhereInput
+    data: XOR<SchoolUpdateWithoutTopicsInput, SchoolUncheckedUpdateWithoutTopicsInput>
   }
 
-  export type TopicProgressUpdateManyWithWhereWithoutTopicInput = {
-    where: TopicProgressScalarWhereInput
-    data: XOR<TopicProgressUpdateManyMutationInput, TopicProgressUncheckedUpdateManyWithoutTopicInput>
+  export type SchoolUpdateWithoutTopicsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
+    users?: UserUpdateManyWithoutSchoolNestedInput
   }
 
-  export type TeacherCreateWithoutTeacherClassesInput = {
-    id?: string
-    status?: $Enums.UserStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    school: SchoolCreateNestedOneWithoutTeachersInput
-    user: UserCreateNestedOneWithoutTeacherInput
-    chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
-    topicProgress?: TopicProgressCreateNestedManyWithoutTeacherInput
-  }
-
-  export type TeacherUncheckedCreateWithoutTeacherClassesInput = {
-    id?: string
-    schoolId: string
-    userId: string
-    status?: $Enums.UserStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
-    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTeacherInput
-  }
-
-  export type TeacherCreateOrConnectWithoutTeacherClassesInput = {
-    where: TeacherWhereUniqueInput
-    create: XOR<TeacherCreateWithoutTeacherClassesInput, TeacherUncheckedCreateWithoutTeacherClassesInput>
+  export type SchoolUncheckedUpdateWithoutTopicsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type ClassCreateWithoutTeacherClassesInput = {
@@ -32765,9 +32736,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
+    chapters?: ChapterCreateNestedManyWithoutClassInput
     school: SchoolCreateNestedOneWithoutClassesInput
     subjects?: SubjectCreateNestedManyWithoutClassInput
-    chapters?: ChapterCreateNestedManyWithoutClassInput
   }
 
   export type ClassUncheckedCreateWithoutTeacherClassesInput = {
@@ -32781,8 +32752,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    subjects?: SubjectUncheckedCreateNestedManyWithoutClassInput
     chapters?: ChapterUncheckedCreateNestedManyWithoutClassInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutClassInput
   }
 
   export type ClassCreateOrConnectWithoutTeacherClassesInput = {
@@ -32800,9 +32771,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    school: SchoolCreateNestedOneWithoutSubjectsInput
-    class?: ClassCreateNestedOneWithoutSubjectsInput
     chapters?: ChapterCreateNestedManyWithoutSubjectInput
+    class?: ClassCreateNestedOneWithoutSubjectsInput
+    school: SchoolCreateNestedOneWithoutSubjectsInput
   }
 
   export type SubjectUncheckedCreateWithoutTeacherClassesInput = {
@@ -32825,39 +32796,33 @@ export namespace Prisma {
     create: XOR<SubjectCreateWithoutTeacherClassesInput, SubjectUncheckedCreateWithoutTeacherClassesInput>
   }
 
-  export type TeacherUpsertWithoutTeacherClassesInput = {
-    update: XOR<TeacherUpdateWithoutTeacherClassesInput, TeacherUncheckedUpdateWithoutTeacherClassesInput>
+  export type TeacherCreateWithoutTeacherClassesInput = {
+    id?: string
+    status?: $Enums.UserStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
+    school: SchoolCreateNestedOneWithoutTeachersInput
+    user: UserCreateNestedOneWithoutTeacherInput
+    topicProgress?: TopicProgressCreateNestedManyWithoutTeacherInput
+  }
+
+  export type TeacherUncheckedCreateWithoutTeacherClassesInput = {
+    id?: string
+    schoolId: string
+    userId: string
+    status?: $Enums.UserStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
+    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTeacherInput
+  }
+
+  export type TeacherCreateOrConnectWithoutTeacherClassesInput = {
+    where: TeacherWhereUniqueInput
     create: XOR<TeacherCreateWithoutTeacherClassesInput, TeacherUncheckedCreateWithoutTeacherClassesInput>
-    where?: TeacherWhereInput
-  }
-
-  export type TeacherUpdateToOneWithWhereWithoutTeacherClassesInput = {
-    where?: TeacherWhereInput
-    data: XOR<TeacherUpdateWithoutTeacherClassesInput, TeacherUncheckedUpdateWithoutTeacherClassesInput>
-  }
-
-  export type TeacherUpdateWithoutTeacherClassesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
-    user?: UserUpdateOneRequiredWithoutTeacherNestedInput
-    chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
-    topicProgress?: TopicProgressUpdateManyWithoutTeacherNestedInput
-  }
-
-  export type TeacherUncheckedUpdateWithoutTeacherClassesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
-    topicProgress?: TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput
   }
 
   export type ClassUpsertWithoutTeacherClassesInput = {
@@ -32881,9 +32846,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapters?: ChapterUpdateManyWithoutClassNestedInput
     school?: SchoolUpdateOneRequiredWithoutClassesNestedInput
     subjects?: SubjectUpdateManyWithoutClassNestedInput
-    chapters?: ChapterUpdateManyWithoutClassNestedInput
   }
 
   export type ClassUncheckedUpdateWithoutTeacherClassesInput = {
@@ -32897,8 +32862,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subjects?: SubjectUncheckedUpdateManyWithoutClassNestedInput
     chapters?: ChapterUncheckedUpdateManyWithoutClassNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutClassNestedInput
   }
 
   export type SubjectUpsertWithoutTeacherClassesInput = {
@@ -32922,9 +32887,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneRequiredWithoutSubjectsNestedInput
-    class?: ClassUpdateOneWithoutSubjectsNestedInput
     chapters?: ChapterUpdateManyWithoutSubjectNestedInput
+    class?: ClassUpdateOneWithoutSubjectsNestedInput
+    school?: SchoolUpdateOneRequiredWithoutSubjectsNestedInput
   }
 
   export type SubjectUncheckedUpdateWithoutTeacherClassesInput = {
@@ -32942,6 +32907,41 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutSubjectNestedInput
   }
 
+  export type TeacherUpsertWithoutTeacherClassesInput = {
+    update: XOR<TeacherUpdateWithoutTeacherClassesInput, TeacherUncheckedUpdateWithoutTeacherClassesInput>
+    create: XOR<TeacherCreateWithoutTeacherClassesInput, TeacherUncheckedCreateWithoutTeacherClassesInput>
+    where?: TeacherWhereInput
+  }
+
+  export type TeacherUpdateToOneWithWhereWithoutTeacherClassesInput = {
+    where?: TeacherWhereInput
+    data: XOR<TeacherUpdateWithoutTeacherClassesInput, TeacherUncheckedUpdateWithoutTeacherClassesInput>
+  }
+
+  export type TeacherUpdateWithoutTeacherClassesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
+    school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
+    user?: UserUpdateOneRequiredWithoutTeacherNestedInput
+    topicProgress?: TopicProgressUpdateManyWithoutTeacherNestedInput
+  }
+
+  export type TeacherUncheckedUpdateWithoutTeacherClassesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
+    topicProgress?: TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput
+  }
+
   export type ChapterCreateWithoutChapterProgressInput = {
     id?: string
     title: string
@@ -32952,9 +32952,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
+    class: ClassCreateNestedOneWithoutChaptersInput
     school: SchoolCreateNestedOneWithoutChaptersInput
     subject: SubjectCreateNestedOneWithoutChaptersInput
-    class: ClassCreateNestedOneWithoutChaptersInput
     topics?: TopicCreateNestedManyWithoutChapterInput
   }
 
@@ -32985,9 +32985,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
+    teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
     school: SchoolCreateNestedOneWithoutTeachersInput
     user: UserCreateNestedOneWithoutTeacherInput
-    teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
     topicProgress?: TopicProgressCreateNestedManyWithoutTeacherInput
   }
 
@@ -33021,13 +33021,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    school?: SchoolCreateNestedOneWithoutUsersInput
-    teacher?: TeacherCreateNestedOneWithoutUserInput
-    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
-    notifications?: NotificationCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutActorInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    teacher?: TeacherCreateNestedOneWithoutUserInput
     topicProgress?: TopicProgressCreateNestedManyWithoutUpdatedByInput
+    school?: SchoolCreateNestedOneWithoutUsersInput
   }
 
   export type UserUncheckedCreateWithoutChapterProgressInput = {
@@ -33044,11 +33044,11 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    teacher?: TeacherUncheckedCreateNestedOneWithoutUserInput
-    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutActorInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    teacher?: TeacherUncheckedCreateNestedOneWithoutUserInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutUpdatedByInput
   }
 
@@ -33078,9 +33078,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    class?: ClassUpdateOneRequiredWithoutChaptersNestedInput
     school?: SchoolUpdateOneRequiredWithoutChaptersNestedInput
     subject?: SubjectUpdateOneRequiredWithoutChaptersNestedInput
-    class?: ClassUpdateOneRequiredWithoutChaptersNestedInput
     topics?: TopicUpdateManyWithoutChapterNestedInput
   }
 
@@ -33117,9 +33117,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
     school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
     user?: UserUpdateOneRequiredWithoutTeacherNestedInput
-    teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutTeacherNestedInput
   }
 
@@ -33159,13 +33159,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneWithoutUsersNestedInput
-    teacher?: TeacherUpdateOneWithoutUserNestedInput
-    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
-    notifications?: NotificationUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutActorNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    teacher?: TeacherUpdateOneWithoutUserNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutUpdatedByNestedInput
+    school?: SchoolUpdateOneWithoutUsersNestedInput
   }
 
   export type UserUncheckedUpdateWithoutChapterProgressInput = {
@@ -33182,12 +33182,41 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
-    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutActorNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
+  }
+
+  export type TeacherCreateWithoutTopicProgressInput = {
+    id?: string
+    status?: $Enums.UserStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
+    teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
+    school: SchoolCreateNestedOneWithoutTeachersInput
+    user: UserCreateNestedOneWithoutTeacherInput
+  }
+
+  export type TeacherUncheckedCreateWithoutTopicProgressInput = {
+    id?: string
+    schoolId: string
+    userId: string
+    status?: $Enums.UserStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutTeacherInput
+  }
+
+  export type TeacherCreateOrConnectWithoutTopicProgressInput = {
+    where: TeacherWhereUniqueInput
+    create: XOR<TeacherCreateWithoutTopicProgressInput, TeacherUncheckedCreateWithoutTopicProgressInput>
   }
 
   export type TopicCreateWithoutTopicProgressInput = {
@@ -33199,8 +33228,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    school: SchoolCreateNestedOneWithoutTopicsInput
     chapter: ChapterCreateNestedOneWithoutTopicsInput
+    school: SchoolCreateNestedOneWithoutTopicsInput
   }
 
   export type TopicUncheckedCreateWithoutTopicProgressInput = {
@@ -33221,35 +33250,6 @@ export namespace Prisma {
     create: XOR<TopicCreateWithoutTopicProgressInput, TopicUncheckedCreateWithoutTopicProgressInput>
   }
 
-  export type TeacherCreateWithoutTopicProgressInput = {
-    id?: string
-    status?: $Enums.UserStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    school: SchoolCreateNestedOneWithoutTeachersInput
-    user: UserCreateNestedOneWithoutTeacherInput
-    teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
-    chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
-  }
-
-  export type TeacherUncheckedCreateWithoutTopicProgressInput = {
-    id?: string
-    schoolId: string
-    userId: string
-    status?: $Enums.UserStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutTeacherInput
-    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
-  }
-
-  export type TeacherCreateOrConnectWithoutTopicProgressInput = {
-    where: TeacherWhereUniqueInput
-    create: XOR<TeacherCreateWithoutTopicProgressInput, TeacherUncheckedCreateWithoutTopicProgressInput>
-  }
-
   export type UserCreateWithoutTopicProgressInput = {
     id?: string
     email: string
@@ -33263,13 +33263,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    school?: SchoolCreateNestedOneWithoutUsersInput
-    teacher?: TeacherCreateNestedOneWithoutUserInput
-    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
-    notifications?: NotificationCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutActorInput
     chapterProgress?: ChapterProgressCreateNestedManyWithoutUpdatedByInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    teacher?: TeacherCreateNestedOneWithoutUserInput
+    school?: SchoolCreateNestedOneWithoutUsersInput
   }
 
   export type UserUncheckedCreateWithoutTopicProgressInput = {
@@ -33286,17 +33286,52 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    teacher?: TeacherUncheckedCreateNestedOneWithoutUserInput
-    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutActorInput
     chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutUpdatedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    teacher?: TeacherUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTopicProgressInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutTopicProgressInput, UserUncheckedCreateWithoutTopicProgressInput>
+  }
+
+  export type TeacherUpsertWithoutTopicProgressInput = {
+    update: XOR<TeacherUpdateWithoutTopicProgressInput, TeacherUncheckedUpdateWithoutTopicProgressInput>
+    create: XOR<TeacherCreateWithoutTopicProgressInput, TeacherUncheckedCreateWithoutTopicProgressInput>
+    where?: TeacherWhereInput
+  }
+
+  export type TeacherUpdateToOneWithWhereWithoutTopicProgressInput = {
+    where?: TeacherWhereInput
+    data: XOR<TeacherUpdateWithoutTopicProgressInput, TeacherUncheckedUpdateWithoutTopicProgressInput>
+  }
+
+  export type TeacherUpdateWithoutTopicProgressInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
+    teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
+    school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
+    user?: UserUpdateOneRequiredWithoutTeacherNestedInput
+  }
+
+  export type TeacherUncheckedUpdateWithoutTopicProgressInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
+    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
   }
 
   export type TopicUpsertWithoutTopicProgressInput = {
@@ -33319,8 +33354,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneRequiredWithoutTopicsNestedInput
     chapter?: ChapterUpdateOneRequiredWithoutTopicsNestedInput
+    school?: SchoolUpdateOneRequiredWithoutTopicsNestedInput
   }
 
   export type TopicUncheckedUpdateWithoutTopicProgressInput = {
@@ -33334,41 +33369,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type TeacherUpsertWithoutTopicProgressInput = {
-    update: XOR<TeacherUpdateWithoutTopicProgressInput, TeacherUncheckedUpdateWithoutTopicProgressInput>
-    create: XOR<TeacherCreateWithoutTopicProgressInput, TeacherUncheckedCreateWithoutTopicProgressInput>
-    where?: TeacherWhereInput
-  }
-
-  export type TeacherUpdateToOneWithWhereWithoutTopicProgressInput = {
-    where?: TeacherWhereInput
-    data: XOR<TeacherUpdateWithoutTopicProgressInput, TeacherUncheckedUpdateWithoutTopicProgressInput>
-  }
-
-  export type TeacherUpdateWithoutTopicProgressInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
-    user?: UserUpdateOneRequiredWithoutTeacherNestedInput
-    teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
-    chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
-  }
-
-  export type TeacherUncheckedUpdateWithoutTopicProgressInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
-    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
   }
 
   export type UserUpsertWithoutTopicProgressInput = {
@@ -33395,13 +33395,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneWithoutUsersNestedInput
-    teacher?: TeacherUpdateOneWithoutUserNestedInput
-    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
-    notifications?: NotificationUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutActorNestedInput
     chapterProgress?: ChapterProgressUpdateManyWithoutUpdatedByNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    teacher?: TeacherUpdateOneWithoutUserNestedInput
+    school?: SchoolUpdateOneWithoutUsersNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTopicProgressInput = {
@@ -33418,12 +33418,12 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
-    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutActorNestedInput
     chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type SchoolCreateWithoutNotificationsInput = {
@@ -33438,16 +33438,16 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    users?: UserCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherCreateNestedManyWithoutSchoolInput
-    classes?: ClassCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterCreateNestedManyWithoutSchoolInput
-    topics?: TopicCreateNestedManyWithoutSchoolInput
+    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
     activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterCreateNestedManyWithoutSchoolInput
+    classes?: ClassCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherCreateNestedManyWithoutSchoolInput
+    topics?: TopicCreateNestedManyWithoutSchoolInput
+    users?: UserCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutNotificationsInput = {
@@ -33462,16 +33462,16 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
-    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
-    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
+    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
+    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
+    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutNotificationsInput = {
@@ -33492,13 +33492,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    school?: SchoolCreateNestedOneWithoutUsersInput
-    teacher?: TeacherCreateNestedOneWithoutUserInput
-    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutActorInput
     chapterProgress?: ChapterProgressCreateNestedManyWithoutUpdatedByInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    teacher?: TeacherCreateNestedOneWithoutUserInput
     topicProgress?: TopicProgressCreateNestedManyWithoutUpdatedByInput
+    school?: SchoolCreateNestedOneWithoutUsersInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -33515,11 +33515,11 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    teacher?: TeacherUncheckedCreateNestedOneWithoutUserInput
-    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutActorInput
     chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutUpdatedByInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    teacher?: TeacherUncheckedCreateNestedOneWithoutUserInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutUpdatedByInput
   }
 
@@ -33551,16 +33551,16 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUpdateManyWithoutSchoolNestedInput
+    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUpdateManyWithoutSchoolNestedInput
+    users?: UserUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutNotificationsInput = {
@@ -33575,16 +33575,16 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
+    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type UserUpsertWithoutNotificationsInput = {
@@ -33611,13 +33611,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneWithoutUsersNestedInput
-    teacher?: TeacherUpdateOneWithoutUserNestedInput
-    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutActorNestedInput
     chapterProgress?: ChapterProgressUpdateManyWithoutUpdatedByNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    teacher?: TeacherUpdateOneWithoutUserNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutUpdatedByNestedInput
+    school?: SchoolUpdateOneWithoutUsersNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -33634,11 +33634,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
-    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutActorNestedInput
     chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
   }
 
@@ -33654,16 +33654,16 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    users?: UserCreateNestedManyWithoutSchoolInput
+    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterCreateNestedManyWithoutSchoolInput
+    classes?: ClassCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     teachers?: TeacherCreateNestedManyWithoutSchoolInput
-    classes?: ClassCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterCreateNestedManyWithoutSchoolInput
     topics?: TopicCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationCreateNestedManyWithoutSchoolInput
-    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
+    users?: UserCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutActivityLogsInput = {
@@ -33678,16 +33678,16 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
+    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
-    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
     topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutActivityLogsInput = {
@@ -33708,13 +33708,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    school?: SchoolCreateNestedOneWithoutUsersInput
-    teacher?: TeacherCreateNestedOneWithoutUserInput
-    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
-    notifications?: NotificationCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutActorInput
     chapterProgress?: ChapterProgressCreateNestedManyWithoutUpdatedByInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    teacher?: TeacherCreateNestedOneWithoutUserInput
     topicProgress?: TopicProgressCreateNestedManyWithoutUpdatedByInput
+    school?: SchoolCreateNestedOneWithoutUsersInput
   }
 
   export type UserUncheckedCreateWithoutActivityLogsInput = {
@@ -33731,11 +33731,11 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    teacher?: TeacherUncheckedCreateNestedOneWithoutUserInput
-    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutActorInput
     chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutUpdatedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    teacher?: TeacherUncheckedCreateNestedOneWithoutUserInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutUpdatedByInput
   }
 
@@ -33767,16 +33767,16 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUpdateManyWithoutSchoolNestedInput
+    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     teachers?: TeacherUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
     topics?: TopicUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+    users?: UserUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutActivityLogsInput = {
@@ -33791,16 +33791,16 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
     topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type UserUpsertWithoutActivityLogsInput = {
@@ -33827,13 +33827,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneWithoutUsersNestedInput
-    teacher?: TeacherUpdateOneWithoutUserNestedInput
-    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
-    notifications?: NotificationUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutActorNestedInput
     chapterProgress?: ChapterProgressUpdateManyWithoutUpdatedByNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    teacher?: TeacherUpdateOneWithoutUserNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutUpdatedByNestedInput
+    school?: SchoolUpdateOneWithoutUsersNestedInput
   }
 
   export type UserUncheckedUpdateWithoutActivityLogsInput = {
@@ -33850,65 +33850,12 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
-    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutActorNestedInput
     chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
-  }
-
-  export type SchoolCreateWithoutAuditLogsInput = {
-    id?: string
-    name: string
-    slug: string
-    email: string
-    phone?: string | null
-    address?: string | null
-    logo?: string | null
-    status?: $Enums.SchoolStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    users?: UserCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherCreateNestedManyWithoutSchoolInput
-    classes?: ClassCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterCreateNestedManyWithoutSchoolInput
-    topics?: TopicCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationCreateNestedManyWithoutSchoolInput
-    activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
-  }
-
-  export type SchoolUncheckedCreateWithoutAuditLogsInput = {
-    id?: string
-    name: string
-    slug: string
-    email: string
-    phone?: string | null
-    address?: string | null
-    logo?: string | null
-    status?: $Enums.SchoolStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
-    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
-    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
-    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
-    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
-  }
-
-  export type SchoolCreateOrConnectWithoutAuditLogsInput = {
-    where: SchoolWhereUniqueInput
-    create: XOR<SchoolCreateWithoutAuditLogsInput, SchoolUncheckedCreateWithoutAuditLogsInput>
   }
 
   export type UserCreateWithoutAuditLogsInput = {
@@ -33924,13 +33871,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    school?: SchoolCreateNestedOneWithoutUsersInput
-    teacher?: TeacherCreateNestedOneWithoutUserInput
-    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
-    notifications?: NotificationCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogCreateNestedManyWithoutUserInput
     chapterProgress?: ChapterProgressCreateNestedManyWithoutUpdatedByInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    teacher?: TeacherCreateNestedOneWithoutUserInput
     topicProgress?: TopicProgressCreateNestedManyWithoutUpdatedByInput
+    school?: SchoolCreateNestedOneWithoutUsersInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -33947,11 +33894,11 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    teacher?: TeacherUncheckedCreateNestedOneWithoutUserInput
-    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutUserInput
     chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutUpdatedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    teacher?: TeacherUncheckedCreateNestedOneWithoutUserInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutUpdatedByInput
   }
 
@@ -33960,63 +33907,57 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutAuditLogsInput, UserUncheckedCreateWithoutAuditLogsInput>
   }
 
-  export type SchoolUpsertWithoutAuditLogsInput = {
-    update: XOR<SchoolUpdateWithoutAuditLogsInput, SchoolUncheckedUpdateWithoutAuditLogsInput>
+  export type SchoolCreateWithoutAuditLogsInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterCreateNestedManyWithoutSchoolInput
+    classes?: ClassCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherCreateNestedManyWithoutSchoolInput
+    topics?: TopicCreateNestedManyWithoutSchoolInput
+    users?: UserCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolUncheckedCreateWithoutAuditLogsInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
+    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
+    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolCreateOrConnectWithoutAuditLogsInput = {
+    where: SchoolWhereUniqueInput
     create: XOR<SchoolCreateWithoutAuditLogsInput, SchoolUncheckedCreateWithoutAuditLogsInput>
-    where?: SchoolWhereInput
-  }
-
-  export type SchoolUpdateToOneWithWhereWithoutAuditLogsInput = {
-    where?: SchoolWhereInput
-    data: XOR<SchoolUpdateWithoutAuditLogsInput, SchoolUncheckedUpdateWithoutAuditLogsInput>
-  }
-
-  export type SchoolUpdateWithoutAuditLogsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    logo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
-    activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
-  }
-
-  export type SchoolUncheckedUpdateWithoutAuditLogsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    logo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
-    activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
-    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type UserUpsertWithoutAuditLogsInput = {
@@ -34043,13 +33984,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneWithoutUsersNestedInput
-    teacher?: TeacherUpdateOneWithoutUserNestedInput
-    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
-    notifications?: NotificationUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
     chapterProgress?: ChapterProgressUpdateManyWithoutUpdatedByNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    teacher?: TeacherUpdateOneWithoutUserNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutUpdatedByNestedInput
+    school?: SchoolUpdateOneWithoutUsersNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -34066,12 +34007,71 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
-    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
     chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
+  }
+
+  export type SchoolUpsertWithoutAuditLogsInput = {
+    update: XOR<SchoolUpdateWithoutAuditLogsInput, SchoolUncheckedUpdateWithoutAuditLogsInput>
+    create: XOR<SchoolCreateWithoutAuditLogsInput, SchoolUncheckedCreateWithoutAuditLogsInput>
+    where?: SchoolWhereInput
+  }
+
+  export type SchoolUpdateToOneWithWhereWithoutAuditLogsInput = {
+    where?: SchoolWhereInput
+    data: XOR<SchoolUpdateWithoutAuditLogsInput, SchoolUncheckedUpdateWithoutAuditLogsInput>
+  }
+
+  export type SchoolUpdateWithoutAuditLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUpdateManyWithoutSchoolNestedInput
+    users?: UserUpdateManyWithoutSchoolNestedInput
+  }
+
+  export type SchoolUncheckedUpdateWithoutAuditLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolCreateWithoutAcademicTermsInput = {
@@ -34086,16 +34086,16 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    users?: UserCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherCreateNestedManyWithoutSchoolInput
-    classes?: ClassCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterCreateNestedManyWithoutSchoolInput
-    topics?: TopicCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationCreateNestedManyWithoutSchoolInput
     activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterCreateNestedManyWithoutSchoolInput
+    classes?: ClassCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherCreateNestedManyWithoutSchoolInput
+    topics?: TopicCreateNestedManyWithoutSchoolInput
+    users?: UserCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutAcademicTermsInput = {
@@ -34110,16 +34110,16 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
-    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
-    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
-    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
-    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
-    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
     activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
+    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
+    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutAcademicTermsInput = {
@@ -34176,16 +34176,16 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
     activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUpdateManyWithoutSchoolNestedInput
+    users?: UserUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutAcademicTermsInput = {
@@ -34200,16 +34200,16 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
-    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
-    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
-    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
-    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
-    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
     activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type VacationDayUpsertWithWhereUniqueWithoutAcademicTermInput = {
@@ -34247,7 +34247,7 @@ export namespace Prisma {
     endDate: Date | string
     totalWorkingDays: number
     actualAvailableDays: number
-    weeklyHolidays?: JsonNullValueInput | InputJsonValue
+    weeklyHolidays: JsonNullValueInput | InputJsonValue
     status?: $Enums.AcademicTermStatus
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34263,7 +34263,7 @@ export namespace Prisma {
     endDate: Date | string
     totalWorkingDays: number
     actualAvailableDays: number
-    weeklyHolidays?: JsonNullValueInput | InputJsonValue
+    weeklyHolidays: JsonNullValueInput | InputJsonValue
     status?: $Enums.AcademicTermStatus
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34316,25 +34316,6 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
-  export type RefreshTokenCreateManyUserInput = {
-    id?: string
-    tokenHash: string
-    expiresAt: Date | string
-    createdAt?: Date | string
-    revokedAt?: Date | string | null
-  }
-
-  export type NotificationCreateManyUserInput = {
-    id?: string
-    schoolId?: string | null
-    title: string
-    message: string
-    type?: $Enums.NotificationType
-    isRead?: boolean
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-  }
-
   export type ActivityLogCreateManyUserInput = {
     id?: string
     schoolId?: string | null
@@ -34373,6 +34354,25 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type NotificationCreateManyUserInput = {
+    id?: string
+    schoolId?: string | null
+    title: string
+    message: string
+    type?: $Enums.NotificationType
+    isRead?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type RefreshTokenCreateManyUserInput = {
+    id?: string
+    tokenHash: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+    revokedAt?: Date | string | null
+  }
+
   export type TopicProgressCreateManyUpdatedByInput = {
     id?: string
     schoolId: string
@@ -34382,63 +34382,6 @@ export namespace Prisma {
     completedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-  }
-
-  export type RefreshTokenUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tokenHash?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type RefreshTokenUncheckedUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tokenHash?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type RefreshTokenUncheckedUpdateManyWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tokenHash?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type NotificationUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    message?: StringFieldUpdateOperationsInput | string
-    type?: EnumNotificationTypeFieldUpdateOperationsInput | $Enums.NotificationType
-    isRead?: BoolFieldUpdateOperationsInput | boolean
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    school?: SchoolUpdateOneWithoutNotificationsNestedInput
-  }
-
-  export type NotificationUncheckedUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
-    title?: StringFieldUpdateOperationsInput | string
-    message?: StringFieldUpdateOperationsInput | string
-    type?: EnumNotificationTypeFieldUpdateOperationsInput | $Enums.NotificationType
-    isRead?: BoolFieldUpdateOperationsInput | boolean
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NotificationUncheckedUpdateManyWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
-    title?: StringFieldUpdateOperationsInput | string
-    message?: StringFieldUpdateOperationsInput | string
-    type?: EnumNotificationTypeFieldUpdateOperationsInput | $Enums.NotificationType
-    isRead?: BoolFieldUpdateOperationsInput | boolean
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ActivityLogUpdateWithoutUserInput = {
@@ -34555,6 +34498,63 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type NotificationUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    type?: EnumNotificationTypeFieldUpdateOperationsInput | $Enums.NotificationType
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneWithoutNotificationsNestedInput
+  }
+
+  export type NotificationUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
+    title?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    type?: EnumNotificationTypeFieldUpdateOperationsInput | $Enums.NotificationType
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
+    title?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    type?: EnumNotificationTypeFieldUpdateOperationsInput | $Enums.NotificationType
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RefreshTokenUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type RefreshTokenUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type RefreshTokenUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type TopicProgressUpdateWithoutUpdatedByInput = {
     id?: StringFieldUpdateOperationsInput | string
     schoolId?: StringFieldUpdateOperationsInput | string
@@ -34562,8 +34562,8 @@ export namespace Prisma {
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    topic?: TopicUpdateOneRequiredWithoutTopicProgressNestedInput
     teacher?: TeacherUpdateOneRequiredWithoutTopicProgressNestedInput
+    topic?: TopicUpdateOneRequiredWithoutTopicProgressNestedInput
   }
 
   export type TopicProgressUncheckedUpdateWithoutUpdatedByInput = {
@@ -34588,100 +34588,18 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type UserCreateManySchoolInput = {
+  export type AcademicTermCreateManySchoolInput = {
     id?: string
-    email: string
-    passwordHash: string
     name: string
-    role: $Enums.UserRole
-    avatar?: string | null
-    phone?: string | null
-    status?: $Enums.UserStatus
-    lastLoginAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-  }
-
-  export type SubscriptionCreateManySchoolInput = {
-    id?: string
-    planId: string
-    status?: $Enums.SubscriptionStatus
     startDate: Date | string
     endDate: Date | string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type TeacherCreateManySchoolInput = {
-    id?: string
-    userId: string
-    status?: $Enums.UserStatus
+    totalWorkingDays: number
+    actualAvailableDays: number
+    weeklyHolidays: JsonNullValueInput | InputJsonValue
+    status?: $Enums.AcademicTermStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-  }
-
-  export type ClassCreateManySchoolInput = {
-    id?: string
-    name: string
-    grade?: string | null
-    section?: string | null
-    description?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-  }
-
-  export type SubjectCreateManySchoolInput = {
-    id?: string
-    classId?: string | null
-    name: string
-    code?: string | null
-    description?: string | null
-    color?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-  }
-
-  export type ChapterCreateManySchoolInput = {
-    id?: string
-    subjectId: string
-    classId: string
-    title: string
-    description?: string | null
-    notes?: string | null
-    estimatedTeachingDays?: number | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-  }
-
-  export type TopicCreateManySchoolInput = {
-    id?: string
-    chapterId: string
-    title: string
-    description?: string | null
-    notes?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-  }
-
-  export type NotificationCreateManySchoolInput = {
-    id?: string
-    userId: string
-    title: string
-    message: string
-    type?: $Enums.NotificationType
-    isRead?: boolean
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
   }
 
   export type ActivityLogCreateManySchoolInput = {
@@ -34707,342 +34625,144 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
-  export type AcademicTermCreateManySchoolInput = {
+  export type ChapterCreateManySchoolInput = {
     id?: string
-    name: string
-    startDate: Date | string
-    endDate: Date | string
-    totalWorkingDays: number
-    actualAvailableDays: number
-    weeklyHolidays?: JsonNullValueInput | InputJsonValue
-    status?: $Enums.AcademicTermStatus
+    subjectId: string
+    classId: string
+    title: string
+    description?: string | null
+    notes?: string | null
+    estimatedTeachingDays?: number | null
+    sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
   }
 
-  export type UserUpdateWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    avatar?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacher?: TeacherUpdateOneWithoutUserNestedInput
-    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
-    notifications?: NotificationUpdateManyWithoutUserNestedInput
-    activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutActorNestedInput
-    chapterProgress?: ChapterProgressUpdateManyWithoutUpdatedByNestedInput
-    topicProgress?: TopicProgressUpdateManyWithoutUpdatedByNestedInput
+  export type ClassCreateManySchoolInput = {
+    id?: string
+    name: string
+    grade?: string | null
+    section?: string | null
+    description?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
   }
 
-  export type UserUncheckedUpdateWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    avatar?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
-    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
-    activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutActorNestedInput
-    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
-    topicProgress?: TopicProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
+  export type NotificationCreateManySchoolInput = {
+    id?: string
+    userId: string
+    title: string
+    message: string
+    type?: $Enums.NotificationType
+    isRead?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
   }
 
-  export type UserUncheckedUpdateManyWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    avatar?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  export type SubjectCreateManySchoolInput = {
+    id?: string
+    classId?: string | null
+    name: string
+    code?: string | null
+    description?: string | null
+    color?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
   }
 
-  export type SubscriptionUpdateWithoutSchoolInput = {
+  export type SubscriptionCreateManySchoolInput = {
+    id?: string
+    planId: string
+    status?: $Enums.SubscriptionStatus
+    startDate: Date | string
+    endDate: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TeacherCreateManySchoolInput = {
+    id?: string
+    userId: string
+    status?: $Enums.UserStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type TopicCreateManySchoolInput = {
+    id?: string
+    chapterId: string
+    title: string
+    description?: string | null
+    notes?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type UserCreateManySchoolInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    name: string
+    role: $Enums.UserRole
+    avatar?: string | null
+    phone?: string | null
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type AcademicTermUpdateWithoutSchoolInput = {
     id?: StringFieldUpdateOperationsInput | string
-    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+    name?: StringFieldUpdateOperationsInput | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalWorkingDays?: IntFieldUpdateOperationsInput | number
+    actualAvailableDays?: IntFieldUpdateOperationsInput | number
+    weeklyHolidays?: JsonNullValueInput | InputJsonValue
+    status?: EnumAcademicTermStatusFieldUpdateOperationsInput | $Enums.AcademicTermStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    plan?: SubscriptionPlanUpdateOneRequiredWithoutSubscriptionsNestedInput
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vacationDays?: VacationDayUpdateManyWithoutAcademicTermNestedInput
   }
 
-  export type SubscriptionUncheckedUpdateWithoutSchoolInput = {
+  export type AcademicTermUncheckedUpdateWithoutSchoolInput = {
     id?: StringFieldUpdateOperationsInput | string
-    planId?: StringFieldUpdateOperationsInput | string
-    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+    name?: StringFieldUpdateOperationsInput | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalWorkingDays?: IntFieldUpdateOperationsInput | number
+    actualAvailableDays?: IntFieldUpdateOperationsInput | number
+    weeklyHolidays?: JsonNullValueInput | InputJsonValue
+    status?: EnumAcademicTermStatusFieldUpdateOperationsInput | $Enums.AcademicTermStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vacationDays?: VacationDayUncheckedUpdateManyWithoutAcademicTermNestedInput
   }
 
-  export type SubscriptionUncheckedUpdateManyWithoutSchoolInput = {
+  export type AcademicTermUncheckedUpdateManyWithoutSchoolInput = {
     id?: StringFieldUpdateOperationsInput | string
-    planId?: StringFieldUpdateOperationsInput | string
-    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+    name?: StringFieldUpdateOperationsInput | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type TeacherUpdateWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    totalWorkingDays?: IntFieldUpdateOperationsInput | number
+    actualAvailableDays?: IntFieldUpdateOperationsInput | number
+    weeklyHolidays?: JsonNullValueInput | InputJsonValue
+    status?: EnumAcademicTermStatusFieldUpdateOperationsInput | $Enums.AcademicTermStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    user?: UserUpdateOneRequiredWithoutTeacherNestedInput
-    teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
-    chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
-    topicProgress?: TopicProgressUpdateManyWithoutTeacherNestedInput
-  }
-
-  export type TeacherUncheckedUpdateWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
-    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
-    topicProgress?: TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput
-  }
-
-  export type TeacherUncheckedUpdateManyWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type ClassUpdateWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    grade?: NullableStringFieldUpdateOperationsInput | string | null
-    section?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subjects?: SubjectUpdateManyWithoutClassNestedInput
-    teacherClasses?: TeacherClassUpdateManyWithoutClassNestedInput
-    chapters?: ChapterUpdateManyWithoutClassNestedInput
-  }
-
-  export type ClassUncheckedUpdateWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    grade?: NullableStringFieldUpdateOperationsInput | string | null
-    section?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subjects?: SubjectUncheckedUpdateManyWithoutClassNestedInput
-    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutClassNestedInput
-    chapters?: ChapterUncheckedUpdateManyWithoutClassNestedInput
-  }
-
-  export type ClassUncheckedUpdateManyWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    grade?: NullableStringFieldUpdateOperationsInput | string | null
-    section?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type SubjectUpdateWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    code?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    color?: NullableStringFieldUpdateOperationsInput | string | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    class?: ClassUpdateOneWithoutSubjectsNestedInput
-    teacherClasses?: TeacherClassUpdateManyWithoutSubjectNestedInput
-    chapters?: ChapterUpdateManyWithoutSubjectNestedInput
-  }
-
-  export type SubjectUncheckedUpdateWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    classId?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    code?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    color?: NullableStringFieldUpdateOperationsInput | string | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutSubjectNestedInput
-    chapters?: ChapterUncheckedUpdateManyWithoutSubjectNestedInput
-  }
-
-  export type SubjectUncheckedUpdateManyWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    classId?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    code?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    color?: NullableStringFieldUpdateOperationsInput | string | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type ChapterUpdateWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subject?: SubjectUpdateOneRequiredWithoutChaptersNestedInput
-    class?: ClassUpdateOneRequiredWithoutChaptersNestedInput
-    topics?: TopicUpdateManyWithoutChapterNestedInput
-    chapterProgress?: ChapterProgressUpdateManyWithoutChapterNestedInput
-  }
-
-  export type ChapterUncheckedUpdateWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    subjectId?: StringFieldUpdateOperationsInput | string
-    classId?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    topics?: TopicUncheckedUpdateManyWithoutChapterNestedInput
-    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutChapterNestedInput
-  }
-
-  export type ChapterUncheckedUpdateManyWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    subjectId?: StringFieldUpdateOperationsInput | string
-    classId?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type TopicUpdateWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    chapter?: ChapterUpdateOneRequiredWithoutTopicsNestedInput
-    topicProgress?: TopicProgressUpdateManyWithoutTopicNestedInput
-  }
-
-  export type TopicUncheckedUpdateWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chapterId?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    topicProgress?: TopicProgressUncheckedUpdateManyWithoutTopicNestedInput
-  }
-
-  export type TopicUncheckedUpdateManyWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chapterId?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type NotificationUpdateWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    message?: StringFieldUpdateOperationsInput | string
-    type?: EnumNotificationTypeFieldUpdateOperationsInput | $Enums.NotificationType
-    isRead?: BoolFieldUpdateOperationsInput | boolean
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutNotificationsNestedInput
-  }
-
-  export type NotificationUncheckedUpdateWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    message?: StringFieldUpdateOperationsInput | string
-    type?: EnumNotificationTypeFieldUpdateOperationsInput | $Enums.NotificationType
-    isRead?: BoolFieldUpdateOperationsInput | boolean
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NotificationUncheckedUpdateManyWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    message?: StringFieldUpdateOperationsInput | string
-    type?: EnumNotificationTypeFieldUpdateOperationsInput | $Enums.NotificationType
-    isRead?: BoolFieldUpdateOperationsInput | boolean
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ActivityLogUpdateWithoutSchoolInput = {
@@ -35114,45 +34834,325 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AcademicTermUpdateWithoutSchoolInput = {
+  export type ChapterUpdateWithoutSchoolInput = {
     id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    totalWorkingDays?: IntFieldUpdateOperationsInput | number
-    actualAvailableDays?: IntFieldUpdateOperationsInput | number
-    weeklyHolidays?: JsonNullValueInput | InputJsonValue
-    status?: EnumAcademicTermStatusFieldUpdateOperationsInput | $Enums.AcademicTermStatus
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    vacationDays?: VacationDayUpdateManyWithoutAcademicTermNestedInput
+    chapterProgress?: ChapterProgressUpdateManyWithoutChapterNestedInput
+    class?: ClassUpdateOneRequiredWithoutChaptersNestedInput
+    subject?: SubjectUpdateOneRequiredWithoutChaptersNestedInput
+    topics?: TopicUpdateManyWithoutChapterNestedInput
   }
 
-  export type AcademicTermUncheckedUpdateWithoutSchoolInput = {
+  export type ChapterUncheckedUpdateWithoutSchoolInput = {
     id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    totalWorkingDays?: IntFieldUpdateOperationsInput | number
-    actualAvailableDays?: IntFieldUpdateOperationsInput | number
-    weeklyHolidays?: JsonNullValueInput | InputJsonValue
-    status?: EnumAcademicTermStatusFieldUpdateOperationsInput | $Enums.AcademicTermStatus
+    subjectId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    vacationDays?: VacationDayUncheckedUpdateManyWithoutAcademicTermNestedInput
+    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutChapterNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutChapterNestedInput
   }
 
-  export type AcademicTermUncheckedUpdateManyWithoutSchoolInput = {
+  export type ChapterUncheckedUpdateManyWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subjectId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ClassUpdateWithoutSchoolInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapters?: ChapterUpdateManyWithoutClassNestedInput
+    subjects?: SubjectUpdateManyWithoutClassNestedInput
+    teacherClasses?: TeacherClassUpdateManyWithoutClassNestedInput
+  }
+
+  export type ClassUncheckedUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapters?: ChapterUncheckedUpdateManyWithoutClassNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutClassNestedInput
+    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutClassNestedInput
+  }
+
+  export type ClassUncheckedUpdateManyWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type NotificationUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    type?: EnumNotificationTypeFieldUpdateOperationsInput | $Enums.NotificationType
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutNotificationsNestedInput
+  }
+
+  export type NotificationUncheckedUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    type?: EnumNotificationTypeFieldUpdateOperationsInput | $Enums.NotificationType
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationUncheckedUpdateManyWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    type?: EnumNotificationTypeFieldUpdateOperationsInput | $Enums.NotificationType
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubjectUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapters?: ChapterUpdateManyWithoutSubjectNestedInput
+    class?: ClassUpdateOneWithoutSubjectsNestedInput
+    teacherClasses?: TeacherClassUpdateManyWithoutSubjectNestedInput
+  }
+
+  export type SubjectUncheckedUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    classId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapters?: ChapterUncheckedUpdateManyWithoutSubjectNestedInput
+    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutSubjectNestedInput
+  }
+
+  export type SubjectUncheckedUpdateManyWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    classId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SubscriptionUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    totalWorkingDays?: IntFieldUpdateOperationsInput | number
-    actualAvailableDays?: IntFieldUpdateOperationsInput | number
-    weeklyHolidays?: JsonNullValueInput | InputJsonValue
-    status?: EnumAcademicTermStatusFieldUpdateOperationsInput | $Enums.AcademicTermStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    plan?: SubscriptionPlanUpdateOneRequiredWithoutSubscriptionsNestedInput
+  }
+
+  export type SubscriptionUncheckedUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    planId?: StringFieldUpdateOperationsInput | string
+    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubscriptionUncheckedUpdateManyWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    planId?: StringFieldUpdateOperationsInput | string
+    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TeacherUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
+    teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
+    user?: UserUpdateOneRequiredWithoutTeacherNestedInput
+    topicProgress?: TopicProgressUpdateManyWithoutTeacherNestedInput
+  }
+
+  export type TeacherUncheckedUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
+    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
+    topicProgress?: TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput
+  }
+
+  export type TeacherUncheckedUpdateManyWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type TopicUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    topicProgress?: TopicProgressUpdateManyWithoutTopicNestedInput
+    chapter?: ChapterUpdateOneRequiredWithoutTopicsNestedInput
+  }
+
+  export type TopicUncheckedUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    chapterId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    topicProgress?: TopicProgressUncheckedUpdateManyWithoutTopicNestedInput
+  }
+
+  export type TopicUncheckedUpdateManyWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    chapterId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activityLogs?: ActivityLogUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutActorNestedInput
+    chapterProgress?: ChapterProgressUpdateManyWithoutUpdatedByNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    teacher?: TeacherUpdateOneWithoutUserNestedInput
+    topicProgress?: TopicProgressUpdateManyWithoutUpdatedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutActorNestedInput
+    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
+    topicProgress?: TopicProgressUncheckedUpdateManyWithoutUpdatedByNestedInput
+  }
+
+  export type UserUncheckedUpdateManyWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -35198,14 +35198,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TeacherClassCreateManyTeacherInput = {
-    id?: string
-    schoolId: string
-    classId: string
-    subjectId?: string | null
-    createdAt?: Date | string
-  }
-
   export type ChapterProgressCreateManyTeacherInput = {
     id?: string
     schoolId: string
@@ -35221,6 +35213,14 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type TeacherClassCreateManyTeacherInput = {
+    id?: string
+    schoolId: string
+    classId: string
+    subjectId?: string | null
+    createdAt?: Date | string
+  }
+
   export type TopicProgressCreateManyTeacherInput = {
     id?: string
     schoolId: string
@@ -35230,30 +35230,6 @@ export namespace Prisma {
     updatedById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-  }
-
-  export type TeacherClassUpdateWithoutTeacherInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    class?: ClassUpdateOneRequiredWithoutTeacherClassesNestedInput
-    subject?: SubjectUpdateOneWithoutTeacherClassesNestedInput
-  }
-
-  export type TeacherClassUncheckedUpdateWithoutTeacherInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: StringFieldUpdateOperationsInput | string
-    classId?: StringFieldUpdateOperationsInput | string
-    subjectId?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type TeacherClassUncheckedUpdateManyWithoutTeacherInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: StringFieldUpdateOperationsInput | string
-    classId?: StringFieldUpdateOperationsInput | string
-    subjectId?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ChapterProgressUpdateWithoutTeacherInput = {
@@ -35301,6 +35277,30 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type TeacherClassUpdateWithoutTeacherInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    class?: ClassUpdateOneRequiredWithoutTeacherClassesNestedInput
+    subject?: SubjectUpdateOneWithoutTeacherClassesNestedInput
+  }
+
+  export type TeacherClassUncheckedUpdateWithoutTeacherInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    subjectId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TeacherClassUncheckedUpdateManyWithoutTeacherInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    subjectId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type TopicProgressUpdateWithoutTeacherInput = {
     id?: StringFieldUpdateOperationsInput | string
     schoolId?: StringFieldUpdateOperationsInput | string
@@ -35334,6 +35334,20 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ChapterCreateManyClassInput = {
+    id?: string
+    schoolId: string
+    subjectId: string
+    title: string
+    description?: string | null
+    notes?: string | null
+    estimatedTeachingDays?: number | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
   export type SubjectCreateManyClassInput = {
     id?: string
     schoolId: string
@@ -35355,18 +35369,50 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
-  export type ChapterCreateManyClassInput = {
-    id?: string
-    schoolId: string
-    subjectId: string
-    title: string
-    description?: string | null
-    notes?: string | null
-    estimatedTeachingDays?: number | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
+  export type ChapterUpdateWithoutClassInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUpdateManyWithoutChapterNestedInput
+    school?: SchoolUpdateOneRequiredWithoutChaptersNestedInput
+    subject?: SubjectUpdateOneRequiredWithoutChaptersNestedInput
+    topics?: TopicUpdateManyWithoutChapterNestedInput
+  }
+
+  export type ChapterUncheckedUpdateWithoutClassInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    subjectId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutChapterNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutChapterNestedInput
+  }
+
+  export type ChapterUncheckedUpdateManyWithoutClassInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    subjectId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type SubjectUpdateWithoutClassInput = {
@@ -35379,9 +35425,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapters?: ChapterUpdateManyWithoutSubjectNestedInput
     school?: SchoolUpdateOneRequiredWithoutSubjectsNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutSubjectNestedInput
-    chapters?: ChapterUpdateManyWithoutSubjectNestedInput
   }
 
   export type SubjectUncheckedUpdateWithoutClassInput = {
@@ -35395,8 +35441,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutSubjectNestedInput
     chapters?: ChapterUncheckedUpdateManyWithoutSubjectNestedInput
+    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutSubjectNestedInput
   }
 
   export type SubjectUncheckedUpdateManyWithoutClassInput = {
@@ -35416,8 +35462,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     schoolId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    teacher?: TeacherUpdateOneRequiredWithoutTeacherClassesNestedInput
     subject?: SubjectUpdateOneWithoutTeacherClassesNestedInput
+    teacher?: TeacherUpdateOneRequiredWithoutTeacherClassesNestedInput
   }
 
   export type TeacherClassUncheckedUpdateWithoutClassInput = {
@@ -35436,60 +35482,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ChapterUpdateWithoutClassInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneRequiredWithoutChaptersNestedInput
-    subject?: SubjectUpdateOneRequiredWithoutChaptersNestedInput
-    topics?: TopicUpdateManyWithoutChapterNestedInput
-    chapterProgress?: ChapterProgressUpdateManyWithoutChapterNestedInput
-  }
-
-  export type ChapterUncheckedUpdateWithoutClassInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: StringFieldUpdateOperationsInput | string
-    subjectId?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    topics?: TopicUncheckedUpdateManyWithoutChapterNestedInput
-    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutChapterNestedInput
-  }
-
-  export type ChapterUncheckedUpdateManyWithoutClassInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: StringFieldUpdateOperationsInput | string
-    subjectId?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type TeacherClassCreateManySubjectInput = {
-    id?: string
-    schoolId: string
-    teacherId: string
-    classId: string
-    createdAt?: Date | string
-  }
-
   export type ChapterCreateManySubjectInput = {
     id?: string
     schoolId: string
@@ -35504,12 +35496,66 @@ export namespace Prisma {
     deletedAt?: Date | string | null
   }
 
+  export type TeacherClassCreateManySubjectInput = {
+    id?: string
+    schoolId: string
+    teacherId: string
+    classId: string
+    createdAt?: Date | string
+  }
+
+  export type ChapterUpdateWithoutSubjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUpdateManyWithoutChapterNestedInput
+    class?: ClassUpdateOneRequiredWithoutChaptersNestedInput
+    school?: SchoolUpdateOneRequiredWithoutChaptersNestedInput
+    topics?: TopicUpdateManyWithoutChapterNestedInput
+  }
+
+  export type ChapterUncheckedUpdateWithoutSubjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutChapterNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutChapterNestedInput
+  }
+
+  export type ChapterUncheckedUpdateManyWithoutSubjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type TeacherClassUpdateWithoutSubjectInput = {
     id?: StringFieldUpdateOperationsInput | string
     schoolId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    teacher?: TeacherUpdateOneRequiredWithoutTeacherClassesNestedInput
     class?: ClassUpdateOneRequiredWithoutTeacherClassesNestedInput
+    teacher?: TeacherUpdateOneRequiredWithoutTeacherClassesNestedInput
   }
 
   export type TeacherClassUncheckedUpdateWithoutSubjectInput = {
@@ -35528,64 +35574,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ChapterUpdateWithoutSubjectInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneRequiredWithoutChaptersNestedInput
-    class?: ClassUpdateOneRequiredWithoutChaptersNestedInput
-    topics?: TopicUpdateManyWithoutChapterNestedInput
-    chapterProgress?: ChapterProgressUpdateManyWithoutChapterNestedInput
-  }
-
-  export type ChapterUncheckedUpdateWithoutSubjectInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: StringFieldUpdateOperationsInput | string
-    classId?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    topics?: TopicUncheckedUpdateManyWithoutChapterNestedInput
-    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutChapterNestedInput
-  }
-
-  export type ChapterUncheckedUpdateManyWithoutSubjectInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: StringFieldUpdateOperationsInput | string
-    classId?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    estimatedTeachingDays?: NullableIntFieldUpdateOperationsInput | number | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type TopicCreateManyChapterInput = {
-    id?: string
-    schoolId: string
-    title: string
-    description?: string | null
-    notes?: string | null
-    sortOrder?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-  }
-
   export type ChapterProgressCreateManyChapterInput = {
     id?: string
     schoolId: string
@@ -35601,42 +35589,16 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type TopicUpdateWithoutChapterInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    school?: SchoolUpdateOneRequiredWithoutTopicsNestedInput
-    topicProgress?: TopicProgressUpdateManyWithoutTopicNestedInput
-  }
-
-  export type TopicUncheckedUpdateWithoutChapterInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    topicProgress?: TopicProgressUncheckedUpdateManyWithoutTopicNestedInput
-  }
-
-  export type TopicUncheckedUpdateManyWithoutChapterInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    sortOrder?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  export type TopicCreateManyChapterInput = {
+    id?: string
+    schoolId: string
+    title: string
+    description?: string | null
+    notes?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
   }
 
   export type ChapterProgressUpdateWithoutChapterInput = {
@@ -35682,6 +35644,44 @@ export namespace Prisma {
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TopicUpdateWithoutChapterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    topicProgress?: TopicProgressUpdateManyWithoutTopicNestedInput
+    school?: SchoolUpdateOneRequiredWithoutTopicsNestedInput
+  }
+
+  export type TopicUncheckedUpdateWithoutChapterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    topicProgress?: TopicProgressUncheckedUpdateManyWithoutTopicNestedInput
+  }
+
+  export type TopicUncheckedUpdateManyWithoutChapterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type TopicProgressCreateManyTopicInput = {

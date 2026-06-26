@@ -88,7 +88,13 @@ export const syllabusService = {
 
   async createClass(
     schoolId: string,
-    data: { name: string; grade?: string; section?: string; description?: string; subjects?: string[] },
+    data: {
+      name: string;
+      grade?: string;
+      section?: string;
+      description?: string;
+      subjects?: string[];
+    },
   ) {
     return prisma.class.create({
       data: {
@@ -116,7 +122,11 @@ export const syllabusService = {
   },
 
   async getClassDetails(schoolId: string, id: string, teacherId?: string) {
-    console.log('[syllabusService.getClassDetails]', { schoolId, id, teacherId: teacherId ?? null });
+    console.log('[syllabusService.getClassDetails]', {
+      schoolId,
+      id,
+      teacherId: teacherId ?? null,
+    });
 
     const classItem = await prisma.class.findFirst({
       where: withTenant(schoolId, { id, ...softDeleteFilter() }),
@@ -247,13 +257,17 @@ export const syllabusService = {
   },
 
   async updateClass(schoolId: string, id: string, data: Record<string, unknown>) {
-    const item = await prisma.class.findFirst({ where: withTenant(schoolId, { id, ...softDeleteFilter() }) });
+    const item = await prisma.class.findFirst({
+      where: withTenant(schoolId, { id, ...softDeleteFilter() }),
+    });
     if (!item) throw new AppError('Class not found', 404);
     return prisma.class.update({ where: { id }, data });
   },
 
   async updateSubject(schoolId: string, id: string, data: Record<string, unknown>) {
-    const item = await prisma.subject.findFirst({ where: withTenant(schoolId, { id, ...softDeleteFilter() }) });
+    const item = await prisma.subject.findFirst({
+      where: withTenant(schoolId, { id, ...softDeleteFilter() }),
+    });
     if (!item) throw new AppError('Subject not found', 404);
 
     const updateData = Object.keys(data).reduce<Record<string, unknown>>((acc, key) => {
@@ -261,7 +275,8 @@ export const syllabusService = {
       return acc;
     }, {});
 
-    if (Object.keys(updateData).length === 0) throw new AppError('At least one field is required', 400);
+    if (Object.keys(updateData).length === 0)
+      throw new AppError('At least one field is required', 400);
 
     return prisma.subject.update({ where: { id }, data: updateData });
   },
@@ -279,13 +294,17 @@ export const syllabusService = {
   },
 
   async updateChapter(schoolId: string, id: string, data: Record<string, unknown>) {
-    const item = await prisma.chapter.findFirst({ where: withTenant(schoolId, { id, ...softDeleteFilter() }) });
+    const item = await prisma.chapter.findFirst({
+      where: withTenant(schoolId, { id, ...softDeleteFilter() }),
+    });
     if (!item) throw new AppError('Chapter not found', 404);
     return prisma.chapter.update({ where: { id }, data });
   },
 
   async updateTopic(schoolId: string, id: string, data: Record<string, unknown>) {
-    const item = await prisma.topic.findFirst({ where: withTenant(schoolId, { id, ...softDeleteFilter() }) });
+    const item = await prisma.topic.findFirst({
+      where: withTenant(schoolId, { id, ...softDeleteFilter() }),
+    });
     if (!item) throw new AppError('Topic not found', 404);
     return prisma.topic.update({ where: { id }, data });
   },
@@ -359,7 +378,13 @@ export const syllabusService = {
 
   async createChapter(
     schoolId: string,
-    data: { subjectId: string; classId: string; title: string; description?: string; notes?: string },
+    data: {
+      subjectId: string;
+      classId: string;
+      title: string;
+      description?: string;
+      notes?: string;
+    },
   ) {
     const maxOrder = await prisma.chapter.aggregate({
       where: { schoolId, subjectId: data.subjectId },
@@ -428,5 +453,52 @@ export const syllabusService = {
         }),
       ),
     );
+  },
+
+  async bulkCreateClasses(
+    schoolId: string,
+    classes: Array<{ name: string; grade?: string; section?: string; description?: string }>,
+  ) {
+    const results = await prisma.$transaction(
+      classes.map((data) =>
+        prisma.class.create({
+          data: {
+            schoolId,
+            name: data.name,
+            grade: data.grade,
+            section: data.section,
+            description: data.description,
+          },
+        }),
+      ),
+    );
+    return { created: results.length, items: results };
+  },
+
+  async bulkCreateSubjects(
+    schoolId: string,
+    subjects: Array<{
+      name: string;
+      code?: string;
+      description?: string;
+      classId?: string;
+      color?: string;
+    }>,
+  ) {
+    const results = await prisma.$transaction(
+      subjects.map((data) =>
+        prisma.subject.create({
+          data: {
+            schoolId,
+            name: data.name,
+            code: data.code,
+            description: data.description,
+            classId: data.classId,
+            color: data.color,
+          },
+        }),
+      ),
+    );
+    return { created: results.length, items: results };
   },
 };

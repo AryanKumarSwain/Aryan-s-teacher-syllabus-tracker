@@ -14,6 +14,8 @@ import {
   updateChapterSchema,
   createTopicSchema,
   updateTopicSchema,
+  bulkCreateClassesSchema,
+  bulkCreateSubjectsSchema,
 } from '../validators/syllabus.validator.js';
 
 export const syllabusRoutes = Router();
@@ -43,28 +45,119 @@ const teacherOnly = [
 syllabusRoutes.get('/tree', ...schoolAdmin, syllabusController.getTree);
 
 // Classes
-syllabusRoutes.get('/classes', ...schoolAdmin, validateQuery(paginationSchema), syllabusController.listClasses);
-syllabusRoutes.get('/classes/assigned', ...teacherOnly, validateQuery(paginationSchema), syllabusController.listAssignedClasses);
-syllabusRoutes.get('/classes/:id', ...schoolAdmin, validateParams(idParamSchema), syllabusController.getClassDetails);
-syllabusRoutes.post('/classes', ...schoolAdminOnly, validateBody(createClassSchema), syllabusController.createClass);
-syllabusRoutes.patch('/classes/:id', ...schoolAdminOnly, validateParams(idParamSchema), validateBody(updateClassSchema), syllabusController.updateClass);
-syllabusRoutes.delete('/classes/:id', ...schoolAdminOnly, validateParams(idParamSchema), syllabusController.deleteClass);
+syllabusRoutes.get(
+  '/classes',
+  ...schoolAdmin,
+  validateQuery(paginationSchema),
+  syllabusController.listClasses,
+);
+syllabusRoutes.get(
+  '/classes/assigned',
+  ...teacherOnly,
+  validateQuery(paginationSchema),
+  syllabusController.listAssignedClasses,
+);
+syllabusRoutes.get(
+  '/classes/:id',
+  ...schoolAdmin,
+  validateParams(idParamSchema),
+  syllabusController.getClassDetails,
+);
+syllabusRoutes.post(
+  '/classes',
+  ...schoolAdminOnly,
+  validateBody(createClassSchema),
+  syllabusController.createClass,
+);
+syllabusRoutes.post(
+  '/classes/bulk',
+  ...schoolAdminOnly,
+  validateBody(bulkCreateClassesSchema),
+  syllabusController.bulkCreateClasses,
+);
+syllabusRoutes.patch(
+  '/classes/:id',
+  ...schoolAdminOnly,
+  validateParams(idParamSchema),
+  validateBody(updateClassSchema),
+  syllabusController.updateClass,
+);
+syllabusRoutes.delete(
+  '/classes/:id',
+  ...schoolAdminOnly,
+  validateParams(idParamSchema),
+  syllabusController.deleteClass,
+);
 
 // Subjects
 syllabusRoutes.get('/subjects', ...schoolAdmin, syllabusController.listSubjects);
-syllabusRoutes.post('/subjects', ...schoolAdminOnly, validateBody(createSubjectSchema), syllabusController.createSubject);
-syllabusRoutes.patch('/subjects/:id', ...schoolAdminOnly, validateParams(idParamSchema), validateBody(updateSubjectSchema), syllabusController.updateSubject);
-syllabusRoutes.delete('/subjects/:id', ...schoolAdminOnly, validateParams(idParamSchema), syllabusController.deleteSubject); // ✅ ADDED
+syllabusRoutes.post(
+  '/subjects',
+  ...schoolAdminOnly,
+  validateBody(createSubjectSchema),
+  syllabusController.createSubject,
+);
+syllabusRoutes.post(
+  '/subjects/bulk',
+  ...schoolAdminOnly,
+  validateBody(bulkCreateSubjectsSchema),
+  syllabusController.bulkCreateSubjects,
+);
+syllabusRoutes.patch(
+  '/subjects/:id',
+  ...schoolAdminOnly,
+  validateParams(idParamSchema),
+  validateBody(updateSubjectSchema),
+  syllabusController.updateSubject,
+);
+syllabusRoutes.delete(
+  '/subjects/:id',
+  ...schoolAdminOnly,
+  validateParams(idParamSchema),
+  syllabusController.deleteSubject,
+);
 
 // Chapters
 syllabusRoutes.get('/chapters', ...schoolAdmin, syllabusController.listChapters);
-syllabusRoutes.post('/chapters', ...schoolAdminOnly, validateBody(createChapterSchema), syllabusController.createChapter);
-syllabusRoutes.patch('/chapters/:id', ...schoolAdminOnly, validateParams(idParamSchema), validateBody(updateChapterSchema), syllabusController.updateChapter);
-syllabusRoutes.delete('/chapters/:id', ...schoolAdminOnly, validateParams(idParamSchema), syllabusController.deleteChapter);
+syllabusRoutes.post(
+  '/chapters',
+  ...schoolAdminOnly,
+  validateBody(createChapterSchema),
+  syllabusController.createChapter,
+);
+syllabusRoutes.patch(
+  '/chapters/:id',
+  ...schoolAdminOnly,
+  validateParams(idParamSchema),
+  validateBody(updateChapterSchema),
+  syllabusController.updateChapter,
+);
+syllabusRoutes.delete(
+  '/chapters/:id',
+  ...schoolAdminOnly,
+  validateParams(idParamSchema),
+  syllabusController.deleteChapter,
+);
 syllabusRoutes.patch('/chapters/reorder', ...schoolAdminOnly, syllabusController.reorderChapters);
 
 // Topics
 syllabusRoutes.get('/topics', ...schoolAdmin, syllabusController.listTopics);
-syllabusRoutes.post('/topics', ...schoolAdminOnly, validateBody(createTopicSchema), syllabusController.createTopic);
-syllabusRoutes.patch('/topics/:id', ...schoolAdminOnly, validateParams(idParamSchema), validateBody(updateTopicSchema), syllabusController.updateTopic);
-syllabusRoutes.delete('/topics/:id', ...schoolAdminOnly, validateParams(idParamSchema), syllabusController.deleteTopic); // ✅ ADDED
+syllabusRoutes.post(
+  '/topics',
+  ...schoolAdminOnly,
+  validateBody(createTopicSchema),
+  syllabusController.createTopic,
+);
+syllabusRoutes.patch(
+  '/topics/:id',
+  ...schoolAdminOnly,
+  validateParams(idParamSchema),
+  validateBody(updateTopicSchema),
+  syllabusController.updateTopic,
+);
+syllabusRoutes.delete(
+  '/topics/:id',
+  ...schoolAdminOnly,
+  validateParams(idParamSchema),
+  syllabusController.deleteTopic,
+); // ✅ ADDED

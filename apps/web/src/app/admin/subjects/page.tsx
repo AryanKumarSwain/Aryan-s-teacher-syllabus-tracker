@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BookMarked, Trash2, Plus, Pencil, Search } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
@@ -84,7 +83,6 @@ function getClassColorStyles(className?: string | null) {
 }
 
 export default function AdminSubjectsPage() {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const schoolId = useSchoolId();
 
@@ -246,9 +244,11 @@ export default function AdminSubjectsPage() {
           </div>
         </div>
 
-        <Button onClick={handleCreateClick} className="shrink-0">
-          <Plus className="mr-2 h-4 w-4" /> Add subject
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleCreateClick} className="shrink-0">
+            <Plus className="mr-2 h-4 w-4" /> Add subject
+          </Button>
+        </div>
       </div>
 
       {isLoading && !data ? (
