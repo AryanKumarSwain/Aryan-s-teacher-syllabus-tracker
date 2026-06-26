@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/services/api-client';
-import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
+import { useAuthStore } from '@/store/auth-store';
 import { toast } from 'sonner';
 
 interface TeacherProgression {
@@ -33,12 +33,16 @@ interface SubjectProgressItem {
 }
 
 export function TeacherProgressionMetrics() {
-  const schoolId = useSchoolId();
+  const user = useAuthStore((s) => s.user);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['teacher-progression', schoolId],
-    queryFn: () => api.get<TeacherProgression>('/progression/teacher'),
-    enabled: Boolean(schoolId),
+    queryKey: ['teacher-progression', user?.teacherId, user?.schoolId],
+    queryFn: () =>
+      api.get<TeacherProgression>('/progression/teacher', {
+        teacherId: user?.teacherId || undefined,
+        schoolId: user?.schoolId || undefined,
+      }),
+    enabled: !!user?.teacherId && !!user?.schoolId,
   });
 
   if (error) {

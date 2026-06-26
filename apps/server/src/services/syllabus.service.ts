@@ -22,7 +22,19 @@ export const syllabusService = {
         skip,
         take: pageSize,
         orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
-        include: { _count: { select: { subjects: true } } },
+        include: teacherId
+          ? {
+              _count: {
+                select: {
+                  subjects: {
+                    where: {
+                      teacherClasses: { some: { teacherId } },
+                    },
+                  },
+                },
+              },
+            }
+          : { _count: { select: { subjects: true } } },
       }),
       prisma.class.count({ where }),
     ]);
@@ -32,8 +44,35 @@ export const syllabusService = {
     }
 
     const classIds = items.map((cls) => cls.id);
+
+    // Get assigned subject IDs for this teacher
+    const teacherSubjects = await prisma.teacherClass.findMany({
+      where: { teacherId, classId: { in: classIds } },
+      select: { subjectId: true, classId: true },
+    });
+
+    const subjectIdsByClass = teacherSubjects.reduce<Record<string, string[]>>((acc, ts) => {
+      if (ts.classId) {
+        if (!acc[ts.classId]) {
+          acc[ts.classId] = [];
+        }
+        if (ts.subjectId) {
+          acc[ts.classId]!.push(ts.subjectId);
+        }
+      }
+      return acc;
+    }, {});
+
+    const allSubjectIds = teacherSubjects
+      .map((ts) => ts.subjectId)
+      .filter((id): id is string => id !== null);
+
     const chapters = await prisma.chapter.findMany({
-      where: withTenant(schoolId, { classId: { in: classIds }, ...softDeleteFilter() }),
+      where: withTenant(schoolId, {
+        classId: { in: classIds },
+        subjectId: { in: allSubjectIds },
+        ...softDeleteFilter(),
+      }),
       select: { id: true, classId: true },
     });
     const chapterIds = chapters.map((chapter) => chapter.id);
@@ -127,6 +166,16 @@ export const syllabusService = {
       id,
       teacherId: teacherId ?? null,
     });
+
+    // If teacherId is provided, verify the teacher is assigned to this class
+    if (teacherId) {
+      const teacherAssignment = await prisma.teacherClass.findFirst({
+        where: { teacherId, classId: id },
+      });
+      if (!teacherAssignment) {
+        throw new AppError('Class not found or not assigned to you', 404);
+      }
+    }
 
     const classItem = await prisma.class.findFirst({
       where: withTenant(schoolId, { id, ...softDeleteFilter() }),
