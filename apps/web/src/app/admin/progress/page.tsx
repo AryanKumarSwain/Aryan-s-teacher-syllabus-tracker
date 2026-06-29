@@ -323,7 +323,11 @@ export default function AdminProgressPage() {
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <CardTitle className="text-lg">
-                    {item.className || item.subjectName || item.teacherName}
+                    {groupBy === 'subjects'
+                      ? item.subjectName
+                      : groupBy === 'teachers'
+                        ? item.teacherName
+                        : item.className}
                   </CardTitle>
                   <Badge
                     variant="outline"

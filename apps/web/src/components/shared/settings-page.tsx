@@ -8,11 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { api } from '@/services/api-client';
 import { toast } from 'sonner';
-import { CheckCircle2, Mail, KeyRound } from 'lucide-react';
+import { CheckCircle2, Mail, KeyRound, User, Shield } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 type PasswordStep = 'idle' | 'otp-sent' | 'done';
 
@@ -23,7 +23,6 @@ export function SettingsPageContent() {
 
   const [name, setName] = useState(user?.name ?? '');
   const [phone, setPhone] = useState(user?.phone ?? '');
-
   const [step, setStep] = useState<PasswordStep>('idle');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -79,40 +78,48 @@ export function SettingsPageContent() {
 
   return (
     <DashboardShell title="Settings">
-      <div className="animate-in fade-in standard-layout mx-auto max-w-2xl space-y-6 duration-500">
-        {/* Account info */}
-        <Card className="transition-all duration-300 hover:shadow-md">
-          <CardHeader>
-            <CardTitle>Account</CardTitle>
+      <div className="animate-in fade-in mx-auto max-w-2xl space-y-5 duration-300">
+        {/* Account Info */}
+        <Card className="border shadow-sm transition-shadow duration-300 hover:shadow-md">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <div className="rounded-lg bg-blue-50 p-1.5">
+                <Shield className="h-4 w-4 text-blue-600" />
+              </div>
+              Account
+            </CardTitle>
             <CardDescription>Your account details</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Email</span>
-              <span className="font-medium">{user?.email}</span>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between rounded-lg bg-gray-50 px-4 py-3">
+              <span className="text-muted-foreground text-sm">Email</span>
+              <span className="text-sm font-medium">{user?.email}</span>
             </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Role</span>
-              <Badge
-                variant="secondary"
-                className="transition-transform duration-200 hover:scale-105"
-              >
+            <div className="flex items-center justify-between rounded-lg bg-gray-50 px-4 py-3">
+              <span className="text-muted-foreground text-sm">Role</span>
+              <Badge variant="secondary" className="font-semibold">
                 {user?.role?.replace('_', ' ')}
               </Badge>
             </div>
           </CardContent>
         </Card>
 
-        {/* Edit profile */}
-        <Card className="transition-all duration-300 hover:shadow-md">
-          <CardHeader>
-            <CardTitle>Edit Profile</CardTitle>
+        {/* Edit Profile */}
+        <Card className="border shadow-sm transition-shadow duration-300 hover:shadow-md">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <div className="rounded-lg bg-purple-50 p-1.5">
+                <User className="h-4 w-4 text-purple-600" />
+              </div>
+              Edit Profile
+            </CardTitle>
             <CardDescription>Update your name and phone number</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full name</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="name" className="text-xs font-semibold">
+                Full Name
+              </Label>
               <Input
                 id="name"
                 value={name}
@@ -121,8 +128,10 @@ export function SettingsPageContent() {
                 className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone number</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="phone" className="text-xs font-semibold">
+                Phone Number
+              </Label>
               <Input
                 id="phone"
                 value={phone}
@@ -136,20 +145,25 @@ export function SettingsPageContent() {
               disabled={profileMutation.isPending}
               className="w-full transition-all duration-200 active:scale-[0.99]"
             >
-              {profileMutation.isPending ? 'Saving…' : 'Save profile'}
+              {profileMutation.isPending ? 'Saving…' : 'Save Profile'}
             </Button>
           </CardContent>
         </Card>
 
-        {/* Change password — OTP flow with layout transition smooth wrappers */}
-        <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
-          <CardHeader>
-            <CardTitle>Change Password</CardTitle>
+        {/* Change Password */}
+        <Card className="overflow-hidden border shadow-sm transition-shadow duration-300 hover:shadow-md">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <div className="rounded-lg bg-amber-50 p-1.5">
+                <KeyRound className="h-4 w-4 text-amber-600" />
+              </div>
+              Change Password
+            </CardTitle>
             <CardDescription>
-              We'll send a 6-digit verification code to <strong>{user?.email}</strong>
+              We'll send a 6-digit code to <strong>{user?.email}</strong>
             </CardDescription>
           </CardHeader>
-          <CardContent className="relative min-h-[80px]">
+          <CardContent>
             {step === 'idle' && (
               <div className="animate-in fade-in zoom-in-95 duration-300">
                 <Button
@@ -159,36 +173,40 @@ export function SettingsPageContent() {
                   className="w-full transition-all duration-200 active:scale-[0.99]"
                 >
                   <Mail
-                    className={`mr-2 h-4 w-4 ${sendOtpMutation.isPending ? 'animate-bounce' : ''}`}
+                    className={cn('mr-2 h-4 w-4', sendOtpMutation.isPending && 'animate-bounce')}
                   />
-                  {sendOtpMutation.isPending ? 'Sending code…' : 'Send verification code'}
+                  {sendOtpMutation.isPending ? 'Sending code…' : 'Send Verification Code'}
                 </Button>
               </div>
             )}
 
             {step === 'otp-sent' && (
-              <div className="animate-in slide-in-from-bottom-4 space-y-4 duration-300 ease-out">
-                <div className="animate-in fade-in flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-700 transition-all duration-300">
+              <div className="animate-in slide-in-from-bottom-4 space-y-4 duration-300">
+                <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-700">
                   <Mail className="h-4 w-4 shrink-0 animate-pulse" />
                   <span>
                     Code sent to <strong>{user?.email}</strong>. Check your inbox.
                   </span>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="otp">6-digit verification code</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="otp" className="text-xs font-semibold">
+                    6-Digit Code
+                  </Label>
                   <Input
                     id="otp"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     placeholder="123456"
-                    className="text-center font-mono text-lg tracking-widest transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
                     maxLength={6}
+                    className="text-center font-mono text-xl tracking-[0.5em] transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="newPassword">New password</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="newPassword" className="text-xs font-semibold">
+                    New Password
+                  </Label>
                   <Input
                     id="newPassword"
                     type="password"
@@ -199,22 +217,32 @@ export function SettingsPageContent() {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm new password</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="confirmPassword" className="text-xs font-semibold">
+                    Confirm Password
+                  </Label>
                   <Input
                     id="confirmPassword"
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Re-enter new password"
-                    className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
+                    className={cn(
+                      'transition-all duration-200 focus:ring-2 focus:ring-blue-500/20',
+                      confirmPassword && newPassword !== confirmPassword && 'border-red-400',
+                    )}
                   />
+                  {confirmPassword && newPassword !== confirmPassword && (
+                    <p className="animate-in fade-in text-xs text-red-500 duration-150">
+                      Passwords don't match
+                    </p>
+                  )}
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-3 pt-1">
                   <Button
                     variant="outline"
-                    className="flex-1 transition-all duration-200 active:scale-[0.98]"
+                    className="flex-1 active:scale-[0.98]"
                     onClick={() => {
                       setStep('idle');
                       setOtp('');
@@ -223,14 +251,14 @@ export function SettingsPageContent() {
                     Cancel
                   </Button>
                   <Button
-                    className="flex-1 transition-all duration-200 active:scale-[0.98]"
+                    className="flex-1 active:scale-[0.98]"
                     onClick={handleVerifyOtp}
                     disabled={verifyOtpMutation.isPending}
                   >
                     <KeyRound
-                      className={`mr-2 h-4 w-4 ${verifyOtpMutation.isPending ? 'animate-spin' : ''}`}
+                      className={cn('mr-2 h-4 w-4', verifyOtpMutation.isPending && 'animate-spin')}
                     />
-                    {verifyOtpMutation.isPending ? 'Verifying…' : 'Confirm & change'}
+                    {verifyOtpMutation.isPending ? 'Verifying…' : 'Confirm & Change'}
                   </Button>
                 </div>
 
@@ -246,18 +274,18 @@ export function SettingsPageContent() {
             )}
 
             {step === 'done' && (
-              <div className="animate-in zoom-in-95 duration-400 flex flex-col items-center gap-3 py-4 text-center ease-out">
-                <div className="animate-bounce rounded-full bg-green-50 p-2">
-                  <CheckCircle2 className="h-10 w-10 text-green-500" />
+              <div className="animate-in zoom-in-95 flex flex-col items-center gap-3 py-6 text-center duration-300">
+                <div className="animate-bounce rounded-full bg-emerald-50 p-3">
+                  <CheckCircle2 className="h-10 w-10 text-emerald-500" />
                 </div>
-                <p className="font-medium text-gray-800">Password changed successfully</p>
+                <p className="font-semibold text-gray-800">Password changed!</p>
                 <p className="text-muted-foreground text-sm">Your new password is active.</p>
                 <Button
                   variant="outline"
                   onClick={() => setStep('idle')}
-                  className="mt-2 transition-all duration-200 active:scale-[0.99]"
+                  className="mt-1 active:scale-[0.99]"
                 >
-                  Change again
+                  Change Again
                 </Button>
               </div>
             )}
