@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { BarChart3, TrendingUp, Calendar, Users, BookOpen, Filter } from 'lucide-react';
+import { BarChart3, TrendingUp, Calendar, Users, BookOpen, Info, Search } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -64,6 +64,7 @@ export default function AdminProgressPage() {
   const [groupBy, setGroupBy] = useState<GroupBy>('classes');
   const [velocityFilter, setVelocityFilter] = useState<VelocityFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showInfoPopover, setShowInfoPopover] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['progression-analytics', schoolId],
@@ -75,21 +76,37 @@ export default function AdminProgressPage() {
     toast.error('Failed to load progression data');
   }
 
+  // Dynamically recalibrate velocities relative to the global timeline percentage threshold
   const filteredItems = useMemo(() => {
     if (!data) return [];
 
-    let items: any[] = [];
+    const targetProgress = data.globalTimeline.percentageComplete;
+    let rawItems: any[] = [];
+
     switch (groupBy) {
       case 'classes':
-        items = data.classProgress;
+        rawItems = data.classProgress;
         break;
       case 'subjects':
-        items = data.subjectProgress;
+        rawItems = data.subjectProgress;
         break;
       case 'teachers':
-        items = data.teacherProgress;
+        rawItems = data.teacherProgress;
         break;
     }
+
+    // Dynamic map applying strict timeline status velocity logic
+    const calibratedItems = rawItems.map((item) => {
+      let calculatedVelocity: 'less' | 'neutral' | 'more' = 'neutral';
+      if (item.percentageComplete < targetProgress) {
+        calculatedVelocity = 'less';
+      } else if (item.percentageComplete > targetProgress) {
+        calculatedVelocity = 'more';
+      }
+      return { ...item, velocity: calculatedVelocity };
+    });
+
+    let items = calibratedItems;
 
     if (velocityFilter !== 'all') {
       items = items.filter((item) => item.velocity === velocityFilter);
@@ -98,8 +115,8 @@ export default function AdminProgressPage() {
     if (searchQuery) {
       items = items.filter(
         (item) =>
-          item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           item.className?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.subjectName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           item.teacherName?.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
@@ -110,33 +127,27 @@ export default function AdminProgressPage() {
   const getVelocityColor = (velocity: string) => {
     switch (velocity) {
       case 'less':
-        return 'bg-red-500';
+        return 'bg-red-500 text-white';
       case 'neutral':
-        return 'bg-yellow-500';
+        return 'bg-amber-500 text-white';
       case 'more':
-        return 'bg-green-500';
+        return 'bg-emerald-500 text-white';
       default:
-        return 'bg-gray-500';
+        return 'bg-gray-500 text-white';
     }
   };
 
   const getVelocityLabel = (velocity: string) => {
     switch (velocity) {
       case 'less':
-        return 'Less Progressing';
+        return 'Behind';
       case 'neutral':
-        return 'Neutral';
+        return 'On Pace';
       case 'more':
-        return 'More Progressing';
+        return 'Ahead';
       default:
         return 'Unknown';
     }
-  };
-
-  const getProgressColor = (percentage: number) => {
-    if (percentage < 30) return 'bg-red-500';
-    if (percentage >= 30 && percentage <= 70) return 'bg-yellow-500';
-    return 'bg-green-500';
   };
 
   if (isLoading) {
@@ -147,8 +158,8 @@ export default function AdminProgressPage() {
             <h1 className="text-3xl font-bold tracking-tight">Syllabus Progress</h1>
             <p className="text-muted-foreground">Track academic progression across your school</p>
           </div>
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-32 w-full rounded-xl" />
+          <Skeleton className="h-64 w-full rounded-xl" />
         </div>
       </DashboardShell>
     );
@@ -162,9 +173,9 @@ export default function AdminProgressPage() {
             <h1 className="text-3xl font-bold tracking-tight">Syllabus Progress</h1>
             <p className="text-muted-foreground">Track academic progression across your school</p>
           </div>
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-red-500">Failed to load progression data</p>
+          <Card className="border-red-200 bg-red-50/50">
+            <CardContent className="p-6 text-center">
+              <p className="text-sm font-semibold text-red-600">Failed to load progression data</p>
             </CardContent>
           </Card>
         </div>
@@ -181,41 +192,82 @@ export default function AdminProgressPage() {
         </div>
 
         {/* Global Timeline Tracker */}
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
+            <CardTitle className="relative flex items-center gap-2 text-base font-bold">
+              <Calendar className="h-5 w-5 text-blue-500" />
               Academic Timeline Progress
+              {/* Interactive In-line Custom Popover */}
+              <div className="relative inline-block">
+                <button
+                  type="button"
+                  onClick={() => setShowInfoPopover(!showInfoPopover)}
+                  onBlur={() => setTimeout(() => setShowInfoPopover(false), 200)}
+                  className="flex h-6 w-6 items-center justify-center rounded-full text-gray-400 outline-none hover:bg-gray-100 hover:text-gray-600"
+                >
+                  <Info className="h-4 w-4" />
+                </button>
+
+                {showInfoPopover && (
+                  <div className="animate-in fade-in slide-in-from-bottom-2 absolute bottom-full left-1/2 z-50 mb-2 w-72 -translate-x-1/2 rounded-xl border border-gray-200 bg-white p-4 shadow-xl transition-all duration-200">
+                    <div className="space-y-2 text-xs font-normal normal-case tracking-normal">
+                      <h4 className="text-sm font-bold text-gray-900">How pacing is calculated:</h4>
+                      <p className="leading-relaxed text-gray-600">
+                        Metrics are evaluated against the current
+                        <span className="font-semibold text-blue-600">
+                          {' '}
+                          Timeline Progress ({data.globalTimeline.percentageComplete.toFixed(1)}%)
+                        </span>
+                        :
+                      </p>
+                      <ul className="list-disc space-y-1 pl-4 text-gray-600">
+                        <li>
+                          <span className="font-semibold text-red-600">Behind:</span> Item progress
+                          is less than the current timeline threshold
+                        </li>
+                        <li>
+                          <span className="font-semibold text-amber-600">On Pace:</span> Item
+                          progress matches the threshold exactly
+                        </li>
+                        <li>
+                          <span className="font-semibold text-emerald-600">Ahead:</span> Item
+                          progress exceeds the threshold
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between text-xs sm:text-sm">
               <div className="flex items-center gap-2">
                 <span className="text-muted-foreground">Start Date:</span>
-                <span className="font-medium">
+                <span className="font-semibold text-gray-700">
                   {new Date(data.globalTimeline.startDate).toLocaleDateString()}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-muted-foreground">End Date:</span>
-                <span className="font-medium">
+                <span className="font-semibold text-gray-700">
                   {new Date(data.globalTimeline.endDate).toLocaleDateString()}
                 </span>
               </div>
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">
+              <div className="flex items-center justify-between text-xs sm:text-sm">
+                <span className="font-medium text-gray-700">
                   Teaching Day {data.globalTimeline.elapsedTeachingDays} of{' '}
                   {data.globalTimeline.totalTeachingDays}
                 </span>
-                <span className="text-primary text-sm font-bold">
-                  {data.globalTimeline.percentageComplete.toFixed(1)}% Completed
+                <span className="font-bold text-blue-600">
+                  {data.globalTimeline.percentageComplete.toFixed(1)}% Term Completed
                 </span>
               </div>
-              <Progress value={data.globalTimeline.percentageComplete} className="h-4" />
-              <div className="text-muted-foreground flex items-center justify-between text-xs">
+              <Progress value={data.globalTimeline.percentageComplete} className="h-3" />
+              <div className="text-muted-foreground flex items-center justify-between text-[11px] sm:text-xs">
                 <span>{data.globalTimeline.remainingTeachingDays} teaching days remaining</span>
                 <span>{data.globalTimeline.elapsedTeachingDays} teaching days elapsed</span>
               </div>
@@ -224,105 +276,96 @@ export default function AdminProgressPage() {
         </Card>
 
         {/* Analytical Filtering Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
+        <Card className="shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base font-bold">
+              <BarChart3 className="h-5 w-5 text-purple-500" />
               Progress Analytics
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex flex-wrap gap-4">
-              {/* Group By Dropdown */}
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium">Group By:</label>
-                <div className="flex gap-2">
-                  <Button
-                    variant={groupBy === 'classes' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setGroupBy('classes')}
-                  >
-                    <Users className="mr-2 h-4 w-4" />
-                    Classes
-                  </Button>
-                  <Button
-                    variant={groupBy === 'subjects' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setGroupBy('subjects')}
-                  >
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    Subjects
-                  </Button>
-                  <Button
-                    variant={groupBy === 'teachers' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setGroupBy('teachers')}
-                  >
-                    <TrendingUp className="mr-2 h-4 w-4" />
-                    Teachers
-                  </Button>
+          <CardContent>
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-wrap items-center gap-4">
+                {/* Group By Filter */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-gray-500">
+                    Group Analytics By
+                  </label>
+                  <div className="flex rounded-lg bg-gray-100 p-1">
+                    {(['classes', 'subjects', 'teachers'] as const).map((group) => (
+                      <button
+                        key={group}
+                        onClick={() => setGroupBy(group)}
+                        className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
+                          groupBy === group
+                            ? 'bg-white text-gray-900 shadow-sm'
+                            : 'text-gray-500 hover:text-gray-900'
+                        }`}
+                      >
+                        {group === 'classes' && <Users className="h-3.5 w-3.5" />}
+                        {group === 'subjects' && <BookOpen className="h-3.5 w-3.5" />}
+                        {group === 'teachers' && <TrendingUp className="h-3.5 w-3.5" />}
+                        {group.charAt(0).toUpperCase() + group.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Velocity Status Filter */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-gray-500">
+                    Filter Pacing Status
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(['all', 'less', 'neutral', 'more'] as const).map((v) => (
+                      <Button
+                        key={v}
+                        variant={velocityFilter === v ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setVelocityFilter(v)}
+                        className="h-8 px-2.5 text-xs font-medium"
+                      >
+                        {v === 'less' && (
+                          <span className="mr-1.5 h-2 w-2 rounded-full bg-red-500" />
+                        )}
+                        {v === 'neutral' && (
+                          <span className="mr-1.5 h-2 w-2 rounded-full bg-amber-500" />
+                        )}
+                        {v === 'more' && (
+                          <span className="mr-1.5 h-2 w-2 rounded-full bg-emerald-500" />
+                        )}
+                        {v === 'all' ? 'All Statuses' : getVelocityLabel(v)}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Velocity Filter */}
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium">Filter:</label>
-                <div className="flex gap-2">
-                  <Button
-                    variant={velocityFilter === 'all' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setVelocityFilter('all')}
-                  >
-                    All
-                  </Button>
-                  <Button
-                    variant={velocityFilter === 'less' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setVelocityFilter('less')}
-                  >
-                    <span className="mr-2 h-3 w-3 rounded-full bg-red-500" />
-                    Less
-                  </Button>
-                  <Button
-                    variant={velocityFilter === 'neutral' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setVelocityFilter('neutral')}
-                  >
-                    <span className="mr-2 h-3 w-3 rounded-full bg-yellow-500" />
-                    Neutral
-                  </Button>
-                  <Button
-                    variant={velocityFilter === 'more' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setVelocityFilter('more')}
-                  >
-                    <span className="mr-2 h-3 w-3 rounded-full bg-green-500" />
-                    More
-                  </Button>
+              {/* Functional Search Field */}
+              <div className="w-full space-y-1.5 lg:max-w-xs">
+                <label className="block text-xs font-semibold text-gray-500">Search Entries</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder={`Search ${groupBy}...`}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full rounded-md border border-gray-200 bg-white py-2 pl-9 pr-4 text-sm placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
                 </div>
-              </div>
-
-              {/* Search */}
-              <div className="min-w-[200px] flex-1">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="focus:ring-ring w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2"
-                />
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Progress Cards Grid */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredItems.map((item, index) => (
-            <Card key={index}>
+            <Card key={index} className="transition-shadow duration-200 hover:shadow-md">
               <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-lg">
+                <div className="flex items-start justify-between gap-3">
+                  <CardTitle className="line-clamp-1 text-base font-bold text-gray-900">
                     {groupBy === 'subjects'
                       ? item.subjectName
                       : groupBy === 'teachers'
@@ -331,41 +374,42 @@ export default function AdminProgressPage() {
                   </CardTitle>
                   <Badge
                     variant="outline"
-                    className={`${getVelocityColor(item.velocity)} border-0 text-white`}
+                    className={`${getVelocityColor(item.velocity)} border-0 px-2 py-0.5 text-[11px] font-semibold`}
                   >
                     {getVelocityLabel(item.velocity)}
                   </Badge>
                 </div>
                 {item.className && groupBy === 'subjects' && (
-                  <p className="text-muted-foreground text-sm">{item.className}</p>
+                  <p className="text-muted-foreground mt-0.5 text-xs font-medium">
+                    {item.className}
+                  </p>
                 )}
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Completion</span>
-                    <span className="font-bold">{item.percentageComplete.toFixed(1)}%</span>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Completion percentage</span>
+                    <span className="font-bold text-gray-900">
+                      {item.percentageComplete.toFixed(1)}%
+                    </span>
                   </div>
                   <Progress value={item.percentageComplete} className="h-2" />
                 </div>
-                <div className="text-muted-foreground flex items-center justify-between text-sm">
-                  <span>
-                    {item.completedTopics} of {item.totalTopics} topics
+
+                <div className="flex items-center justify-between border-t pt-3 text-xs">
+                  <span className="font-medium text-gray-600">
+                    {item.completedTopics} / {item.totalTopics} topics complete
                   </span>
                   <span
-                    className={
-                      item.percentageComplete >= 70
-                        ? 'text-green-600'
-                        : item.percentageComplete < 30
+                    className={`font-semibold ${
+                      item.velocity === 'more'
+                        ? 'text-emerald-600'
+                        : item.velocity === 'less'
                           ? 'text-red-600'
-                          : 'text-yellow-600'
-                    }
+                          : 'text-amber-600'
+                    }`}
                   >
-                    {item.percentageComplete >= 70
-                      ? 'On Track'
-                      : item.percentageComplete < 30
-                        ? 'Behind'
-                        : 'On Pace'}
+                    {getVelocityLabel(item.velocity)} Schedule
                   </span>
                 </div>
               </CardContent>
@@ -373,10 +417,13 @@ export default function AdminProgressPage() {
           ))}
         </div>
 
+        {/* Empty State Exception Layout */}
         {filteredItems.length === 0 && (
-          <Card>
-            <CardContent className="text-muted-foreground p-6 text-center">
-              No items found matching the current filters
+          <Card className="border-dashed bg-gray-50/50">
+            <CardContent className="p-10 text-center">
+              <p className="text-sm font-medium text-gray-500">
+                No telemetry metrics found matching your current active filter queries.
+              </p>
             </CardContent>
           </Card>
         )}

@@ -39,6 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               name: me.name,
               role: me.role,
               schoolId: me.schoolId,
+              teacherId: me.teacherId,
               avatar: me.avatar,
             },
             useAuthStore.getState().accessToken || 'cookie-session',
@@ -82,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   if (!ready && !isPublicRootOrAsset) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <div className="border-primary h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
       </div>
     );
   }

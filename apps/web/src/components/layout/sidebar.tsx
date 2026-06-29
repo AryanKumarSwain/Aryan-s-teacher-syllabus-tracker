@@ -45,6 +45,7 @@ const navByRole: Record<UserRole, { href: string; label: string; icon: React.Ele
     { href: '/teacher', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/teacher/classes', label: 'Classes', icon: BookOpen },
     { href: '/teacher/progress', label: 'Progress', icon: TrendingUp },
+    { href: '/teacher/academic-timeline', label: 'Academic Timeline', icon: Calendar },
     { href: '/teacher/settings', label: 'Settings', icon: Settings },
   ],
 };

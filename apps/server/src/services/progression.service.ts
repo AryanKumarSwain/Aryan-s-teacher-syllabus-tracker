@@ -134,13 +134,21 @@ export class ProgressionService {
     });
 
     // Calculate class progress
-    const classProgress = this.calculateClassProgress(classes, topicProgress);
+    const classProgress = this.calculateClassProgress(classes, topicProgress, percentageComplete);
 
     // Calculate subject progress
-    const subjectProgress = this.calculateSubjectProgress(classes, topicProgress);
+    const subjectProgress = this.calculateSubjectProgress(
+      classes,
+      topicProgress,
+      percentageComplete,
+    );
 
     // Calculate teacher progress
-    const teacherProgress = await this.calculateTeacherProgress(schoolId, topicProgress);
+    const teacherProgress = await this.calculateTeacherProgress(
+      schoolId,
+      topicProgress,
+      percentageComplete,
+    );
 
     return {
       globalTimeline: {
@@ -157,7 +165,11 @@ export class ProgressionService {
     };
   }
 
-  private calculateClassProgress(classes: any[], topicProgress: any[]): ClassProgressItem[] {
+  private calculateClassProgress(
+    classes: any[],
+    topicProgress: any[],
+    timelinePercentage: number,
+  ): ClassProgressItem[] {
     return classes.map((cls) => {
       let totalTopics = 0;
       let completedTopics = 0;
@@ -187,7 +199,7 @@ export class ProgressionService {
       });
 
       const percentageComplete = totalTopics > 0 ? (completedTopics / totalTopics) * 100 : 0;
-      const velocity = this.getVelocity(percentageComplete);
+      const velocity = this.getVelocity(percentageComplete, timelinePercentage);
 
       return {
         classId: cls.id,
@@ -200,7 +212,11 @@ export class ProgressionService {
     });
   }
 
-  private calculateSubjectProgress(classes: any[], topicProgress: any[]): SubjectProgressItem[] {
+  private calculateSubjectProgress(
+    classes: any[],
+    topicProgress: any[],
+    timelinePercentage: number,
+  ): SubjectProgressItem[] {
     const subjectProgress: SubjectProgressItem[] = [];
 
     classes.forEach((cls) => {
@@ -231,7 +247,7 @@ export class ProgressionService {
         });
 
         const percentageComplete = totalTopics > 0 ? (completedTopics / totalTopics) * 100 : 0;
-        const velocity = this.getVelocity(percentageComplete);
+        const velocity = this.getVelocity(percentageComplete, timelinePercentage);
 
         subjectProgress.push({
           subjectId: subject.id,
@@ -252,6 +268,7 @@ export class ProgressionService {
   private async calculateTeacherProgress(
     schoolId: string,
     topicProgress: any[],
+    timelinePercentage: number,
   ): Promise<TeacherProgressItem[]> {
     const teachers = await prisma.teacher.findMany({
       where: { schoolId },
@@ -298,7 +315,7 @@ export class ProgressionService {
       });
 
       const percentageComplete = totalTopics > 0 ? (completedTopics / totalTopics) * 100 : 0;
-      const velocity = this.getVelocity(percentageComplete);
+      const velocity = this.getVelocity(percentageComplete, timelinePercentage);
 
       return {
         teacherId: teacher.id,
@@ -311,10 +328,12 @@ export class ProgressionService {
     });
   }
 
-  private getVelocity(percentage: number): 'less' | 'neutral' | 'more' {
-    if (percentage < 30) return 'less';
-    if (percentage >= 30 && percentage <= 70) return 'neutral';
-    return 'more';
+  private getVelocity(percentage: number, timelineProgress: number): 'less' | 'neutral' | 'more' {
+    const threshold = timelineProgress;
+    // Use 5% tolerance for "on pace"
+    if (percentage < threshold - 5) return 'less';
+    if (percentage > threshold + 5) return 'more';
+    return 'neutral';
   }
 
   async getTeacherProgression(
