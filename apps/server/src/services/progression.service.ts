@@ -327,19 +327,23 @@ export class ProgressionService {
     const analytics = await this.getProgressionAnalytics(schoolId);
 
     // Filter subject progress for this teacher's assigned subjects
+    // Use the same logic as syllabusService.listAssignedClasses
     const teacherClasses = await prisma.teacherClass.findMany({
       where: { teacherId },
-      include: {
-        subject: true,
-        class: true,
-      },
+      select: { subjectId: true, classId: true },
     });
 
-    const teacherSubjectIds = teacherClasses.map((tc: any) => tc.subjectId).filter(Boolean);
-    const teacherClassIds = teacherClasses.map((tc: any) => tc.classId);
+    const assignedClassIds = teacherClasses
+      .map((tc) => tc.classId)
+      .filter((id): id is string => !!id);
+    const assignedSubjectIds = teacherClasses
+      .map((tc) => tc.subjectId)
+      .filter((id): id is string => !!id);
 
-    const filteredSubjectProgress = analytics.subjectProgress.filter((sp) =>
-      teacherSubjectIds.includes(sp.subjectId),
+    // Filter: subjects must be in an assigned class AND have a teacherClass assignment
+    const filteredSubjectProgress = analytics.subjectProgress.filter(
+      (sp) =>
+        assignedClassIds.includes(sp.classId ?? '') && assignedSubjectIds.includes(sp.subjectId),
     );
 
     return {
