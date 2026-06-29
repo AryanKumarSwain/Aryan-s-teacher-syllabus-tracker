@@ -39,6 +39,7 @@ export const authService = {
     }
     if (user.status !== 'ACTIVE') throw new AppError('Account is not active', 403);
 
+    let teacherId: string | null = null;
     if (user.role === 'TEACHER') {
       const teacher = await prisma.teacher.findFirst({ where: { userId: user.id } });
       if (!teacher || teacher.deletedAt) {
@@ -47,6 +48,7 @@ export const authService = {
       if (teacher.status === 'SUSPENDED') {
         throw new AppError('Account is suspended. Contact your school administrator.', 403);
       }
+      teacherId = teacher.id;
     }
 
     const sessionId = createSessionId();
@@ -78,6 +80,7 @@ export const authService = {
         name: user.name,
         role: user.role,
         schoolId: user.schoolId,
+        teacherId,
         avatar: user.avatar,
       },
       accessToken,

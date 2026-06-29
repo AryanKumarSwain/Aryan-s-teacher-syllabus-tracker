@@ -17,7 +17,7 @@ export const progressionController = {
   async getTeacherProgression(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
-      const teacherId = (req as any).user?.teacherId;
+      const teacherId = (req as any).user?.teacherId || (req.query.teacherId as string);
       if (!teacherId) {
         throw new Error('Teacher ID is required');
       }

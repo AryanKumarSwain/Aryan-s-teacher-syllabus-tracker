@@ -338,9 +338,8 @@ export class ProgressionService {
     const teacherSubjectIds = teacherClasses.map((tc: any) => tc.subjectId).filter(Boolean);
     const teacherClassIds = teacherClasses.map((tc: any) => tc.classId);
 
-    const filteredSubjectProgress = analytics.subjectProgress.filter(
-      (sp) =>
-        teacherSubjectIds.includes(sp.subjectId) || teacherClassIds.includes(sp.classId || ''),
+    const filteredSubjectProgress = analytics.subjectProgress.filter((sp) =>
+      teacherSubjectIds.includes(sp.subjectId),
     );
 
     return {

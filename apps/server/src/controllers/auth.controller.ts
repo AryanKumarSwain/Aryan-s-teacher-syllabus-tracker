@@ -73,12 +73,22 @@ export const authController = {
       if (!user) {
         return res.status(404).json({ success: false, error: 'User not found' });
       }
+
+      let teacherId: string | null = null;
+      if (user.role === 'TEACHER') {
+        const teacher = await prisma.teacher.findFirst({ where: { userId: user.id } });
+        if (teacher) {
+          teacherId = teacher.id;
+        }
+      }
+
       sendSuccess(res, {
         id: user.id,
         email: user.email,
         name: user.name,
         role: user.role,
         schoolId: user.schoolId,
+        teacherId,
         avatar: user.avatar,
         school: user.school,
         teacher: user.teacher,
