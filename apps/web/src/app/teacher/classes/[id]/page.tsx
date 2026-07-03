@@ -174,9 +174,12 @@ export default function TeacherClassDetailPage({ params }: { params: Promise<{ i
               <h2 className="text-base font-semibold">Subjects & Chapters</h2>
               {data.subjects.map((subject, i) => {
                 const isOpen = expandedSubjects[subject.id];
-                const subjectCompleted = subject.chapters.filter(
-                  (c) => c.chapterProgress?.[0]?.chapterStatus === 'COMPLETED',
-                ).length;
+                const subjectCompleted = subject.chapters.filter((c) => {
+                  const progress = c.chapterProgress?.[0];
+                  if (!progress) return false;
+                  // Count as completed if teaching OR Q/A is done
+                  return progress.teachingCompleted || progress.qaCompleted;
+                }).length;
                 const subjectPct =
                   subject.chapters.length > 0
                     ? Math.round((subjectCompleted / subject.chapters.length) * 100)

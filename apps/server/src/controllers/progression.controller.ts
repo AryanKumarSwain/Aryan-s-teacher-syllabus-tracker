@@ -7,7 +7,8 @@ export const progressionController = {
   async getAnalytics(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
-      const analytics = await progressionService.getProgressionAnalytics(schoolId);
+      const academicYearId = req.query.academicYearId as string | undefined;
+      const analytics = await progressionService.getProgressionAnalytics(schoolId, academicYearId);
       sendSuccess(res, analytics);
     } catch (err) {
       next(err);

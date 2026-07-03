@@ -7,6 +7,7 @@ import { dashboardRoutes } from './dashboard.routes.js';
 import { progressRoutes } from './progress.routes.js';
 import { planRoutes } from './plan.routes.js';
 import academicTermRoutes from './academic-term.routes.js';
+import academicSessionRoutes from './academic-session.routes.js';
 import progressionRoutes from './progression.routes.js';
 
 export const apiRouter = Router();
@@ -19,6 +20,7 @@ apiRouter.use('/dashboard', dashboardRoutes);
 apiRouter.use('/progress', progressRoutes);
 apiRouter.use('/plans', planRoutes);
 apiRouter.use('/academic-terms', academicTermRoutes);
+apiRouter.use('/academic-sessions', academicSessionRoutes);
 apiRouter.use('/progression', progressionRoutes);
 
 apiRouter.get('/health', (_req, res) => {

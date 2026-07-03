@@ -1,14 +1,34 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { BarChart3, TrendingUp, Calendar, Users, BookOpen, Info, Search } from 'lucide-react';
+import {
+  BarChart3,
+  TrendingUp,
+  Calendar,
+  Users,
+  BookOpen,
+  Info,
+  Search,
+  Settings,
+} from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/shared/empty-state';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { api } from '@/services/api-client';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
 import { toast } from 'sonner';
@@ -65,12 +85,75 @@ export default function AdminProgressPage() {
   const [velocityFilter, setVelocityFilter] = useState<VelocityFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showInfoPopover, setShowInfoPopover] = useState(false);
+  const [selectedTermFilter, setSelectedTermFilter] = useState<string>('all');
+  const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<string>('');
+
+  // Load selected academic year from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('selected-academic-year');
+    if (saved) setSelectedAcademicYearId(saved);
+  }, []);
+
+  // Update localStorage when selection changes
+  useEffect(() => {
+    if (selectedAcademicYearId) {
+      localStorage.setItem('selected-academic-year', selectedAcademicYearId);
+    }
+  }, [selectedAcademicYearId]);
+
+  // Configurable velocity thresholds
+  const [showThresholdSettings, setShowThresholdSettings] = useState(false);
+  const [onPaceTolerance, setOnPaceTolerance] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('progress-thresholds');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.onPaceTolerance ?? 5;
+      }
+    }
+    return 5;
+  });
+
+  const saveThresholdSettings = () => {
+    localStorage.setItem('progress-thresholds', JSON.stringify({ onPaceTolerance }));
+    setShowThresholdSettings(false);
+    toast.success('Threshold settings saved');
+  };
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['progression-analytics', schoolId],
-    queryFn: () => api.get<ProgressionMetrics>('/progression/analytics'),
+    queryKey: ['progression-analytics', schoolId, selectedAcademicYearId],
+    queryFn: () =>
+      api.get<ProgressionMetrics>(
+        '/progression/analytics',
+        selectedAcademicYearId ? { academicYearId: selectedAcademicYearId } : undefined,
+      ),
     enabled: Boolean(schoolId),
   });
+
+  const { data: academicYears } = useQuery({
+    queryKey: ['academic-terms', schoolId],
+    queryFn: () => api.getPaginated<any>('/academic-terms', schoolId ? { schoolId } : undefined),
+    enabled: Boolean(schoolId),
+  });
+
+  // Extract all terms from academic years
+  const allTerms = useMemo(() => {
+    if (!academicYears?.items) return [];
+    const terms: { id: string; name: string; yearId: string; yearName: string }[] = [];
+    academicYears.items.forEach((year: any) => {
+      if (year.terms && Array.isArray(year.terms)) {
+        year.terms.forEach((term: any, index: number) => {
+          terms.push({
+            id: `${year.id}-${index}`,
+            name: term.name || `Term ${index + 1}`,
+            yearId: year.id,
+            yearName: year.name,
+          });
+        });
+      }
+    });
+    return terms;
+  }, [academicYears]);
 
   if (error) {
     toast.error('Failed to load progression data');
@@ -95,14 +178,20 @@ export default function AdminProgressPage() {
         break;
     }
 
-    // Dynamic map applying strict timeline status velocity logic
+    // Dynamic map applying configurable timeline status velocity logic
     const calibratedItems = rawItems.map((item) => {
       let calculatedVelocity: 'less' | 'neutral' | 'more' = 'neutral';
-      if (item.percentageComplete < targetProgress) {
-        calculatedVelocity = 'less';
-      } else if (item.percentageComplete > targetProgress) {
-        calculatedVelocity = 'more';
+      const diff = item.percentageComplete - targetProgress;
+
+      // Use configurable tolerance for "on pace"
+      if (diff < -onPaceTolerance) {
+        calculatedVelocity = 'less'; // Behind
+      } else if (diff > onPaceTolerance) {
+        calculatedVelocity = 'more'; // Ahead
+      } else {
+        calculatedVelocity = 'neutral'; // On Pace (within tolerance)
       }
+
       return { ...item, velocity: calculatedVelocity };
     });
 
@@ -122,7 +211,7 @@ export default function AdminProgressPage() {
     }
 
     return items;
-  }, [data, groupBy, velocityFilter, searchQuery]);
+  }, [data, groupBy, velocityFilter, searchQuery, onPaceTolerance]);
 
   const getVelocityColor = (velocity: string) => {
     switch (velocity) {
@@ -152,7 +241,7 @@ export default function AdminProgressPage() {
 
   if (isLoading) {
     return (
-      <DashboardShell>
+      <DashboardShell title="Syllabus Progress">
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Syllabus Progress</h1>
@@ -167,28 +256,48 @@ export default function AdminProgressPage() {
 
   if (error || !data) {
     return (
-      <DashboardShell>
+      <DashboardShell title="Syllabus Progress">
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Syllabus Progress</h1>
             <p className="text-muted-foreground">Track academic progression across your school</p>
           </div>
-          <Card className="border-red-200 bg-red-50/50">
-            <CardContent className="p-6 text-center">
-              <p className="text-sm font-semibold text-red-600">Failed to load progression data</p>
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={BarChart3}
+            title="No progression data available"
+            description="There is currently no syllabus progression data to display. Start by adding classes, subjects, and teachers to begin tracking."
+          />
         </div>
       </DashboardShell>
     );
   }
 
   return (
-    <DashboardShell>
+    <DashboardShell title="Syllabus Progress">
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Syllabus Progress</h1>
-          <p className="text-muted-foreground">Track academic progression across your school</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Syllabus Progress</h1>
+              <p className="text-muted-foreground">Track academic progression across your school</p>
+            </div>
+            {academicYears?.items && academicYears.items.length > 0 && (
+              <div className="bg-background flex items-center gap-2 rounded-md border px-3 py-1.5 shadow-sm">
+                <Calendar className="text-muted-foreground h-4 w-4" />
+                <select
+                  value={selectedAcademicYearId}
+                  onChange={(e) => setSelectedAcademicYearId(e.target.value)}
+                  className="cursor-pointer bg-transparent text-sm font-medium focus:outline-none"
+                >
+                  {academicYears.items.map((year: any) => (
+                    <option key={year.id} value={year.id}>
+                      {year.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Global Timeline Tracker */}
@@ -197,6 +306,14 @@ export default function AdminProgressPage() {
             <CardTitle className="relative flex items-center gap-2 text-base font-bold">
               <Calendar className="h-5 w-5 text-blue-500" />
               Academic Timeline Progress
+              <button
+                type="button"
+                onClick={() => setShowThresholdSettings(true)}
+                className="ml-auto flex h-7 w-7 items-center justify-center rounded-full text-gray-400 outline-none hover:bg-gray-100 hover:text-gray-600"
+                title="Configure pacing thresholds"
+              >
+                <Settings className="h-4 w-4" />
+              </button>
               {/* Interactive In-line Custom Popover */}
               <div className="relative inline-block">
                 <button
@@ -218,20 +335,20 @@ export default function AdminProgressPage() {
                           {' '}
                           Timeline Progress ({data.globalTimeline.percentageComplete.toFixed(1)}%)
                         </span>
-                        :
+                        with a tolerance of ±{onPaceTolerance}%:
                       </p>
                       <ul className="list-disc space-y-1 pl-4 text-gray-600">
                         <li>
                           <span className="font-semibold text-red-600">Behind:</span> Item progress
-                          is less than the current timeline threshold
+                          is more than {onPaceTolerance}% below the timeline threshold
                         </li>
                         <li>
                           <span className="font-semibold text-amber-600">On Pace:</span> Item
-                          progress matches the threshold exactly
+                          progress is within ±{onPaceTolerance}% of the threshold
                         </li>
                         <li>
                           <span className="font-semibold text-emerald-600">Ahead:</span> Item
-                          progress exceeds the threshold
+                          progress is more than {onPaceTolerance}% above the threshold
                         </li>
                       </ul>
                     </div>
@@ -339,6 +456,27 @@ export default function AdminProgressPage() {
                     ))}
                   </div>
                 </div>
+
+                {/* Term Filter */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-gray-500">
+                    Filter by Term
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={selectedTermFilter}
+                      onChange={(e) => setSelectedTermFilter(e.target.value)}
+                      className="h-8 w-full rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      <option value="all">All Terms</option>
+                      {allTerms.map((term) => (
+                        <option key={term.id} value={term.id}>
+                          {term.name} ({term.yearName})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
 
               {/* Functional Search Field */}
@@ -428,6 +566,44 @@ export default function AdminProgressPage() {
           </Card>
         )}
       </div>
+
+      {/* Threshold Settings Dialog */}
+      <Dialog open={showThresholdSettings} onOpenChange={setShowThresholdSettings}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Configure Pacing Thresholds</DialogTitle>
+            <DialogDescription>
+              Set the tolerance percentage for determining if progress is "On Pace", "Behind", or
+              "Ahead" of schedule.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="onPaceTolerance">On Pace Tolerance (%)</Label>
+              <Input
+                id="onPaceTolerance"
+                type="number"
+                min="0"
+                max="50"
+                step="1"
+                value={onPaceTolerance}
+                onChange={(e) => setOnPaceTolerance(Number(e.target.value))}
+                className="w-full"
+              />
+              <p className="text-muted-foreground text-xs">
+                Items within ±{onPaceTolerance}% of the timeline progress will be marked as "On
+                Pace".
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowThresholdSettings(false)}>
+              Cancel
+            </Button>
+            <Button onClick={saveThresholdSettings}>Save Settings</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardShell>
   );
 }

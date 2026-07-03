@@ -1,14 +1,17 @@
 'use client';
 
 import { LogOut } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/auth-store';
 import { api } from '@/services/api-client';
+import { SessionSelector } from '@/components/admin/session-selector';
 
 export function Navbar({ title }: { title: string }) {
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const router = useRouter();
+  const pathname = usePathname();
+  const isAdminRoute = pathname?.startsWith('/admin');
 
   const handleLogout = async () => {
     try {
@@ -29,6 +32,11 @@ export function Navbar({ title }: { title: string }) {
             {title}
           </h1>
         </div>
+      </div>
+
+      {/* Middle — session selector for admin routes */}
+      <div className="flex flex-1 items-center justify-center">
+        {isAdminRoute && <SessionSelector />}
       </div>
 
       {/* Right — logout only */}

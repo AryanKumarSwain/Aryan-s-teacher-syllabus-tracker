@@ -20,7 +20,7 @@ export const registerSchema = z
     email: z.string().email('Invalid email'),
     password: passwordSchema,
     confirmPassword: z.string(),
-    phone: z.string().optional(),
+    phone: z.string().min(10, 'Phone number must be at least 10 digits'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',

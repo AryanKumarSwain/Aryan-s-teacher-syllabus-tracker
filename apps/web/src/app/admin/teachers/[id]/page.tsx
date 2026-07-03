@@ -222,26 +222,6 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
             <p className="text-muted-foreground text-sm">
               {completed} of {total} chapters completed · {total - completed} pending
             </p>
-
-            {teacher.chapterProgress.filter((p) => p.chapterStatus === 'COMPLETED').length > 0 && (
-              <ul className="space-y-2">
-                {teacher.chapterProgress
-                  .filter((p) => p.chapterStatus === 'COMPLETED')
-                  .map((p, i) => (
-                    <li
-                      key={i}
-                      className="bg-card flex items-center justify-between rounded-lg border p-2 text-sm"
-                    >
-                      <span className="font-medium">{p.chapter.title}</span>
-                      <Badge variant="success">COMPLETED</Badge>
-                    </li>
-                  ))}
-              </ul>
-            )}
-
-            {teacher.chapterProgress.length === 0 && (
-              <p className="text-muted-foreground text-sm">No chapters completed yet.</p>
-            )}
           </CardContent>
         </Card>
 

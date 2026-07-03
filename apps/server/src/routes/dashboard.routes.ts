@@ -23,3 +23,12 @@ dashboardRoutes.get(
   tenantGuard(),
   dashboardController.getAnalytics,
 );
+
+dashboardRoutes.get(
+  '/teacher-progress/:teacherName',
+  authenticate,
+  authorize(UserRole.SCHOOL_ADMIN),
+  requireSchoolTenant,
+  tenantGuard(),
+  dashboardController.getTeacherProgressHistory,
+);

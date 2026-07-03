@@ -2,12 +2,23 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Ban, CheckCircle2, Plus, Search, Trash2, Upload, Users, Eye } from 'lucide-react';
+import {
+  Ban,
+  CheckCircle2,
+  Plus,
+  Search,
+  Trash2,
+  Upload,
+  Users,
+  Eye,
+  BookOpen,
+  ChevronRight,
+} from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/empty-state';
 import { CreateTeacherDialog } from '@/features/teachers/components/create-teacher-dialog';
@@ -18,6 +29,7 @@ import {
   useDeleteTeacher,
   useUpdateTeacherStatus,
 } from '@/features/teachers/hooks/use-teachers';
+import { ImportDataButton } from '@/components/admin/import-data-button';
 
 function teacherStatusBadge(status: string) {
   if (status === 'SUSPENDED') {
@@ -33,55 +45,51 @@ function teacherStatusBadge(status: string) {
   return <Badge variant="secondary">{status}</Badge>;
 }
 
-export function getTeacherColorStyles(id: string) {
-  const themes = [
-    {
-      border: 'hover:border-blue-500/50 dark:hover:border-blue-400/40',
-      accent: 'text-blue-600 dark:text-blue-400 bg-blue-500/5',
-      badge: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-    },
-    {
-      border: 'hover:border-emerald-500/50 dark:hover:border-emerald-400/40',
-      accent: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/5',
-      badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
-    },
-    {
-      border: 'hover:border-violet-500/50 dark:hover:border-violet-400/40',
-      accent: 'text-violet-600 dark:text-violet-400 bg-violet-500/5',
-      badge: 'bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300',
-    },
-    {
-      border: 'hover:border-amber-500/50 dark:hover:border-amber-400/40',
-      accent: 'text-amber-600 dark:text-amber-400 bg-amber-500/5',
-      badge: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
-    },
-    {
-      border: 'hover:border-rose-500/50 dark:hover:border-rose-400/40',
-      accent: 'text-rose-600 dark:text-rose-400 bg-rose-500/5',
-      badge: 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300',
-    },
-    {
-      border: 'hover:border-cyan-500/50 dark:hover:border-cyan-400/40',
-      accent: 'text-cyan-600 dark:text-cyan-400 bg-cyan-500/5',
-      badge: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300',
-    },
-    {
-      border: 'hover:border-indigo-500/50 dark:hover:border-indigo-400/40',
-      accent: 'text-indigo-600 dark:text-indigo-400 bg-indigo-500/5',
-      badge: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300',
-    },
-    {
-      border: 'hover:border-fuchsia-500/50 dark:hover:border-fuchsia-400/40',
-      accent: 'text-fuchsia-600 dark:text-fuchsia-400 bg-fuchsia-500/5',
-      badge: 'bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-900/30 dark:text-fuchsia-300',
-    },
-  ];
+const CARD_THEMES = [
+  {
+    border: 'hover:border-blue-200',
+    accentBg: 'bg-blue-50/70',
+    accentText: 'text-blue-600',
+    iconColor: 'text-blue-500',
+  },
+  {
+    border: 'hover:border-purple-200',
+    accentBg: 'bg-purple-50/70',
+    accentText: 'text-purple-600',
+    iconColor: 'text-purple-500',
+  },
+  {
+    border: 'hover:border-emerald-200',
+    accentBg: 'bg-emerald-50/70',
+    accentText: 'text-emerald-600',
+    iconColor: 'text-emerald-500',
+  },
+  {
+    border: 'hover:border-amber-200',
+    accentBg: 'bg-amber-50/70',
+    accentText: 'text-amber-600',
+    iconColor: 'text-amber-500',
+  },
+  {
+    border: 'hover:border-rose-200',
+    accentBg: 'bg-rose-50/70',
+    accentText: 'text-rose-600',
+    iconColor: 'text-rose-500',
+  },
+  {
+    border: 'hover:border-cyan-200',
+    accentBg: 'bg-cyan-50/70',
+    accentText: 'text-cyan-600',
+    iconColor: 'text-cyan-500',
+  },
+];
 
+export function getTeacherColorStyles(id: string): (typeof CARD_THEMES)[0] {
   let sum = 0;
   for (let i = 0; i < id.length; i++) {
     sum += id.charCodeAt(i);
   }
-  return themes[sum % themes.length];
+  return CARD_THEMES[sum % CARD_THEMES.length]!;
 }
 
 export default function AdminTeachersPage() {
@@ -139,13 +147,13 @@ export default function AdminTeachersPage() {
     <DashboardShell title="Teachers">
       <div className="space-y-6">
         {/* Filtering Toolbar */}
-        <div className="bg-muted/20 border-border/60 flex flex-col gap-3 rounded-xl border p-3 transition-all sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
             <div className="relative max-w-sm flex-1">
               <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
               <Input
                 placeholder="Search teachers..."
-                className="bg-background pl-9 transition-all focus-visible:ring-1"
+                className="pl-9"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -155,7 +163,7 @@ export default function AdminTeachersPage() {
               <select
                 value={selectedClassFilter}
                 onChange={(e) => setSelectedClassFilter(e.target.value)}
-                className="border-input bg-background focus-visible:ring-ring flex h-10 w-full cursor-pointer rounded-md border px-3 py-2 text-sm transition-all focus-visible:outline-none focus-visible:ring-1"
+                className="border-input bg-background focus-visible:ring-ring flex h-10 w-full cursor-pointer rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
               >
                 <option value="all">All Classes</option>
                 {classOptions.map((c) => (
@@ -170,7 +178,7 @@ export default function AdminTeachersPage() {
               <select
                 value={selectedSubjectFilter}
                 onChange={(e) => setSelectedSubjectFilter(e.target.value)}
-                className="border-input bg-background focus-visible:ring-ring flex h-10 w-full cursor-pointer rounded-md border px-3 py-2 text-sm transition-all focus-visible:outline-none focus-visible:ring-1"
+                className="border-input bg-background focus-visible:ring-ring flex h-10 w-full cursor-pointer rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
               >
                 <option value="all">All Subjects</option>
                 {subjectOptions.map((s) => (
@@ -183,26 +191,20 @@ export default function AdminTeachersPage() {
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setBulkOpen(true)}
-              className="hover:bg-muted/80 transition-all active:scale-95"
-            >
+            <ImportDataButton type="teachers" label="Import Teachers" />
+            <Button variant="outline" onClick={() => setBulkOpen(true)}>
               <Upload className="mr-2 h-4 w-4" /> Bulk import
             </Button>
-            <Button
-              onClick={() => setDialogOpen(true)}
-              className="shadow-sm transition-all active:scale-95"
-            >
+            <Button onClick={() => setDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" /> Add teacher
             </Button>
           </div>
         </div>
 
         {isLoading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="h-24 w-full rounded-xl" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-44 rounded-xl" />
             ))}
           </div>
         ) : filteredTeachers.length === 0 ? (
@@ -213,7 +215,7 @@ export default function AdminTeachersPage() {
                 ? 'No matches found'
                 : 'No teachers yet'
             }
-            description="Try altering your search filters or structure configuration tags."
+            description="Try adjusting your search criteria or add teachers to get started."
             action={
               selectedClassFilter !== 'all' || selectedSubjectFilter !== 'all' || search
                 ? undefined
@@ -221,121 +223,141 @@ export default function AdminTeachersPage() {
             }
           />
         ) : (
-          <Card className="border-border/60 animate-fade-in overflow-hidden border shadow-sm duration-300">
-            <div className="divide-border/40 divide-y">
-              {filteredTeachers.map((teacher) => {
-                const status = teacher.status ?? teacher.user.status;
-                const theme = getTeacherColorStyles(teacher.id);
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredTeachers.map((teacher, i) => {
+              const status = teacher.status ?? teacher.user.status;
+              const theme = getTeacherColorStyles(teacher.id);
+              const assignedCount = teacher.teacherClasses.length;
 
-                return (
-                  <div
-                    key={teacher.id}
-                    className={cn(
-                      'hover:bg-muted/5 flex flex-col gap-4 border-l-4 border-l-transparent p-4 transition-all duration-200 sm:flex-row sm:items-center sm:justify-between',
-                      theme.border,
-                    )}
-                  >
-                    {/* Left Side: Text Details (Status badge removed from here) */}
-                    <div className="min-w-0 flex-1 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Link
-                          href={`/admin/teachers/${teacher.id}`}
-                          className="text-foreground hover:text-primary truncate font-semibold decoration-2 underline-offset-2 transition-colors hover:underline"
-                        >
-                          {teacher.user.name}
-                        </Link>
+              return (
+                <Card
+                  key={teacher.id}
+                  className={cn(
+                    'animate-in fade-in slide-in-from-bottom-2 h-full border bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg',
+                    theme.border,
+                  )}
+                  style={{ animationDelay: `${i * 60}ms` }}
+                >
+                  <CardContent className="p-5">
+                    {/* Header */}
+                    <div className="mb-3 flex items-start justify-between">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-base font-bold text-gray-900">{teacher.user.name}</h3>
+                        <p className="text-muted-foreground text-xs">{teacher.user.email}</p>
                       </div>
-                      <p className="text-muted-foreground truncate text-xs font-medium tracking-tight">
-                        {teacher.user.email}
-                      </p>
-                      {teacher.user.phone && (
-                        <p className="text-muted-foreground text-xs">{teacher.user.phone}</p>
-                      )}
+                      <button
+                        onClick={() => (window.location.href = `/admin/teachers/${teacher.id}`)}
+                        className="text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </button>
+                    </div>
 
-                      <div className="mt-2 flex flex-wrap gap-1.5 pt-1">
-                        {teacher.teacherClasses.length === 0 && (
-                          <Badge variant="secondary" className="text-[10px] tracking-tight">
-                            No subject assigned
-                          </Badge>
+                    {/* Status badge */}
+                    <div className="mb-3">{teacherStatusBadge(status)}</div>
+
+                    {/* Stats */}
+                    <div className="mb-4 grid grid-cols-2 gap-2">
+                      <div
+                        className={cn(
+                          'flex flex-col items-center rounded-xl px-2 py-2.5 transition-colors',
+                          theme.accentBg,
                         )}
-                        {teacher.teacherClasses.map((tc) => (
-                          <Badge
-                            key={`${tc.classId}-${tc.subjectId || 'all'}`}
-                            variant="outline"
-                            className={cn(
-                              'border-border/80 text-[11px] font-medium shadow-none',
-                              theme.badge,
-                            )}
-                          >
-                            {tc.class.name}
-                            {tc.subject?.name ? ` (${tc.subject.name})` : ''}
-                          </Badge>
-                        ))}
+                      >
+                        <BookOpen className={cn('mb-1 h-4 w-4', theme.iconColor)} />
+                        <span className={cn('text-base font-bold', theme.accentText)}>
+                          {assignedCount}
+                        </span>
+                        <span className="text-muted-foreground text-[10px]">Subjects</span>
+                      </div>
+                      <div
+                        className={cn(
+                          'flex flex-col items-center rounded-xl px-2 py-2.5 transition-colors',
+                          theme.accentBg,
+                        )}
+                      >
+                        <CheckCircle2 className={cn('mb-1 h-4 w-4', theme.iconColor)} />
+                        <span className={cn('text-base font-bold', theme.accentText)}>
+                          {teacher.progressPercentage ?? 0}%
+                        </span>
+                        <span className="text-muted-foreground text-[10px]">Progress</span>
                       </div>
                     </div>
 
-                    {/* Right Side: Stacked Status Badge directly above the Actions Layout */}
-                    <div className="flex shrink-0 flex-col items-end gap-2 self-end sm:self-center">
-                      {/* Status Badge Positioned Precisely Above */}
-                      <div>{teacherStatusBadge(status)}</div>
+                    {/* View progress button */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mb-3 w-full text-xs"
+                      onClick={() => {
+                        window.location.href = `/admin/teachers/${teacher.id}`;
+                      }}
+                    >
+                      <Eye className="mr-1.5 h-3 w-3" />
+                      View details
+                    </Button>
 
-                      {/* Action Icon Row */}
-                      <div className="bg-background/40 border-border/40 flex items-center gap-1.5 rounded-lg border p-1 sm:border-none sm:bg-transparent sm:p-0">
-                        <Link href={`/admin/teachers/${teacher.id}`}>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="hover:bg-muted bg-background border-border/40 text-muted-foreground hover:text-foreground h-8 w-8 rounded-md border shadow-sm transition-colors"
-                            title="View profile details"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </Link>
+                    {/* Subject badges */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {teacher.teacherClasses.length === 0 && (
+                        <Badge variant="secondary" className="text-[10px]">
+                          No subjects assigned
+                        </Badge>
+                      )}
+                      {teacher.teacherClasses.slice(0, 3).map((tc) => (
+                        <Badge
+                          key={`${tc.classId}-${tc.subjectId || 'all'}`}
+                          variant="outline"
+                          className="text-[10px]"
+                        >
+                          {tc.subject?.name || tc.class.name}
+                        </Badge>
+                      ))}
+                      {teacher.teacherClasses.length > 3 && (
+                        <Badge variant="secondary" className="text-[10px]">
+                          +{teacher.teacherClasses.length - 3} more
+                        </Badge>
+                      )}
+                    </div>
 
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="hover:bg-muted bg-background border-border/40 h-8 w-8 rounded-md border shadow-sm transition-colors"
-                          title={status === 'SUSPENDED' ? 'Reactivate teacher' : 'Suspend teacher'}
-                          disabled={updateStatus.isPending}
-                          onClick={() =>
-                            updateStatus.mutate({
-                              id: teacher.id,
-                              status: status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED',
-                            })
+                    {/* Actions */}
+                    <div className="mt-3 flex items-center justify-end gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-muted-foreground hover:text-foreground h-7 w-7"
+                        onClick={() => {
+                          updateStatus.mutate({
+                            id: teacher.id,
+                            status: status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED',
+                          });
+                        }}
+                        disabled={updateStatus.isPending}
+                      >
+                        {status === 'SUSPENDED' ? (
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                        ) : (
+                          <Ban className="h-3.5 w-3.5 text-amber-600" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7"
+                        onClick={() => {
+                          if (confirm('Permanently delete this teacher?')) {
+                            deleteTeacher.mutate(teacher.id);
                           }
-                        >
-                          {status === 'SUSPENDED' ? (
-                            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                          ) : (
-                            <Ban className="h-4 w-4 text-amber-600" />
-                          )}
-                        </Button>
-
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10 bg-background border-border/40 h-8 w-8 rounded-md border shadow-sm transition-colors"
-                          title="Delete teacher"
-                          onClick={() => {
-                            if (
-                              confirm(
-                                'Permanently delete this teacher? They will be removed from the system.',
-                              )
-                            ) {
-                              deleteTeacher.mutate(teacher.id);
-                            }
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                        }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         )}
       </div>
 

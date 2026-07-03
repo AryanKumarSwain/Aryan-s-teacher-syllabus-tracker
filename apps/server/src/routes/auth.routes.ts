@@ -3,6 +3,7 @@ import { authController } from '../controllers/auth.controller.js';
 import { authenticate } from '../middleware/auth.js';
 import { validateBody } from '../middleware/validate.js';
 import {
+  completeGoogleProfileSchema,
   loginSchema,
   refreshSchema,
   registerSchema,
@@ -25,3 +26,11 @@ authRoutes.post(
   validateBody(verifyOtpSchema),
   authController.verifyOtpAndChangePassword,
 );
+authRoutes.post(
+  '/complete-google-profile',
+  authenticate,
+  validateBody(completeGoogleProfileSchema),
+  authController.completeGoogleProfile,
+);
+authRoutes.get('/google', authController.googleAuth);
+authRoutes.get('/google/callback', authController.googleCallback);

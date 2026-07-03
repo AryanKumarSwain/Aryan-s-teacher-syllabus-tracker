@@ -39,33 +39,35 @@ export const syllabusService = {
       prisma.class.count({ where }),
     ]);
 
-    if (!teacherId || items.length === 0) {
+    if (items.length === 0) {
       return { items, total, page, pageSize };
     }
 
     const classIds = items.map((cls) => cls.id);
 
-    // Get assigned subject IDs for this teacher
-    const teacherSubjects = await prisma.teacherClass.findMany({
-      where: { teacherId, classId: { in: classIds } },
-      select: { subjectId: true, classId: true },
-    });
+    // For teachers: get assigned subject IDs
+    // For admins: get all subject IDs
+    let allSubjectIds: string[] = [];
+    if (teacherId) {
+      const teacherSubjects = await prisma.teacherClass.findMany({
+        where: { teacherId, classId: { in: classIds } },
+        select: { subjectId: true, classId: true },
+      });
 
-    const subjectIdsByClass = teacherSubjects.reduce<Record<string, string[]>>((acc, ts) => {
-      if (ts.classId) {
-        if (!acc[ts.classId]) {
-          acc[ts.classId] = [];
-        }
-        if (ts.subjectId) {
-          acc[ts.classId]!.push(ts.subjectId);
-        }
-      }
-      return acc;
-    }, {});
-
-    const allSubjectIds = teacherSubjects
-      .map((ts) => ts.subjectId)
-      .filter((id): id is string => id !== null);
+      allSubjectIds = teacherSubjects
+        .map((ts) => ts.subjectId)
+        .filter((id): id is string => id !== null);
+    } else {
+      // Admin: get all subjects for these classes
+      const subjects = await prisma.subject.findMany({
+        where: withTenant(schoolId, {
+          classId: { in: classIds },
+          ...softDeleteFilter(),
+        }),
+        select: { id: true },
+      });
+      allSubjectIds = subjects.map((s) => s.id);
+    }
 
     const chapters = await prisma.chapter.findMany({
       where: withTenant(schoolId, {
@@ -76,10 +78,13 @@ export const syllabusService = {
       select: { id: true, classId: true },
     });
     const chapterIds = chapters.map((chapter) => chapter.id);
+
+    // For teachers: get their completed chapters
+    // For admins: get any completed chapters
     const completedProgress = await prisma.chapterProgress.findMany({
       where: {
         schoolId,
-        teacherId,
+        ...(teacherId && { teacherId }),
         chapterId: { in: chapterIds },
         chapterStatus: 'COMPLETED',
       },
@@ -243,10 +248,19 @@ export const syllabusService = {
       select: {
         id: true,
         subjectId: true,
-        chapterProgress: {
-          where: { chapterStatus: 'COMPLETED' },
-          select: { chapterStatus: true },
-        },
+        chapterProgress: teacherId
+          ? {
+              where: { teacherId },
+              select: {
+                teachingCompleted: true,
+                qaCompleted: true,
+                chapterStatus: true,
+              },
+            }
+          : {
+              where: { chapterStatus: 'COMPLETED' },
+              select: { chapterStatus: true },
+            },
       },
     });
 
@@ -257,8 +271,20 @@ export const syllabusService = {
       const current = subjectProgressMap.get(chapter.subjectId) ?? { total: 0, completed: 0 };
       current.total += 1;
       if (chapter.chapterProgress.length > 0) {
-        current.completed += 1;
-        completedChapters += 1;
+        const progress = chapter.chapterProgress[0];
+        if (!progress) {
+          subjectProgressMap.set(chapter.subjectId, current);
+          continue;
+        }
+        // For teachers: count as completed if teaching OR Q/A is done
+        // For admin: count as completed if chapterStatus is COMPLETED
+        const isCompleted = teacherId
+          ? 'teachingCompleted' in progress && (progress.teachingCompleted || progress.qaCompleted)
+          : progress.chapterStatus === 'COMPLETED';
+        if (isCompleted) {
+          current.completed += 1;
+          completedChapters += 1;
+        }
       }
       subjectProgressMap.set(chapter.subjectId, current);
     }

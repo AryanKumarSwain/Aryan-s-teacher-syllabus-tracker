@@ -146,7 +146,109 @@ export const teacherService = {
       prisma.teacher.count({ where }),
     ]);
 
-    return { items, total, page, pageSize };
+    // Calculate progress for each teacher based on topics (not chapters)
+    const itemsWithProgress = await Promise.all(
+      items.map(async (teacher) => {
+        const assignedSubjectIds = teacher.teacherClasses
+          .map((tc) => tc.subject?.id)
+          .filter((s): s is string => Boolean(s));
+
+        // Get all topics from assigned subjects
+        const topicsFromSubjects = await prisma.topic.findMany({
+          where: {
+            schoolId,
+            chapter: { subjectId: { in: assignedSubjectIds }, deletedAt: null },
+            deletedAt: null,
+          },
+          select: { id: true },
+        });
+
+        const totalTopics = topicsFromSubjects.length;
+
+        // Get topic progress for this teacher
+        const topicProgress = await prisma.topicProgress.findMany({
+          where: {
+            schoolId,
+            teacherId: teacher.id,
+            topicId: { in: topicsFromSubjects.map((t) => t.id) },
+          },
+          include: {
+            topic: {
+              select: {
+                chapterId: true,
+              },
+            },
+          },
+        });
+
+        const completedTopics = topicProgress.filter((tp) => tp.status === 'COMPLETED').length;
+
+        // Get chapter progress for this teacher
+        const chapterProgress = await prisma.chapterProgress.findMany({
+          where: {
+            schoolId,
+            teacherId: teacher.id,
+            chapter: { subjectId: { in: assignedSubjectIds } },
+          },
+          include: {
+            chapter: {
+              include: {
+                topics: true,
+              },
+            },
+          },
+        });
+
+        // Add topics from completed chapters
+        chapterProgress.forEach((cp) => {
+          if (cp.chapterStatus === 'COMPLETED') {
+            const chapterTopics = cp.chapter.topics;
+            const alreadyCountedTopics = topicProgress
+              .filter((tp) => tp.topic.chapterId === cp.chapterId)
+              .map((tp) => tp.topicId);
+
+            chapterTopics.forEach((topic) => {
+              if (!alreadyCountedTopics.includes(topic.id)) {
+                // Check if this topic is in assigned topics
+                if (topicsFromSubjects.some((t) => t.id === topic.id)) {
+                  // We need to track this separately since we can't modify completedTopics after calculation
+                }
+              }
+            });
+          }
+        });
+
+        // Recalculate with chapter progress included
+        let totalCompletedTopics = completedTopics;
+        chapterProgress.forEach((cp) => {
+          if (cp.chapterStatus === 'COMPLETED') {
+            const chapterTopics = cp.chapter.topics;
+            const alreadyCountedTopics = topicProgress
+              .filter((tp) => tp.topic.chapterId === cp.chapterId)
+              .map((tp) => tp.topicId);
+
+            chapterTopics.forEach((topic) => {
+              if (
+                !alreadyCountedTopics.includes(topic.id) &&
+                topicsFromSubjects.some((t) => t.id === topic.id)
+              ) {
+                totalCompletedTopics++;
+              }
+            });
+          }
+        });
+
+        const progressPercentage =
+          totalTopics > 0 ? Math.round((totalCompletedTopics / totalTopics) * 100) : 0;
+
+        return {
+          ...teacher,
+          progressPercentage,
+        };
+      }),
+    );
+
+    return { items: itemsWithProgress, total, page, pageSize };
   },
 
   async bulkCreate(
@@ -441,35 +543,80 @@ export const teacherService = {
       .map((tc) => tc.subject?.id)
       .filter((s): s is string => Boolean(s));
 
-    const totalChapters =
-      assignedSubjectIds.length > 0
-        ? await prisma.chapter.count({
-            where: { schoolId, subjectId: { in: assignedSubjectIds }, deletedAt: null },
-          })
-        : 0;
+    // Get all topics from assigned subjects
+    const topicsFromSubjects = await prisma.topic.findMany({
+      where: {
+        schoolId,
+        chapter: { subjectId: { in: assignedSubjectIds }, deletedAt: null },
+        deletedAt: null,
+      },
+      select: { id: true },
+    });
 
-    const chapterProgress =
-      assignedSubjectIds.length > 0
-        ? await prisma.chapterProgress.findMany({
-            where: {
-              schoolId,
-              teacherId: id,
-              chapter: { subjectId: { in: assignedSubjectIds } },
-            },
-            include: { chapter: { select: { id: true, title: true } } },
-          })
-        : [];
+    const totalTopics = topicsFromSubjects.length;
 
-    const completedChapters = chapterProgress.filter((p) => p.chapterStatus === 'COMPLETED').length;
+    // Get topic progress for this teacher
+    const topicProgress = await prisma.topicProgress.findMany({
+      where: {
+        schoolId,
+        teacherId: id,
+        topicId: { in: topicsFromSubjects.map((t) => t.id) },
+      },
+      include: {
+        topic: {
+          select: {
+            chapterId: true,
+          },
+        },
+      },
+    });
+
+    const completedTopics = topicProgress.filter((tp) => tp.status === 'COMPLETED').length;
+
+    // Get chapter progress for this teacher
+    const chapterProgress = await prisma.chapterProgress.findMany({
+      where: {
+        schoolId,
+        teacherId: id,
+        chapter: { subjectId: { in: assignedSubjectIds } },
+      },
+      include: {
+        chapter: {
+          include: {
+            topics: true,
+          },
+        },
+      },
+    });
+
+    // Add topics from completed chapters
+    let totalCompletedTopics = completedTopics;
+    chapterProgress.forEach((cp) => {
+      if (cp.chapterStatus === 'COMPLETED') {
+        const chapterTopics = cp.chapter.topics;
+        const alreadyCountedTopics = topicProgress
+          .filter((tp) => tp.topic.chapterId === cp.chapterId)
+          .map((tp) => tp.topicId);
+
+        chapterTopics.forEach((topic) => {
+          if (
+            !alreadyCountedTopics.includes(topic.id) &&
+            topicsFromSubjects.some((t) => t.id === topic.id)
+          ) {
+            totalCompletedTopics++;
+          }
+        });
+      }
+    });
 
     const progressPercentage =
-      totalChapters > 0 ? Math.round((completedChapters / totalChapters) * 100) : 0;
+      totalTopics > 0 ? Math.round((totalCompletedTopics / totalTopics) * 100) : 0;
 
     return {
       ...teacher,
-      chapterProgress,
-      totalChapters,
-      completedChapters,
+      chapterProgress, // Include chapter progress for frontend
+      totalChapters: totalTopics, // Renamed for frontend compatibility
+      completedChapters: totalCompletedTopics, // Renamed for frontend compatibility
       progressPercentage,
     };
   },

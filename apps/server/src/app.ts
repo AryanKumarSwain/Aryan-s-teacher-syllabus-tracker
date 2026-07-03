@@ -4,9 +4,11 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+import session from 'express-session';
 import { env } from './config/env.js';
 import { apiRouter } from './routes/index.js';
 import { errorHandler } from './middleware/error-handler.js';
+import { passport } from './config/passport.js';
 
 export function createApp() {
   const app = express();
@@ -22,6 +24,25 @@ export function createApp() {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
+
+  // Session middleware for passport
+  app.use(
+    session({
+      secret: env.JWT_SECRET,
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: env.NODE_ENV === 'production',
+        httpOnly: true,
+        sameSite: 'none' as const,
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      },
+    }),
+  );
+
+  // Initialize passport
+  app.use(passport.initialize());
+  app.use(passport.session());
 
   app.use(
     rateLimit({

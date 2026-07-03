@@ -7,6 +7,9 @@ import { prisma } from '@school-syllabus/database';
 import { AppError } from '../middleware/error-handler.js';
 import bcrypt from 'bcryptjs';
 import { sendOtpEmail } from '../emails/send-otp-email.js';
+import passport from 'passport';
+import { env } from '../config/env.js';
+import { createSessionId, signAccessToken, signRefreshToken, hashToken } from '../utils/jwt.js';
 
 // In-memory OTP store: userId → { otp, expiresAt }
 // For production use Redis, but this works for single-server setups
@@ -14,6 +17,32 @@ const otpStore = new Map<string, { otp: string; expiresAt: number }>();
 
 function generateOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+async function createAuthSession(res: Response, user: any) {
+  const sessionId = createSessionId();
+  const payload = {
+    sub: user.id,
+    email: user.email,
+    role: user.role,
+    schoolId: user.schoolId,
+    sessionId,
+  };
+
+  const accessToken = signAccessToken(payload);
+  const refreshToken = signRefreshToken(payload);
+
+  await prisma.refreshToken.create({
+    data: {
+      userId: user.id,
+      tokenHash: hashToken(refreshToken),
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  authService.setAuthCookies(res, accessToken, refreshToken);
+
+  return { accessToken, refreshToken, payload };
 }
 
 export const authController = {
@@ -82,6 +111,17 @@ export const authController = {
         }
       }
 
+      let school: { id: string; name: string; currentAcademicSessionId: string | null } | undefined;
+      if (user.schoolId) {
+        const schoolData = await prisma.school.findUnique({
+          where: { id: user.schoolId },
+          select: { id: true, name: true, currentAcademicSessionId: true },
+        });
+        if (schoolData) {
+          school = schoolData;
+        }
+      }
+
       sendSuccess(res, {
         id: user.id,
         email: user.email,
@@ -90,8 +130,7 @@ export const authController = {
         schoolId: user.schoolId,
         teacherId,
         avatar: user.avatar,
-        school: user.school,
-        teacher: user.teacher,
+        school,
       });
     } catch (err) {
       next(err);
@@ -199,6 +238,95 @@ export const authController = {
       otpStore.delete(userId);
 
       sendSuccess(res, { message: 'Password changed successfully' });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // Google OAuth - initiate authentication
+  async googleAuth(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
+        throw new AppError('Google OAuth is not configured', 500);
+      }
+      passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // Google OAuth - callback handler
+  async googleCallback(req: Request, res: Response, next: NextFunction) {
+    try {
+      passport.authenticate(
+        'google',
+        { failureRedirect: '/login?error=google_auth_failed' },
+        async (err, user) => {
+          if (err || !user) {
+            return res.redirect(`${env.APP_URL}/login?error=google_auth_failed`);
+          }
+
+          // Create a session cookie for the user before redirecting.
+          await createAuthSession(res, user);
+
+          if (!user.phone || !user.schoolId) {
+            return res.redirect(`${env.APP_URL}/complete-profile`);
+          }
+
+          const roleRedirects: Record<string, string> = {
+            SUPER_ADMIN: '/super-admin',
+            SCHOOL_ADMIN: '/admin',
+            TEACHER: '/teacher',
+          };
+
+          const redirectPath = roleRedirects[user.role] || '/';
+          res.redirect(`${env.APP_URL}${redirectPath}`);
+        },
+      )(req, res, next);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // Complete Google profile - add school name and phone
+  async completeGoogleProfile(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user!.sub;
+      const { schoolName, phone } = req.body as { schoolName: string; phone: string };
+
+      // Create school for the user
+      const school = await prisma.school.create({
+        data: {
+          name: schoolName,
+          status: 'ACTIVE',
+          subscriptionStatus: 'TRIAL',
+          trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days trial
+        },
+      });
+
+      // Update user with phone and schoolId
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: {
+          phone,
+          schoolId: school.id,
+        },
+      });
+
+      // Refresh the auth token so the user's schoolId is included in the JWT payload.
+      await createAuthSession(res, updatedUser);
+
+      sendSuccess(res, {
+        user: {
+          id: updatedUser.id,
+          email: updatedUser.email,
+          name: updatedUser.name,
+          role: updatedUser.role,
+          schoolId: updatedUser.schoolId,
+          phone: updatedUser.phone,
+        },
+        school,
+      });
     } catch (err) {
       next(err);
     }

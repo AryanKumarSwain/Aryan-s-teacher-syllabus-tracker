@@ -16,7 +16,12 @@ export const registerSchema = z.object({
     .regex(/[a-z]/, 'Must contain lowercase')
     .regex(/\d/, 'Must contain number')
     .regex(/[@$!%*?&#^()_+\-=[\]{};':"\\|,.<>/]/, 'Must contain special character'),
-  phone: z.string().optional(),
+  phone: z.string().min(10, 'Phone number must be at least 10 digits'),
+});
+
+export const completeGoogleProfileSchema = z.object({
+  schoolName: z.string().min(2, 'School name must be at least 2 characters'),
+  phone: z.string().min(10, 'Phone number must be at least 10 digits'),
 });
 
 export const refreshSchema = z.object({

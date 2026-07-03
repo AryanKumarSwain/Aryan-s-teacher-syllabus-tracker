@@ -7,7 +7,14 @@ import { api, setAccessTokenGetter } from '@/services/api-client';
 import { useAuthStore } from '@/store/auth-store';
 
 // FIXED: Added the landing page path '/' explicitly as a public route
-const PUBLIC_PATHS = ['/', '/login', '/register', '/unauthorized', '/forbidden'];
+const PUBLIC_PATHS = [
+  '/',
+  '/login',
+  '/register',
+  '/unauthorized',
+  '/forbidden',
+  '/complete-profile',
+];
 
 const roleHome: Record<UserRole, string> = {
   [UserRole.SUPER_ADMIN]: '/super-admin',
@@ -41,6 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               schoolId: me.schoolId,
               teacherId: me.teacherId,
               avatar: me.avatar,
+              school: me.school,
             },
             useAuthStore.getState().accessToken || 'cookie-session',
           );

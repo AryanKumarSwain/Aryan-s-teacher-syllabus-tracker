@@ -19,6 +19,8 @@ async function main() {
   await prisma.chapter.deleteMany({});
   await prisma.subject.deleteMany({});
   await prisma.class.deleteMany({});
+  await prisma.academicTerm.deleteMany({});
+  await prisma.academicSession.deleteMany({}); // Clear academic sessions safely
   await prisma.subscription.deleteMany({});
   await prisma.user.deleteMany({
     where: { role: { in: ['SUPER_ADMIN', 'SCHOOL_ADMIN', 'TEACHER'] } },
@@ -59,7 +61,7 @@ async function main() {
   });
 
   // =================================================================
-  // 4. DEMO SCHOOL
+  // 4. DEMO SCHOOL & ACADEMIC SESSION
   // =================================================================
   const demoSchool = await prisma.school.upsert({
     where: { slug: 'demo-academy' },
@@ -87,6 +89,21 @@ async function main() {
     },
   });
 
+  // Create active session required by child relational tables
+  const academicSession = await prisma.academicSession.create({
+    data: {
+      schoolId: demoSchool.id,
+      name: '2026-27',
+      status: 'ACTIVE',
+    },
+  });
+
+  // Wire current session ID directly back to the school config
+  await prisma.school.update({
+    where: { id: demoSchool.id },
+    data: { currentAcademicSessionId: academicSession.id },
+  });
+
   // =================================================================
   // 5. SCHOOL ADMIN
   // =================================================================
@@ -108,16 +125,20 @@ async function main() {
   console.log('⏳ Creating 10 teachers...');
 
   const teacherData = [
-    { email: 'aryankumarswain99@gmail.com', password: 'aryankumarswain99@gmail.com', name: 'Aryan Kumar Swain' },
-    { email: 'teacher2@demoacademy.edu',    password: 'Teacher2@123',                name: 'Priya Sharma'      },
-    { email: 'teacher3@demoacademy.edu',    password: 'Teacher3@123',                name: 'Rahul Verma'       },
-    { email: 'teacher4@demoacademy.edu',    password: 'Teacher4@123',                name: 'Sneha Patel'       },
-    { email: 'teacher5@demoacademy.edu',    password: 'Teacher5@123',                name: 'Vikram Singh'      },
-    { email: 'teacher6@demoacademy.edu',    password: 'Teacher6@123',                name: 'Meera Nair'        },
-    { email: 'teacher7@demoacademy.edu',    password: 'Teacher7@123',                name: 'Amit Joshi'        },
-    { email: 'teacher8@demoacademy.edu',    password: 'Teacher8@123',                name: 'Kavitha Reddy'     },
-    { email: 'teacher9@demoacademy.edu',    password: 'Teacher9@123',                name: 'Suresh Yadav'      },
-    { email: 'teacher10@demoacademy.edu',   password: 'Teacher10@123',               name: 'Anita Desai'       },
+    {
+      email: 'aryankumarswain99@gmail.com',
+      password: 'aryankumarswain99@gmail.com',
+      name: 'Aryan Kumar Swain',
+    },
+    { email: 'teacher2@demoacademy.edu', password: 'Teacher2@123', name: 'Priya Sharma' },
+    { email: 'teacher3@demoacademy.edu', password: 'Teacher3@123', name: 'Rahul Verma' },
+    { email: 'teacher4@demoacademy.edu', password: 'Teacher4@123', name: 'Sneha Patel' },
+    { email: 'teacher5@demoacademy.edu', password: 'Teacher5@123', name: 'Vikram Singh' },
+    { email: 'teacher6@demoacademy.edu', password: 'Teacher6@123', name: 'Meera Nair' },
+    { email: 'teacher7@demoacademy.edu', password: 'Teacher7@123', name: 'Amit Joshi' },
+    { email: 'teacher8@demoacademy.edu', password: 'Teacher8@123', name: 'Kavitha Reddy' },
+    { email: 'teacher9@demoacademy.edu', password: 'Teacher9@123', name: 'Suresh Yadav' },
+    { email: 'teacher10@demoacademy.edu', password: 'Teacher10@123', name: 'Anita Desai' },
   ];
 
   const createdTeacherIds: string[] = [];
@@ -139,7 +160,7 @@ async function main() {
     const teacherRecord = await prisma.teacher.create({
       data: {
         status: 'ACTIVE',
-        user:   { connect: { id: userRecord.id } },
+        user: { connect: { id: userRecord.id } },
         school: { connect: { id: demoSchool.id } },
       },
     });
@@ -159,6 +180,7 @@ async function main() {
     const dbClass = await prisma.class.create({
       data: {
         schoolId: demoSchool.id,
+        academicSessionId: academicSession.id, // Link to active academic session
         name: `Class ${g}`,
         grade: `${g}`,
         section: 'A',
@@ -175,21 +197,21 @@ async function main() {
   console.log('⏳ Creating subjects, chapters & topics...');
 
   const subjectDefinitions = [
-    { name: 'Mathematics',        code: 'MATH', color: '#3b82f6' },
-    { name: 'Physics',            code: 'PHY',  color: '#06b6d4' },
-    { name: 'Chemistry',          code: 'CHEM', color: '#f59e0b' },
-    { name: 'Biology',            code: 'BIO',  color: '#10b981' },
-    { name: 'English',            code: 'ENG',  color: '#a855f7' },
-    { name: 'Hindi',              code: 'HIN',  color: '#ec4899' },
-    { name: 'History',            code: 'HIST', color: '#b45309' },
-    { name: 'Geography',          code: 'GEO',  color: '#0ea5e9' },
-    { name: 'Civics',             code: 'CIV',  color: '#84cc16' },
-    { name: 'Economics',          code: 'ECO',  color: '#f97316' },
-    { name: 'Computer Science',   code: 'CS',   color: '#6366f1' },
-    { name: 'Physical Education', code: 'PE',   color: '#ef4444' },
-    { name: 'Art & Craft',        code: 'ART',  color: '#d946ef' },
-    { name: 'Music',              code: 'MUS',  color: '#14b8a6' },
-    { name: 'Sanskrit',           code: 'SAN',  color: '#78716c' },
+    { name: 'Mathematics', code: 'MATH', color: '#3b82f6' },
+    { name: 'Physics', code: 'PHY', color: '#06b6d4' },
+    { name: 'Chemistry', code: 'CHEM', color: '#f59e0b' },
+    { name: 'Biology', code: 'BIO', color: '#10b981' },
+    { name: 'English', code: 'ENG', color: '#a855f7' },
+    { name: 'Hindi', code: 'HIN', color: '#ec4899' },
+    { name: 'History', code: 'HIST', color: '#b45309' },
+    { name: 'Geography', code: 'GEO', color: '#0ea5e9' },
+    { name: 'Civics', code: 'CIV', color: '#84cc16' },
+    { name: 'Economics', code: 'ECO', color: '#f97316' },
+    { name: 'Computer Science', code: 'CS', color: '#6366f1' },
+    { name: 'Physical Education', code: 'PE', color: '#ef4444' },
+    { name: 'Art & Craft', code: 'ART', color: '#d946ef' },
+    { name: 'Music', code: 'MUS', color: '#14b8a6' },
+    { name: 'Sanskrit', code: 'SAN', color: '#78716c' },
   ];
 
   const chapterNames = [
@@ -207,6 +229,7 @@ async function main() {
       const dbSubject = await prisma.subject.create({
         data: {
           schoolId: demoSchool.id,
+          academicSessionId: academicSession.id, // Link to active academic session
           classId: cls.id,
           name: sub.name,
           code: `${sub.code}-${cls.grade}`,
@@ -216,24 +239,36 @@ async function main() {
       });
 
       for (let chIdx = 0; chIdx < chapterNames.length; chIdx++) {
-        // Explicitly selecting 'id' here fields validation mismatch bypass karne ke liye
         const dbChapter = await prisma.chapter.create({
           data: {
             schoolId: demoSchool.id,
+            academicSessionId: academicSession.id, // Link to active academic session
             subjectId: dbSubject.id,
             classId: cls.id,
             title: `Chapter ${chIdx + 1}: ${chapterNames[chIdx]}`,
             sortOrder: chIdx + 1,
           },
           select: {
-            id: true
-          }
+            id: true,
+          },
         });
 
         await prisma.topic.createMany({
           data: [
-            { schoolId: demoSchool.id, chapterId: dbChapter.id, title: 'Concept Introduction Lecture',  sortOrder: 1 },
-            { schoolId: demoSchool.id, chapterId: dbChapter.id, title: 'Assignment Worksheet Practice', sortOrder: 2 },
+            {
+              schoolId: demoSchool.id,
+              academicSessionId: academicSession.id,
+              chapterId: dbChapter.id,
+              title: 'Concept Introduction Lecture',
+              sortOrder: 1,
+            },
+            {
+              schoolId: demoSchool.id,
+              academicSessionId: academicSession.id,
+              chapterId: dbChapter.id,
+              title: 'Assignment Worksheet Practice',
+              sortOrder: 2,
+            },
           ],
         });
       }
@@ -253,6 +288,7 @@ async function main() {
     await prisma.teacherClass.create({
       data: {
         schoolId: demoSchool.id,
+        academicSessionId: academicSession.id, // Link to active academic session
         teacherId,
         classId: cls.id,
       },
@@ -275,7 +311,7 @@ async function main() {
   console.log('📖  Subjects : 15 per class  → 180 total');
   console.log('📝  Chapters : 5 per subject → 900 total');
   console.log('✏️   Topics   : 2 per chapter → 1800 total');
-  console.log('⚠️   Subjects NOT assigned to teachers — assign manually via admin UI');
+  console.log('⚠️  Subjects NOT assigned to teachers — assign manually via admin UI');
   console.log('─────────────────────────────────────────────────────────────────');
 }
 

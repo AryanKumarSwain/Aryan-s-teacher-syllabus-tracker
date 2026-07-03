@@ -2,16 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  Calendar,
-  Plus,
-  Trash2,
-  Calculator,
-  Pencil,
-  Filter,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
+import { Calendar, Plus, Trash2, Calculator, Pencil, Filter, ChevronDown } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +19,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/empty-state';
-import { Progress } from '@/components/ui/progress';
 import { api } from '@/services/api-client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -41,7 +31,13 @@ interface VacationDay {
   reason?: string;
 }
 
-interface AcademicTerm {
+interface Term {
+  name: string;
+  startDate: string;
+  endDate: string;
+}
+
+interface AcademicYear {
   id: string;
   name: string;
   startDate: string;
@@ -51,6 +47,7 @@ interface AcademicTerm {
   weeklyHolidays: number[];
   status: string;
   vacationDays: VacationDay[];
+  terms: Term[];
 }
 
 interface TimelineDay {
@@ -60,6 +57,14 @@ interface TimelineDay {
   isPast: boolean;
   isToday: boolean;
   weekNumber: number;
+  termIndex: number | null; // which term this day belongs to (0-based), null = between terms
+}
+
+interface MonthGroup {
+  monthKey: string;
+  year: number;
+  month: number;
+  cells: (TimelineDay | null)[];
 }
 
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -79,6 +84,41 @@ const monthNames = [
   'Dec',
 ];
 
+const TERM_COLORS = [
+  {
+    bg: 'bg-indigo-500',
+    light: 'bg-indigo-50',
+    border: 'border-indigo-200',
+    text: 'text-indigo-700',
+    ring: 'ring-indigo-300',
+    day: 'bg-indigo-100 text-indigo-800',
+  },
+  {
+    bg: 'bg-emerald-500',
+    light: 'bg-emerald-50',
+    border: 'border-emerald-200',
+    text: 'text-emerald-700',
+    ring: 'ring-emerald-300',
+    day: 'bg-emerald-100 text-emerald-800',
+  },
+  {
+    bg: 'bg-amber-500',
+    light: 'bg-amber-50',
+    border: 'border-amber-200',
+    text: 'text-amber-700',
+    ring: 'ring-amber-300',
+    day: 'bg-amber-100 text-amber-800',
+  },
+  {
+    bg: 'bg-rose-500',
+    light: 'bg-rose-50',
+    border: 'border-rose-200',
+    text: 'text-rose-700',
+    ring: 'ring-rose-300',
+    day: 'bg-rose-100 text-rose-800',
+  },
+];
+
 function getWeekNumber(date: Date): number {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const dayNum = d.getUTCDay() || 7;
@@ -92,6 +132,7 @@ function generateTimelineDays(
   endDate: string,
   weeklyHolidays: number[],
   vacationDays: VacationDay[],
+  terms: Term[],
 ): TimelineDay[] {
   const days: TimelineDay[] = [];
   const start = new Date(startDate);
@@ -99,20 +140,24 @@ function generateTimelineDays(
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Build vacation set using ISO date strings to avoid timezone issues
   const vacationSet = new Set(
     vacationDays.flatMap((vd) => {
       const dates: string[] = [];
       const s = new Date(vd.startDate);
-      const e = new Date(vd.endDate);
       s.setUTCHours(0, 0, 0, 0);
+      const e = new Date(vd.endDate);
       e.setUTCHours(0, 0, 0, 0);
-      for (let d = new Date(s); d <= e; d.setUTCDate(d.getUTCDate() + 1)) {
+      for (let d = new Date(s); d <= e; d.setUTCDate(d.getUTCDate() + 1))
         dates.push(d.toISOString().split('T')[0]!);
-      }
       return dates;
     }),
   );
+
+  // Build term ranges (ensure terms is an array)
+  const termRanges = (Array.isArray(terms) ? terms : []).map((t) => ({
+    start: new Date(t.startDate + 'T00:00:00Z'),
+    end: new Date(t.endDate + 'T00:00:00Z'),
+  }));
 
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const isoDate = d.toISOString().split('T')[0]!;
@@ -121,6 +166,8 @@ function generateTimelineDays(
     const isVacation = vacationSet.has(isoDate);
     const isPast = d < today;
     const isToday = isoDate === today.toISOString().split('T')[0];
+    const dUTC = new Date(isoDate + 'T00:00:00Z');
+    const termIndex = termRanges.findIndex((r) => dUTC >= r.start && dUTC <= r.end);
 
     days.push({
       date: isoDate,
@@ -129,90 +176,218 @@ function generateTimelineDays(
       isPast,
       isToday,
       weekNumber: getWeekNumber(d),
+      termIndex: termIndex >= 0 ? termIndex : null,
     });
   }
-
   return days;
+}
+
+// Groups a flat list of TimelineDay entries into per-month calendar grids.
+// Only months that actually contain a day from `days` will appear, and each
+// month's leading cells (before the 1st) are padded with null placeholders.
+function groupDaysByMonth(days: TimelineDay[]): MonthGroup[] {
+  const monthGroups: MonthGroup[] = [];
+  days.forEach((day) => {
+    const date = new Date(day.date + 'T00:00:00Z');
+    const year = date.getUTCFullYear(),
+      month = date.getUTCMonth();
+    const monthKey = `${year}-${month}`;
+    let mg = monthGroups.find((m) => m.monthKey === monthKey);
+    if (!mg) {
+      const firstOfMonth = new Date(Date.UTC(year, month, 1));
+      const startOffset = firstOfMonth.getUTCDay();
+      mg = { monthKey, year, month, cells: Array(startOffset).fill(null) };
+      monthGroups.push(mg);
+    }
+    mg.cells.push(day);
+  });
+  return monthGroups;
+}
+
+function fmt(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
 }
 
 export default function AcademicTimelinePage() {
   const schoolId = useSchoolId();
   const qc = useQueryClient();
+  const STORAGE_KEY = `academic-timeline-form-${schoolId || 'default'}`;
+
+  const loadFormState = () => {
+    try {
+      const s = localStorage.getItem(STORAGE_KEY);
+      return s ? JSON.parse(s) : null;
+    } catch {
+      return null;
+    }
+  };
+  const savedState = loadFormState();
 
   const [open, setOpen] = useState(false);
-  const [editingTerm, setEditingTerm] = useState<AcademicTerm | null>(null);
-  const [name, setName] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [weeklyHolidays, setWeeklyHolidays] = useState<number[]>([0]);
+  const [editingYear, setEditingYear] = useState<AcademicYear | null>(null);
+  const [yearName, setYearName] = useState(savedState?.yearName || '');
+  const [yearStartDate, setYearStartDate] = useState(savedState?.yearStartDate || '');
+  const [yearEndDate, setYearEndDate] = useState(savedState?.yearEndDate || '');
+  const [terms, setTerms] = useState<Term[]>(savedState?.terms || []);
+  const [weeklyHolidays, setWeeklyHolidays] = useState<number[]>(savedState?.weeklyHolidays || [0]);
   const [newVacationDay, setNewVacationDay] = useState<VacationDay>({
     startDate: '',
     endDate: '',
     reason: '',
   });
   const [vacationError, setVacationError] = useState('');
-  const [pendingVacations, setPendingVacations] = useState<VacationDay[]>([]);
+  const [pendingVacations, setPendingVacations] = useState<VacationDay[]>(
+    savedState?.pendingVacations || [],
+  );
   const [selectedTermId, setSelectedTermId] = useState<string>('');
   const [dayEditOpen, setDayEditOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState<TimelineDay | null>(null);
+  // which terms/sections are collapsed in the calendar legend
+  const [collapsedTerms, setCollapsedTerms] = useState<Record<number, boolean>>({});
+
+  // Persist selectedTermId to localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('selected-academic-year');
+    if (saved) setSelectedTermId(saved);
+  }, []);
+
+  useEffect(() => {
+    if (selectedTermId) {
+      localStorage.setItem('selected-academic-year', selectedTermId);
+    }
+  }, [selectedTermId]);
+
+  useEffect(() => {
+    if (open) {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          yearName,
+          yearStartDate,
+          yearEndDate,
+          terms,
+          weeklyHolidays,
+          pendingVacations,
+        }),
+      );
+    }
+  }, [
+    yearName,
+    yearStartDate,
+    yearEndDate,
+    terms,
+    weeklyHolidays,
+    pendingVacations,
+    open,
+    STORAGE_KEY,
+  ]);
+
+  useEffect(() => {
+    if (!open && !editingYear) localStorage.removeItem(STORAGE_KEY);
+  }, [open, editingYear, STORAGE_KEY]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['academic-terms', schoolId],
-    queryFn: () =>
-      api.getPaginated<AcademicTerm>('/academic-terms', schoolId ? { schoolId } : undefined),
+    queryFn: async () => {
+      // Query academic terms for current session only
+      const response = await api.getPaginated<any>(
+        '/academic-terms',
+        schoolId ? { schoolId } : undefined,
+      );
+      const items = response.items.map((year: any) => ({
+        ...year,
+        terms: typeof year.terms === 'string' ? JSON.parse(year.terms) : year.terms || [],
+        weeklyHolidays:
+          typeof year.weeklyHolidays === 'string'
+            ? JSON.parse(year.weeklyHolidays)
+            : year.weeklyHolidays || [],
+      }));
+      return { ...response, items };
+    },
     enabled: Boolean(schoolId),
   });
 
-  const terms = data?.items ?? [];
+  const academicYears = data?.items ?? [];
+  const timelineExists = academicYears.length > 0;
 
-  // Auto-select first term when data loads, preserve selection if still valid
+  // Ensure selectedTermId is valid (exists in academicYears)
   useEffect(() => {
-    if (terms.length > 0) {
-      const stillValid = terms.find((t) => t.id === selectedTermId);
-      if (!stillValid) {
-        setSelectedTermId(terms[0].id);
+    if (academicYears.length > 0) {
+      if (!selectedTermId || !academicYears.find((t) => t.id === selectedTermId)) {
+        // If no ID is set or saved ID doesn't exist, select the first available year
+        setSelectedTermId(academicYears[0]?.id || '');
       }
     }
-  }, [terms]);
+  }, [academicYears, selectedTermId]);
 
-  const selectedTerm = terms.find((t) => t.id === selectedTermId) ?? terms[0];
+  const selectedTerm = academicYears.find((t) => t.id === selectedTermId);
 
   const handleCreateClick = () => {
-    setEditingTerm(null);
-    setName('');
-    setStartDate('');
-    setEndDate('');
+    setEditingYear(null);
+    setYearName('');
+    setYearStartDate('');
+    setYearEndDate('');
     setWeeklyHolidays([0]);
+    setTerms([]);
     setPendingVacations([]);
     setNewVacationDay({ startDate: '', endDate: '', reason: '' });
     setVacationError('');
     setOpen(true);
   };
 
-  const handleEditClick = (term: AcademicTerm) => {
-    setEditingTerm(term);
-    setName(term.name);
-    setStartDate(term.startDate.split('T')[0]);
-    setEndDate(term.endDate.split('T')[0]);
-    setWeeklyHolidays(JSON.parse(term.weeklyHolidays as unknown as string));
+  const handleEditClick = (year: AcademicYear) => {
+    setEditingYear(year);
+    setYearName(year.name);
+    setYearStartDate(year.startDate.split('T')[0] || '');
+    setYearEndDate(year.endDate.split('T')[0] || '');
+    setWeeklyHolidays(
+      typeof year.weeklyHolidays === 'string'
+        ? JSON.parse(year.weeklyHolidays as unknown as string)
+        : year.weeklyHolidays || [],
+    );
+    // FIX 2: parse term dates so they show correctly in inputs
+    setTerms(
+      (year.terms || []).map((t: Term) => ({
+        name: t.name,
+        startDate: t.startDate ? t.startDate.split('T')[0] : '',
+        endDate: t.endDate ? t.endDate.split('T')[0] : '',
+      })),
+    );
     setNewVacationDay({ startDate: '', endDate: '', reason: '' });
     setVacationError('');
     setOpen(true);
   };
 
   const createMutation = useMutation({
-    mutationFn: () =>
-      api.post<AcademicTerm>('/academic-terms', {
+    mutationFn: () => {
+      if (!yearName || !yearStartDate || !yearEndDate)
+        throw new Error('Fill in all required fields');
+      if (!schoolId) throw new Error('School ID is required');
+      const formattedTerms = terms.map((t, i) => ({
+        name: t.name || `Term ${i + 1}`,
+        startDate: t.startDate || yearStartDate,
+        endDate: t.endDate || yearEndDate,
+      }));
+      const validVacations = pendingVacations.filter(
+        (vd) => vd.startDate && vd.endDate && vd.reason,
+      );
+      return api.post<AcademicYear>('/academic-terms', {
         schoolId,
-        name,
-        startDate,
-        endDate,
-        weeklyHolidays,
-        vacationDays: pendingVacations,
-      }),
+        name: yearName,
+        startDate: yearStartDate,
+        endDate: yearEndDate,
+        weeklyHolidays: weeklyHolidays || [0],
+        vacationDays: validVacations,
+        terms: formattedTerms,
+      });
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['academic-terms', schoolId] });
-      toast.success('Academic term created');
+      toast.success('Academic year created');
       setOpen(false);
     },
     onError: (e: Error) => toast.error(e.message),
@@ -220,15 +395,16 @@ export default function AcademicTimelinePage() {
 
   const updateMutation = useMutation({
     mutationFn: (id: string) =>
-      api.patch<AcademicTerm>(`/academic-terms/${id}`, {
-        name,
-        startDate,
-        endDate,
+      api.patch<AcademicYear>(`/academic-terms/${id}`, {
+        name: yearName,
+        startDate: yearStartDate,
+        endDate: yearEndDate,
         weeklyHolidays,
+        terms,
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['academic-terms', schoolId] });
-      toast.success('Academic term updated');
+      toast.success('Academic year updated');
       setOpen(false);
     },
     onError: (e: Error) => toast.error(e.message),
@@ -244,15 +420,13 @@ export default function AcademicTimelinePage() {
   });
 
   const handleSubmit = () => {
-    if (editingTerm) updateMutation.mutate(editingTerm.id);
+    if (editingYear) updateMutation.mutate(editingYear.id);
     else createMutation.mutate();
   };
-
-  const toggleWeeklyHoliday = (day: number) => {
+  const toggleWeeklyHoliday = (day: number) =>
     setWeeklyHolidays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
     );
-  };
 
   const addVacationDay = async () => {
     if (!newVacationDay.startDate || !newVacationDay.endDate) {
@@ -264,41 +438,37 @@ export default function AcademicTimelinePage() {
       return;
     }
     setVacationError('');
-
-    if (editingTerm) {
-      // Existing term — save to API immediately
+    if (editingYear) {
       try {
-        await api.post(`/academic-terms/${editingTerm.id}/vacation-days`, newVacationDay);
+        await api.post(`/academic-terms/${editingYear.id}/vacation-days`, newVacationDay);
         await qc.invalidateQueries({ queryKey: ['academic-terms', schoolId] });
-        const cached = qc.getQueryData<{ items: AcademicTerm[] }>(['academic-terms', schoolId]);
-        const fresh = cached?.items.find((t) => t.id === editingTerm.id);
-        if (fresh) setEditingTerm(fresh);
+        const cached = qc.getQueryData<{ items: AcademicYear[] }>(['academic-terms', schoolId]);
+        const fresh = cached?.items.find((t) => t.id === editingYear.id);
+        if (fresh) setEditingYear(fresh);
         setNewVacationDay({ startDate: '', endDate: '', reason: '' });
         toast.success('Vacation added');
       } catch (e: any) {
         toast.error(e.message);
       }
     } else {
-      // New term — store locally until create is submitted
       setPendingVacations((prev) => [...prev, { ...newVacationDay }]);
       setNewVacationDay({ startDate: '', endDate: '', reason: '' });
     }
   };
 
   const removeVacationDay = async (vacationId: string, index?: number) => {
-    if (editingTerm) {
+    if (editingYear) {
       try {
-        await api.delete(`/academic-terms/${editingTerm.id}/vacation-days/${vacationId}`);
+        await api.delete(`/academic-terms/${editingYear.id}/vacation-days/${vacationId}`);
         await qc.invalidateQueries({ queryKey: ['academic-terms', schoolId] });
-        const cached = qc.getQueryData<{ items: AcademicTerm[] }>(['academic-terms', schoolId]);
-        const fresh = cached?.items.find((t) => t.id === editingTerm.id);
-        if (fresh) setEditingTerm(fresh);
+        const cached = qc.getQueryData<{ items: AcademicYear[] }>(['academic-terms', schoolId]);
+        const fresh = cached?.items.find((t) => t.id === editingYear.id);
+        if (fresh) setEditingYear(fresh);
         toast.success('Vacation removed');
       } catch (e: any) {
         toast.error(e.message);
       }
     } else {
-      // Remove from pending list by index
       setPendingVacations((prev) => prev.filter((_, i) => i !== index));
     }
   };
@@ -311,15 +481,14 @@ export default function AcademicTimelinePage() {
   const toggleDayAsVacation = async () => {
     if (!selectedTerm || !selectedDay) return;
     try {
-      const existingVacation = selectedTerm.vacationDays?.find((vd) => {
-        const s = new Date(vd.startDate);
-        const e = new Date(vd.endDate);
-        const dayDate = new Date(selectedDay.date);
-        return dayDate >= s && dayDate <= e;
+      const existing = selectedTerm.vacationDays?.find((vd) => {
+        const s = new Date(vd.startDate),
+          e = new Date(vd.endDate),
+          dd = new Date(selectedDay.date);
+        return dd >= s && dd <= e;
       });
-
-      if (existingVacation) {
-        await api.delete(`/academic-terms/${selectedTerm.id}/vacation-days/${existingVacation.id}`);
+      if (existing) {
+        await api.delete(`/academic-terms/${selectedTerm.id}/vacation-days/${existing.id}`);
         toast.success('Day removed from vacation');
       } else {
         await api.post(`/academic-terms/${selectedTerm.id}/vacation-days`, {
@@ -329,7 +498,6 @@ export default function AcademicTimelinePage() {
         });
         toast.success('Day marked as vacation');
       }
-
       qc.invalidateQueries({ queryKey: ['academic-terms', schoolId] });
       setDayEditOpen(false);
     } catch (e: any) {
@@ -337,12 +505,47 @@ export default function AcademicTimelinePage() {
     }
   };
 
+  const activatedTerms = Array.isArray(selectedTerm?.terms) ? selectedTerm.terms : [];
+
+  // Auto-collapse terms based on today's date - expand only the term containing current date
+  useEffect(() => {
+    if (activatedTerms.length > 0) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayISO = today.toISOString().split('T')[0];
+
+      const initialCollapsed: Record<number, boolean> = {};
+      let hasActiveTerm = false;
+
+      activatedTerms.forEach((term, idx) => {
+        const isTodayInTerm =
+          todayISO >= term.startDate.split('T')[0]! && todayISO <= term.endDate.split('T')[0]!;
+        initialCollapsed[idx] = !isTodayInTerm; // Collapse if today is not in this term
+        if (isTodayInTerm) hasActiveTerm = true;
+      });
+
+      // If today is not in any term, expand the first term
+      if (!hasActiveTerm && activatedTerms.length > 0) {
+        initialCollapsed[0] = false;
+      }
+
+      setCollapsedTerms(initialCollapsed);
+    }
+  }, [activatedTerms]);
+
+  const weeklyHolidaysArr: number[] = selectedTerm
+    ? typeof selectedTerm.weeklyHolidays === 'string'
+      ? JSON.parse(selectedTerm.weeklyHolidays as unknown as string)
+      : selectedTerm.weeklyHolidays || []
+    : [];
+
   const timelineDays = selectedTerm
     ? generateTimelineDays(
         selectedTerm.startDate,
         selectedTerm.endDate,
-        JSON.parse(selectedTerm.weeklyHolidays as unknown as string),
+        weeklyHolidaysArr,
         selectedTerm.vacationDays,
+        activatedTerms,
       )
     : [];
 
@@ -351,32 +554,25 @@ export default function AcademicTimelinePage() {
   const progressPercentage =
     teachingDays.length > 0 ? (completedDays / teachingDays.length) * 100 : 0;
 
-  // Group days by month for a proper calendar grid
-  interface MonthGroup {
-    monthKey: string;
-    year: number;
-    month: number;
-    // A flat array of 42 slots (6 weeks × 7 days), null = empty padding cell
-    cells: (TimelineDay | null)[];
-  }
-  const monthGroups: MonthGroup[] = [];
-  timelineDays.forEach((day) => {
-    const date = new Date(day.date + 'T00:00:00Z');
-    const year = date.getUTCFullYear();
-    const month = date.getUTCMonth();
-    const monthKey = `${year}-${month}`;
-    let mg = monthGroups.find((m) => m.monthKey === monthKey);
-    if (!mg) {
-      // Find what day of week the 1st of this month falls on
-      const firstOfMonth = new Date(Date.UTC(year, month, 1));
-      const startOffset = firstOfMonth.getUTCDay(); // 0=Sun
-      mg = { monthKey, year, month, cells: Array(startOffset).fill(null) };
-      monthGroups.push(mg);
-    }
-    mg.cells.push(day);
+  // Month groups (fallback view when no terms are configured)
+  const monthGroups: MonthGroup[] = groupDaysByMonth(timelineDays);
+
+  // Per-term day/month groups so each term's calendar only shows its own date range
+  const termCalendars = activatedTerms.map((term) => {
+    const days =
+      term.startDate && term.endDate
+        ? generateTimelineDays(
+            term.startDate,
+            term.endDate,
+            weeklyHolidaysArr,
+            selectedTerm?.vacationDays || [],
+            activatedTerms,
+          )
+        : [];
+    return { term, monthGroups: groupDaysByMonth(days) };
   });
 
-  const liveVacationDays = terms.find((t) => t.id === editingTerm?.id)?.vacationDays ?? [];
+  const liveVacationDays = academicYears.find((t) => t.id === editingYear?.id)?.vacationDays ?? [];
 
   return (
     <DashboardShell title="Academic Timeline Configuration">
@@ -384,34 +580,50 @@ export default function AcademicTimelinePage() {
         {/* Header */}
         <div className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-lg font-semibold">Academic Terms</h2>
+            <h2 className="text-lg font-semibold">Academic Timeline</h2>
             <p className="text-muted-foreground text-sm">
-              Manage academic terms, holidays, and vacation days to calculate available teaching
-              days.
+              Manage the academic timeline, holidays, and vacation days to calculate available
+              teaching days.
             </p>
           </div>
-          <Button onClick={handleCreateClick}>
-            <Plus className="mr-2 h-4 w-4" /> Add academic term
-          </Button>
+          {!timelineExists && (
+            <Button onClick={handleCreateClick}>
+              <Plus className="mr-2 h-4 w-4" /> Create Timeline
+            </Button>
+          )}
+          {timelineExists && (
+            <div className="inline-flex items-center rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
+              <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span>To start a new year, please go to the dashboard and create a new session.</span>
+            </div>
+          )}
         </div>
 
-        {/* Term selector */}
-        <div className="flex flex-wrap gap-3">
-          <div className="bg-background flex items-center gap-2 rounded-md border px-3 py-1.5 shadow-sm">
-            <Filter className="text-muted-foreground h-4 w-4" />
-            <select
-              value={selectedTermId}
-              onChange={(e) => setSelectedTermId(e.target.value)}
-              className="cursor-pointer bg-transparent text-sm font-medium focus:outline-none"
-            >
-              {terms.map((term) => (
-                <option key={term.id} value={term.id}>
-                  {term.name}
-                </option>
-              ))}
-            </select>
+        {/* Term selector - only show if timeline exists */}
+        {timelineExists && (
+          <div className="flex flex-wrap gap-3">
+            <div className="bg-background flex items-center gap-2 rounded-md border px-3 py-1.5 shadow-sm">
+              <Filter className="text-muted-foreground h-4 w-4" />
+              <select
+                value={selectedTermId}
+                onChange={(e) => setSelectedTermId(e.target.value)}
+                className="cursor-pointer bg-transparent text-sm font-medium focus:outline-none"
+              >
+                {academicYears.map((year) => (
+                  <option key={year.id} value={year.id}>
+                    {year.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
+        )}
 
         {isLoading ? (
           <div className="grid gap-4 md:grid-cols-2">
@@ -419,16 +631,15 @@ export default function AcademicTimelinePage() {
               <Skeleton key={i} className="h-48 rounded-xl" />
             ))}
           </div>
-        ) : terms.length === 0 ? (
+        ) : academicYears.length === 0 ? (
           <EmptyState
             icon={Calendar}
-            title="No academic terms configured"
-            description="Create an academic term to start tracking teaching days and progress."
-            action={{ label: 'Add academic term', onClick: handleCreateClick }}
+            title="No academic timeline configured"
+            description="Create an academic timeline to start tracking teaching days and progress. You can do this once per academic session."
+            action={{ label: 'Create Timeline', onClick: handleCreateClick }}
           />
         ) : (
           <>
-            {/* Timeline Progress */}
             {selectedTerm && (
               <Card className="animate-in fade-in slide-in-from-top-2 border-2 transition-all duration-300">
                 <CardHeader>
@@ -473,74 +684,206 @@ export default function AcademicTimelinePage() {
                         <span>{label}</span>
                       </div>
                     ))}
-                  </div>
-
-                  {/* Day-by-Day Timeline — 3 months per row on desktop */}
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {monthGroups.map(({ monthKey, year, month, cells }) => {
-                      // Chunk cells into rows of 7
-                      const rows: (TimelineDay | null)[][] = [];
-                      for (let i = 0; i < cells.length; i += 7) {
-                        rows.push(cells.slice(i, i + 7));
-                      }
+                    {activatedTerms.map((t, i) => {
+                      const tc = TERM_COLORS[i % TERM_COLORS.length]!;
                       return (
-                        <div key={monthKey} className="animate-in fade-in duration-300">
-                          {/* Month header */}
-                          <div className="text-foreground mb-2 text-center text-sm font-bold">
-                            {monthNames[month]} {year}
-                          </div>
-                          {/* Day-of-week header */}
-                          <div className="mb-1 grid grid-cols-7 gap-0.5">
-                            {dayAbbr.map((d) => (
-                              <div
-                                key={d}
-                                className="text-muted-foreground text-center text-[10px] font-semibold"
-                              >
-                                {d}
-                              </div>
-                            ))}
-                          </div>
-                          {/* Calendar rows */}
-                          <div className="space-y-0.5">
-                            {rows.map((row, rowIdx) => (
-                              <div key={rowIdx} className="grid grid-cols-7 gap-0.5">
-                                {row.map((day, colIdx) => {
-                                  if (!day) {
-                                    return <div key={`empty-${colIdx}`} className="h-7" />;
-                                  }
-                                  const isTeachingDay = !day.isHoliday && !day.isVacation;
-                                  return (
-                                    <div
-                                      key={day.date}
-                                      onClick={() => handleDayClick(day)}
-                                      className={cn(
-                                        'flex h-7 cursor-pointer items-center justify-center rounded text-[11px] font-medium transition-all duration-100 hover:scale-110 hover:shadow-sm active:scale-95',
-                                        isTeachingDay &&
-                                          day.isPast &&
-                                          !day.isToday &&
-                                          'bg-green-500 text-white',
-                                        day.isToday &&
-                                          'bg-blue-500 text-white ring-2 ring-blue-300 ring-offset-1',
-                                        isTeachingDay &&
-                                          !day.isPast &&
-                                          !day.isToday &&
-                                          'bg-blue-100 text-blue-700',
-                                        day.isHoliday &&
-                                          'cursor-default bg-red-100 text-red-600 hover:scale-100',
-                                        day.isVacation && 'bg-orange-100 text-orange-700',
-                                      )}
-                                      title={`${day.date} — ${day.isHoliday ? 'Holiday' : day.isVacation ? 'Vacation' : 'Teaching Day'}`}
-                                    >
-                                      {new Date(day.date + 'T00:00:00Z').getUTCDate()}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            ))}
-                          </div>
+                        <div key={i} className="flex items-center gap-1.5">
+                          <div className={cn('h-3 w-3 rounded-full', tc.bg)} />
+                          <span>{t.name}</span>
                         </div>
                       );
                     })}
+                  </div>
+
+                  {/* Calendar grouped by Terms */}
+                  <div>
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Calendar by Term
+                    </p>
+                    {termCalendars.length > 0 ? (
+                      termCalendars.map(({ term, monthGroups: termMonthGroups }, tIdx) => {
+                        const tc = TERM_COLORS[tIdx % TERM_COLORS.length]!;
+                        const isCollapsed = collapsedTerms[tIdx];
+
+                        return (
+                          <div
+                            key={tIdx}
+                            className={cn(
+                              'mb-3 overflow-hidden rounded-xl border',
+                              tc.border,
+                              tc.light,
+                            )}
+                          >
+                            <button
+                              type="button"
+                              className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                              onClick={() => setCollapsedTerms((p) => ({ ...p, [tIdx]: !p[tIdx] }))}
+                            >
+                              <div className={cn('h-3 w-3 flex-shrink-0 rounded-full', tc.bg)} />
+                              <div className="min-w-0 flex-1">
+                                <span className={cn('text-sm font-bold', tc.text)}>
+                                  {term.name}
+                                </span>
+                                <span className="text-muted-foreground ml-2 text-xs">
+                                  {term.startDate ? fmt(term.startDate) : '—'} →{' '}
+                                  {term.endDate ? fmt(term.endDate) : '—'}
+                                </span>
+                              </div>
+                              <ChevronDown
+                                className={cn(
+                                  'h-4 w-4 transition-transform duration-200',
+                                  tc.text,
+                                  !isCollapsed && 'rotate-180',
+                                )}
+                              />
+                            </button>
+                            {!isCollapsed && (
+                              <div className="border-t px-4 py-4">
+                                {termMonthGroups.length === 0 ? (
+                                  <p className="text-muted-foreground py-3 text-center text-xs">
+                                    Set a start and end date for this term to see its calendar.
+                                  </p>
+                                ) : (
+                                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                    {termMonthGroups.map(({ monthKey, year, month, cells }) => {
+                                      const rows: (TimelineDay | null)[][] = [];
+                                      for (let i = 0; i < cells.length; i += 7)
+                                        rows.push(cells.slice(i, i + 7));
+                                      return (
+                                        <div key={monthKey}>
+                                          <div className="text-foreground mb-2 text-center text-sm font-bold">
+                                            {monthNames[month]} {year}
+                                          </div>
+                                          <div className="mb-1 grid grid-cols-7 gap-0.5">
+                                            {dayAbbr.map((d) => (
+                                              <div
+                                                key={d}
+                                                className="text-muted-foreground text-center text-[10px] font-semibold"
+                                              >
+                                                {d}
+                                              </div>
+                                            ))}
+                                          </div>
+                                          <div className="space-y-0.5">
+                                            {rows.map((row, rowIdx) => (
+                                              <div
+                                                key={rowIdx}
+                                                className="grid grid-cols-7 gap-0.5"
+                                              >
+                                                {row.map((day, colIdx) => {
+                                                  if (!day)
+                                                    return (
+                                                      <div
+                                                        key={`empty-${colIdx}`}
+                                                        className="h-7"
+                                                      />
+                                                    );
+                                                  const isTeachingDay =
+                                                    !day.isHoliday && !day.isVacation;
+                                                  return (
+                                                    <div
+                                                      key={day.date}
+                                                      onClick={() => handleDayClick(day)}
+                                                      className={cn(
+                                                        'flex h-7 cursor-pointer items-center justify-center rounded text-[11px] font-medium transition-all duration-100 hover:scale-110 hover:shadow-sm active:scale-95',
+                                                        isTeachingDay &&
+                                                          day.isPast &&
+                                                          !day.isToday &&
+                                                          'bg-green-500 text-white',
+                                                        day.isToday &&
+                                                          'bg-blue-500 text-white ring-2 ring-blue-300 ring-offset-1',
+                                                        isTeachingDay &&
+                                                          !day.isPast &&
+                                                          !day.isToday &&
+                                                          tc.day,
+                                                        day.isHoliday &&
+                                                          'cursor-default bg-red-100 text-red-600 hover:scale-100',
+                                                        day.isVacation &&
+                                                          'bg-orange-100 text-orange-700',
+                                                      )}
+                                                      title={`${day.date}`}
+                                                    >
+                                                      {new Date(
+                                                        day.date + 'T00:00:00Z',
+                                                      ).getUTCDate()}
+                                                    </div>
+                                                  );
+                                                })}
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        {monthGroups.map(({ monthKey, year, month, cells }) => {
+                          const rows: (TimelineDay | null)[][] = [];
+                          for (let i = 0; i < cells.length; i += 7)
+                            rows.push(cells.slice(i, i + 7));
+                          return (
+                            <div key={monthKey}>
+                              <div className="text-foreground mb-2 text-center text-sm font-bold">
+                                {monthNames[month]} {year}
+                              </div>
+                              <div className="mb-1 grid grid-cols-7 gap-0.5">
+                                {dayAbbr.map((d) => (
+                                  <div
+                                    key={d}
+                                    className="text-muted-foreground text-center text-[10px] font-semibold"
+                                  >
+                                    {d}
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="space-y-0.5">
+                                {rows.map((row, rowIdx) => (
+                                  <div key={rowIdx} className="grid grid-cols-7 gap-0.5">
+                                    {row.map((day, colIdx) => {
+                                      if (!day)
+                                        return <div key={`empty-${colIdx}`} className="h-7" />;
+                                      const isTeachingDay = !day.isHoliday && !day.isVacation;
+                                      return (
+                                        <div
+                                          key={day.date}
+                                          onClick={() => handleDayClick(day)}
+                                          className={cn(
+                                            'flex h-7 cursor-pointer items-center justify-center rounded text-[11px] font-medium transition-all duration-100 hover:scale-110 hover:shadow-sm active:scale-95',
+                                            isTeachingDay &&
+                                              day.isPast &&
+                                              !day.isToday &&
+                                              'bg-green-500 text-white',
+                                            day.isToday &&
+                                              'bg-blue-500 text-white ring-2 ring-blue-300 ring-offset-1',
+                                            isTeachingDay &&
+                                              !day.isPast &&
+                                              !day.isToday &&
+                                              'bg-blue-100 text-blue-700',
+                                            day.isHoliday &&
+                                              'cursor-default bg-red-100 text-red-600 hover:scale-100',
+                                            day.isVacation && 'bg-orange-100 text-orange-700',
+                                          )}
+                                          title={`${day.date}`}
+                                        >
+                                          {new Date(day.date + 'T00:00:00Z').getUTCDate()}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
 
                   {/* Stats */}
@@ -573,18 +916,18 @@ export default function AcademicTimelinePage() {
               </Card>
             )}
 
-            {/* Academic Terms Grid */}
+            {/* Academic Years Grid */}
             <div className="grid gap-4 md:grid-cols-2">
-              {terms.map((term, i) => (
+              {academicYears.map((year, i) => (
                 <div
-                  key={term.id}
+                  key={year.id}
                   className="animate-in fade-in slide-in-from-bottom-2 group relative rounded-xl duration-200"
                   style={{ animationDelay: `${i * 60}ms` }}
                 >
                   <Card
                     className={cn(
                       'h-full border transition-all duration-300 hover:shadow-md',
-                      selectedTermId === term.id
+                      selectedTermId === year.id
                         ? 'shadow-md ring-2 ring-blue-500'
                         : 'border-blue-200 bg-blue-50/40 dark:border-blue-900/50 dark:bg-blue-950/10',
                     )}
@@ -593,15 +936,15 @@ export default function AcademicTimelinePage() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="line-clamp-1 text-lg font-bold tracking-tight">
-                            {term.name}
+                            {year.name}
                           </CardTitle>
                           <p className="text-muted-foreground mt-1 text-sm">
-                            {new Date(term.startDate).toLocaleDateString()} —{' '}
-                            {new Date(term.endDate).toLocaleDateString()}
+                            {new Date(year.startDate).toLocaleDateString()} —{' '}
+                            {new Date(year.endDate).toLocaleDateString()}
                           </p>
                         </div>
                         <Badge className="border-none bg-blue-100 font-semibold text-blue-800 shadow-none dark:bg-blue-900/40 dark:text-blue-300">
-                          {term.status}
+                          {year.status}
                         </Badge>
                       </div>
                     </CardHeader>
@@ -610,39 +953,77 @@ export default function AcademicTimelinePage() {
                         <div className="rounded-lg border bg-white/50 p-3 dark:bg-gray-800/50">
                           <div className="text-muted-foreground text-xs">Total Days</div>
                           <div className="text-xl font-bold text-blue-600">
-                            {term.totalWorkingDays}
+                            {year.totalWorkingDays}
                           </div>
                         </div>
                         <div className="rounded-lg border bg-white/50 p-3 dark:bg-gray-800/50">
                           <div className="text-muted-foreground text-xs">Available</div>
                           <div className="text-xl font-bold text-green-600">
-                            {term.actualAvailableDays}
+                            {year.actualAvailableDays}
                           </div>
                         </div>
                         <div className="rounded-lg border bg-white/50 p-3 dark:bg-gray-800/50">
                           <div className="text-muted-foreground text-xs">Vacations</div>
                           <div className="text-xl font-bold text-orange-600">
-                            {term.vacationDays?.length ?? 0}
+                            {year.vacationDays?.length ?? 0}
                           </div>
                         </div>
                       </div>
-                      <div className="text-muted-foreground text-xs">
+                      <div className="text-muted-foreground mb-3 text-xs">
                         Off days:{' '}
-                        {JSON.parse(term.weeklyHolidays as unknown as string)
+                        {(typeof year.weeklyHolidays === 'string'
+                          ? JSON.parse(year.weeklyHolidays as unknown as string)
+                          : year.weeklyHolidays || []
+                        )
                           .map((d: number) => dayNames[d])
                           .join(', ')}
                       </div>
+
+                      {/* Terms */}
+                      {year.terms && Array.isArray(year.terms) && year.terms.length > 0 && (
+                        <div className="space-y-1.5">
+                          <div className="text-muted-foreground text-xs font-semibold">Terms</div>
+                          {(year.terms as Term[]).map((term: Term, tIdx: number) => {
+                            const tc = TERM_COLORS[tIdx % TERM_COLORS.length]!;
+                            return (
+                              <div
+                                key={tIdx}
+                                className={cn(
+                                  'flex items-center gap-2 rounded-lg border px-3 py-2',
+                                  tc.light,
+                                  tc.border,
+                                )}
+                              >
+                                <div
+                                  className={cn('h-2.5 w-2.5 flex-shrink-0 rounded-full', tc.bg)}
+                                />
+                                <span className={cn('text-xs font-semibold', tc.text)}>
+                                  {term.name}
+                                </span>
+                                <span className="text-muted-foreground ml-auto text-xs">
+                                  {term.startDate ? fmt(term.startDate) : '—'} →{' '}
+                                  {term.endDate ? fmt(term.endDate) : '—'}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 
-                  {/* Action buttons */}
                   <div className="bg-background/80 absolute right-3 top-3 flex items-center gap-0.5 rounded-lg border p-1 opacity-0 shadow-sm backdrop-blur-sm transition-opacity group-hover:opacity-100">
                     <Button
-                      variant="ghost"
+                      variant={selectedTermId === year.id ? 'default' : 'ghost'}
                       size="icon"
-                      className="text-muted-foreground hover:text-foreground h-8 w-8"
-                      title="View timeline"
-                      onClick={() => setSelectedTermId(term.id)}
+                      className={cn(
+                        'h-8 w-8',
+                        selectedTermId === year.id
+                          ? 'bg-blue-600 hover:bg-blue-700'
+                          : 'text-muted-foreground hover:text-foreground',
+                      )}
+                      title={selectedTermId === year.id ? 'Active year' : 'Set as active year'}
+                      onClick={() => setSelectedTermId(year.id)}
                     >
                       <Calculator className="h-4 w-4" />
                     </Button>
@@ -650,8 +1031,8 @@ export default function AcademicTimelinePage() {
                       variant="ghost"
                       size="icon"
                       className="text-muted-foreground hover:text-foreground h-8 w-8"
-                      title="Edit term"
-                      onClick={() => handleEditClick(term)}
+                      title="Edit year"
+                      onClick={() => handleEditClick(year)}
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -659,11 +1040,9 @@ export default function AcademicTimelinePage() {
                       variant="ghost"
                       size="icon"
                       className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
-                      title="Delete term"
+                      title="Delete year"
                       onClick={() => {
-                        if (confirm('Delete this academic term?')) {
-                          deleteMutation.mutate(term.id);
-                        }
+                        if (confirm('Delete this academic year?')) deleteMutation.mutate(year.id);
                       }}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -684,34 +1063,36 @@ export default function AcademicTimelinePage() {
         >
           <DialogHeader>
             <DialogTitle className="text-lg font-bold">
-              {editingTerm ? 'Edit Academic Term' : 'New Academic Term'}
+              {editingYear ? 'Edit Academic Year' : 'New Academic Year'}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Term Name</Label>
+              <Label className="text-xs font-semibold">Year Name</Label>
               <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={yearName}
+                onChange={(e) => setYearName(e.target.value)}
                 placeholder="e.g. 2026-2027 Academic Year"
               />
             </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold">Start Date</Label>
                 <Input
                   type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  value={yearStartDate}
+                  onChange={(e) => setYearStartDate(e.target.value)}
                 />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold">End Date</Label>
-                <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                <Input
+                  type="date"
+                  value={yearEndDate}
+                  onChange={(e) => setYearEndDate(e.target.value)}
+                />
               </div>
             </div>
-
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Weekly Holidays</Label>
               <div className="flex flex-wrap gap-2">
@@ -723,8 +1104,8 @@ export default function AcademicTimelinePage() {
                     className={cn(
                       'rounded-lg border px-3 py-1.5 text-sm font-medium transition-all duration-150',
                       weeklyHolidays.includes(index)
-                        ? 'scale-105 border-red-500 bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
-                        : 'border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300',
+                        ? 'scale-105 border-red-500 bg-red-100 text-red-700'
+                        : 'border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100',
                     )}
                   >
                     {day}
@@ -733,114 +1114,230 @@ export default function AcademicTimelinePage() {
               </div>
             </div>
 
-            {
-              <div className="animate-in fade-in slide-in-from-top-1 space-y-3 border-t pt-3 duration-200">
-                <Label className="text-xs font-semibold">Vacation Days</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <Label className="text-xs">
-                      Start Date <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      type="date"
-                      value={newVacationDay.startDate}
-                      onChange={(e) => {
-                        setNewVacationDay({ ...newVacationDay, startDate: e.target.value });
-                        setVacationError('');
-                      }}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">
-                      End Date <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      type="date"
-                      value={newVacationDay.endDate}
-                      onChange={(e) => {
-                        setNewVacationDay({ ...newVacationDay, endDate: e.target.value });
-                        setVacationError('');
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">
-                    Reason <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="e.g. Diwali Break"
-                      value={newVacationDay.reason}
-                      onChange={(e) => {
-                        setNewVacationDay({ ...newVacationDay, reason: e.target.value });
-                        setVacationError('');
-                      }}
-                      className={cn('flex-1', vacationError && 'border-red-400')}
-                    />
-                    <Button
-                      type="button"
-                      onClick={addVacationDay}
-                      size="icon"
-                      className="transition-transform duration-150 active:scale-90"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  {vacationError && (
-                    <p className="animate-in fade-in text-xs text-red-500 duration-150">
-                      {vacationError}
-                    </p>
-                  )}
-                </div>
-
-                <div className="max-h-40 space-y-2 overflow-y-auto">
-                  {liveVacationDays.length === 0 && (
-                    <p className="text-muted-foreground py-3 text-center text-xs">
-                      No vacation days added yet.
-                    </p>
-                  )}
-                  {(editingTerm ? liveVacationDays : pendingVacations).map((vd, idx) => (
-                    <div
-                      key={vd.id}
-                      className="animate-in fade-in slide-in-from-top-1 flex items-center justify-between rounded-lg border bg-orange-50 p-2 duration-200 dark:bg-orange-900/10"
-                    >
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-sm font-medium">
-                          {new Date(vd.startDate).toLocaleDateString()} —{' '}
-                          {new Date(vd.endDate).toLocaleDateString()}
-                        </span>
-                        {vd.reason && (
-                          <span className="text-muted-foreground text-xs">{vd.reason}</span>
-                        )}
+            {/* Terms */}
+            <div className="space-y-3 border-t pt-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold">Terms</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs"
+                  onClick={() => {
+                    const newTermIndex = terms.length + 1;
+                    const prevEnd =
+                      terms.length > 0 ? terms[terms.length - 1]?.endDate : yearStartDate;
+                    const nextDay = prevEnd
+                      ? new Date(new Date(prevEnd).getTime() + 86400000)
+                          .toISOString()
+                          .split('T')[0]!
+                      : yearStartDate;
+                    setTerms([
+                      ...terms,
+                      { name: `Term ${newTermIndex}`, startDate: nextDay, endDate: '' },
+                    ]);
+                  }}
+                >
+                  <Plus className="mr-1 h-3 w-3" /> Add Term
+                </Button>
+              </div>
+              {terms.map((term, index) => {
+                const tc = TERM_COLORS[index % TERM_COLORS.length]!;
+                return (
+                  <div
+                    key={index}
+                    className={cn('space-y-2 rounded-xl border p-3', tc.light, tc.border)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={cn('h-3 w-3 rounded-full', tc.bg)} />
+                        <Label className={cn('text-xs font-bold', tc.text)}>
+                          {term.name || `Term ${index + 1}`}
+                        </Label>
                       </div>
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="text-destructive hover:text-destructive h-6 w-6 transition-transform duration-150 hover:scale-110"
-                        onClick={() => removeVacationDay(vd.id ?? '', idx)}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7"
+                        onClick={() => setTerms(terms.filter((_, i) => i !== index))}
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
-                  ))}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Term Name</Label>
+                      <Input
+                        value={term.name}
+                        onChange={(e) => {
+                          const n = [...terms];
+                          if (n[index]) n[index].name = e.target.value;
+                          setTerms(n);
+                        }}
+                        placeholder={`Term ${index + 1}`}
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Start Date</Label>
+                        <Input
+                          type="date"
+                          value={term.startDate}
+                          onChange={(e) => {
+                            const n = [...terms];
+                            if (n[index]) n[index].startDate = e.target.value;
+                            setTerms(n);
+                          }}
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">End Date</Label>
+                        <Input
+                          type="date"
+                          value={term.endDate}
+                          onChange={(e) => {
+                            const n = [...terms];
+                            if (n[index]) {
+                              n[index].endDate = e.target.value;
+                              if (index < n.length - 1) {
+                                const next = n[index + 1];
+                                if (next)
+                                  next.startDate = new Date(
+                                    new Date(e.target.value).getTime() + 86400000,
+                                  )
+                                    .toISOString()
+                                    .split('T')[0]!;
+                              }
+                            }
+                            setTerms(n);
+                          }}
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                    </div>
+                    {/* Show date range summary */}
+                    {term.startDate && term.endDate && (
+                      <p className={cn('text-xs', tc.text)}>
+                        {fmt(term.startDate)} → {fmt(term.endDate)}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+              {terms.length === 0 && (
+                <p className="text-muted-foreground py-3 text-center text-xs">
+                  No terms added yet. Click "Add Term" to create terms.
+                </p>
+              )}
+            </div>
+
+            {/* Vacation Days */}
+            <div className="animate-in fade-in slide-in-from-top-1 space-y-3 border-t pt-3 duration-200">
+              <Label className="text-xs font-semibold">Vacation Days</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">
+                    Start Date <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    type="date"
+                    value={newVacationDay.startDate}
+                    onChange={(e) => {
+                      setNewVacationDay({ ...newVacationDay, startDate: e.target.value });
+                      setVacationError('');
+                    }}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">
+                    End Date <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    type="date"
+                    value={newVacationDay.endDate}
+                    onChange={(e) => {
+                      setNewVacationDay({ ...newVacationDay, endDate: e.target.value });
+                      setVacationError('');
+                    }}
+                  />
                 </div>
               </div>
-            }
+              <div className="space-y-1">
+                <Label className="text-xs">
+                  Reason <span className="text-red-500">*</span>
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="e.g. Diwali Break"
+                    value={newVacationDay.reason}
+                    onChange={(e) => {
+                      setNewVacationDay({ ...newVacationDay, reason: e.target.value });
+                      setVacationError('');
+                    }}
+                    className={cn('flex-1', vacationError && 'border-red-400')}
+                  />
+                  <Button
+                    type="button"
+                    onClick={addVacationDay}
+                    size="icon"
+                    className="transition-transform duration-150 active:scale-90"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                {vacationError && (
+                  <p className="animate-in fade-in text-xs text-red-500 duration-150">
+                    {vacationError}
+                  </p>
+                )}
+              </div>
+              <div className="max-h-40 space-y-2 overflow-y-auto">
+                {(editingYear ? liveVacationDays : pendingVacations).length === 0 && (
+                  <p className="text-muted-foreground py-3 text-center text-xs">
+                    No vacation days added yet.
+                  </p>
+                )}
+                {(editingYear ? liveVacationDays : pendingVacations).map((vd, idx) => (
+                  <div
+                    key={vd.id || idx}
+                    className="animate-in fade-in slide-in-from-top-1 flex items-center justify-between rounded-lg border bg-orange-50 p-2 duration-200 dark:bg-orange-900/10"
+                  >
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-sm font-medium">
+                        {fmt(vd.startDate)} — {fmt(vd.endDate)}
+                      </span>
+                      {vd.reason && (
+                        <span className="text-muted-foreground text-xs">{vd.reason}</span>
+                      )}
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive hover:text-destructive h-6 w-6 transition-transform duration-150 hover:scale-110"
+                      onClick={() => removeVacationDay(vd.id ?? '', idx)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <Button
               className="mt-2 w-full transition-all duration-150 active:scale-95"
               onClick={handleSubmit}
               disabled={
-                !name.trim() ||
-                !startDate ||
-                !endDate ||
+                !yearName.trim() ||
+                !yearStartDate ||
+                !yearEndDate ||
                 createMutation.isPending ||
                 updateMutation.isPending
               }
             >
-              {editingTerm ? 'Save Changes' : 'Create Academic Term'}
+              {editingYear ? 'Save Changes' : 'Create Academic Year'}
             </Button>
           </div>
         </DialogContent>
@@ -860,6 +1357,13 @@ export default function AcademicTimelinePage() {
                   day: 'numeric',
                   timeZone: 'UTC',
                 })}
+              {selectedDay?.termIndex !== null &&
+                selectedDay?.termIndex !== undefined &&
+                activatedTerms[selectedDay.termIndex] && (
+                  <span className="ml-2 text-xs font-semibold">
+                    ({activatedTerms[selectedDay.termIndex]?.name})
+                  </span>
+                )}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { BookMarked, Trash2, Plus, Pencil, Search } from 'lucide-react';
+import { BookMarked, Trash2, Plus, Pencil, Search, MoreVertical, Loader2 } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -24,6 +30,7 @@ import { toast } from 'sonner';
 import { syllabusKeys } from '@/features/syllabus/query-keys';
 import { invalidateSyllabusStructure } from '@/features/syllabus/invalidate-syllabus';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
+import { ImportDataButton } from '@/components/admin/import-data-button';
 
 interface Subject {
   id: string;
@@ -38,10 +45,9 @@ interface ClassOption {
   name: string;
 }
 
-// Helper to systematically determine cohesive dynamic colors mapped to Class Names
 function getClassColorStyles(className?: string | null) {
   const fallbacks = {
-    card: 'bg-card/50 border-border/60 dark:bg-card/30 dark:border-border/40',
+    card: 'bg-card border-border/60 dark:bg-card/40 dark:border-border/30',
     badge: 'bg-muted text-muted-foreground border-transparent',
   };
 
@@ -49,28 +55,27 @@ function getClassColorStyles(className?: string | null) {
 
   const variations = [
     {
-      card: 'bg-blue-50/40 border-blue-200 dark:bg-blue-950/10 dark:border-blue-900/50',
-      badge: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
+      card: 'bg-blue-50/30 border-blue-100/80 dark:bg-blue-950/5 dark:border-blue-900/30',
+      badge: 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200/40',
     },
     {
-      card: 'bg-emerald-50/40 border-emerald-200 dark:bg-emerald-950/10 dark:border-emerald-900/50',
-      badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
+      card: 'bg-emerald-50/30 border-emerald-100/80 dark:bg-emerald-950/5 dark:border-emerald-900/30',
+      badge:
+        'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border-emerald-200/40',
     },
     {
-      card: 'bg-violet-50/40 border-violet-200 dark:bg-violet-950/10 dark:border-violet-900/50',
-      badge: 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300',
+      card: 'bg-purple-50/30 border-purple-100/80 dark:bg-purple-950/5 dark:border-purple-900/30',
+      badge:
+        'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200/40',
     },
     {
-      card: 'bg-amber-50/40 border-amber-200 dark:bg-amber-950/10 dark:border-amber-900/50',
-      badge: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+      card: 'bg-amber-50/30 border-amber-100/80 dark:bg-amber-950/5 dark:border-amber-900/30',
+      badge:
+        'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200/40',
     },
     {
-      card: 'bg-rose-50/40 border-rose-200 dark:bg-rose-950/10 dark:border-rose-900/50',
-      badge: 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300',
-    },
-    {
-      card: 'bg-cyan-50/40 border-cyan-200 dark:bg-cyan-950/10 dark:border-cyan-900/50',
-      badge: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300',
+      card: 'bg-rose-50/30 border-rose-100/80 dark:bg-rose-950/5 dark:border-rose-900/30',
+      badge: 'bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300 border-rose-200/40',
     },
   ];
 
@@ -105,7 +110,6 @@ export default function AdminSubjectsPage() {
     enabled: Boolean(schoolId),
   });
 
-  // Fetch classes list for the dropdown filter (always active when schoolId exists)
   const { data: classesData } = useQuery({
     queryKey: syllabusKeys.classesList(schoolId),
     queryFn: () => api.getPaginated<ClassOption>('/syllabus/classes', { page: 1, pageSize: 100 }),
@@ -115,7 +119,6 @@ export default function AdminSubjectsPage() {
   const classes = classesData?.items ?? [];
   const subjects = data ?? [];
 
-  // Client-side filtering logic
   const filteredSubjects = useMemo(() => {
     return subjects.filter((subject) => {
       const matchesSearch =
@@ -129,7 +132,6 @@ export default function AdminSubjectsPage() {
     });
   }, [subjects, searchQuery, selectedClassFilter]);
 
-  // Helper actions
   const handleCreateClick = () => {
     setEditingSubject(null);
     setName('');
@@ -162,7 +164,7 @@ export default function AdminSubjectsPage() {
         old ? [...old, created] : [created],
       );
       await invalidateSyllabusStructure(queryClient, schoolId);
-      toast.success('Subject created');
+      toast.success('Subject created successfully');
       setOpen(false);
     },
     onError: () => toast.error('Failed to create subject'),
@@ -181,7 +183,7 @@ export default function AdminSubjectsPage() {
         old ? old.map((s) => (s.id === updated.id ? updated : s)) : [updated],
       );
       await invalidateSyllabusStructure(queryClient, schoolId);
-      toast.success('Subject updated');
+      toast.success('Subject updated successfully');
       setOpen(false);
     },
     onError: () => toast.error('Failed to update subject'),
@@ -194,7 +196,7 @@ export default function AdminSubjectsPage() {
         old ? old.filter((s) => s.id !== deletedId) : old,
       );
       await invalidateSyllabusStructure(queryClient, schoolId);
-      toast.success('Subject deleted');
+      toast.success('Subject deleted successfully');
     },
     onError: () => toast.error('Failed to delete subject'),
   });
@@ -210,14 +212,16 @@ export default function AdminSubjectsPage() {
     }
   };
 
+  const isMutating = createMutation.isPending || updateMutation.isPending;
+
   return (
     <DashboardShell title="Subjects">
       <p className="text-muted-foreground mb-6 max-w-2xl text-sm">
-        Create and manage subjects used in the syllabus and teacher assignments.
+        Create and manage academic subjects mapped to specific class tracks and system frameworks.
       </p>
 
-      {/* Control Utility Toolbar (Search & Filter dropdown) */}
-      <div className="bg-muted/20 border-border/60 mb-6 flex flex-col gap-3 rounded-xl border p-3 sm:flex-row sm:items-center sm:justify-between">
+      {/* Control Utility Toolbar */}
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
           <div className="relative max-w-md flex-1">
             <Search className="text-muted-foreground absolute left-3 top-2.5 h-4 w-4" />
@@ -225,26 +229,27 @@ export default function AdminSubjectsPage() {
               placeholder="Search by name or code..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-background pl-9"
+              className="pl-9"
             />
           </div>
-          <div className="relative">
-            <select
-              value={selectedClassFilter}
-              onChange={(e) => setSelectedClassFilter(e.target.value)}
-              className="border-input bg-background focus-visible:ring-ring flex h-10 w-full min-w-[160px] cursor-pointer rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
-            >
-              <option value="all">All Classes</option>
-              {classes.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
+
+          {/* Custom Styled Native Select */}
+          <select
+            value={selectedClassFilter}
+            onChange={(e) => setSelectedClassFilter(e.target.value)}
+            className="border-input bg-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 sm:w-[180px]"
+          >
+            <option value="all">All Classes</option>
+            {classes.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="flex gap-2">
+          <ImportDataButton type="subjects" label="Import Subjects" />
           <Button onClick={handleCreateClick} className="shrink-0">
             <Plus className="mr-2 h-4 w-4" /> Add subject
           </Button>
@@ -263,8 +268,8 @@ export default function AdminSubjectsPage() {
           title="No subjects found"
           description={
             searchQuery || selectedClassFilter !== 'all'
-              ? 'Try adjusting your search query or dropdown filters.'
-              : 'Add subjects to get started with syllabus and teacher assignments.'
+              ? 'Try adjusting your search query or tracking criteria.'
+              : 'Add academic subjects to initiate school syllabus mappings.'
           }
           action={
             searchQuery || selectedClassFilter !== 'all'
@@ -273,95 +278,101 @@ export default function AdminSubjectsPage() {
           }
         />
       ) : (
-        /* Animated Responsive Grid container */
-        <div className="animate-fade-in grid gap-4 duration-300 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredSubjects.map((s) => {
-            const activeTheme = getClassColorStyles(s.class?.name);
+        /* Grid Container */
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {filteredSubjects.map((s, i) => {
+            const activeTheme = getClassColorStyles(s.class?.name) || {
+              card: 'bg-card border-border/60 dark:bg-card/40 dark:border-border/30',
+              badge: 'bg-muted text-muted-foreground border-transparent',
+            };
 
             return (
-              <div
+              <Card
                 key={s.id}
-                className="group relative transform transition-all duration-200 hover:-translate-y-1"
+                className={cn(
+                  'hover:border-border/80 animate-in fade-in slide-in-from-bottom-2 relative flex flex-col justify-between transition-all duration-200 hover:shadow-sm',
+                  activeTheme.card,
+                )}
+                style={{ animationDelay: `${i * 60}ms` }}
               >
-                <Card
-                  className={cn(
-                    'h-full border backdrop-blur-sm transition-all hover:shadow-md',
-                    activeTheme.card,
-                  )}
-                >
-                  <CardHeader className="pb-2 pr-28">
-                    <CardTitle className="line-clamp-1 text-base font-bold tracking-tight">
+                <div>
+                  <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+                    <CardTitle className="text-foreground/90 line-clamp-1 text-sm font-semibold tracking-tight">
                       {s.name}
                     </CardTitle>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="hover:bg-muted h-8 w-8 p-0">
+                          <MoreVertical className="text-muted-foreground h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-36">
+                        <DropdownMenuItem onClick={() => handleEditClick(s)}>
+                          <Pencil className="mr-2 h-3.5 w-3.5" /> Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          disabled={deleteMutation.isPending}
+                          className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                          onClick={() => {
+                            if (confirm('Delete this subject permanently?')) {
+                              deleteMutation.mutate(s.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </CardHeader>
+
                   <CardContent className="space-y-3">
                     <div className="flex flex-wrap gap-1.5">
                       {s.code && (
-                        <Badge variant="secondary" className="font-mono text-xs">
+                        <Badge
+                          variant="outline"
+                          className="text-muted-foreground font-mono text-[10px] uppercase tracking-wider"
+                        >
                           {s.code}
                         </Badge>
                       )}
                       {s.class && (
                         <Badge
-                          className={cn('border-none font-semibold shadow-none', activeTheme.badge)}
+                          variant="outline"
+                          className={cn('text-[11px] font-medium', activeTheme.badge)}
                         >
                           {s.class.name}
                         </Badge>
                       )}
                     </div>
                     {s.description && (
-                      <p className="text-muted-foreground line-clamp-2 min-h-[2rem] text-xs">
+                      <p className="text-muted-foreground line-clamp-2 text-xs leading-relaxed">
                         {s.description}
                       </p>
                     )}
                   </CardContent>
-                </Card>
-
-                {/* Action utilities */}
-                <div className="bg-background/80 absolute right-3 top-3 flex items-center gap-0.5 rounded-lg border p-1 opacity-90 backdrop-blur-sm transition-opacity group-hover:opacity-100">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-muted-foreground hover:text-foreground h-8 w-8 transition-colors"
-                    title="Edit subject"
-                    onClick={() => handleEditClick(s)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 transition-colors"
-                    disabled={deleteMutation.isPending}
-                    title="Delete subject"
-                    onClick={() => {
-                      if (confirm('Delete this subject? This cannot be undone.')) {
-                        deleteMutation.mutate(s.id);
-                      }
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>
       )}
 
-      {/* ── Add / Edit Dialog Wrapper ── */}
+      {/* Add / Edit Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="flex max-h-[85vh] scale-95 transform flex-col gap-0 p-0 transition-all duration-300 data-[state=open]:scale-100">
-          <DialogHeader className="shrink-0 px-6 pb-4 pt-6">
-            <DialogTitle>{editingSubject ? 'Edit subject' : 'Add subject'}</DialogTitle>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{editingSubject ? 'Edit Subject' : 'Create Subject'}</DialogTitle>
             <DialogDescription>
-              Provide subject info and optionally target its specific class assignment map.
+              Provide configuration settings below to structure internal course properties.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 space-y-4 overflow-y-auto px-6 py-2">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Name</label>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+                Name
+              </label>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -369,9 +380,9 @@ export default function AdminSubjectsPage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Code <span className="text-muted-foreground">(optional)</span>
+            <div className="grid gap-2">
+              <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+                Code <span className="text-muted-foreground/70 font-normal">(Optional)</span>
               </label>
               <Input
                 value={code}
@@ -380,53 +391,52 @@ export default function AdminSubjectsPage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Description <span className="text-muted-foreground">(optional)</span>
+            <div className="grid gap-2">
+              <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+                Description <span className="text-muted-foreground/70 font-normal">(Optional)</span>
               </label>
               <Input
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Optional description"
+                placeholder="Brief curriculum summary"
               />
             </div>
 
-            <div className="space-y-2 pb-2">
-              <label className="text-sm font-medium">Class</label>
+            <div className="grid gap-2">
+              <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+                Class Assignment
+              </label>
               {classes.length === 0 ? (
-                <p className="text-muted-foreground text-sm">
-                  No classes found. Create classes first.
+                <p className="text-muted-foreground text-xs">
+                  No classes verified. Build a class registry node first.
                 </p>
               ) : (
-                <div className="bg-muted/20 flex max-h-[140px] flex-wrap gap-2 overflow-y-auto rounded-md border p-1">
+                /* Custom Styled Native Select */
+                <select
+                  value={classId}
+                  onChange={(e) => setClassId(e.target.value)}
+                  className="border-input bg-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
+                >
+                  <option value="" disabled>
+                    Select assigned tracking class
+                  </option>
                   {classes.map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => setClassId(classId === c.id ? '' : c.id)}
-                      className={`rounded-md border px-3 py-1 text-xs font-medium transition-all duration-150 active:scale-95 ${
-                        classId === c.id
-                          ? 'border-primary bg-primary text-primary-foreground shadow-sm'
-                          : 'bg-background hover:border-muted-foreground text-foreground'
-                      }`}
-                    >
+                    <option key={c.id} value={c.id}>
                       {c.name}
-                    </button>
+                    </option>
                   ))}
-                </div>
+                </select>
               )}
             </div>
           </div>
 
-          <DialogFooter className="bg-muted/10 shrink-0 border-t px-6 py-4">
-            <Button variant="secondary" onClick={() => setOpen(false)}>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)} disabled={isMutating}>
               Cancel
             </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={createMutation.isPending || updateMutation.isPending}
-            >
-              {editingSubject ? 'Save Changes' : 'Create'}
+            <Button onClick={handleSubmit} disabled={isMutating}>
+              {isMutating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {editingSubject ? 'Save Changes' : 'Create Subject'}
             </Button>
           </DialogFooter>
         </DialogContent>

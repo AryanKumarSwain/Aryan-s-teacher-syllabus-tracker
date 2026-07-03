@@ -66,18 +66,25 @@ export const progressService = {
   },
 
   async getSchoolDashboardStats(schoolId: string) {
-    const [totalTeachers, totalClasses, totalSubjects, totalChapters, completedChapters, totalTopics, completedTopics] =
-      await Promise.all([
-        prisma.teacher.count({ where: { schoolId, deletedAt: null } }),
-        prisma.class.count({ where: { schoolId, deletedAt: null } }),
-        prisma.subject.count({ where: { schoolId, deletedAt: null } }),
-        prisma.chapter.count({ where: { schoolId, deletedAt: null } }),
-        prisma.chapterProgress.count({
-          where: { schoolId, chapterStatus: 'COMPLETED' },
-        }),
-        prisma.topic.count({ where: { schoolId, deletedAt: null } }),
-        prisma.topicProgress.count({ where: { schoolId, status: 'COMPLETED' } }),
-      ]);
+    const [
+      totalTeachers,
+      totalClasses,
+      totalSubjects,
+      totalChapters,
+      completedChapters,
+      totalTopics,
+      completedTopics,
+    ] = await Promise.all([
+      prisma.teacher.count({ where: { schoolId, deletedAt: null } }),
+      prisma.class.count({ where: { schoolId, deletedAt: null } }),
+      prisma.subject.count({ where: { schoolId, deletedAt: null } }),
+      prisma.chapter.count({ where: { schoolId, deletedAt: null } }),
+      prisma.chapterProgress.count({
+        where: { schoolId, chapterStatus: 'COMPLETED' },
+      }),
+      prisma.topic.count({ where: { schoolId, deletedAt: null } }),
+      prisma.topicProgress.count({ where: { schoolId, status: 'COMPLETED' } }),
+    ]);
 
     const pendingChapters = totalChapters - completedChapters;
     const chapterProgress = computeOverallProgress(completedChapters, totalChapters);
@@ -201,15 +208,117 @@ export const progressService = {
   },
 
   async getTeacherWiseProgress(schoolId: string) {
+    console.log('[getTeacherWiseProgress] Starting for schoolId:', schoolId);
+
     const teachers = await prisma.teacher.findMany({
       where: { schoolId, deletedAt: null },
-      include: { user: { select: { name: true } } },
+      include: {
+        user: { select: { name: true } },
+        teacherClasses: {
+          include: {
+            subject: true,
+          },
+        },
+      },
     });
+
+    console.log('[getTeacherWiseProgress] Found teachers:', teachers.length);
 
     return Promise.all(
       teachers.map(async (t) => {
-        const stats = await this.getTeacherTopicProgress(schoolId, t.id);
-        return { name: t.user.name, ...stats };
+        // Get assigned subject IDs
+        const assignedSubjectIds = t.teacherClasses
+          .map((tc: any) => tc.subject?.id)
+          .filter((s: string | undefined): s is string => Boolean(s));
+
+        console.log(
+          `[getTeacherWiseProgress] Teacher ${t.user.name}: Assigned subjects: ${assignedSubjectIds.length}`,
+        );
+
+        // Get all topics from assigned subjects (same as teacher.service.getById)
+        const topicsFromSubjects = await prisma.topic.findMany({
+          where: {
+            schoolId,
+            chapter: { subjectId: { in: assignedSubjectIds }, deletedAt: null },
+            deletedAt: null,
+          },
+          select: { id: true },
+        });
+
+        const totalTopics = topicsFromSubjects.length;
+        console.log(
+          `[getTeacherWiseProgress] Teacher ${t.user.name}: Total topics: ${totalTopics}`,
+        );
+
+        // Get topic progress for this teacher (same as teacher.service.getById)
+        const topicProgress = await prisma.topicProgress.findMany({
+          where: {
+            schoolId,
+            teacherId: t.id,
+            topicId: { in: topicsFromSubjects.map((t) => t.id) },
+          },
+          include: {
+            topic: {
+              select: {
+                chapterId: true,
+              },
+            },
+          },
+        });
+
+        const completedTopics = topicProgress.filter((tp) => tp.status === 'COMPLETED').length;
+        console.log(
+          `[getTeacherWiseProgress] Teacher ${t.user.name}: Completed topics from topicProgress: ${completedTopics}`,
+        );
+
+        // Get chapter progress for this teacher (same as teacher.service.getById)
+        const chapterProgress = await prisma.chapterProgress.findMany({
+          where: {
+            schoolId,
+            teacherId: t.id,
+            chapter: { subjectId: { in: assignedSubjectIds } },
+          },
+          include: {
+            chapter: {
+              include: {
+                topics: true,
+              },
+            },
+          },
+        });
+
+        // Add topics from completed chapters (same as teacher.service.getById)
+        let totalCompletedTopics = completedTopics;
+        chapterProgress.forEach((cp) => {
+          if (cp.chapterStatus === 'COMPLETED') {
+            const chapterTopics = cp.chapter.topics;
+            const alreadyCountedTopics = topicProgress
+              .filter((tp) => tp.topic.chapterId === cp.chapterId)
+              .map((tp) => tp.topicId);
+
+            chapterTopics.forEach((topic) => {
+              if (
+                !alreadyCountedTopics.includes(topic.id) &&
+                topicsFromSubjects.some((t) => t.id === topic.id)
+              ) {
+                totalCompletedTopics++;
+              }
+            });
+          }
+        });
+
+        console.log(
+          `[getTeacherWiseProgress] Teacher ${t.user.name}: Total completed topics: ${totalCompletedTopics}`,
+        );
+
+        const progress =
+          totalTopics > 0 ? Math.round((totalCompletedTopics / totalTopics) * 100) : 0;
+
+        console.log(
+          `[getTeacherWiseProgress] Teacher ${t.user.name}: Final progress = ${progress}%`,
+        );
+
+        return { name: t.user.name, progress, totalTopics, completedTopics: totalCompletedTopics };
       }),
     );
   },
@@ -231,9 +340,7 @@ export const progressService = {
     });
 
     return classes.map((cls) => {
-      const allTopics = cls.subjects.flatMap((s) =>
-        s.chapters.flatMap((c) => c.topics),
-      );
+      const allTopics = cls.subjects.flatMap((s) => s.chapters.flatMap((c) => c.topics));
       return {
         name: cls.name,
         total: allTopics.length,

@@ -18,6 +18,11 @@ export interface AuthUser {
   schoolId: string | null;
   teacherId: string | null;
   avatar: string | null;
+  school?: {
+    id: string;
+    name: string;
+    currentAcademicSessionId: string | null;
+  };
 }
 
 export interface LoginResponse {

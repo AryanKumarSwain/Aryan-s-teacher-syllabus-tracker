@@ -1,9 +1,14 @@
-import type { JwtPayload } from '@school-syllabus/types';
+import { UserRole } from '@school-syllabus/types';
 
 declare global {
   namespace Express {
+    interface User {
+      sub: string;
+      role: UserRole;
+      schoolId: string | null;
+    }
     interface Request {
-      user?: JwtPayload;
+      user?: User;
       schoolId?: string | null;
     }
   }

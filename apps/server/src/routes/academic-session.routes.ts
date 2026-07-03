@@ -1,0 +1,53 @@
+import { Router } from 'express';
+import { z } from 'zod';
+import { academicSessionController } from '../controllers/academic-session.controller.js';
+import { authenticate, requireSchoolTenant } from '../middleware/auth.js';
+import { validateBody } from '../middleware/validate.js';
+import { withTenant } from '../repositories/base.repository.js';
+
+const academicSessionRoutes = Router();
+
+// Middleware to ensure authentication
+academicSessionRoutes.use(authenticate);
+
+// List sessions with optional filtering
+academicSessionRoutes.get('/', async (req, res, next) => {
+  try {
+    const query = req.query as any;
+    // If no schoolId provided, use the tenant schoolId from auth context
+    if (!query.schoolId && req.schoolId) {
+      query.schoolId = req.schoolId;
+    }
+    return academicSessionController.list(req, res, next);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Get sessions by school
+academicSessionRoutes.get('/by-school', academicSessionController.getBySchool);
+
+// Get specific session
+academicSessionRoutes.get('/:id', academicSessionController.getById);
+
+// Create new session
+academicSessionRoutes.post(
+  '/',
+  requireSchoolTenant,
+  validateBody(z.object({ name: z.string().min(1), schoolId: z.string().optional() })),
+  academicSessionController.create,
+);
+
+// Switch active session
+academicSessionRoutes.post('/switch', academicSessionController.switchSession);
+
+// Archive a session
+academicSessionRoutes.patch('/:id/archive', academicSessionController.archive);
+
+// Import endpoints
+academicSessionRoutes.post('/import/classes', academicSessionController.importClasses);
+academicSessionRoutes.post('/import/subjects', academicSessionController.importSubjects);
+academicSessionRoutes.post('/import/teachers', academicSessionController.importTeachers);
+academicSessionRoutes.post('/import/syllabus', academicSessionController.importSyllabus);
+
+export default academicSessionRoutes;

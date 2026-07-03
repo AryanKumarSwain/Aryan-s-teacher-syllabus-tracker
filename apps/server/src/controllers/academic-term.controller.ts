@@ -23,9 +23,11 @@ export const academicTermController = {
 
   async create(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log('[AcademicTermController.create] Request body:', JSON.stringify(req.body));
       const term = await academicTermService.create(req.body);
       sendSuccess(res, term, 201);
     } catch (err) {
+      console.error('[AcademicTermController.create] Error:', err);
       next(err);
     }
   },

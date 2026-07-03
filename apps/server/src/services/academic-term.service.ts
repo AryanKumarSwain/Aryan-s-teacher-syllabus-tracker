@@ -4,11 +4,18 @@ import { getPagination, softDeleteFilter } from '../repositories/base.repository
 import { withTenant } from '../repositories/base.repository.js';
 
 export const academicTermService = {
-  async list(params: { page: number; pageSize: number; schoolId?: string; status?: string }) {
+  async list(params: {
+    page: number;
+    pageSize: number;
+    schoolId?: string;
+    academicSessionId?: string;
+    status?: string;
+  }) {
     const { skip, page, pageSize } = getPagination(params.page, params.pageSize);
     const where = {
       ...softDeleteFilter(),
       ...(params.schoolId && { schoolId: params.schoolId }),
+      ...(params.academicSessionId && { academicSessionId: params.academicSessionId }),
       ...(params.status && { status: params.status as AcademicTermStatus }),
     };
 
@@ -20,6 +27,7 @@ export const academicTermService = {
         orderBy: { createdAt: 'desc' },
         include: {
           vacationDays: true,
+          academicSession: true,
           _count: { select: { vacationDays: true } },
         },
       }),
@@ -42,15 +50,48 @@ export const academicTermService = {
     return term;
   },
 
+  async getBySessionId(academicSessionId: string) {
+    const term = await prisma.academicTerm.findFirst({
+      where: { academicSessionId, ...softDeleteFilter() },
+      include: {
+        vacationDays: {
+          orderBy: { startDate: 'asc' },
+        },
+        academicSession: true,
+      },
+    });
+    return term || null;
+  },
+
   async create(data: {
     schoolId: string;
+    academicSessionId: string;
     name: string;
     startDate: Date;
     endDate: Date;
     weeklyHolidays?: number[];
     vacationDays?: Array<{ startDate: Date; endDate: Date; reason?: string }>;
+    terms?: Array<{ name: string; startDate: string; endDate: string }>;
   }) {
     const weeklyHolidays = data.weeklyHolidays || [0]; // Default to Sunday
+
+    // Validate terms date constraints
+    if (data.terms && data.terms.length > 0) {
+      for (let i = 0; i < data.terms.length; i++) {
+        const term = data.terms[i];
+        if (!term) continue;
+
+        // Term end date must be within year bounds
+        const termEndDate = new Date(term.endDate);
+        const yearEndDate = new Date(data.endDate);
+        termEndDate.setHours(0, 0, 0, 0);
+        yearEndDate.setHours(0, 0, 0, 0);
+
+        if (termEndDate.getTime() > yearEndDate.getTime()) {
+          throw new AppError(`Term ${i + 1} end date cannot exceed academic year end date`, 400);
+        }
+      }
+    }
 
     // Calculate total working days and actual available days
     const { totalWorkingDays, actualAvailableDays } = this.calculateTeachingDays(
@@ -64,6 +105,7 @@ export const academicTermService = {
       const term = await tx.academicTerm.create({
         data: {
           schoolId: data.schoolId,
+          academicSessionId: data.academicSessionId,
           name: data.name,
           startDate: data.startDate,
           endDate: data.endDate,
@@ -71,6 +113,7 @@ export const academicTermService = {
           actualAvailableDays,
           weeklyHolidays: JSON.stringify(weeklyHolidays),
           status: AcademicTermStatus.ACTIVE,
+          terms: data.terms ? JSON.stringify(data.terms) : JSON.stringify([]), // TODO: Re-enable after Prisma migration
         },
       });
 
@@ -88,7 +131,7 @@ export const academicTermService = {
 
       return tx.academicTerm.findUnique({
         where: { id: term.id },
-        include: { vacationDays: true },
+        include: { vacationDays: true, academicSession: true },
       });
     });
   },
@@ -101,6 +144,7 @@ export const academicTermService = {
       endDate?: Date;
       weeklyHolidays?: number[];
       status?: AcademicTermStatus;
+      terms?: Array<{ name: string; startDate: string; endDate: string }>;
     },
   ) {
     await this.getById(id);
@@ -118,6 +162,24 @@ export const academicTermService = {
         : JSON.parse(term.weeklyHolidays as string);
     const startDate = data.startDate || term.startDate;
     const endDate = data.endDate || term.endDate;
+
+    // Validate terms date constraints if provided
+    if (data.terms && data.terms.length > 0) {
+      for (let i = 0; i < data.terms.length; i++) {
+        const termData = data.terms[i];
+        if (!termData) continue;
+
+        // Term end date must be within year bounds
+        const termEndDate = new Date(termData.endDate);
+        const yearEndDate = new Date(endDate);
+        termEndDate.setHours(0, 0, 0, 0);
+        yearEndDate.setHours(0, 0, 0, 0);
+
+        if (termEndDate.getTime() > yearEndDate.getTime()) {
+          throw new AppError(`Term ${i + 1} end date cannot exceed academic year end date`, 400);
+        }
+      }
+    }
 
     // Recalculate if dates or holidays changed
     if (data.startDate || data.endDate || data.weeklyHolidays !== undefined) {
@@ -138,6 +200,7 @@ export const academicTermService = {
 
       if (data.name !== undefined) updateData.name = data.name;
       if (data.status !== undefined) updateData.status = data.status;
+      if (data.terms !== undefined) updateData.terms = JSON.stringify(data.terms); // TODO: Re-enable after Prisma migration
 
       await prisma.academicTerm.update({
         where: { id },
@@ -151,6 +214,7 @@ export const academicTermService = {
     const updateData: any = {};
     if (data.name !== undefined) updateData.name = data.name;
     if (data.status !== undefined) updateData.status = data.status;
+    if (data.terms !== undefined) updateData.terms = JSON.stringify(data.terms);
 
     await prisma.academicTerm.update({
       where: { id },
@@ -395,8 +459,8 @@ export const academicTermService = {
         }
 
         if (
-          chapter.chapterProgress.length > 0 &&
-          chapter.chapterProgress[0].chapterStatus === 'COMPLETED'
+          chapter.chapterProgress?.length > 0 &&
+          chapter.chapterProgress[0]?.chapterStatus === 'COMPLETED'
         ) {
           completedChapters++;
         }

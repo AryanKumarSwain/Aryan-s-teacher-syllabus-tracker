@@ -155,9 +155,20 @@ exports.Prisma.SchoolScalarFieldEnum = {
   address: 'address',
   logo: 'logo',
   status: 'status',
+  currentAcademicSessionId: 'currentAcademicSessionId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
+};
+
+exports.Prisma.AcademicSessionScalarFieldEnum = {
+  id: 'id',
+  schoolId: 'schoolId',
+  name: 'name',
+  status: 'status',
+  isArchived: 'isArchived',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SubscriptionPlanScalarFieldEnum = {
@@ -200,6 +211,7 @@ exports.Prisma.TeacherScalarFieldEnum = {
 exports.Prisma.ClassScalarFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   name: 'name',
   grade: 'grade',
   section: 'section',
@@ -213,6 +225,7 @@ exports.Prisma.ClassScalarFieldEnum = {
 exports.Prisma.SubjectScalarFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   classId: 'classId',
   name: 'name',
   code: 'code',
@@ -227,6 +240,7 @@ exports.Prisma.SubjectScalarFieldEnum = {
 exports.Prisma.ChapterScalarFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   subjectId: 'subjectId',
   classId: 'classId',
   title: 'title',
@@ -242,6 +256,7 @@ exports.Prisma.ChapterScalarFieldEnum = {
 exports.Prisma.TopicScalarFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   chapterId: 'chapterId',
   title: 'title',
   description: 'description',
@@ -255,6 +270,7 @@ exports.Prisma.TopicScalarFieldEnum = {
 exports.Prisma.TeacherClassScalarFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   teacherId: 'teacherId',
   classId: 'classId',
   subjectId: 'subjectId',
@@ -329,6 +345,7 @@ exports.Prisma.AuditLogScalarFieldEnum = {
 exports.Prisma.AcademicTermScalarFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   name: 'name',
   startDate: 'startDate',
   endDate: 'endDate',
@@ -338,7 +355,8 @@ exports.Prisma.AcademicTermScalarFieldEnum = {
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  deletedAt: 'deletedAt'
+  deletedAt: 'deletedAt',
+  terms: 'terms'
 };
 
 exports.Prisma.VacationDayScalarFieldEnum = {
@@ -392,7 +410,14 @@ exports.Prisma.SchoolOrderByRelevanceFieldEnum = {
   email: 'email',
   phone: 'phone',
   address: 'address',
-  logo: 'logo'
+  logo: 'logo',
+  currentAcademicSessionId: 'currentAcademicSessionId'
+};
+
+exports.Prisma.AcademicSessionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  schoolId: 'schoolId',
+  name: 'name'
 };
 
 exports.Prisma.JsonNullValueFilter = {
@@ -428,6 +453,7 @@ exports.Prisma.TeacherOrderByRelevanceFieldEnum = {
 exports.Prisma.ClassOrderByRelevanceFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   name: 'name',
   grade: 'grade',
   section: 'section',
@@ -437,6 +463,7 @@ exports.Prisma.ClassOrderByRelevanceFieldEnum = {
 exports.Prisma.SubjectOrderByRelevanceFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   classId: 'classId',
   name: 'name',
   code: 'code',
@@ -447,6 +474,7 @@ exports.Prisma.SubjectOrderByRelevanceFieldEnum = {
 exports.Prisma.ChapterOrderByRelevanceFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   subjectId: 'subjectId',
   classId: 'classId',
   title: 'title',
@@ -457,6 +485,7 @@ exports.Prisma.ChapterOrderByRelevanceFieldEnum = {
 exports.Prisma.TopicOrderByRelevanceFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   chapterId: 'chapterId',
   title: 'title',
   description: 'description',
@@ -466,6 +495,7 @@ exports.Prisma.TopicOrderByRelevanceFieldEnum = {
 exports.Prisma.TeacherClassOrderByRelevanceFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   teacherId: 'teacherId',
   classId: 'classId',
   subjectId: 'subjectId'
@@ -518,6 +548,7 @@ exports.Prisma.AuditLogOrderByRelevanceFieldEnum = {
 exports.Prisma.AcademicTermOrderByRelevanceFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   name: 'name'
 };
 
@@ -542,6 +573,11 @@ exports.SchoolStatus = exports.$Enums.SchoolStatus = {
   ACTIVE: 'ACTIVE',
   SUSPENDED: 'SUSPENDED',
   INACTIVE: 'INACTIVE'
+};
+
+exports.SessionStatus = exports.$Enums.SessionStatus = {
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED'
 };
 
 exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
@@ -580,6 +616,7 @@ exports.Prisma.ModelName = {
   User: 'User',
   RefreshToken: 'RefreshToken',
   School: 'School',
+  AcademicSession: 'AcademicSession',
   SubscriptionPlan: 'SubscriptionPlan',
   Subscription: 'Subscription',
   Teacher: 'Teacher',

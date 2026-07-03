@@ -33,12 +33,12 @@ const navByRole: Record<UserRole, { href: string; label: string; icon: React.Ele
   ],
   [UserRole.SCHOOL_ADMIN]: [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/admin/academic-timeline', label: 'Academic Timeline', icon: Calendar },
     { href: '/admin/classes', label: 'Classes', icon: GraduationCap },
     { href: '/admin/subjects', label: 'Subjects', icon: Bookmark },
     { href: '/admin/teachers', label: 'Teachers', icon: Users },
     { href: '/admin/syllabus', label: 'Syllabus', icon: BookOpen },
     { href: '/admin/progress', label: 'Progress', icon: TrendingUp },
-    { href: '/admin/academic-timeline', label: 'Academic Timeline', icon: Calendar },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ],
   [UserRole.TEACHER]: [
@@ -76,12 +76,19 @@ export function Sidebar() {
       {/* Logo row */}
       <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4">
         {sidebarOpen && (
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#1a73e8] to-[#1558b0]">
-              <GraduationCap className="h-4 w-4 text-white" />
-            </div>
-            <span className="text-sm font-bold text-[#1a73e8]">SyllabusTracker</span>
-          </Link>
+          <div className="flex flex-col">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#1a73e8] to-[#1558b0]">
+                <GraduationCap className="h-4 w-4 text-white" />
+              </div>
+              <span className="text-sm font-bold text-[#1a73e8]">SyllabusTracker</span>
+            </Link>
+            {user.school && (
+              <span className="ml-10 max-w-[140px] truncate text-xs text-gray-500">
+                {user.school.name}
+              </span>
+            )}
+          </div>
         )}
         <Button
           variant="ghost"

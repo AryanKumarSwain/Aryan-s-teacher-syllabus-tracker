@@ -23,6 +23,7 @@ export function SettingsPageContent() {
 
   const [name, setName] = useState(user?.name ?? '');
   const [phone, setPhone] = useState(user?.phone ?? '');
+  const [schoolName, setSchoolName] = useState(user?.school?.name ?? '');
   const [step, setStep] = useState<PasswordStep>('idle');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -37,6 +38,19 @@ export function SettingsPageContent() {
     onSuccess: (updated) => {
       setAuth({ ...user!, name: updated.name, phone: updated.phone ?? undefined }, accessToken!);
       toast.success('Profile updated');
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const schoolMutation = useMutation({
+    mutationFn: (data: { schoolName: string }) =>
+      api.patch<{ id: string; name: string }>('/schools/me', data),
+    onSuccess: (updated) => {
+      setAuth(
+        { ...user!, school: { id: user!.school?.id || '', name: updated.name } },
+        accessToken!,
+      );
+      toast.success('School name updated');
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -66,6 +80,11 @@ export function SettingsPageContent() {
   const handleProfileSave = () => {
     if (!name.trim()) return toast.error('Name is required');
     profileMutation.mutate({ name: name.trim(), phone: phone.trim() || undefined });
+  };
+
+  const handleSchoolSave = () => {
+    if (!schoolName.trim()) return toast.error('School name is required');
+    schoolMutation.mutate({ schoolName: schoolName.trim() });
   };
 
   const handleVerifyOtp = () => {
@@ -149,6 +168,42 @@ export function SettingsPageContent() {
             </Button>
           </CardContent>
         </Card>
+
+        {/* School Settings */}
+        {user?.school && (
+          <Card className="border shadow-sm transition-shadow duration-300 hover:shadow-md">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <div className="rounded-lg bg-green-50 p-1.5">
+                  <Shield className="h-4 w-4 text-green-600" />
+                </div>
+                School Settings
+              </CardTitle>
+              <CardDescription>Update your school name</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="schoolName" className="text-xs font-semibold">
+                  School Name
+                </Label>
+                <Input
+                  id="schoolName"
+                  value={schoolName}
+                  onChange={(e) => setSchoolName(e.target.value)}
+                  placeholder="Your school name"
+                  className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+              <Button
+                onClick={handleSchoolSave}
+                disabled={schoolMutation.isPending}
+                className="w-full transition-all duration-200 active:scale-[0.99]"
+              >
+                {schoolMutation.isPending ? 'Saving…' : 'Save School Name'}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Change Password */}
         <Card className="overflow-hidden border shadow-sm transition-shadow duration-300 hover:shadow-md">

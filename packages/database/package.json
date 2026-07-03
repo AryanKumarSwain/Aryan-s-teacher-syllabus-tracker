@@ -11,10 +11,8 @@
       "default": "./src/index.ts"
     }
   },
-
   "prisma": {
     "seed": "tsx --env-file=../../.env prisma/seed.ts"
-    
   },
   "scripts": {
     "build": "tsc",
@@ -31,7 +29,7 @@
     "@school-syllabus/tsconfig": "workspace:*",
     "@types/node": "^22.13.10",
     "bcryptjs": "^3.0.2",
-    "prisma": "^6.5.0",
+    "prisma": "^6.19.3",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3"
   }

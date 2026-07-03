@@ -20,6 +20,9 @@ const envSchema = z.object({
   RESEND_FROM_EMAIL: z.string().default('School Syllabus Tracker <noreply@example.com>'),
   APP_URL: z.string().default('http://localhost:3000'),
   API_URL: z.string().default('http://localhost:4000'),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_CALLBACK_URL: z.string().default('http://localhost:4000/api/auth/google/callback'),
 });
 
 const parsed = envSchema.safeParse(process.env);

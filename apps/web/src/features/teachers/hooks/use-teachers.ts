@@ -13,7 +13,7 @@ export interface TeacherRow {
     class: { id: string; name: string; grade: string | null; section: string | null };
     subject?: { id: string; name: string } | null;
   }[];
-  status: string;
+  progressPercentage?: number;
 }
 
 export interface BulkTeacherRow {
