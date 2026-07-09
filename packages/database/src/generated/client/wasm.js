@@ -616,7 +616,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "E:\\a projects\\st\\Aryan-s-teacher-syllabus-tracker\\packages\\database\\src\\generated\\client",
+      "value": "C:\\Aryan wnc\\Aryan-s-teacher-syllabus-tracker\\packages\\database\\src\\generated\\client",
       "fromEnvVar": null
     },
     "config": {
@@ -630,7 +630,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "E:\\a projects\\st\\Aryan-s-teacher-syllabus-tracker\\packages\\database\\prisma\\schema.prisma",
+    "sourceFilePath": "C:\\Aryan wnc\\Aryan-s-teacher-syllabus-tracker\\packages\\database\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -644,6 +644,7 @@ const config = {
     "db"
   ],
   "activeProvider": "mysql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {

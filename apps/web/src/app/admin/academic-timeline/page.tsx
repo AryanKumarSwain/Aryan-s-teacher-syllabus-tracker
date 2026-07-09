@@ -23,6 +23,7 @@ import { api } from '@/services/api-client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
+import { useSchool } from '@/features/syllabus/hooks/use-school';
 
 interface VacationDay {
   id?: string;
@@ -214,6 +215,7 @@ function fmt(dateStr: string) {
 
 export default function AcademicTimelinePage() {
   const schoolId = useSchoolId();
+  const { school } = useSchool();
   const qc = useQueryClient();
   const STORAGE_KEY = `academic-timeline-form-${schoolId || 'default'}`;
 
@@ -375,8 +377,14 @@ export default function AcademicTimelinePage() {
       const validVacations = pendingVacations.filter(
         (vd) => vd.startDate && vd.endDate && vd.reason,
       );
+      
+      if (!school?.currentAcademicSessionId) {
+        throw new Error('No active academic session found. Please create or select a session first.');
+      }
+      
       return api.post<AcademicYear>('/academic-terms', {
         schoolId,
+        academicSessionId: school.currentAcademicSessionId,
         name: yearName,
         startDate: yearStartDate,
         endDate: yearEndDate,

@@ -149,21 +149,43 @@ export default function AdminSyllabusPage() {
   });
 
   // Fetch existing academic terms so the admin can pick which term a chapter belongs to
-  const { data: academicYears = [] } = useQuery({
+  const { data: academicYearsResponse } = useQuery({
     queryKey: ['academic-terms', schoolId],
     queryFn: async () => {
       const response = await api.getPaginated<any>(
         '/academic-terms',
         schoolId ? { schoolId } : undefined,
       );
-      const items: AcademicYear[] = response.items.map((year: any) => ({
-        ...year,
-        terms: typeof year.terms === 'string' ? JSON.parse(year.terms) : year.terms || [],
-      }));
-      return items;
+      return response;
     },
     enabled: Boolean(schoolId),
   });
+
+  const academicYears = useMemo<AcademicYear[]>(() => {
+    const sourceItems = Array.isArray(academicYearsResponse)
+      ? academicYearsResponse
+      : Array.isArray((academicYearsResponse as any)?.items)
+        ? (academicYearsResponse as any).items
+        : Array.isArray((academicYearsResponse as any)?.data?.items)
+          ? (academicYearsResponse as any).data.items
+          : [];
+
+    return sourceItems.map((year: any) => ({
+      ...year,
+      terms: (() => {
+        if (Array.isArray(year.terms)) return year.terms;
+        if (typeof year.terms === 'string') {
+          try {
+            const parsed = JSON.parse(year.terms);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [];
+          }
+        }
+        return [];
+      })(),
+    }));
+  }, [academicYearsResponse]);
 
   const termOptions: TermOption[] = useMemo(() => {
     return academicYears.flatMap((year) =>

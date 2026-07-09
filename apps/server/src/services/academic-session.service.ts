@@ -85,17 +85,11 @@ export const academicSessionService = {
       },
     });
 
-    // If this is the first session, set it as current
-    const school = await prisma.school.findUnique({
+    // Always set the newly created session as the current session
+    await prisma.school.update({
       where: { id: data.schoolId },
+      data: { currentAcademicSessionId: session.id },
     });
-
-    if (!school?.currentAcademicSessionId) {
-      await prisma.school.update({
-        where: { id: data.schoolId },
-        data: { currentAcademicSessionId: session.id },
-      });
-    }
 
     return session;
   },

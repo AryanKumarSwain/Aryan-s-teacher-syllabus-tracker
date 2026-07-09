@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PUBLIC_PATHS = ['/', '/login', '/register', '/unauthorized', '/forbidden'];
+const PUBLIC_PATHS = ['/', '/login', '/register', '/complete-profile', '/unauthorized', '/forbidden'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -18,6 +18,13 @@ export function middleware(request: NextRequest) {
   const hasAccessToken = request.cookies.has('access_token');
   const hasRefreshToken = request.cookies.has('refresh_token');
   const hasToken = hasAccessToken || hasRefreshToken;
+
+  // /complete-profile is public but should redirect to login if no auth
+  if (pathname === '/complete-profile' && !hasToken) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 
   if (!isPublic && !hasToken) {
     const loginUrl = new URL('/login', request.url);

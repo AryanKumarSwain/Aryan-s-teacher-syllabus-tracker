@@ -41,6 +41,7 @@ export const useAcademicSessions = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['academic-sessions', schoolId] });
+      queryClient.invalidateQueries({ queryKey: ['school'] });
     },
   });
 

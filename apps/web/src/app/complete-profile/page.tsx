@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2, GraduationCap } from 'lucide-react';
 import { api, ApiError } from '@/services/api-client';
+import { useAuthStore } from '@/store/auth-store';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
@@ -21,6 +22,7 @@ type CompleteProfileFormData = z.infer<typeof completeProfileSchema>;
 export default function CompleteProfilePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const setAuth = useAuthStore((s) => s.setAuth);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -35,8 +37,14 @@ export default function CompleteProfilePage() {
   const onSubmit = async (data: CompleteProfileFormData) => {
     try {
       setIsSubmitting(true);
-      await api.post('/auth/complete-google-profile', data);
+      const result = await api.post<any>('/auth/complete-google-profile', data);
       toast.success('Profile completed successfully!');
+      
+      // Update auth store with the updated user data
+      if (result.user) {
+        setAuth(result.user, result.accessToken);
+      }
+      
       router.push('/admin');
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : 'Failed to complete profile');
