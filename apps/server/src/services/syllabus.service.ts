@@ -6,12 +6,13 @@ export const syllabusService = {
   // Classes
   async listClasses(
     schoolId: string,
-    params: { page: number; pageSize: number; search?: string },
+    params: { page: number; pageSize: number; search?: string; academicSessionId?: string },
     teacherId?: string,
   ) {
     const { skip, page, pageSize } = getPagination(params.page, params.pageSize);
     const where = withTenant(schoolId, {
       ...softDeleteFilter(),
+      ...(params.academicSessionId && { academicSessionId: params.academicSessionId }),
       ...(params.search && { name: { contains: params.search } }),
       ...(teacherId && { teacherClasses: { some: { teacherId } } }),
     });
@@ -81,9 +82,11 @@ export const syllabusService = {
 
     // For teachers: get their completed chapters
     // For admins: get any completed chapters
+    const sessionFilter = params.academicSessionId ? { academicSessionId: params.academicSessionId } : {};
     const completedProgress = await prisma.chapterProgress.findMany({
       where: {
         schoolId,
+        ...sessionFilter,
         ...(teacherId && { teacherId }),
         chapterId: { in: chapterIds },
         chapterStatus: 'COMPLETED',
@@ -133,6 +136,7 @@ export const syllabusService = {
   async createClass(
     schoolId: string,
     data: {
+      academicSessionId: string;
       name: string;
       grade?: string;
       section?: string;
@@ -143,6 +147,7 @@ export const syllabusService = {
     return prisma.class.create({
       data: {
         schoolId,
+        academicSessionId: data.academicSessionId,
         name: data.name,
         grade: data.grade,
         section: data.section,
@@ -151,6 +156,7 @@ export const syllabusService = {
           ? {
               create: data.subjects.map((name, index) => ({
                 schoolId,
+                academicSessionId: data.academicSessionId,
                 name,
                 sortOrder: index + 1,
               })),
@@ -397,10 +403,11 @@ export const syllabusService = {
   },
 
   // Subjects
-  async listSubjects(schoolId: string, classId?: string) {
+  async listSubjects(schoolId: string, classId?: string, academicSessionId?: string) {
     return prisma.subject.findMany({
       where: withTenant(schoolId, {
         ...softDeleteFilter(),
+        ...(academicSessionId && { academicSessionId }),
         ...(classId && { classId }),
       }),
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
@@ -413,11 +420,12 @@ export const syllabusService = {
 
   async createSubject(
     schoolId: string,
-    data: { classId?: string; name: string; code?: string; description?: string; color?: string },
+    data: { academicSessionId: string; classId?: string; name: string; code?: string; description?: string; color?: string },
   ) {
     return prisma.subject.create({
       data: {
         schoolId,
+        academicSessionId: data.academicSessionId,
         name: data.name,
         code: data.code,
         description: data.description,
@@ -428,10 +436,11 @@ export const syllabusService = {
   },
 
   // Chapters
-  async listChapters(schoolId: string, subjectId?: string, teacherId?: string) {
+  async listChapters(schoolId: string, subjectId?: string, teacherId?: string, academicSessionId?: string) {
     return prisma.chapter.findMany({
       where: withTenant(schoolId, {
         ...softDeleteFilter(),
+        ...(academicSessionId && { academicSessionId }),
         ...(subjectId && { subjectId }),
         ...(teacherId && {
           subject: { teacherClasses: { some: { teacherId } } },
@@ -454,6 +463,7 @@ export const syllabusService = {
   async createChapter(
     schoolId: string,
     data: {
+      academicSessionId: string;
       subjectId: string;
       classId: string;
       title: string;
@@ -489,20 +499,35 @@ export const syllabusService = {
     });
   },
 
-  async getTree(schoolId: string) {
+  async getTree(schoolId: string, academicSessionId?: string) {
     const classes = await prisma.class.findMany({
-      where: withTenant(schoolId, softDeleteFilter()),
+      where: withTenant(schoolId, {
+        ...softDeleteFilter(),
+        ...(academicSessionId && { academicSessionId }),
+      }),
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
       include: {
         subjects: {
-          where: softDeleteFilter(),
+          where: {
+            ...softDeleteFilter(),
+            ...(academicSessionId && { academicSessionId }),
+          },
           orderBy: [{ sortOrder: 'asc' }],
           include: {
             chapters: {
-              where: softDeleteFilter(),
+              where: {
+                ...softDeleteFilter(),
+                ...(academicSessionId && { academicSessionId }),
+              },
               orderBy: [{ sortOrder: 'asc' }],
               include: {
-                topics: { where: softDeleteFilter(), orderBy: [{ sortOrder: 'asc' }] },
+                topics: { 
+                  where: {
+                    ...softDeleteFilter(),
+                    ...(academicSessionId && { academicSessionId }),
+                  },
+                  orderBy: [{ sortOrder: 'asc' }] 
+                },
               },
             },
           },
@@ -532,6 +557,7 @@ export const syllabusService = {
 
   async bulkCreateClasses(
     schoolId: string,
+    academicSessionId: string,
     classes: Array<{ name: string; grade?: string; section?: string; description?: string }>,
   ) {
     const results = await prisma.$transaction(
@@ -539,6 +565,7 @@ export const syllabusService = {
         prisma.class.create({
           data: {
             schoolId,
+            academicSessionId,
             name: data.name,
             grade: data.grade,
             section: data.section,
@@ -552,6 +579,7 @@ export const syllabusService = {
 
   async bulkCreateSubjects(
     schoolId: string,
+    academicSessionId: string,
     subjects: Array<{
       name: string;
       code?: string;
@@ -565,6 +593,7 @@ export const syllabusService = {
         prisma.subject.create({
           data: {
             schoolId,
+            academicSessionId,
             name: data.name,
             code: data.code,
             description: data.description,

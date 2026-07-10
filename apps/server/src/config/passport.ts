@@ -51,7 +51,9 @@ if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET) {
             },
           });
 
-          return done(null, user);
+          // Mark this user as newly-created so the callback can prompt for
+          // additional profile info (school name, phone) only for new users.
+          return done(null, user, { isNew: true });
         } catch (error) {
           return done(error);
         }

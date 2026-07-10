@@ -115,15 +115,23 @@ export default function TeacherProgressPage() {
   const [velocityFilter, setVelocityFilter] = useState<VelocityFilter>('all');
   const [showInfoPopover, setShowInfoPopover] = useState(false);
 
+  const schoolId = useAuthStore((s) => s.user?.schoolId);
+  const academicSessionId = useAuthStore((s) => s.user?.school?.currentAcademicSessionId);
+
   const { data: classesData, isLoading: classesLoading } = useQuery({
-    queryKey: ['teacher-classes'],
+    queryKey: ['teacher-classes', schoolId, academicSessionId],
     queryFn: () =>
       api
-        .get<AssignedClass[]>('/syllabus/classes/assigned', { page: 1, pageSize: 100 })
+        .get<AssignedClass[]>('/syllabus/classes/assigned', {
+          page: 1,
+          pageSize: 100,
+          ...(academicSessionId && { academicSessionId }),
+        })
         .then((res) => {
           // Handle variations in api delivery formats safely
           return Array.isArray(res) ? res : (res as any).items || [];
         }),
+    enabled: !!schoolId,
   });
 
   const { data: progressionData, isLoading: progressionLoading } = useQuery({

@@ -9,6 +9,7 @@ export const progressController = {
   async updateChapter(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
+      const academicSessionId = req.body.academicSessionId || req.query.academicSessionId as string;
       let teacherId = req.body.teacherId;
 
       if (req.user!.role === 'TEACHER') {
@@ -19,11 +20,14 @@ export const progressController = {
         teacherId = teacher.id;
       }
 
+      if (!academicSessionId) throw new AppError('Academic session ID is required', 400);
+
       const progress = await progressService.updateChapterProgress(
         schoolId,
         teacherId,
         String(req.params.chapterId),
         req.user!.sub,
+        academicSessionId,
         req.body,
       );
       sendSuccess(res, progress);
@@ -35,6 +39,7 @@ export const progressController = {
   async updateTopic(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
+      const academicSessionId = req.body.academicSessionId || req.query.academicSessionId as string;
       let teacherId = req.body.teacherId as string | undefined;
 
       if (req.user!.role === 'TEACHER') {
@@ -45,12 +50,14 @@ export const progressController = {
         teacherId = teacher.id;
       }
       if (!teacherId) throw new AppError('Teacher ID required', 400);
+      if (!academicSessionId) throw new AppError('Academic session ID is required', 400);
 
       const progress = await progressService.updateTopicProgress(
         schoolId,
         teacherId,
         String(req.params.topicId),
         req.user!.sub,
+        academicSessionId,
         req.body.status,
       );
       sendSuccess(res, progress);
@@ -62,11 +69,12 @@ export const progressController = {
   async getTeacherProgress(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
+      const academicSessionId = req.query.academicSessionId as string;
       const teacher = await prisma.teacher.findFirst({
         where: { schoolId, userId: req.user!.sub },
       });
       if (!teacher) throw new AppError('Teacher profile not found', 404);
-      const stats = await progressService.getTeacherTopicProgress(schoolId, teacher.id);
+      const stats = await progressService.getTeacherTopicProgress(schoolId, teacher.id, academicSessionId);
       sendSuccess(res, stats);
     } catch (err) {
       next(err);

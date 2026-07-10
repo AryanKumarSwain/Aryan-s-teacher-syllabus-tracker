@@ -35,6 +35,7 @@ import { toast } from 'sonner';
 import { syllabusKeys } from '@/features/syllabus/query-keys';
 import { invalidateSyllabusStructure } from '@/features/syllabus/invalidate-syllabus';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
+import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { ImportDataButton } from '@/components/admin/import-data-button';
 
 interface Chapter {
@@ -141,10 +142,13 @@ export default function AdminSyllabusPage() {
   const [newClassName, setNewClassName] = useState('');
   const queryClient = useQueryClient();
   const schoolId = useSchoolId();
+  const { school } = useSchool();
 
   const { data: tree = [], isLoading } = useQuery({
-    queryKey: syllabusKeys.syllabusTree(schoolId),
-    queryFn: () => api.get<ClassNode[]>('/syllabus/tree'),
+    queryKey: syllabusKeys.syllabusTree(schoolId, school?.currentAcademicSessionId),
+    queryFn: () => api.get<ClassNode[]>('/syllabus/tree', 
+      school?.currentAcademicSessionId ? { academicSessionId: school.currentAcademicSessionId } : undefined
+    ),
     enabled: Boolean(schoolId),
   });
 
@@ -242,7 +246,7 @@ export default function AdminSyllabusPage() {
       return Promise.reject(new Error('Invalid edit type'));
     },
     onSuccess: async () => {
-      await invalidateSyllabusStructure(queryClient, schoolId);
+      await invalidateSyllabusStructure(queryClient, schoolId, school?.currentAcademicSessionId);
       toast.success('Syllabus updated');
       setEditing(null);
       setEditChapterNo('');
@@ -267,10 +271,18 @@ export default function AdminSyllabusPage() {
       academicYearId?: string;
       termIndex?: number;
       termName?: string;
-    }) => api.post('/syllabus/chapters', payload),
+    }) => {
+      if (!school?.currentAcademicSessionId) {
+        throw new Error('No active academic session found. Please create or select a session first.');
+      }
+      return api.post('/syllabus/chapters', {
+        ...payload,
+        academicSessionId: school.currentAcademicSessionId,
+      });
+    },
     onSuccess: async (_, vars) => {
-      await invalidateSyllabusStructure(queryClient, schoolId);
-      queryClient.invalidateQueries({ queryKey: syllabusKeys.class(schoolId, vars.classId) });
+      await invalidateSyllabusStructure(queryClient, schoolId, school?.currentAcademicSessionId);
+      queryClient.invalidateQueries({ queryKey: syllabusKeys.class(schoolId, vars.classId, school?.currentAcademicSessionId) });
       queryClient.invalidateQueries({ queryKey: ['teacher-class', vars.classId] });
       toast.success('Chapter created');
       resetChapterForm();
@@ -282,7 +294,7 @@ export default function AdminSyllabusPage() {
     mutationFn: ({ chapterId }: { chapterId: string }) =>
       api.delete(`/syllabus/chapters/${chapterId}`),
     onSuccess: async () => {
-      await invalidateSyllabusStructure(queryClient, schoolId);
+      await invalidateSyllabusStructure(queryClient, schoolId, school?.currentAcademicSessionId);
       queryClient.invalidateQueries({ queryKey: ['teacher-classes'] });
       toast.success('Chapter deleted');
     },
@@ -291,9 +303,17 @@ export default function AdminSyllabusPage() {
 
   // NOTE: adjust the endpoint/payload here to match your actual "create class" API.
   const createClassMutation = useMutation({
-    mutationFn: (payload: { name: string }) => api.post('/syllabus/classes', payload),
+    mutationFn: (payload: { name: string }) => {
+      if (!school?.currentAcademicSessionId) {
+        throw new Error('No active academic session found. Please create or select a session first.');
+      }
+      return api.post('/syllabus/classes', {
+        ...payload,
+        academicSessionId: school.currentAcademicSessionId,
+      });
+    },
     onSuccess: async () => {
-      await invalidateSyllabusStructure(queryClient, schoolId);
+      await invalidateSyllabusStructure(queryClient, schoolId, school?.currentAcademicSessionId);
       toast.success('Class created');
       setAddClassDialogOpen(false);
       setNewClassName('');

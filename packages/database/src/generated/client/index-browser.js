@@ -280,6 +280,7 @@ exports.Prisma.TeacherClassScalarFieldEnum = {
 exports.Prisma.ChapterProgressScalarFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   chapterId: 'chapterId',
   teacherId: 'teacherId',
   teachingCompleted: 'teachingCompleted',
@@ -296,6 +297,7 @@ exports.Prisma.ChapterProgressScalarFieldEnum = {
 exports.Prisma.TopicProgressScalarFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   topicId: 'topicId',
   teacherId: 'teacherId',
   status: 'status',
@@ -504,6 +506,7 @@ exports.Prisma.TeacherClassOrderByRelevanceFieldEnum = {
 exports.Prisma.ChapterProgressOrderByRelevanceFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   chapterId: 'chapterId',
   teacherId: 'teacherId',
   updatedById: 'updatedById'
@@ -512,6 +515,7 @@ exports.Prisma.ChapterProgressOrderByRelevanceFieldEnum = {
 exports.Prisma.TopicProgressOrderByRelevanceFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   topicId: 'topicId',
   teacherId: 'teacherId',
   updatedById: 'updatedById'

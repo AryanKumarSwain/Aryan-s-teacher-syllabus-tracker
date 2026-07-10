@@ -21,6 +21,7 @@ import { formatPercent, cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { syllabusKeys } from '@/features/syllabus/query-keys';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
+import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { getTeacherColorStyles } from '../page';
 
 interface TeacherProfile {
@@ -47,6 +48,7 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
   const { id } = use(params);
   const qc = useQueryClient();
   const schoolId = useSchoolId();
+  const { school } = useSchool();
   const [assignOpen, setAssignOpen] = useState(false);
 
   const [selectedClassIds, setSelectedClassIds] = useState<string[]>([]);
@@ -69,11 +71,12 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
     isError: classesError,
     error: classesQueryError,
   } = useQuery({
-    queryKey: syllabusKeys.classesList(schoolId),
+    queryKey: syllabusKeys.classesList(schoolId, school?.currentAcademicSessionId),
     queryFn: () =>
       api.getPaginated<{ id: string; name: string }>('/syllabus/classes', {
         page: 1,
         pageSize: 100,
+        ...(school?.currentAcademicSessionId && { academicSessionId: school.currentAcademicSessionId }),
       }),
     enabled: assignOpen,
   });
@@ -85,12 +88,15 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
     isLoading: subjectsLoading,
     isError: subjectsError,
   } = useQuery({
-    queryKey: [...syllabusKeys.subjects(schoolId), selectedClassIds] as const,
+    queryKey: [...syllabusKeys.subjects(schoolId, school?.currentAcademicSessionId), selectedClassIds] as const,
     queryFn: async () => {
       if (selectedClassIds.length === 0) return [];
 
       const requests = selectedClassIds.map((classId) =>
-        api.get<SubjectItem[]>('/syllabus/subjects', { classId }),
+        api.get<SubjectItem[]>('/syllabus/subjects', { 
+          classId,
+          ...(school?.currentAcademicSessionId && { academicSessionId: school.currentAcademicSessionId }),
+        }),
       );
 
       const results = await Promise.all(requests);

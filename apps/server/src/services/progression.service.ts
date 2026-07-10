@@ -49,19 +49,42 @@ export class ProgressionService {
     schoolId: string,
     academicYearId?: string,
   ): Promise<ProgressionMetrics> {
-    // Get active academic term, or use the specified academic year
+    // Get active academic term, or use the specified academic year/session
     let activeTerm;
+    let academicSessionId: string | undefined;
+
     if (academicYearId) {
-      // Find the academic year and use its first term
-      const academicYear = await prisma.academicTerm.findFirst({
+      // First, try to find if it's an academic term
+      const academicTerm = await prisma.academicTerm.findFirst({
         where: {
           id: academicYearId,
           schoolId,
           deletedAt: null,
         },
       });
-      if (academicYear) {
-        activeTerm = academicYear;
+      if (academicTerm) {
+        activeTerm = academicTerm;
+        academicSessionId = academicTerm.academicSessionId;
+      } else {
+        // If not a term, try to find it as an academic session and get its active term
+        const academicSession = await prisma.academicSession.findFirst({
+          where: {
+            id: academicYearId,
+            schoolId,
+            deletedAt: null,
+          },
+        });
+        if (academicSession) {
+          academicSessionId = academicSession.id;
+          activeTerm = await prisma.academicTerm.findFirst({
+            where: {
+              schoolId,
+              academicSessionId: academicSession.id,
+              status: 'ACTIVE',
+              deletedAt: null,
+            },
+          });
+        }
       }
     }
 
@@ -74,10 +97,26 @@ export class ProgressionService {
           deletedAt: null,
         },
       });
+      if (activeTerm) {
+        academicSessionId = activeTerm.academicSessionId;
+      }
     }
 
-    if (!activeTerm) {
-      throw new AppError('No active academic term found', 404);
+    if (!activeTerm || !academicSessionId) {
+      // Return empty analytics if no active term or session found
+      return {
+        globalTimeline: {
+          startDate: new Date(),
+          endDate: new Date(),
+          totalTeachingDays: 0,
+          elapsedTeachingDays: 0,
+          remainingTeachingDays: 0,
+          percentageComplete: 0,
+        },
+        classProgress: [],
+        subjectProgress: [],
+        teacherProgress: [],
+      };
     }
 
     // Fetch vacation days for the active term
@@ -122,14 +161,20 @@ export class ProgressionService {
 
     // Get all classes with their topics and progress
     const classes = await prisma.class.findMany({
-      where: { schoolId, deletedAt: null },
+      where: { schoolId, deletedAt: null, academicSessionId },
       include: {
         subjects: {
+          where: { academicSessionId },
           include: {
             chapters: {
+              where: { academicSessionId },
               include: {
-                topics: true,
-                chapterProgress: true,
+                topics: {
+                  where: { academicSessionId },
+                },
+                chapterProgress: {
+                  where: { schoolId, academicSessionId },
+                },
               },
             },
           },
@@ -139,18 +184,32 @@ export class ProgressionService {
 
     // Get all topic progress for the school
     const topicProgress = await prisma.topicProgress.findMany({
-      where: { schoolId },
+      where: { schoolId, academicSessionId },
       include: {
         topic: {
           include: {
             chapter: {
               include: {
-                subject: true,
+                subject: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
           },
         },
-        teacher: true,
+        teacher: {
+          select: {
+            id: true,
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -169,6 +228,7 @@ export class ProgressionService {
       schoolId,
       topicProgress,
       percentageComplete,
+      academicSessionId,
     );
 
     return {
@@ -290,12 +350,14 @@ export class ProgressionService {
     schoolId: string,
     topicProgress: any[],
     timelinePercentage: number,
+    academicSessionId: string,
   ): Promise<TeacherProgressItem[]> {
     const teachers = await prisma.teacher.findMany({
       where: { schoolId },
       include: {
         user: true,
         teacherClasses: {
+          where: { academicSessionId },
           include: {
             subject: true,
           },
@@ -314,7 +376,8 @@ export class ProgressionService {
         const topicsFromSubjects = await prisma.topic.findMany({
           where: {
             schoolId,
-            chapter: { subjectId: { in: assignedSubjectIds }, deletedAt: null },
+            academicSessionId,
+            chapter: { subjectId: { in: assignedSubjectIds }, deletedAt: null, academicSessionId },
             deletedAt: null,
           },
           select: { id: true },
@@ -326,6 +389,7 @@ export class ProgressionService {
         const teacherTopicProgress = await prisma.topicProgress.findMany({
           where: {
             schoolId,
+            academicSessionId,
             teacherId: teacher.id,
             topicId: { in: topicsFromSubjects.map((t) => t.id) },
           },
@@ -333,6 +397,7 @@ export class ProgressionService {
             topic: {
               select: {
                 chapterId: true,
+                academicSessionId: true,
               },
             },
           },
@@ -346,13 +411,16 @@ export class ProgressionService {
         const chapterProgress = await prisma.chapterProgress.findMany({
           where: {
             schoolId,
+            academicSessionId,
             teacherId: teacher.id,
-            chapter: { subjectId: { in: assignedSubjectIds } },
+            chapter: { subjectId: { in: assignedSubjectIds }, academicSessionId },
           },
           include: {
             chapter: {
               include: {
-                topics: true,
+                topics: {
+                  where: { academicSessionId },
+                },
               },
             },
           },

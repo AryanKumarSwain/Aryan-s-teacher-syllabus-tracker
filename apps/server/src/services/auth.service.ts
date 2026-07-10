@@ -22,8 +22,9 @@ import type { Response } from 'express';
 const cookieOptions = {
   httpOnly: true,
   secure: env.NODE_ENV === 'production',
-  sameSite: 'none' as const,
+  sameSite: env.NODE_ENV === 'production' ? 'none' as const : 'lax' as const,
   path: '/',
+  ...(env.NODE_ENV === 'development' && { domain: undefined }),
 };
 
 export const authService = {

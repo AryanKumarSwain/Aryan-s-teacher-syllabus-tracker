@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Upload, Loader2 } from 'lucide-react';
 import { useAcademicSessions } from '@/features/syllabus/hooks/use-academic-sessions';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -22,6 +23,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
+import { api } from '@/services/api-client';
 
 export type ImportDataType = 'classes' | 'subjects' | 'teachers' | 'syllabus';
 
@@ -52,22 +54,20 @@ const importTypeConfig = {
 export function ImportDataButton({ type, label }: ImportDataButtonProps) {
   const { sessions } = useAcademicSessions();
   const { school } = useSchool();
+  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedSourceSession, setSelectedSourceSession] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
 
   const currentSession = school?.currentAcademicSessionId;
   const previousSessions = sessions.filter((s) => s.id !== currentSession && !s.isArchived);
   const config = importTypeConfig[type];
 
-  const handleImport = async () => {
-    if (!selectedSourceSession || !currentSession) {
-      toast.error('Please select a source session');
-      return;
-    }
+  const importMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedSourceSession || !currentSession) {
+        throw new Error('Please select a source session');
+      }
 
-    setIsLoading(true);
-    try {
       const endpoint = {
         classes: '/academic-sessions/import/classes',
         subjects: '/academic-sessions/import/subjects',
@@ -75,30 +75,32 @@ export function ImportDataButton({ type, label }: ImportDataButtonProps) {
         syllabus: '/academic-sessions/import/syllabus',
       }[type];
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sourceSessionId: selectedSourceSession,
-          targetSessionId: currentSession,
-        }),
+      return api.post(endpoint, {
+        sourceSessionId: selectedSourceSession,
+        targetSessionId: currentSession,
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Import failed');
-      }
-
-      const result = await response.json();
+    },
+    onSuccess: async (result) => {
       toast.success(result.data?.message || `${type} imported successfully`);
+      // Invalidate relevant queries based on import type
+      if (type === 'classes' || type === 'subjects' || type === 'syllabus') {
+        queryClient.invalidateQueries({ queryKey: ['syllabus'] });
+        queryClient.invalidateQueries({ queryKey: ['classes'] });
+        queryClient.invalidateQueries({ queryKey: ['subjects'] });
+        queryClient.invalidateQueries({ queryKey: ['syllabus-tree'] });
+        queryClient.invalidateQueries({ queryKey: ['chapters'] });
+      }
+      if (type === 'teachers') {
+        queryClient.invalidateQueries({ queryKey: ['teachers'] });
+        queryClient.invalidateQueries({ queryKey: ['teacher-classes'] });
+      }
       setIsOpen(false);
       setSelectedSourceSession('');
-    } catch (error: any) {
+    },
+    onError: (error: any) => {
       toast.error(error.message || `Failed to import ${type}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+  });
 
   if (previousSessions.length === 0) {
     return null;
@@ -138,12 +140,12 @@ export function ImportDataButton({ type, label }: ImportDataButtonProps) {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsOpen(false)} disabled={isLoading}>
+            <Button variant="outline" onClick={() => setIsOpen(false)} disabled={importMutation.isPending}>
               Cancel
             </Button>
-            <Button onClick={handleImport} disabled={isLoading || !selectedSourceSession}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isLoading ? 'Importing...' : 'Import'}
+            <Button onClick={() => importMutation.mutate()} disabled={importMutation.isPending || !selectedSourceSession}>
+              {importMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {importMutation.isPending ? 'Importing...' : 'Import'}
             </Button>
           </DialogFooter>
         </DialogContent>

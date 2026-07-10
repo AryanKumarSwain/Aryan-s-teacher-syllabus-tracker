@@ -7,7 +7,13 @@ import { sendPaginated, sendSuccess } from '../utils/api-response.js';
 export const syllabusController = {
   async listClasses(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await syllabusService.listClasses(getTenantId(req), req.query as never);
+      const params = {
+        page: Number(req.query.page) || 1,
+        pageSize: Number(req.query.pageSize) || 100,
+        search: req.query.search as string | undefined,
+        academicSessionId: req.query.academicSessionId as string | undefined,
+      };
+      const result = await syllabusService.listClasses(getTenantId(req), params);
       sendPaginated(res, result.items, result.total, result.page, result.pageSize);
     } catch (err) {
       next(err);
@@ -108,6 +114,7 @@ export const syllabusController = {
       const items = await syllabusService.listSubjects(
         getTenantId(req),
         req.query.classId as string | undefined,
+        req.query.academicSessionId as string | undefined,
       );
       sendSuccess(res, items);
     } catch (err) {
@@ -141,6 +148,7 @@ export const syllabusController = {
         schoolId,
         req.query.subjectId as string | undefined,
         teacherId,
+        req.query.academicSessionId as string | undefined,
       );
       sendSuccess(res, items);
     } catch (err) {
@@ -168,7 +176,10 @@ export const syllabusController = {
 
   async getTree(req: Request, res: Response, next: NextFunction) {
     try {
-      const tree = await syllabusService.getTree(getTenantId(req));
+      const tree = await syllabusService.getTree(
+        getTenantId(req),
+        req.query.academicSessionId as string | undefined,
+      );
       sendSuccess(res, tree);
     } catch (err) {
       next(err);
@@ -246,7 +257,8 @@ export const syllabusController = {
 
   async bulkCreateClasses(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await syllabusService.bulkCreateClasses(getTenantId(req), req.body.classes);
+      const { academicSessionId, classes } = req.body;
+      const result = await syllabusService.bulkCreateClasses(getTenantId(req), academicSessionId, classes);
       sendSuccess(res, result, 201);
     } catch (err) {
       next(err);
@@ -255,7 +267,8 @@ export const syllabusController = {
 
   async bulkCreateSubjects(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await syllabusService.bulkCreateSubjects(getTenantId(req), req.body.subjects);
+      const { academicSessionId, subjects } = req.body;
+      const result = await syllabusService.bulkCreateSubjects(getTenantId(req), academicSessionId, subjects);
       sendSuccess(res, result, 201);
     } catch (err) {
       next(err);

@@ -33,6 +33,7 @@ import { toast } from 'sonner';
 import { syllabusKeys } from '@/features/syllabus/query-keys';
 import { invalidateSyllabusStructure } from '@/features/syllabus/invalidate-syllabus';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
+import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { cn } from '@/lib/utils';
 
 interface ClassSubject {
@@ -76,10 +77,11 @@ export default function AdminClassDetailPage({ params }: { params: Promise<{ id:
   const { id } = use(params);
   const queryClient = useQueryClient();
   const schoolId = useSchoolId();
+  const { school } = useSchool();
   const [addSubjectDialogOpen, setAddSubjectDialogOpen] = useState(false);
   const [selectedSubjectIdForAssign, setSelectedSubjectIdForAssign] = useState<string | null>(null);
 
-  const classQueryKey = syllabusKeys.class(schoolId, id);
+  const classQueryKey = syllabusKeys.class(schoolId, id, school?.currentAcademicSessionId);
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: classQueryKey,
@@ -88,8 +90,11 @@ export default function AdminClassDetailPage({ params }: { params: Promise<{ id:
   });
 
   const { data: allSubjects = [] } = useQuery({
-    queryKey: syllabusKeys.subjectsForAssignment(schoolId, id),
-    queryFn: () => api.get<SubjectForAssignment[]>('/syllabus/subjects', { classId: id }),
+    queryKey: syllabusKeys.subjectsForAssignment(schoolId, id, school?.currentAcademicSessionId),
+    queryFn: () => api.get<SubjectForAssignment[]>('/syllabus/subjects', { 
+      classId: id,
+      ...(school?.currentAcademicSessionId && { academicSessionId: school.currentAcademicSessionId }),
+    }),
     enabled: Boolean(schoolId && addSubjectDialogOpen),
   });
 
@@ -97,7 +102,7 @@ export default function AdminClassDetailPage({ params }: { params: Promise<{ id:
     mutationFn: (subjectId: string) =>
       api.patch(`/syllabus/subjects/${subjectId}`, { classId: id }),
     onSuccess: async () => {
-      await invalidateSyllabusStructure(queryClient, schoolId);
+      await invalidateSyllabusStructure(queryClient, schoolId, school?.currentAcademicSessionId);
       await queryClient.refetchQueries({ queryKey: classQueryKey });
       toast.success('Subject assigned');
       setAddSubjectDialogOpen(false);

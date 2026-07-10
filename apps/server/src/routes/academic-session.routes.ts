@@ -45,9 +45,29 @@ academicSessionRoutes.post('/switch', academicSessionController.switchSession);
 academicSessionRoutes.patch('/:id/archive', academicSessionController.archive);
 
 // Import endpoints
-academicSessionRoutes.post('/import/classes', academicSessionController.importClasses);
-academicSessionRoutes.post('/import/subjects', academicSessionController.importSubjects);
-academicSessionRoutes.post('/import/teachers', academicSessionController.importTeachers);
-academicSessionRoutes.post('/import/syllabus', academicSessionController.importSyllabus);
+academicSessionRoutes.post(
+  '/import/classes',
+  requireSchoolTenant,
+  validateBody(z.object({ sourceSessionId: z.string().uuid(), targetSessionId: z.string().uuid() })),
+  academicSessionController.importClasses,
+);
+academicSessionRoutes.post(
+  '/import/subjects',
+  requireSchoolTenant,
+  validateBody(z.object({ sourceSessionId: z.string().uuid(), targetSessionId: z.string().uuid() })),
+  academicSessionController.importSubjects,
+);
+academicSessionRoutes.post(
+  '/import/teachers',
+  requireSchoolTenant,
+  validateBody(z.object({ sourceSessionId: z.string().uuid(), targetSessionId: z.string().uuid() })),
+  academicSessionController.importTeachers,
+);
+academicSessionRoutes.post(
+  '/import/syllabus',
+  requireSchoolTenant,
+  validateBody(z.object({ sourceSessionId: z.string().uuid(), targetSessionId: z.string().uuid() })),
+  academicSessionController.importSyllabus,
+);
 
 export default academicSessionRoutes;

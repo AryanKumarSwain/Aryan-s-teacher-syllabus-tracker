@@ -18,6 +18,8 @@ export function createApp() {
     cors({
       origin: env.CORS_ORIGIN,
       credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
     }),
   );
   app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
@@ -34,7 +36,7 @@ export function createApp() {
       cookie: {
         secure: env.NODE_ENV === 'production',
         httpOnly: true,
-        sameSite: 'none' as const,
+        sameSite: env.NODE_ENV === 'production' ? 'none' as const : 'lax' as const,
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
       },
     }),

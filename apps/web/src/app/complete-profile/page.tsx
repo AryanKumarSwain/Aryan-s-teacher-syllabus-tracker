@@ -37,7 +37,9 @@ export default function CompleteProfilePage() {
   const onSubmit = async (data: CompleteProfileFormData) => {
     try {
       setIsSubmitting(true);
-      const result = await api.post<any>('/auth/complete-google-profile', data);
+      // Get accessToken from URL query parameter (passed from Google callback)
+      const accessToken = searchParams.get('accessToken');
+      const result = await api.post<any>(`/auth/complete-google-profile?accessToken=${accessToken || ''}`, data, true);
       toast.success('Profile completed successfully!');
       
       // Update auth store with the updated user data

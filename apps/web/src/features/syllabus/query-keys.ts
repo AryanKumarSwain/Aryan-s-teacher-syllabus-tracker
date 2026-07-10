@@ -1,22 +1,22 @@
 /**
  * Tenant-scoped React Query keys for syllabus structure (classes, subjects, tree).
- * Always include schoolId so caches never bleed across schools.
+ * Always include schoolId and academicSessionId so caches never bleed across schools or sessions.
  */
 export const syllabusKeys = {
-  all: (schoolId?: string | null) => ['syllabus', schoolId] as const,
+  all: (schoolId?: string | null, academicSessionId?: string | null) => ['syllabus', schoolId, academicSessionId] as const,
 
-  classes: (schoolId?: string | null) => ['classes', schoolId] as const,
+  classes: (schoolId?: string | null, academicSessionId?: string | null) => ['classes', schoolId, academicSessionId] as const,
 
-  class: (schoolId: string | null | undefined, classId: string) =>
-    ['class', schoolId, classId] as const,
+  class: (schoolId: string | null | undefined, classId: string, academicSessionId?: string | null) =>
+    ['class', schoolId, classId, academicSessionId] as const,
 
-  subjects: (schoolId?: string | null) => ['subjects', schoolId] as const,
+  subjects: (schoolId?: string | null, academicSessionId?: string | null) => ['subjects', schoolId, academicSessionId] as const,
 
-  subjectsForAssignment: (schoolId?: string | null, classId?: string) =>
-    ['subjects-for-assignment', schoolId, classId] as const,
+  subjectsForAssignment: (schoolId?: string | null, classId?: string, academicSessionId?: string | null) =>
+    ['subjects-for-assignment', schoolId, classId, academicSessionId] as const,
 
-  syllabusTree: (schoolId?: string | null) => ['syllabus-tree', schoolId] as const,
+  syllabusTree: (schoolId?: string | null, academicSessionId?: string | null) => ['syllabus-tree', schoolId, academicSessionId] as const,
 
   /** Used by teacher creation dialog */
-  classesList: (schoolId?: string | null) => ['classes-list', schoolId] as const,
+  classesList: (schoolId?: string | null, academicSessionId?: string | null) => ['classes-list', schoolId, academicSessionId] as const,
 };

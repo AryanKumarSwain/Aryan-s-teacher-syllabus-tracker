@@ -13,7 +13,8 @@ export const teacherController = {
       if (teachers.length > 100) {
         return res.status(400).json({ success: false, error: 'Maximum 100 teachers per import' });
       }
-      const results = await teacherService.bulkCreate(getTenantId(req), teachers);
+      const academicSessionId = (req.query.academicSessionId as string) || (req.body.academicSessionId as string);
+      const results = await teacherService.bulkCreate(getTenantId(req), academicSessionId, teachers);
       const succeeded = results.filter((r) => r.success).length;
       const failed = results.filter((r) => !r.success).length;
       sendSuccess(res, { results, succeeded, failed }, 201);
@@ -33,7 +34,8 @@ export const teacherController = {
 
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const teacher = await teacherService.getById(getTenantId(req), String(req.params.id));
+      const academicSessionId = (req.query.academicSessionId as string) || (req.body.academicSessionId as string);
+      const teacher = await teacherService.getById(getTenantId(req), academicSessionId, String(req.params.id));
       sendSuccess(res, teacher);
     } catch (err) {
       next(err);
@@ -43,7 +45,8 @@ export const teacherController = {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       console.log('[CREATE TEACHER] body:', JSON.stringify(req.body, null, 2));
-      const result = await teacherService.create(getTenantId(req), req.body);
+      const academicSessionId = req.body.academicSessionId as string;
+      const result = await teacherService.create(getTenantId(req), academicSessionId, req.body);
       sendSuccess(res, result, 201);
     } catch (err) {
       console.error('[CREATE TEACHER ERROR]', err);
@@ -53,8 +56,10 @@ export const teacherController = {
 
   async addAssignment(req: Request, res: Response, next: NextFunction) {
     try {
+      const academicSessionId = req.body.academicSessionId as string;
       const assignment = await teacherService.createAssignment(
         getTenantId(req),
+        academicSessionId,
         String(req.params.id),
         req.body,
       );
@@ -79,8 +84,10 @@ export const teacherController = {
 
   async update(req: Request, res: Response, next: NextFunction) {
     try {
+      const academicSessionId = req.body.academicSessionId as string;
       const teacher = await teacherService.update(
         getTenantId(req),
+        academicSessionId,
         String(req.params.id),
         req.body,
       );
@@ -92,7 +99,8 @@ export const teacherController = {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      await teacherService.softDelete(getTenantId(req), String(req.params.id));
+      const academicSessionId = (req.query.academicSessionId as string) || (req.body.academicSessionId as string);
+      await teacherService.softDelete(getTenantId(req), academicSessionId, String(req.params.id));
       sendSuccess(res, { message: 'Teacher deleted' });
     } catch (err) {
       next(err);

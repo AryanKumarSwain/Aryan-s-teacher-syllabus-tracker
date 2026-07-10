@@ -30,6 +30,7 @@ import { toast } from 'sonner';
 import { syllabusKeys } from '@/features/syllabus/query-keys';
 import { invalidateSyllabusStructure } from '@/features/syllabus/invalidate-syllabus';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
+import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { ImportDataButton } from '@/components/admin/import-data-button';
 
 interface Subject {
@@ -90,6 +91,7 @@ function getClassColorStyles(className?: string | null) {
 export default function AdminSubjectsPage() {
   const queryClient = useQueryClient();
   const schoolId = useSchoolId();
+  const { school } = useSchool();
 
   // Modal & Form State
   const [open, setOpen] = useState(false);
@@ -105,14 +107,20 @@ export default function AdminSubjectsPage() {
 
   // Queries
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: syllabusKeys.subjects(schoolId),
-    queryFn: () => api.get<Subject[]>('/syllabus/subjects'),
+    queryKey: syllabusKeys.subjects(schoolId, school?.currentAcademicSessionId),
+    queryFn: () => api.get<Subject[]>('/syllabus/subjects', 
+      school?.currentAcademicSessionId ? { academicSessionId: school.currentAcademicSessionId } : undefined
+    ),
     enabled: Boolean(schoolId),
   });
 
   const { data: classesData } = useQuery({
-    queryKey: syllabusKeys.classesList(schoolId),
-    queryFn: () => api.getPaginated<ClassOption>('/syllabus/classes', { page: 1, pageSize: 100 }),
+    queryKey: syllabusKeys.classesList(schoolId, school?.currentAcademicSessionId),
+    queryFn: () => api.getPaginated<ClassOption>('/syllabus/classes', { 
+      page: 1, 
+      pageSize: 100,
+      ...(school?.currentAcademicSessionId && { academicSessionId: school.currentAcademicSessionId }),
+    }),
     enabled: Boolean(schoolId),
   });
 
@@ -152,18 +160,23 @@ export default function AdminSubjectsPage() {
 
   // Mutations
   const createMutation = useMutation({
-    mutationFn: () =>
-      api.post<Subject>('/syllabus/subjects', {
+    mutationFn: () => {
+      if (!school?.currentAcademicSessionId) {
+        throw new Error('No active academic session found. Please create or select a session first.');
+      }
+      return api.post<Subject>('/syllabus/subjects', {
+        academicSessionId: school.currentAcademicSessionId,
         name: name.trim(),
         code: code.trim() || undefined,
         description: description.trim() || undefined,
         classId: classId || undefined,
-      }),
+      });
+    },
     onSuccess: async (created) => {
-      queryClient.setQueryData<Subject[]>(syllabusKeys.subjects(schoolId), (old) =>
+      queryClient.setQueryData<Subject[]>(syllabusKeys.subjects(schoolId, school?.currentAcademicSessionId), (old) =>
         old ? [...old, created] : [created],
       );
-      await invalidateSyllabusStructure(queryClient, schoolId);
+      await invalidateSyllabusStructure(queryClient, schoolId, school?.currentAcademicSessionId);
       toast.success('Subject created successfully');
       setOpen(false);
     },
@@ -179,10 +192,10 @@ export default function AdminSubjectsPage() {
         classId: classId || undefined,
       }),
     onSuccess: async (updated) => {
-      queryClient.setQueryData<Subject[]>(syllabusKeys.subjects(schoolId), (old) =>
+      queryClient.setQueryData<Subject[]>(syllabusKeys.subjects(schoolId, school?.currentAcademicSessionId), (old) =>
         old ? old.map((s) => (s.id === updated.id ? updated : s)) : [updated],
       );
-      await invalidateSyllabusStructure(queryClient, schoolId);
+      await invalidateSyllabusStructure(queryClient, schoolId, school?.currentAcademicSessionId);
       toast.success('Subject updated successfully');
       setOpen(false);
     },
@@ -192,10 +205,10 @@ export default function AdminSubjectsPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/syllabus/subjects/${id}`),
     onSuccess: async (_, deletedId) => {
-      queryClient.setQueryData<Subject[]>(syllabusKeys.subjects(schoolId), (old) =>
+      queryClient.setQueryData<Subject[]>(syllabusKeys.subjects(schoolId, school?.currentAcademicSessionId), (old) =>
         old ? old.filter((s) => s.id !== deletedId) : old,
       );
-      await invalidateSyllabusStructure(queryClient, schoolId);
+      await invalidateSyllabusStructure(queryClient, schoolId, school?.currentAcademicSessionId);
       toast.success('Subject deleted successfully');
     },
     onError: () => toast.error('Failed to delete subject'),

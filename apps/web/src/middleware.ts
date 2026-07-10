@@ -19,11 +19,10 @@ export function middleware(request: NextRequest) {
   const hasRefreshToken = request.cookies.has('refresh_token');
   const hasToken = hasAccessToken || hasRefreshToken;
 
-  // /complete-profile is public but should redirect to login if no auth
-  if (pathname === '/complete-profile' && !hasToken) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(loginUrl);
+  // /complete-profile is public - allow access without auth for Google OAuth flow
+  // The backend will validate the session via refresh token
+  if (pathname === '/complete-profile') {
+    return NextResponse.next();
   }
 
   if (!isPublic && !hasToken) {

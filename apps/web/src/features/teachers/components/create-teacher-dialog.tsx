@@ -21,6 +21,7 @@ import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { syllabusKeys } from '@/features/syllabus/query-keys';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
+import { useSchool } from '@/features/syllabus/hooks/use-school';
 
 const schema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -53,16 +54,23 @@ export function CreateTeacherDialog({
 }) {
   const createTeacher = useCreateTeacher();
   const schoolId = useSchoolId();
+  const { school } = useSchool();
 
   const { data: subjects = [] } = useQuery({
-    queryKey: syllabusKeys.subjects(schoolId),
-    queryFn: () => api.get<SubjectOption[]>('/syllabus/subjects'),
+    queryKey: syllabusKeys.subjects(schoolId, school?.currentAcademicSessionId),
+    queryFn: () => api.get<SubjectOption[]>('/syllabus/subjects', 
+      school?.currentAcademicSessionId ? { academicSessionId: school.currentAcademicSessionId } : undefined
+    ),
     enabled: open && Boolean(schoolId),
   });
 
   const { data: classesData } = useQuery({
-    queryKey: syllabusKeys.classesList(schoolId),
-    queryFn: () => api.getPaginated<ClassOption>('/syllabus/classes', { page: 1, pageSize: 100 }),
+    queryKey: syllabusKeys.classesList(schoolId, school?.currentAcademicSessionId),
+    queryFn: () => api.getPaginated<ClassOption>('/syllabus/classes', { 
+      page: 1, 
+      pageSize: 100,
+      ...(school?.currentAcademicSessionId && { academicSessionId: school.currentAcademicSessionId }),
+    }),
     enabled: open && Boolean(schoolId),
   });
 

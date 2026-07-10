@@ -43,6 +43,7 @@ import { toast } from 'sonner';
 import { syllabusKeys } from '@/features/syllabus/query-keys';
 import { invalidateSyllabusStructure } from '@/features/syllabus/invalidate-syllabus';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
+import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { ImportDataButton } from '@/components/admin/import-data-button';
 
 interface ClassItem {
@@ -124,6 +125,7 @@ export default function AdminClassesPage() {
   const router = useRouter();
   const qc = useQueryClient();
   const schoolId = useSchoolId();
+  const { school } = useSchool();
 
   const [open, setOpen] = useState(false);
   const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
@@ -140,8 +142,12 @@ export default function AdminClassesPage() {
   const [deleteConfirmValue, setDeleteConfirmValue] = useState('');
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: syllabusKeys.classes(schoolId),
-    queryFn: () => api.getPaginated<ClassItem>('/syllabus/classes', { page: 1, pageSize: 100 }),
+    queryKey: syllabusKeys.classes(schoolId, school?.currentAcademicSessionId),
+    queryFn: () => api.getPaginated<ClassItem>('/syllabus/classes', { 
+      page: 1, 
+      pageSize: 100,
+      ...(school?.currentAcademicSessionId && { academicSessionId: school.currentAcademicSessionId }),
+    }),
     enabled: Boolean(schoolId),
   });
 
@@ -177,17 +183,22 @@ export default function AdminClassesPage() {
   };
 
   const createClass = useMutation({
-    mutationFn: () =>
-      api.post<ClassItem>('/syllabus/classes', {
+    mutationFn: () => {
+      if (!school?.currentAcademicSessionId) {
+        throw new Error('No active academic session found. Please create or select a session first.');
+      }
+      return api.post<ClassItem>('/syllabus/classes', {
+        academicSessionId: school.currentAcademicSessionId,
         name,
         section: section || undefined,
         description: description || undefined,
-      }),
+      });
+    },
     onSuccess: async (created) => {
-      qc.setQueryData<PaginatedResponse<ClassItem>>(syllabusKeys.classes(schoolId), (old) =>
+      qc.setQueryData<PaginatedResponse<ClassItem>>(syllabusKeys.classes(schoolId, school?.currentAcademicSessionId), (old) =>
         old ? { ...old, items: [created, ...old.items], total: old.total + 1 } : old,
       );
-      await invalidateSyllabusStructure(qc, schoolId);
+      await invalidateSyllabusStructure(qc, schoolId, school?.currentAcademicSessionId);
       toast.success('Class created');
       setOpen(false);
     },
@@ -202,7 +213,7 @@ export default function AdminClassesPage() {
         description: description || undefined,
       }),
     onSuccess: async (updated) => {
-      qc.setQueryData<PaginatedResponse<ClassItem>>(syllabusKeys.classes(schoolId), (old) =>
+      qc.setQueryData<PaginatedResponse<ClassItem>>(syllabusKeys.classes(schoolId, school?.currentAcademicSessionId), (old) =>
         old
           ? {
               ...old,
@@ -210,7 +221,7 @@ export default function AdminClassesPage() {
             }
           : old,
       );
-      await invalidateSyllabusStructure(qc, schoolId);
+      await invalidateSyllabusStructure(qc, schoolId, school?.currentAcademicSessionId);
       toast.success('Class updated');
       setOpen(false);
     },
@@ -220,7 +231,7 @@ export default function AdminClassesPage() {
   const deleteClass = useMutation({
     mutationFn: (id: string) => api.delete(`/syllabus/classes/${id}`),
     onSuccess: async (_, deletedId) => {
-      qc.setQueryData<PaginatedResponse<ClassItem>>(syllabusKeys.classes(schoolId), (old) =>
+      qc.setQueryData<PaginatedResponse<ClassItem>>(syllabusKeys.classes(schoolId, school?.currentAcademicSessionId), (old) =>
         old
           ? {
               ...old,
@@ -229,7 +240,7 @@ export default function AdminClassesPage() {
             }
           : old,
       );
-      await invalidateSyllabusStructure(qc, schoolId);
+      await invalidateSyllabusStructure(qc, schoolId, school?.currentAcademicSessionId);
       toast.success('Class deleted');
       setDeleteTarget(null);
       setDeleteConfirmValue('');
@@ -238,11 +249,18 @@ export default function AdminClassesPage() {
   });
 
   const bulkCreateClasses = useMutation({
-    mutationFn: (classes: BulkClassRow[]) =>
-      api.post<BulkCreateResponse>('/syllabus/classes/bulk', { classes }),
+    mutationFn: (classes: BulkClassRow[]) => {
+      if (!school?.currentAcademicSessionId) {
+        throw new Error('No active academic session found. Please create or select a session first.');
+      }
+      return api.post<BulkCreateResponse>('/syllabus/classes/bulk', {
+        academicSessionId: school.currentAcademicSessionId,
+        classes,
+      });
+    },
     onSuccess: async (result) => {
-      await qc.invalidateQueries({ queryKey: syllabusKeys.classes(schoolId) });
-      await invalidateSyllabusStructure(qc, schoolId);
+      await qc.invalidateQueries({ queryKey: syllabusKeys.classes(schoolId, school?.currentAcademicSessionId) });
+      await invalidateSyllabusStructure(qc, schoolId, school?.currentAcademicSessionId);
       toast.success(`${result.created} classes created`);
       setBulkResults(bulkPreview.map((r) => ({ name: r.name, success: true })));
     },

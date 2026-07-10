@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/services/api-client';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
+import { useAuthStore } from '@/store/auth-store';
 
 export interface AcademicSession {
   id: string;
@@ -39,9 +40,65 @@ export const useAcademicSessions = () => {
         name,
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['academic-sessions', schoolId] });
-      queryClient.invalidateQueries({ queryKey: ['school'] });
+    onSuccess: async (newSession) => {
+      console.log('[HARD RESET] Starting hard reset for new session creation');
+      
+      // Step 1: First refresh auth store to get updated school data with new currentAcademicSessionId
+      try {
+        const me = await api.get<any>('/auth/me');
+        const setAuth = useAuthStore.getState().setAuth;
+        setAuth(me, useAuthStore.getState().accessToken || 'cookie-session');
+        console.log('[HARD RESET] Auth store refreshed with new session ID');
+      } catch {
+        console.error('[HARD RESET] Failed to refresh auth store');
+      }
+
+      // Step 2: Force clear the entire React Query cache
+      queryClient.clear();
+      console.log('[HARD RESET] React Query cache cleared');
+
+      // Step 3: Clear ALL localStorage (except auth-storage which we just updated)
+      try {
+        const authStorage = localStorage.getItem('auth-storage');
+        localStorage.clear();
+        // Restore only the auth storage with new session data
+        if (authStorage) {
+          localStorage.setItem('auth-storage', authStorage);
+        }
+        console.log('[HARD RESET] localStorage cleared (except auth-storage)');
+      } catch (err) {
+        console.error('[HARD RESET] Failed to clear localStorage:', err);
+      }
+
+      // Step 4: Clear ALL sessionStorage
+      try {
+        sessionStorage.clear();
+        console.log('[HARD RESET] sessionStorage cleared');
+      } catch (err) {
+        console.error('[HARD RESET] Failed to clear sessionStorage:', err);
+      }
+
+      // Step 5: Clear any cookies that might contain session data (client-side only)
+      try {
+        const cookies = document.cookie.split(';');
+        cookies.forEach(cookie => {
+          const eqPos = cookie.indexOf('=');
+          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+          // Don't clear auth cookies as they're needed for the session
+          if (!name.includes('access_token') && !name.includes('refresh_token')) {
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+          }
+        });
+        console.log('[HARD RESET] Non-auth cookies cleared');
+      } catch (err) {
+        console.error('[HARD RESET] Failed to clear cookies:', err);
+      }
+
+      // Step 6: Force a complete page reload to ensure all components remount with fresh state
+      console.log('[HARD RESET] Triggering page reload');
+      if (typeof window !== 'undefined') {
+        window.location.reload();
+      }
     },
   });
 
@@ -52,9 +109,65 @@ export const useAcademicSessions = () => {
         sessionId,
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['school'] });
-      queryClient.invalidateQueries({ queryKey: ['academic-sessions', schoolId] });
+    onSuccess: async (_, newSessionId) => {
+      console.log('[HARD RESET] Starting hard reset for session switch');
+      
+      // Step 1: Refresh auth store to get updated school data with new currentAcademicSessionId
+      try {
+        const me = await api.get<any>('/auth/me');
+        const setAuth = useAuthStore.getState().setAuth;
+        setAuth(me, useAuthStore.getState().accessToken || 'cookie-session');
+        console.log('[HARD RESET] Auth store refreshed with new session ID');
+      } catch {
+        console.error('[HARD RESET] Failed to refresh auth store');
+      }
+
+      // Step 2: Force clear the entire React Query cache
+      queryClient.clear();
+      console.log('[HARD RESET] React Query cache cleared');
+
+      // Step 3: Clear ALL localStorage (except auth-storage which we just updated)
+      try {
+        const authStorage = localStorage.getItem('auth-storage');
+        localStorage.clear();
+        // Restore only the auth storage with new session data
+        if (authStorage) {
+          localStorage.setItem('auth-storage', authStorage);
+        }
+        console.log('[HARD RESET] localStorage cleared (except auth-storage)');
+      } catch (err) {
+        console.error('[HARD RESET] Failed to clear localStorage:', err);
+      }
+
+      // Step 4: Clear ALL sessionStorage
+      try {
+        sessionStorage.clear();
+        console.log('[HARD RESET] sessionStorage cleared');
+      } catch (err) {
+        console.error('[HARD RESET] Failed to clear sessionStorage:', err);
+      }
+
+      // Step 5: Clear any cookies that might contain session data (client-side only)
+      try {
+        const cookies = document.cookie.split(';');
+        cookies.forEach(cookie => {
+          const eqPos = cookie.indexOf('=');
+          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+          // Don't clear auth cookies as they're needed for the session
+          if (!name.includes('access_token') && !name.includes('refresh_token')) {
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+          }
+        });
+        console.log('[HARD RESET] Non-auth cookies cleared');
+      } catch (err) {
+        console.error('[HARD RESET] Failed to clear cookies:', err);
+      }
+
+      // Step 6: Force a complete page reload to ensure all components remount with fresh state
+      console.log('[HARD RESET] Triggering page reload');
+      if (typeof window !== 'undefined') {
+        window.location.reload();
+      }
     },
   });
 

@@ -66,10 +66,18 @@ interface TimelineProgress {
 export default function TeacherDashboardPage() {
   const user = useAuthStore((s) => s.user);
 
+  const schoolId = useAuthStore((s) => s.user?.schoolId);
+  const academicSessionId = useAuthStore((s) => s.user?.school?.currentAcademicSessionId);
+
   const { data, isLoading } = useQuery({
-    queryKey: ['teacher-classes'],
+    queryKey: ['teacher-classes', schoolId, academicSessionId],
     queryFn: () =>
-      api.getPaginated<AssignedClass>('/syllabus/classes/assigned', { page: 1, pageSize: 100 }),
+      api.getPaginated<AssignedClass>('/syllabus/classes/assigned', {
+        page: 1,
+        pageSize: 100,
+        ...(academicSessionId && { academicSessionId }),
+      }),
+    enabled: !!schoolId,
   });
 
   const { data: timelineData, isLoading: timelineLoading } = useQuery({

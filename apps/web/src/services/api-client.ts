@@ -49,12 +49,18 @@ async function request<T>(endpoint: string, options: RequestOptions = {}, retrie
     });
   }
 
-  const token = skipAuth ? null : accessTokenGetter();
+  // Try to get token from auth store first, then fallback to cookies
+  let token = skipAuth ? null : accessTokenGetter();
+  
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(init.headers as Record<string, string>),
   };
-  if (token) headers.Authorization = `Bearer ${token}`;
+  
+  // Only add Authorization header if we have a real token from the store
+  // The string 'cookie-session' is used as a sentinel in a few places to
+  // indicate cookie-based auth — don't send that as a Bearer token.
+  if (token && token !== 'cookie-session') headers.Authorization = `Bearer ${token}`;
 
   const response = await fetch(url.toString(), {
     ...init,

@@ -15,6 +15,7 @@ export type TeacherMutationResult = {
 async function applyTeacherAssignments(
   tx: Prisma.TransactionClient,
   schoolId: string,
+  academicSessionId: string,
   teacherId: string,
   assignments: { classId: string; subjectId: string }[],
 ) {
@@ -23,6 +24,7 @@ async function applyTeacherAssignments(
   await tx.teacherClass.createMany({
     data: assignments.map((a) => ({
       schoolId,
+      academicSessionId,
       teacherId,
       classId: a.classId,
       subjectId: a.subjectId,
@@ -109,12 +111,14 @@ export const teacherService = {
       search?: string;
       classId?: string;
       subjectId?: string;
+      academicSessionId?: string;
     },
   ) {
     const { skip, page, pageSize } = getPagination(params.page, params.pageSize);
 
     const where = withTenant(schoolId, {
       ...softDeleteFilter(),
+      ...(params.academicSessionId && { academicSessionId: params.academicSessionId }),
       ...(params.classId && { teacherClasses: { some: { classId: params.classId } } }),
       ...(params.subjectId && { teacherClasses: { some: { subjectId: params.subjectId } } }),
       ...(params.search && {
@@ -154,10 +158,12 @@ export const teacherService = {
           .filter((s): s is string => Boolean(s));
 
         // Get all topics from assigned subjects
+        const sessionFilter = params.academicSessionId ? { academicSessionId: params.academicSessionId } : {};
         const topicsFromSubjects = await prisma.topic.findMany({
           where: {
             schoolId,
-            chapter: { subjectId: { in: assignedSubjectIds }, deletedAt: null },
+            ...sessionFilter,
+            chapter: { subjectId: { in: assignedSubjectIds }, deletedAt: null, ...sessionFilter },
             deletedAt: null,
           },
           select: { id: true },
@@ -169,6 +175,7 @@ export const teacherService = {
         const topicProgress = await prisma.topicProgress.findMany({
           where: {
             schoolId,
+            ...sessionFilter,
             teacherId: teacher.id,
             topicId: { in: topicsFromSubjects.map((t) => t.id) },
           },
@@ -187,13 +194,16 @@ export const teacherService = {
         const chapterProgress = await prisma.chapterProgress.findMany({
           where: {
             schoolId,
+            ...sessionFilter,
             teacherId: teacher.id,
-            chapter: { subjectId: { in: assignedSubjectIds } },
+            chapter: { subjectId: { in: assignedSubjectIds }, ...sessionFilter },
           },
           include: {
             chapter: {
               include: {
-                topics: true,
+                topics: {
+                  where: sessionFilter,
+                },
               },
             },
           },
@@ -253,6 +263,7 @@ export const teacherService = {
 
   async bulkCreate(
     schoolId: string,
+    academicSessionId: string,
     teachers: Array<{ name: string; email: string; phone?: string }>,
   ) {
     const results: {
@@ -317,7 +328,7 @@ export const teacherService = {
             });
             await tx.teacher.update({
               where: { id: resolution.teacherId },
-              data: { deletedAt: null, status: 'ACTIVE' },
+              data: { deletedAt: null, status: 'ACTIVE', academicSessionId },
             });
           });
         } else {
@@ -334,7 +345,7 @@ export const teacherService = {
               },
             });
             await tx.teacher.create({
-              data: { schoolId, userId: user.id, status: 'ACTIVE' },
+              data: { schoolId, academicSessionId, userId: user.id, status: 'ACTIVE' },
             });
           });
         }
@@ -370,6 +381,7 @@ export const teacherService = {
   },
   async create(
     schoolId: string,
+    academicSessionId: string,
     data: {
       name: string;
       email: string;
@@ -405,9 +417,9 @@ export const teacherService = {
         });
         const restoredTeacher = await tx.teacher.update({
           where: { id: resolution.teacherId },
-          data: { deletedAt: null, status: 'ACTIVE' },
+          data: { deletedAt: null, status: 'ACTIVE', academicSessionId },
         });
-        await applyTeacherAssignments(tx, schoolId, restoredTeacher.id, assignments);
+        await applyTeacherAssignments(tx, schoolId, academicSessionId, restoredTeacher.id, assignments);
         return restoredTeacher;
       }
 
@@ -423,9 +435,9 @@ export const teacherService = {
         },
       });
       const created = await tx.teacher.create({
-        data: { schoolId, userId: user.id, status: 'ACTIVE' },
+        data: { schoolId, academicSessionId, userId: user.id, status: 'ACTIVE' },
       });
-      await applyTeacherAssignments(tx, schoolId, created.id, assignments);
+      await applyTeacherAssignments(tx, schoolId, academicSessionId, created.id, assignments);
       return created;
     });
 
@@ -447,22 +459,23 @@ export const teacherService = {
 
   async createAssignment(
     schoolId: string,
+    academicSessionId: string,
     teacherId: string,
     data: { classId: string; subjectId: string },
   ) {
     const teacher = await prisma.teacher.findFirst({
-      where: withTenant(schoolId, { id: teacherId, ...softDeleteFilter() }),
+      where: withTenant(schoolId, { id: teacherId, academicSessionId, ...softDeleteFilter() }),
     });
     if (!teacher) throw new AppError('Teacher not found', 404);
 
     const cls = await prisma.class.findFirst({
-      where: withTenant(schoolId, { id: data.classId, ...softDeleteFilter() }),
+      where: withTenant(schoolId, { id: data.classId, academicSessionId, ...softDeleteFilter() }),
       select: { id: true },
     });
     if (!cls) throw new AppError('Class not found', 404);
 
     const subject = await prisma.subject.findFirst({
-      where: withTenant(schoolId, { id: data.subjectId, ...softDeleteFilter() }),
+      where: withTenant(schoolId, { id: data.subjectId, academicSessionId, ...softDeleteFilter() }),
       select: { id: true, classId: true },
     });
     if (!subject) throw new AppError('Subject not found', 404);
@@ -471,7 +484,7 @@ export const teacherService = {
 
     try {
       return await prisma.teacherClass.create({
-        data: { schoolId, teacherId, classId: data.classId, subjectId: data.subjectId },
+        data: { schoolId, academicSessionId, teacherId, classId: data.classId, subjectId: data.subjectId },
         include: {
           class: { select: { id: true, name: true } },
           subject: { select: { id: true, name: true } },
@@ -523,9 +536,9 @@ export const teacherService = {
     });
   },
 
-  async getById(schoolId: string, id: string) {
+  async getById(schoolId: string, academicSessionId: string, id: string) {
     const teacher = await prisma.teacher.findFirst({
-      where: withTenant(schoolId, { id, ...softDeleteFilter() }),
+      where: withTenant(schoolId, { id, academicSessionId, ...softDeleteFilter() }),
       include: {
         user: true,
         teacherClasses: {
@@ -544,10 +557,12 @@ export const teacherService = {
       .filter((s): s is string => Boolean(s));
 
     // Get all topics from assigned subjects
+    const sessionFilter = academicSessionId ? { academicSessionId } : {};
     const topicsFromSubjects = await prisma.topic.findMany({
       where: {
         schoolId,
-        chapter: { subjectId: { in: assignedSubjectIds }, deletedAt: null },
+        ...sessionFilter,
+        chapter: { subjectId: { in: assignedSubjectIds }, deletedAt: null, ...sessionFilter },
         deletedAt: null,
       },
       select: { id: true },
@@ -559,6 +574,7 @@ export const teacherService = {
     const topicProgress = await prisma.topicProgress.findMany({
       where: {
         schoolId,
+        ...sessionFilter,
         teacherId: id,
         topicId: { in: topicsFromSubjects.map((t) => t.id) },
       },
@@ -577,13 +593,16 @@ export const teacherService = {
     const chapterProgress = await prisma.chapterProgress.findMany({
       where: {
         schoolId,
+        ...sessionFilter,
         teacherId: id,
-        chapter: { subjectId: { in: assignedSubjectIds } },
+        chapter: { subjectId: { in: assignedSubjectIds }, ...sessionFilter },
       },
       include: {
         chapter: {
           include: {
-            topics: true,
+            topics: {
+              where: sessionFilter,
+            },
           },
         },
       },
@@ -623,13 +642,14 @@ export const teacherService = {
 
   async update(
     schoolId: string,
+    academicSessionId: string,
     id: string,
     data: { name?: string; phone?: string; status?: 'ACTIVE' | 'SUSPENDED' | 'INACTIVE' },
   ) {
-    const teacher = await this.getById(schoolId, id);
+    const teacher = await this.getById(schoolId, academicSessionId, id);
 
     if (data.status === 'SUSPENDED' || data.status === 'ACTIVE') {
-      return this.setSuspended(schoolId, id, data.status === 'SUSPENDED');
+      return this.setSuspended(schoolId, academicSessionId, id, data.status === 'SUSPENDED');
     }
 
     return prisma.$transaction(async (tx) => {
@@ -657,8 +677,8 @@ export const teacherService = {
   },
 
   /** Suspend or re-activate a teacher (distinct from soft delete). */
-  async setSuspended(schoolId: string, id: string, suspended: boolean) {
-    const teacher = await this.getById(schoolId, id);
+  async setSuspended(schoolId: string, academicSessionId: string, id: string, suspended: boolean) {
+    const teacher = await this.getById(schoolId, academicSessionId, id);
     const status = suspended ? 'SUSPENDED' : 'ACTIVE';
 
     await prisma.$transaction([
@@ -684,8 +704,8 @@ export const teacherService = {
     });
   },
 
-  async softDelete(schoolId: string, id: string) {
-    const teacher = await this.getById(schoolId, id);
+  async softDelete(schoolId: string, academicSessionId: string, id: string) {
+    const teacher = await this.getById(schoolId, academicSessionId, id);
     return prisma.$transaction([
       prisma.teacher.update({
         where: { id },

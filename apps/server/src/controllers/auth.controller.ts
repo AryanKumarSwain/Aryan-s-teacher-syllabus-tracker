@@ -9,7 +9,7 @@ import bcrypt from 'bcryptjs';
 import { sendOtpEmail } from '../emails/send-otp-email.js';
 import passport from 'passport';
 import { env } from '../config/env.js';
-import { createSessionId, signAccessToken, signRefreshToken, hashToken } from '../utils/jwt.js';
+import { createSessionId, signAccessToken, signRefreshToken, hashToken, verifyAccessToken } from '../utils/jwt.js';
 
 // In-memory OTP store: userId → { otp, expiresAt }
 // For production use Redis, but this works for single-server setups
@@ -50,7 +50,21 @@ export const authController = {
     try {
       const { email, password } = req.body;
       const result = await authService.login(email, password);
+      // Set auth cookies for the session
       authService.setAuthCookies(res, result.accessToken, result.refreshToken);
+
+      // If the user does not yet have a `schoolId`, require profile completion
+      // before allowing normal access. Return the short-lived access token so
+      // the frontend can call `/complete-google-profile` (or `PATCH /me`) while
+      // cookies may not be sent.
+      if (!result.user.schoolId) {
+        return sendSuccess(res, {
+          user: result.user,
+          accessToken: result.accessToken,
+          requiresProfileCompletion: true,
+        });
+      }
+
       sendSuccess(res, { user: result.user, accessToken: result.accessToken });
     } catch (err) {
       next(err);
@@ -261,16 +275,31 @@ export const authController = {
       passport.authenticate(
         'google',
         { failureRedirect: '/login?error=google_auth_failed' },
-        async (err, user) => {
+        async (err, user, info: any) => {
           if (err || !user) {
+            console.error('[googleCallback] Authentication failed:', err);
             return res.redirect(`${env.APP_URL}/login?error=google_auth_failed`);
           }
 
-          // Create a session cookie for the user before redirecting.
-          await createAuthSession(res, user);
+          console.log('[googleCallback] User authenticated:', user.email);
+          console.log('[googleCallback] User has phone:', !!user.phone);
+          console.log('[googleCallback] User has schoolId:', !!user.schoolId);
 
-          if (!user.phone || !user.schoolId) {
-            return res.redirect(`${env.APP_URL}/complete-profile`);
+          // Create a session cookie for the user before redirecting.
+          const { accessToken } = await createAuthSession(res, user);
+          console.log('[googleCallback] Auth session created, cookies set');
+
+          // If this user was created during the Google sign-in flow,
+          // prompt them to complete their profile (school name, phone).
+          // If the user already existed (registered), allow immediate login.
+          const isNewUser = !!info?.isNew;
+          if (isNewUser) {
+            console.log('[googleCallback] New Google user — redirecting to complete-profile');
+            // Include the short-lived access token in the redirect so the frontend
+            // can complete the profile without relying on cross-site cookies.
+            return res.redirect(
+              `${env.APP_URL}/complete-profile?accessToken=${encodeURIComponent(accessToken)}`,
+            );
           }
 
           const roleRedirects: Record<string, string> = {
@@ -280,6 +309,7 @@ export const authController = {
           };
 
           const redirectPath = roleRedirects[user.role] || '/';
+          console.log('[googleCallback] Redirecting to:', redirectPath);
           res.redirect(`${env.APP_URL}${redirectPath}`);
         },
       )(req, res, next);
@@ -291,18 +321,75 @@ export const authController = {
   // Complete Google profile - add school name and phone
   async completeGoogleProfile(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = req.user!.sub;
+      console.log('[completeGoogleProfile] Request received');
+      console.log('[completeGoogleProfile] Cookies:', Object.keys(req.cookies || {}));
+      console.log('[completeGoogleProfile] req.user:', req.user);
+      
+      // If user is not authenticated via token, try to get from accessToken (query/body/header)
+      // or fall back to refresh token cookie. This ensures the frontend can
+      // complete the profile when cross-site cookies aren't sent.
+      let userId = req.user?.sub;
+
+      if (!userId) {
+        // Check for accessToken passed in query or body or Authorization header
+        const accessTokenFromQuery = (req.query as any)?.accessToken as string | undefined;
+        const accessTokenFromBody = (req.body as any)?.accessToken as string | undefined;
+        const authHeader = (req.headers.authorization as string) || '';
+        const accessTokenFromHeader = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : undefined;
+
+        const accessToken = accessTokenFromQuery || accessTokenFromBody || accessTokenFromHeader;
+
+        if (accessToken) {
+          try {
+            const payload = verifyAccessToken(accessToken);
+            userId = payload.sub;
+            req.user = { sub: payload.sub, email: payload.email, role: payload.role, schoolId: payload.schoolId };
+            console.log('[completeGoogleProfile] Authenticated from accessToken for user:', userId);
+          } catch (tokenErr) {
+            console.error('[completeGoogleProfile] Invalid accessToken provided:', tokenErr);
+            throw new AppError('Invalid authentication token. Please try logging in again.', 401);
+          }
+        } else {
+          const refreshToken = req.cookies?.[COOKIE_NAMES.REFRESH_TOKEN] as string;
+          console.log('[completeGoogleProfile] Refresh token from cookies:', refreshToken ? 'found' : 'not found');
+
+          if (!refreshToken) {
+            console.error('[completeGoogleProfile] No refresh token or access token found');
+            throw new AppError('Authentication required. Please try logging in again.', 401);
+          }
+
+          try {
+            const result = await authService.refresh(refreshToken);
+            userId = result.user.id;
+            req.user = { sub: result.user.id, email: result.user.email, role: result.user.role, schoolId: result.user.schoolId };
+            console.log('[completeGoogleProfile] Successfully refreshed token for user:', userId);
+          } catch (refreshErr) {
+            console.error('[completeGoogleProfile] Refresh token invalid:', refreshErr);
+            throw new AppError('Session expired. Please try logging in again.', 401);
+          }
+        }
+      }
+
       const { schoolName, phone } = req.body as { schoolName: string; phone: string };
 
+      console.log('[completeGoogleProfile] Creating school for user:', userId);
+      // Generate a unique slug from the school name
+      const slug = schoolName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        + '-' + Date.now().toString(36);
+      
       // Create school for the user
       const school = await prisma.school.create({
         data: {
           name: schoolName,
+          slug,
+          email: req.user?.email || 'admin@school.com',
           status: 'ACTIVE',
-          subscriptionStatus: 'TRIAL',
-          trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days trial
         },
       });
+      console.log('[completeGoogleProfile] School created:', school.id);
 
       // Update user with phone and schoolId
       const updatedUser = await prisma.user.update({
@@ -312,9 +399,11 @@ export const authController = {
           schoolId: school.id,
         },
       });
+      console.log('[completeGoogleProfile] User updated:', updatedUser.id);
 
       // Refresh the auth token so the user's schoolId is included in the JWT payload.
-      await createAuthSession(res, updatedUser);
+      const { accessToken } = await createAuthSession(res, updatedUser);
+      console.log('[completeGoogleProfile] New auth session created');
 
       sendSuccess(res, {
         user: {
@@ -326,6 +415,7 @@ export const authController = {
           phone: updatedUser.phone,
         },
         school,
+        accessToken,
       });
     } catch (err) {
       next(err);

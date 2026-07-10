@@ -15,7 +15,8 @@ export const dashboardController = {
         return sendSuccess(res, stats);
       }
       const schoolId = getTenantId(req);
-      const stats = await progressService.getSchoolDashboardStats(schoolId);
+      const academicSessionId = req.query.academicSessionId as string;
+      const stats = await progressService.getSchoolDashboardStats(schoolId, academicSessionId);
       sendSuccess(res, stats);
     } catch (err) {
       next(err);
@@ -153,11 +154,27 @@ export const dashboardController = {
   async getAnalytics(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
+      const academicSessionId = req.query.academicSessionId as string;
       const academicYearId = req.query.academicYearId as string | undefined;
+      
+      // Resolve academic session ID from academic year ID if needed
+      let resolvedSessionId = academicSessionId;
+      if (academicYearId && !academicSessionId) {
+        // Try to find if it's an academic session
+        const { prisma } = await import('@school-syllabus/database');
+        const session = await prisma.academicSession.findFirst({
+          where: { id: academicYearId, schoolId, deletedAt: null },
+        });
+        if (session) {
+          resolvedSessionId = session.id;
+        }
+      }
+      
       const analytics = await progressionService.getProgressionAnalytics(schoolId, academicYearId);
 
       // Use progressService for teacher progress to match /admin/teachers
-      const teacherProgressData = await progressService.getTeacherWiseProgress(schoolId);
+      const teacherProgressData = await progressService.getTeacherWiseProgress(schoolId, resolvedSessionId);
+      const subjectProgressData = await progressService.getSubjectWiseProgress(schoolId, resolvedSessionId);
 
       // Transform data to match frontend expectations
       const subjectProgress = analytics.subjectProgress.map((sp) => ({

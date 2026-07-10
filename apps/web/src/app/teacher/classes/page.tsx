@@ -22,10 +22,19 @@ interface AssignedClass {
 }
 
 export default function TeacherClassesPage() {
+  const { school } = useAuthStore((s) => ({ school: s.user?.school }));
+  const schoolId = school?.id;
+  const academicSessionId = school?.currentAcademicSessionId;
+
   const { data, isLoading } = useQuery({
-    queryKey: ['teacher-classes'],
+    queryKey: ['teacher-classes', schoolId, academicSessionId],
     queryFn: () =>
-      api.getPaginated<AssignedClass>('/syllabus/classes/assigned', { page: 1, pageSize: 100 }),
+      api.getPaginated<AssignedClass>('/syllabus/classes/assigned', {
+        page: 1,
+        pageSize: 100,
+        ...(academicSessionId && { academicSessionId }),
+      }),
+    enabled: !!schoolId,
   });
 
   const classes = data?.items ?? [];

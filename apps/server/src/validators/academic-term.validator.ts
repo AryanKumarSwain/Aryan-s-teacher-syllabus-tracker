@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const createAcademicTermSchema = z
   .object({
     schoolId: z.string().uuid('Invalid school ID format'),
+    academicSessionId: z.string().uuid('Invalid academic session ID'),
     name: z.string().min(1, 'Term name is required'),
     startDate: z.coerce.date(),
     endDate: z.coerce.date(),

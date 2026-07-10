@@ -83,20 +83,23 @@ model School {
 }
 
 model AcademicSession {
-  id             String         @id @default(uuid()) @db.VarChar(50)
-  schoolId       String         @map("school_id") @db.VarChar(50)
-  name           String         @db.VarChar(50) // e.g. "2026-27"
-  status         SessionStatus  @default(ACTIVE)
-  isArchived     Boolean        @default(false) @map("is_archived")
-  createdAt      DateTime       @default(now()) @map("created_at")
-  updatedAt      DateTime       @updatedAt @map("updated_at")
-  school         School         @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  academicTerms  AcademicTerm[]
-  classes        Class[]
-  subjects       Subject[]
-  chapters       Chapter[]
-  topics         Topic[]
-  teacherClasses TeacherClass[]
+  id              String            @id @default(uuid()) @db.VarChar(50)
+  schoolId        String            @map("school_id") @db.VarChar(50)
+  name            String            @db.VarChar(50) // e.g. "2026-27"
+  status          SessionStatus     @default(ACTIVE)
+  isArchived      Boolean           @default(false) @map("is_archived")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  school          School            @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  academicTerms   AcademicTerm[]
+  chapterProgress ChapterProgress[]
+  classes         Class[]
+  subjects        Subject[]
+  chapters        Chapter[]
+  topics          Topic[]
+  teacherClasses  TeacherClass[]
+  teachers        Teacher[]
+  topicProgress   TopicProgress[]
 
   @@unique([schoolId, name])
   @@index([schoolId])
@@ -105,19 +108,19 @@ model AcademicSession {
 }
 
 model SubscriptionPlan {
-  id           String         @id @default(uuid()) @db.VarChar(50)
-  name         String
-  slug         String         @unique @db.VarChar(191)
-  description  String?        @db.Text
-  priceMonthly Decimal        @map("price_monthly") @db.Decimal(10, 2)
-  priceYearly  Decimal        @map("price_yearly") @db.Decimal(10, 2)
-  teacherLimit Int            @map("teacher_limit")
-  features     Json
-  isActive     Boolean        @default(true) @map("is_active")
-  sortOrder    Int            @default(0) @map("sort_order")
-  createdAt    DateTime       @default(now()) @map("created_at")
-  updatedAt    DateTime       @updatedAt @map("updated_at")
-  deletedAt    DateTime?      @map("deleted_at")
+  id            String         @id @default(uuid()) @db.VarChar(50)
+  name          String
+  slug          String         @unique @db.VarChar(191)
+  description   String?        @db.Text
+  priceMonthly  Decimal        @map("price_monthly") @db.Decimal(10, 2)
+  priceYearly   Decimal        @map("price_yearly") @db.Decimal(10, 2)
+  teacherLimit  Int            @map("teacher_limit")
+  features      Json
+  isActive      Boolean        @default(true) @map("is_active")
+  sortOrder     Int            @default(0) @map("sort_order")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  deletedAt     DateTime?      @map("deleted_at")
   subscriptions Subscription[]
 
   @@map("subscription_plans")
@@ -143,21 +146,27 @@ model Subscription {
 }
 
 model Teacher {
-  id              String            @id @default(uuid()) @db.VarChar(50)
-  schoolId        String            @map("school_id") @db.VarChar(50)
-  userId          String            @unique @map("user_id") @db.VarChar(50)
-  status          UserStatus        @default(ACTIVE)
-  createdAt       DateTime          @default(now()) @map("created_at")
-  updatedAt       DateTime          @updatedAt @map("updated_at")
-  deletedAt       DateTime?         @map("deleted_at")
-  chapterProgress ChapterProgress[]
-  teacherClasses  TeacherClass[]
-  school          School            @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  topicProgress   TopicProgress[]
+  id                String           @id @default(uuid()) @db.VarChar(50)
+  schoolId          String           @map("school_id") @db.VarChar(50)
+  
+  // Changed these two lines to be optional (added `?`)
+  academicSessionId String?          @map("academic_session_id") @db.VarChar(50)
+  academicSession   AcademicSession? @relation(fields: [academicSessionId], references: [id], onDelete: Cascade)
+  
+  userId            String           @unique @map("user_id") @db.VarChar(50)
+  status            UserStatus       @default(ACTIVE)
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+  deletedAt         DateTime?        @map("deleted_at")
+  chapterProgress   ChapterProgress[]
+  teacherClasses    TeacherClass[]
+  school            School           @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicProgress     TopicProgress[]
 
-  @@unique([schoolId, userId])
+  @@unique([schoolId, userId, academicSessionId])
   @@index([schoolId])
+  @@index([academicSessionId])
   @@index([schoolId, status])
   @@map("teachers")
 }
@@ -290,6 +299,7 @@ model TeacherClass {
 model ChapterProgress {
   id                   String                @id @default(uuid()) @db.VarChar(50)
   schoolId             String                @map("school_id") @db.VarChar(50)
+  academicSessionId    String                @map("academic_session_id") @db.VarChar(50)
   chapterId            String                @map("chapter_id") @db.VarChar(50)
   teacherId            String                @map("teacher_id") @db.VarChar(50)
   teachingCompleted    Boolean               @default(false) @map("teaching_completed")
@@ -301,12 +311,14 @@ model ChapterProgress {
   updatedById          String?               @map("updated_by") @db.VarChar(50)
   createdAt            DateTime              @default(now()) @map("created_at")
   updatedAt            DateTime              @updatedAt @map("updated_at")
+  academicSession      AcademicSession       @relation(fields: [academicSessionId], references: [id], onDelete: Cascade)
   chapter              Chapter               @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   teacher              Teacher               @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   updatedBy            User?                 @relation("ProgressUpdatedBy", fields: [updatedById], references: [id])
 
-  @@unique([schoolId, chapterId, teacherId])
+  @@unique([schoolId, chapterId, teacherId, academicSessionId])
   @@index([schoolId])
+  @@index([academicSessionId])
   @@index([teacherId])
   @@index([chapterId])
   @@index([schoolId, chapterStatus])
@@ -315,21 +327,24 @@ model ChapterProgress {
 }
 
 model TopicProgress {
-  id          String      @id @default(uuid()) @db.VarChar(50)
-  schoolId    String      @map("school_id") @db.VarChar(50)
-  topicId     String      @map("topic_id") @db.VarChar(50)
-  teacherId   String      @map("teacher_id") @db.VarChar(50)
-  status      TopicStatus @default(PENDING)
-  completedAt DateTime?   @map("completed_at")
-  updatedById String?     @map("updated_by") @db.VarChar(50)
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
-  teacher     Teacher     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  topic       Topic       @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  updatedBy   User?       @relation("TopicProgressUpdatedBy", fields: [updatedById], references: [id])
+  id                String          @id @default(uuid()) @db.VarChar(50)
+  schoolId          String          @map("school_id") @db.VarChar(50)
+  academicSessionId String          @map("academic_session_id") @db.VarChar(50)
+  topicId           String          @map("topic_id") @db.VarChar(50)
+  teacherId         String          @map("teacher_id") @db.VarChar(50)
+  status            TopicStatus     @default(PENDING)
+  completedAt       DateTime?       @map("completed_at")
+  updatedById       String?         @map("updated_by") @db.VarChar(50)
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  academicSession   AcademicSession @relation(fields: [academicSessionId], references: [id], onDelete: Cascade)
+  teacher           Teacher         @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  topic             Topic           @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  updatedBy         User?           @relation("TopicProgressUpdatedBy", fields: [updatedById], references: [id])
 
-  @@unique([schoolId, topicId, teacherId])
+  @@unique([schoolId, topicId, teacherId, academicSessionId])
   @@index([schoolId])
+  @@index([academicSessionId])
   @@index([teacherId])
   @@index([topicId], map: "topic_progress_topic_id_fkey")
   @@index([updatedById], map: "topic_progress_updated_by_fkey")

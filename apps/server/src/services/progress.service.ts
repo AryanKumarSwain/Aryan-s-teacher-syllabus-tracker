@@ -13,6 +13,7 @@ export const progressService = {
     teacherId: string,
     chapterId: string,
     userId: string,
+    academicSessionId: string,
     data: {
       teachingCompleted?: boolean;
       qaCompleted?: boolean;
@@ -20,13 +21,13 @@ export const progressService = {
     },
   ) {
     const chapter = await prisma.chapter.findFirst({
-      where: withTenant(schoolId, { id: chapterId }),
+      where: withTenant(schoolId, { id: chapterId, academicSessionId }),
     });
     if (!chapter) throw new AppError('Chapter not found', 404);
 
     const existing = await prisma.chapterProgress.findUnique({
       where: {
-        schoolId_chapterId_teacherId: { schoolId, chapterId, teacherId },
+        schoolId_chapterId_teacherId_academicSessionId: { schoolId, chapterId, teacherId, academicSessionId },
       },
     });
 
@@ -42,10 +43,11 @@ export const progressService = {
 
     return prisma.chapterProgress.upsert({
       where: {
-        schoolId_chapterId_teacherId: { schoolId, chapterId, teacherId },
+        schoolId_chapterId_teacherId_academicSessionId: { schoolId, chapterId, teacherId, academicSessionId },
       },
       create: {
         schoolId,
+        academicSessionId,
         chapterId,
         teacherId,
         ...flags,
@@ -65,7 +67,8 @@ export const progressService = {
     });
   },
 
-  async getSchoolDashboardStats(schoolId: string) {
+  async getSchoolDashboardStats(schoolId: string, academicSessionId?: string) {
+    const sessionFilter = academicSessionId ? { academicSessionId } : {};
     const [
       totalTeachers,
       totalClasses,
@@ -76,14 +79,14 @@ export const progressService = {
       completedTopics,
     ] = await Promise.all([
       prisma.teacher.count({ where: { schoolId, deletedAt: null } }),
-      prisma.class.count({ where: { schoolId, deletedAt: null } }),
-      prisma.subject.count({ where: { schoolId, deletedAt: null } }),
-      prisma.chapter.count({ where: { schoolId, deletedAt: null } }),
+      prisma.class.count({ where: { schoolId, deletedAt: null, ...sessionFilter } }),
+      prisma.subject.count({ where: { schoolId, deletedAt: null, ...sessionFilter } }),
+      prisma.chapter.count({ where: { schoolId, deletedAt: null, ...sessionFilter } }),
       prisma.chapterProgress.count({
-        where: { schoolId, chapterStatus: 'COMPLETED' },
+        where: { schoolId, chapterStatus: 'COMPLETED', ...sessionFilter },
       }),
-      prisma.topic.count({ where: { schoolId, deletedAt: null } }),
-      prisma.topicProgress.count({ where: { schoolId, status: 'COMPLETED' } }),
+      prisma.topic.count({ where: { schoolId, deletedAt: null, ...sessionFilter } }),
+      prisma.topicProgress.count({ where: { schoolId, status: 'COMPLETED', ...sessionFilter } }),
     ]);
 
     const pendingChapters = totalChapters - completedChapters;
@@ -127,13 +130,14 @@ export const progressService = {
     return { totalSchools, activeSchools, expiredSchools, monthlyRevenue, totalTeachers };
   },
 
-  async getSubjectWiseProgress(schoolId: string) {
+  async getSubjectWiseProgress(schoolId: string, academicSessionId?: string) {
+    const sessionFilter = academicSessionId ? { academicSessionId } : {};
     const subjects = await prisma.subject.findMany({
-      where: { schoolId, deletedAt: null },
+      where: { schoolId, deletedAt: null, ...sessionFilter },
       include: {
         _count: { select: { chapters: true } },
         chapters: {
-          where: { deletedAt: null },
+          where: { deletedAt: null, ...sessionFilter },
           select: { id: true },
         },
       },
@@ -147,6 +151,7 @@ export const progressService = {
             schoolId,
             chapterId: { in: chapterIds },
             chapterStatus: 'COMPLETED',
+            ...sessionFilter,
           },
         });
         return {
@@ -166,17 +171,19 @@ export const progressService = {
     teacherId: string,
     topicId: string,
     userId: string,
+    academicSessionId: string,
     status: 'PENDING' | 'COMPLETED',
   ) {
     const topic = await prisma.topic.findFirst({
-      where: withTenant(schoolId, { id: topicId }),
+      where: withTenant(schoolId, { id: topicId, academicSessionId }),
     });
     if (!topic) throw new AppError('Topic not found', 404);
 
     return prisma.topicProgress.upsert({
-      where: { schoolId_topicId_teacherId: { schoolId, topicId, teacherId } },
+      where: { schoolId_topicId_teacherId_academicSessionId: { schoolId, topicId, teacherId, academicSessionId } },
       create: {
         schoolId,
+        academicSessionId,
         topicId,
         teacherId,
         status,
@@ -192,11 +199,12 @@ export const progressService = {
     });
   },
 
-  async getTeacherTopicProgress(schoolId: string, teacherId: string) {
+  async getTeacherTopicProgress(schoolId: string, teacherId: string, academicSessionId?: string) {
+    const sessionFilter = academicSessionId ? { academicSessionId } : {};
     const [totalTopics, completedTopics] = await Promise.all([
-      prisma.topic.count({ where: { schoolId, deletedAt: null } }),
+      prisma.topic.count({ where: { schoolId, deletedAt: null, ...sessionFilter } }),
       prisma.topicProgress.count({
-        where: { schoolId, teacherId, status: 'COMPLETED' },
+        where: { schoolId, teacherId, status: 'COMPLETED', ...sessionFilter },
       }),
     ]);
 
@@ -207,14 +215,16 @@ export const progressService = {
     };
   },
 
-  async getTeacherWiseProgress(schoolId: string) {
-    console.log('[getTeacherWiseProgress] Starting for schoolId:', schoolId);
+  async getTeacherWiseProgress(schoolId: string, academicSessionId?: string) {
+    console.log('[getTeacherWiseProgress] Starting for schoolId:', schoolId, 'academicSessionId:', academicSessionId);
 
+    const sessionFilter = academicSessionId ? { academicSessionId } : {};
     const teachers = await prisma.teacher.findMany({
       where: { schoolId, deletedAt: null },
       include: {
         user: { select: { name: true } },
         teacherClasses: {
+          where: sessionFilter,
           include: {
             subject: true,
           },
@@ -239,8 +249,9 @@ export const progressService = {
         const topicsFromSubjects = await prisma.topic.findMany({
           where: {
             schoolId,
-            chapter: { subjectId: { in: assignedSubjectIds }, deletedAt: null },
+            chapter: { subjectId: { in: assignedSubjectIds }, deletedAt: null, ...sessionFilter },
             deletedAt: null,
+            ...sessionFilter,
           },
           select: { id: true },
         });
@@ -256,6 +267,7 @@ export const progressService = {
             schoolId,
             teacherId: t.id,
             topicId: { in: topicsFromSubjects.map((t) => t.id) },
+            ...sessionFilter,
           },
           include: {
             topic: {
@@ -276,12 +288,15 @@ export const progressService = {
           where: {
             schoolId,
             teacherId: t.id,
-            chapter: { subjectId: { in: assignedSubjectIds } },
+            chapter: { subjectId: { in: assignedSubjectIds }, ...sessionFilter },
+            ...sessionFilter,
           },
           include: {
             chapter: {
               include: {
-                topics: true,
+                topics: {
+                  where: sessionFilter,
+                },
               },
             },
           },

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const createClassSchema = z.object({
+  academicSessionId: z.string().uuid('Invalid academic session ID'),
   name: z.string().min(1, 'Class name is required'),
   grade: z.string().optional(),
   section: z.string().optional(),
@@ -20,6 +21,7 @@ export const updateClassSchema = z
   });
 
 export const createSubjectSchema = z.object({
+  academicSessionId: z.string().uuid('Invalid academic session ID'),
   classId: z.string().uuid().optional(),
   name: z.string().min(1, 'Subject name is required'),
   code: z.string().optional(),
@@ -39,6 +41,7 @@ export const updateSubjectSchema = z
   });
 
 export const createChapterSchema = z.object({
+  academicSessionId: z.string().uuid('Invalid academic session ID'),
   subjectId: z.string().uuid(),
   classId: z.string().uuid(),
   title: z.string().min(1, 'Chapter title is required'),
@@ -75,6 +78,7 @@ export const updateTopicSchema = z
   });
 
 export const bulkCreateClassesSchema = z.object({
+  academicSessionId: z.string().uuid('Invalid academic session ID'),
   classes: z
     .array(
       z.object({
@@ -88,6 +92,7 @@ export const bulkCreateClassesSchema = z.object({
 });
 
 export const bulkCreateSubjectsSchema = z.object({
+  academicSessionId: z.string().uuid('Invalid academic session ID'),
   subjects: z
     .array(
       z.object({
