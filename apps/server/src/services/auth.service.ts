@@ -72,6 +72,17 @@ export const authService = {
       },
     });
 
+    let school: { id: string; name: string; currentAcademicSessionId: string | null } | undefined;
+    if (user.schoolId) {
+      const schoolData = await prisma.school.findUnique({
+        where: { id: user.schoolId },
+        select: { id: true, name: true, currentAcademicSessionId: true },
+      });
+      if (schoolData) {
+        school = schoolData;
+      }
+    }
+
     await userRepository.updateLastLogin(user.id);
 
     return {
@@ -83,6 +94,7 @@ export const authService = {
         schoolId: user.schoolId,
         teacherId,
         avatar: user.avatar,
+        school,
       },
       accessToken,
       refreshToken,

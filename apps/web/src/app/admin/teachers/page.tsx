@@ -233,7 +233,7 @@ export default function AdminTeachersPage() {
                 <Card
                   key={teacher.id}
                   className={cn(
-                    'animate-in fade-in slide-in-from-bottom-2 h-full border bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg',
+                    'group animate-in fade-in slide-in-from-bottom-2 h-full border bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg',
                     theme.border,
                   )}
                   style={{ animationDelay: `${i * 60}ms` }}

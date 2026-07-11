@@ -10,9 +10,15 @@ export const syllabusService = {
     teacherId?: string,
   ) {
     const { skip, page, pageSize } = getPagination(params.page, params.pageSize);
+    
+    // academicSessionId is now required for session isolation
+    if (!params.academicSessionId) {
+      throw new AppError('Academic session ID is required', 400);
+    }
+
     const where = withTenant(schoolId, {
       ...softDeleteFilter(),
-      ...(params.academicSessionId && { academicSessionId: params.academicSessionId }),
+      academicSessionId: params.academicSessionId,
       ...(params.search && { name: { contains: params.search } }),
       ...(teacherId && { teacherClasses: { some: { teacherId } } }),
     });
@@ -144,6 +150,18 @@ export const syllabusService = {
       subjects?: string[];
     },
   ) {
+    // Validate that the academic session exists and belongs to the school
+    const session = await prisma.academicSession.findFirst({
+      where: {
+        id: data.academicSessionId,
+        schoolId,
+      },
+    });
+
+    if (!session) {
+      throw new AppError('Academic session not found or does not belong to this school', 400);
+    }
+
     return prisma.class.create({
       data: {
         schoolId,
@@ -171,17 +189,23 @@ export const syllabusService = {
     });
   },
 
-  async getClassDetails(schoolId: string, id: string, teacherId?: string) {
+  async getClassDetails(schoolId: string, id: string, teacherId?: string, academicSessionId?: string) {
     console.log('[syllabusService.getClassDetails]', {
       schoolId,
       id,
       teacherId: teacherId ?? null,
+      academicSessionId,
     });
+
+    // academicSessionId is required for session isolation
+    if (!academicSessionId) {
+      throw new AppError('Academic session ID is required', 400);
+    }
 
     // If teacherId is provided, verify the teacher is assigned to this class
     if (teacherId) {
       const teacherAssignment = await prisma.teacherClass.findFirst({
-        where: { teacherId, classId: id },
+        where: { teacherId, classId: id, academicSessionId },
       });
       if (!teacherAssignment) {
         throw new AppError('Class not found or not assigned to you', 404);
@@ -189,7 +213,7 @@ export const syllabusService = {
     }
 
     const classItem = await prisma.class.findFirst({
-      where: withTenant(schoolId, { id, ...softDeleteFilter() }),
+      where: withTenant(schoolId, { id, academicSessionId, ...softDeleteFilter() }),
       include: {
         subjects: {
           where: {
@@ -404,10 +428,15 @@ export const syllabusService = {
 
   // Subjects
   async listSubjects(schoolId: string, classId?: string, academicSessionId?: string) {
+    // academicSessionId is required for session isolation
+    if (!academicSessionId) {
+      throw new AppError('Academic session ID is required', 400);
+    }
+
     return prisma.subject.findMany({
       where: withTenant(schoolId, {
         ...softDeleteFilter(),
-        ...(academicSessionId && { academicSessionId }),
+        academicSessionId,
         ...(classId && { classId }),
       }),
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
@@ -437,10 +466,15 @@ export const syllabusService = {
 
   // Chapters
   async listChapters(schoolId: string, subjectId?: string, teacherId?: string, academicSessionId?: string) {
+    // academicSessionId is required for session isolation
+    if (!academicSessionId) {
+      throw new AppError('Academic session ID is required', 400);
+    }
+
     return prisma.chapter.findMany({
       where: withTenant(schoolId, {
         ...softDeleteFilter(),
-        ...(academicSessionId && { academicSessionId }),
+        academicSessionId,
         ...(subjectId && { subjectId }),
         ...(teacherId && {
           subject: { teacherClasses: { some: { teacherId } } },
@@ -500,31 +534,36 @@ export const syllabusService = {
   },
 
   async getTree(schoolId: string, academicSessionId?: string) {
+    // academicSessionId is required for session isolation
+    if (!academicSessionId) {
+      throw new AppError('Academic session ID is required', 400);
+    }
+
     const classes = await prisma.class.findMany({
       where: withTenant(schoolId, {
         ...softDeleteFilter(),
-        ...(academicSessionId && { academicSessionId }),
+        academicSessionId,
       }),
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
       include: {
         subjects: {
           where: {
             ...softDeleteFilter(),
-            ...(academicSessionId && { academicSessionId }),
+            academicSessionId,
           },
           orderBy: [{ sortOrder: 'asc' }],
           include: {
             chapters: {
               where: {
                 ...softDeleteFilter(),
-                ...(academicSessionId && { academicSessionId }),
+                academicSessionId,
               },
               orderBy: [{ sortOrder: 'asc' }],
               include: {
                 topics: { 
                   where: {
                     ...softDeleteFilter(),
-                    ...(academicSessionId && { academicSessionId }),
+                    academicSessionId,
                   },
                   orderBy: [{ sortOrder: 'asc' }] 
                 },
@@ -560,6 +599,18 @@ export const syllabusService = {
     academicSessionId: string,
     classes: Array<{ name: string; grade?: string; section?: string; description?: string }>,
   ) {
+    // Validate that the academic session exists and belongs to the school
+    const session = await prisma.academicSession.findFirst({
+      where: {
+        id: academicSessionId,
+        schoolId,
+      },
+    });
+
+    if (!session) {
+      throw new AppError('Academic session not found or does not belong to this school', 400);
+    }
+
     const results = await prisma.$transaction(
       classes.map((data) =>
         prisma.class.create({
@@ -588,6 +639,18 @@ export const syllabusService = {
       color?: string;
     }>,
   ) {
+    // Validate that the academic session exists and belongs to the school
+    const session = await prisma.academicSession.findFirst({
+      where: {
+        id: academicSessionId,
+        schoolId,
+      },
+    });
+
+    if (!session) {
+      throw new AppError('Academic session not found or does not belong to this school', 400);
+    }
+
     const results = await prisma.$transaction(
       subjects.map((data) =>
         prisma.subject.create({

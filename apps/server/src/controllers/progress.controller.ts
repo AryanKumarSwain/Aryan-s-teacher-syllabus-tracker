@@ -9,7 +9,17 @@ export const progressController = {
   async updateChapter(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
-      const academicSessionId = req.body.academicSessionId || req.query.academicSessionId as string;
+      
+      // Get school's current session if not provided
+      let academicSessionId = req.body.academicSessionId || req.query.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+      
       let teacherId = req.body.teacherId;
 
       if (req.user!.role === 'TEACHER') {
@@ -39,7 +49,17 @@ export const progressController = {
   async updateTopic(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
-      const academicSessionId = req.body.academicSessionId || req.query.academicSessionId as string;
+      
+      // Get school's current session if not provided
+      let academicSessionId = req.body.academicSessionId || req.query.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+      
       let teacherId = req.body.teacherId as string | undefined;
 
       if (req.user!.role === 'TEACHER') {
@@ -69,7 +89,17 @@ export const progressController = {
   async getTeacherProgress(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
-      const academicSessionId = req.query.academicSessionId as string;
+      
+      // Get school's current session if not provided
+      let academicSessionId = req.query.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+      
       const teacher = await prisma.teacher.findFirst({
         where: { schoolId, userId: req.user!.sub },
       });

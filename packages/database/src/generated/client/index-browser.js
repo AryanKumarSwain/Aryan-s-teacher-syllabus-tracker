@@ -201,6 +201,7 @@ exports.Prisma.SubscriptionScalarFieldEnum = {
 exports.Prisma.TeacherScalarFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   userId: 'userId',
   status: 'status',
   createdAt: 'createdAt',
@@ -449,6 +450,7 @@ exports.Prisma.SubscriptionOrderByRelevanceFieldEnum = {
 exports.Prisma.TeacherOrderByRelevanceFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
   userId: 'userId'
 };
 

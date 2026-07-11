@@ -116,11 +116,17 @@ export const teacherService = {
   ) {
     const { skip, page, pageSize } = getPagination(params.page, params.pageSize);
 
+    // academicSessionId is required for session isolation
+    if (!params.academicSessionId) {
+      throw new AppError('Academic session ID is required', 400);
+    }
+
     const where = withTenant(schoolId, {
       ...softDeleteFilter(),
-      ...(params.academicSessionId && { academicSessionId: params.academicSessionId }),
-      ...(params.classId && { teacherClasses: { some: { classId: params.classId } } }),
-      ...(params.subjectId && { teacherClasses: { some: { subjectId: params.subjectId } } }),
+      // Show all teachers in the school for this session
+      // Teachers without assignments will also be shown
+      ...(params.classId && { teacherClasses: { some: { classId: params.classId, academicSessionId: params.academicSessionId } } }),
+      ...(params.subjectId && { teacherClasses: { some: { subjectId: params.subjectId, academicSessionId: params.academicSessionId } } }),
       ...(params.search && {
         user: {
           OR: [{ name: { contains: params.search } }, { email: { contains: params.search } }],

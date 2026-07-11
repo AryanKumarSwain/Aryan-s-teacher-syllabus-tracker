@@ -2683,6 +2683,7 @@ export namespace Prisma {
     chapters: number
     topics: number
     teacherClasses: number
+    teachers: number
     topicProgress: number
   }
 
@@ -2694,6 +2695,7 @@ export namespace Prisma {
     chapters?: boolean | AcademicSessionCountOutputTypeCountChaptersArgs
     topics?: boolean | AcademicSessionCountOutputTypeCountTopicsArgs
     teacherClasses?: boolean | AcademicSessionCountOutputTypeCountTeacherClassesArgs
+    teachers?: boolean | AcademicSessionCountOutputTypeCountTeachersArgs
     topicProgress?: boolean | AcademicSessionCountOutputTypeCountTopicProgressArgs
   }
 
@@ -2755,6 +2757,13 @@ export namespace Prisma {
    */
   export type AcademicSessionCountOutputTypeCountTeacherClassesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TeacherClassWhereInput
+  }
+
+  /**
+   * AcademicSessionCountOutputType without action
+   */
+  export type AcademicSessionCountOutputTypeCountTeachersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TeacherWhereInput
   }
 
   /**
@@ -6737,6 +6746,7 @@ export namespace Prisma {
     chapters?: boolean | AcademicSession$chaptersArgs<ExtArgs>
     topics?: boolean | AcademicSession$topicsArgs<ExtArgs>
     teacherClasses?: boolean | AcademicSession$teacherClassesArgs<ExtArgs>
+    teachers?: boolean | AcademicSession$teachersArgs<ExtArgs>
     topicProgress?: boolean | AcademicSession$topicProgressArgs<ExtArgs>
     _count?: boolean | AcademicSessionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["academicSession"]>
@@ -6763,6 +6773,7 @@ export namespace Prisma {
     chapters?: boolean | AcademicSession$chaptersArgs<ExtArgs>
     topics?: boolean | AcademicSession$topicsArgs<ExtArgs>
     teacherClasses?: boolean | AcademicSession$teacherClassesArgs<ExtArgs>
+    teachers?: boolean | AcademicSession$teachersArgs<ExtArgs>
     topicProgress?: boolean | AcademicSession$topicProgressArgs<ExtArgs>
     _count?: boolean | AcademicSessionCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -6778,6 +6789,7 @@ export namespace Prisma {
       chapters: Prisma.$ChapterPayload<ExtArgs>[]
       topics: Prisma.$TopicPayload<ExtArgs>[]
       teacherClasses: Prisma.$TeacherClassPayload<ExtArgs>[]
+      teachers: Prisma.$TeacherPayload<ExtArgs>[]
       topicProgress: Prisma.$TopicProgressPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -7136,6 +7148,7 @@ export namespace Prisma {
     chapters<T extends AcademicSession$chaptersArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$chaptersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     topics<T extends AcademicSession$topicsArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$topicsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     teacherClasses<T extends AcademicSession$teacherClassesArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$teacherClassesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    teachers<T extends AcademicSession$teachersArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$teachersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     topicProgress<T extends AcademicSession$topicProgressArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$topicProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -7681,6 +7694,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: TeacherClassScalarFieldEnum | TeacherClassScalarFieldEnum[]
+  }
+
+  /**
+   * AcademicSession.teachers
+   */
+  export type AcademicSession$teachersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Teacher
+     */
+    select?: TeacherSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Teacher
+     */
+    omit?: TeacherOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TeacherInclude<ExtArgs> | null
+    where?: TeacherWhereInput
+    orderBy?: TeacherOrderByWithRelationInput | TeacherOrderByWithRelationInput[]
+    cursor?: TeacherWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TeacherScalarFieldEnum | TeacherScalarFieldEnum[]
   }
 
   /**
@@ -9790,6 +9827,7 @@ export namespace Prisma {
   export type TeacherMinAggregateOutputType = {
     id: string | null
     schoolId: string | null
+    academicSessionId: string | null
     userId: string | null
     status: $Enums.UserStatus | null
     createdAt: Date | null
@@ -9800,6 +9838,7 @@ export namespace Prisma {
   export type TeacherMaxAggregateOutputType = {
     id: string | null
     schoolId: string | null
+    academicSessionId: string | null
     userId: string | null
     status: $Enums.UserStatus | null
     createdAt: Date | null
@@ -9810,6 +9849,7 @@ export namespace Prisma {
   export type TeacherCountAggregateOutputType = {
     id: number
     schoolId: number
+    academicSessionId: number
     userId: number
     status: number
     createdAt: number
@@ -9822,6 +9862,7 @@ export namespace Prisma {
   export type TeacherMinAggregateInputType = {
     id?: true
     schoolId?: true
+    academicSessionId?: true
     userId?: true
     status?: true
     createdAt?: true
@@ -9832,6 +9873,7 @@ export namespace Prisma {
   export type TeacherMaxAggregateInputType = {
     id?: true
     schoolId?: true
+    academicSessionId?: true
     userId?: true
     status?: true
     createdAt?: true
@@ -9842,6 +9884,7 @@ export namespace Prisma {
   export type TeacherCountAggregateInputType = {
     id?: true
     schoolId?: true
+    academicSessionId?: true
     userId?: true
     status?: true
     createdAt?: true
@@ -9925,6 +9968,7 @@ export namespace Prisma {
   export type TeacherGroupByOutputType = {
     id: string
     schoolId: string
+    academicSessionId: string | null
     userId: string
     status: $Enums.UserStatus
     createdAt: Date
@@ -9952,11 +9996,13 @@ export namespace Prisma {
   export type TeacherSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     schoolId?: boolean
+    academicSessionId?: boolean
     userId?: boolean
     status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
+    academicSession?: boolean | Teacher$academicSessionArgs<ExtArgs>
     chapterProgress?: boolean | Teacher$chapterProgressArgs<ExtArgs>
     teacherClasses?: boolean | Teacher$teacherClassesArgs<ExtArgs>
     school?: boolean | SchoolDefaultArgs<ExtArgs>
@@ -9970,6 +10016,7 @@ export namespace Prisma {
   export type TeacherSelectScalar = {
     id?: boolean
     schoolId?: boolean
+    academicSessionId?: boolean
     userId?: boolean
     status?: boolean
     createdAt?: boolean
@@ -9977,8 +10024,9 @@ export namespace Prisma {
     deletedAt?: boolean
   }
 
-  export type TeacherOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "userId" | "status" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["teacher"]>
+  export type TeacherOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "academicSessionId" | "userId" | "status" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["teacher"]>
   export type TeacherInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    academicSession?: boolean | Teacher$academicSessionArgs<ExtArgs>
     chapterProgress?: boolean | Teacher$chapterProgressArgs<ExtArgs>
     teacherClasses?: boolean | Teacher$teacherClassesArgs<ExtArgs>
     school?: boolean | SchoolDefaultArgs<ExtArgs>
@@ -9990,6 +10038,7 @@ export namespace Prisma {
   export type $TeacherPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Teacher"
     objects: {
+      academicSession: Prisma.$AcademicSessionPayload<ExtArgs> | null
       chapterProgress: Prisma.$ChapterProgressPayload<ExtArgs>[]
       teacherClasses: Prisma.$TeacherClassPayload<ExtArgs>[]
       school: Prisma.$SchoolPayload<ExtArgs>
@@ -9999,6 +10048,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       schoolId: string
+      academicSessionId: string | null
       userId: string
       status: $Enums.UserStatus
       createdAt: Date
@@ -10344,6 +10394,7 @@ export namespace Prisma {
    */
   export interface Prisma__TeacherClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    academicSession<T extends Teacher$academicSessionArgs<ExtArgs> = {}>(args?: Subset<T, Teacher$academicSessionArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     chapterProgress<T extends Teacher$chapterProgressArgs<ExtArgs> = {}>(args?: Subset<T, Teacher$chapterProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     teacherClasses<T extends Teacher$teacherClassesArgs<ExtArgs> = {}>(args?: Subset<T, Teacher$teacherClassesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
@@ -10380,6 +10431,7 @@ export namespace Prisma {
   interface TeacherFieldRefs {
     readonly id: FieldRef<"Teacher", 'String'>
     readonly schoolId: FieldRef<"Teacher", 'String'>
+    readonly academicSessionId: FieldRef<"Teacher", 'String'>
     readonly userId: FieldRef<"Teacher", 'String'>
     readonly status: FieldRef<"Teacher", 'UserStatus'>
     readonly createdAt: FieldRef<"Teacher", 'DateTime'>
@@ -10725,6 +10777,25 @@ export namespace Prisma {
      * Limit how many Teachers to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Teacher.academicSession
+   */
+  export type Teacher$academicSessionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AcademicSession
+     */
+    select?: AcademicSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AcademicSession
+     */
+    omit?: AcademicSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AcademicSessionInclude<ExtArgs> | null
+    where?: AcademicSessionWhereInput
   }
 
   /**
@@ -23471,6 +23542,7 @@ export namespace Prisma {
   export const TeacherScalarFieldEnum: {
     id: 'id',
     schoolId: 'schoolId',
+    academicSessionId: 'academicSessionId',
     userId: 'userId',
     status: 'status',
     createdAt: 'createdAt',
@@ -23794,6 +23866,7 @@ export namespace Prisma {
   export const TeacherOrderByRelevanceFieldEnum: {
     id: 'id',
     schoolId: 'schoolId',
+    academicSessionId: 'academicSessionId',
     userId: 'userId'
   };
 
@@ -24394,6 +24467,7 @@ export namespace Prisma {
     chapters?: ChapterListRelationFilter
     topics?: TopicListRelationFilter
     teacherClasses?: TeacherClassListRelationFilter
+    teachers?: TeacherListRelationFilter
     topicProgress?: TopicProgressListRelationFilter
   }
 
@@ -24413,6 +24487,7 @@ export namespace Prisma {
     chapters?: ChapterOrderByRelationAggregateInput
     topics?: TopicOrderByRelationAggregateInput
     teacherClasses?: TeacherClassOrderByRelationAggregateInput
+    teachers?: TeacherOrderByRelationAggregateInput
     topicProgress?: TopicProgressOrderByRelationAggregateInput
     _relevance?: AcademicSessionOrderByRelevanceInput
   }
@@ -24437,6 +24512,7 @@ export namespace Prisma {
     chapters?: ChapterListRelationFilter
     topics?: TopicListRelationFilter
     teacherClasses?: TeacherClassListRelationFilter
+    teachers?: TeacherListRelationFilter
     topicProgress?: TopicProgressListRelationFilter
   }, "id" | "schoolId_name">
 
@@ -24644,11 +24720,13 @@ export namespace Prisma {
     NOT?: TeacherWhereInput | TeacherWhereInput[]
     id?: StringFilter<"Teacher"> | string
     schoolId?: StringFilter<"Teacher"> | string
+    academicSessionId?: StringNullableFilter<"Teacher"> | string | null
     userId?: StringFilter<"Teacher"> | string
     status?: EnumUserStatusFilter<"Teacher"> | $Enums.UserStatus
     createdAt?: DateTimeFilter<"Teacher"> | Date | string
     updatedAt?: DateTimeFilter<"Teacher"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Teacher"> | Date | string | null
+    academicSession?: XOR<AcademicSessionNullableScalarRelationFilter, AcademicSessionWhereInput> | null
     chapterProgress?: ChapterProgressListRelationFilter
     teacherClasses?: TeacherClassListRelationFilter
     school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
@@ -24659,11 +24737,13 @@ export namespace Prisma {
   export type TeacherOrderByWithRelationInput = {
     id?: SortOrder
     schoolId?: SortOrder
+    academicSessionId?: SortOrderInput | SortOrder
     userId?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
+    academicSession?: AcademicSessionOrderByWithRelationInput
     chapterProgress?: ChapterProgressOrderByRelationAggregateInput
     teacherClasses?: TeacherClassOrderByRelationAggregateInput
     school?: SchoolOrderByWithRelationInput
@@ -24675,25 +24755,28 @@ export namespace Prisma {
   export type TeacherWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     userId?: string
-    schoolId_userId?: TeacherSchoolIdUserIdCompoundUniqueInput
+    schoolId_userId_academicSessionId?: TeacherSchoolIdUserIdAcademicSessionIdCompoundUniqueInput
     AND?: TeacherWhereInput | TeacherWhereInput[]
     OR?: TeacherWhereInput[]
     NOT?: TeacherWhereInput | TeacherWhereInput[]
     schoolId?: StringFilter<"Teacher"> | string
+    academicSessionId?: StringNullableFilter<"Teacher"> | string | null
     status?: EnumUserStatusFilter<"Teacher"> | $Enums.UserStatus
     createdAt?: DateTimeFilter<"Teacher"> | Date | string
     updatedAt?: DateTimeFilter<"Teacher"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Teacher"> | Date | string | null
+    academicSession?: XOR<AcademicSessionNullableScalarRelationFilter, AcademicSessionWhereInput> | null
     chapterProgress?: ChapterProgressListRelationFilter
     teacherClasses?: TeacherClassListRelationFilter
     school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     topicProgress?: TopicProgressListRelationFilter
-  }, "id" | "userId" | "schoolId_userId">
+  }, "id" | "userId" | "schoolId_userId_academicSessionId">
 
   export type TeacherOrderByWithAggregationInput = {
     id?: SortOrder
     schoolId?: SortOrder
+    academicSessionId?: SortOrderInput | SortOrder
     userId?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
@@ -24710,6 +24793,7 @@ export namespace Prisma {
     NOT?: TeacherScalarWhereWithAggregatesInput | TeacherScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Teacher"> | string
     schoolId?: StringWithAggregatesFilter<"Teacher"> | string
+    academicSessionId?: StringNullableWithAggregatesFilter<"Teacher"> | string | null
     userId?: StringWithAggregatesFilter<"Teacher"> | string
     status?: EnumUserStatusWithAggregatesFilter<"Teacher"> | $Enums.UserStatus
     createdAt?: DateTimeWithAggregatesFilter<"Teacher"> | Date | string
@@ -26196,6 +26280,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -26214,6 +26299,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicUncheckedCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -26232,6 +26318,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -26250,6 +26337,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -26479,6 +26567,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
+    academicSession?: AcademicSessionCreateNestedOneWithoutTeachersInput
     chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
     school: SchoolCreateNestedOneWithoutTeachersInput
@@ -26489,6 +26578,7 @@ export namespace Prisma {
   export type TeacherUncheckedCreateInput = {
     id?: string
     schoolId: string
+    academicSessionId?: string | null
     userId: string
     status?: $Enums.UserStatus
     createdAt?: Date | string
@@ -26505,6 +26595,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicSession?: AcademicSessionUpdateOneWithoutTeachersNestedInput
     chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
     school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
@@ -26515,6 +26606,7 @@ export namespace Prisma {
   export type TeacherUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26528,6 +26620,7 @@ export namespace Prisma {
   export type TeacherCreateManyInput = {
     id?: string
     schoolId: string
+    academicSessionId?: string | null
     userId: string
     status?: $Enums.UserStatus
     createdAt?: Date | string
@@ -26546,6 +26639,7 @@ export namespace Prisma {
   export type TeacherUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -28481,20 +28575,27 @@ export namespace Prisma {
     _max?: NestedEnumSubscriptionStatusFilter<$PrismaModel>
   }
 
+  export type AcademicSessionNullableScalarRelationFilter = {
+    is?: AcademicSessionWhereInput | null
+    isNot?: AcademicSessionWhereInput | null
+  }
+
   export type TeacherOrderByRelevanceInput = {
     fields: TeacherOrderByRelevanceFieldEnum | TeacherOrderByRelevanceFieldEnum[]
     sort: SortOrder
     search: string
   }
 
-  export type TeacherSchoolIdUserIdCompoundUniqueInput = {
+  export type TeacherSchoolIdUserIdAcademicSessionIdCompoundUniqueInput = {
     schoolId: string
     userId: string
+    academicSessionId: string
   }
 
   export type TeacherCountOrderByAggregateInput = {
     id?: SortOrder
     schoolId?: SortOrder
+    academicSessionId?: SortOrder
     userId?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
@@ -28505,6 +28606,7 @@ export namespace Prisma {
   export type TeacherMaxOrderByAggregateInput = {
     id?: SortOrder
     schoolId?: SortOrder
+    academicSessionId?: SortOrder
     userId?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
@@ -28515,6 +28617,7 @@ export namespace Prisma {
   export type TeacherMinOrderByAggregateInput = {
     id?: SortOrder
     schoolId?: SortOrder
+    academicSessionId?: SortOrder
     userId?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
@@ -30266,6 +30369,13 @@ export namespace Prisma {
     connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
   }
 
+  export type TeacherCreateNestedManyWithoutAcademicSessionInput = {
+    create?: XOR<TeacherCreateWithoutAcademicSessionInput, TeacherUncheckedCreateWithoutAcademicSessionInput> | TeacherCreateWithoutAcademicSessionInput[] | TeacherUncheckedCreateWithoutAcademicSessionInput[]
+    connectOrCreate?: TeacherCreateOrConnectWithoutAcademicSessionInput | TeacherCreateOrConnectWithoutAcademicSessionInput[]
+    createMany?: TeacherCreateManyAcademicSessionInputEnvelope
+    connect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+  }
+
   export type TopicProgressCreateNestedManyWithoutAcademicSessionInput = {
     create?: XOR<TopicProgressCreateWithoutAcademicSessionInput, TopicProgressUncheckedCreateWithoutAcademicSessionInput> | TopicProgressCreateWithoutAcademicSessionInput[] | TopicProgressUncheckedCreateWithoutAcademicSessionInput[]
     connectOrCreate?: TopicProgressCreateOrConnectWithoutAcademicSessionInput | TopicProgressCreateOrConnectWithoutAcademicSessionInput[]
@@ -30320,6 +30430,13 @@ export namespace Prisma {
     connectOrCreate?: TeacherClassCreateOrConnectWithoutAcademicSessionInput | TeacherClassCreateOrConnectWithoutAcademicSessionInput[]
     createMany?: TeacherClassCreateManyAcademicSessionInputEnvelope
     connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
+  }
+
+  export type TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput = {
+    create?: XOR<TeacherCreateWithoutAcademicSessionInput, TeacherUncheckedCreateWithoutAcademicSessionInput> | TeacherCreateWithoutAcademicSessionInput[] | TeacherUncheckedCreateWithoutAcademicSessionInput[]
+    connectOrCreate?: TeacherCreateOrConnectWithoutAcademicSessionInput | TeacherCreateOrConnectWithoutAcademicSessionInput[]
+    createMany?: TeacherCreateManyAcademicSessionInputEnvelope
+    connect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
   }
 
   export type TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput = {
@@ -30443,6 +30560,20 @@ export namespace Prisma {
     deleteMany?: TeacherClassScalarWhereInput | TeacherClassScalarWhereInput[]
   }
 
+  export type TeacherUpdateManyWithoutAcademicSessionNestedInput = {
+    create?: XOR<TeacherCreateWithoutAcademicSessionInput, TeacherUncheckedCreateWithoutAcademicSessionInput> | TeacherCreateWithoutAcademicSessionInput[] | TeacherUncheckedCreateWithoutAcademicSessionInput[]
+    connectOrCreate?: TeacherCreateOrConnectWithoutAcademicSessionInput | TeacherCreateOrConnectWithoutAcademicSessionInput[]
+    upsert?: TeacherUpsertWithWhereUniqueWithoutAcademicSessionInput | TeacherUpsertWithWhereUniqueWithoutAcademicSessionInput[]
+    createMany?: TeacherCreateManyAcademicSessionInputEnvelope
+    set?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+    disconnect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+    delete?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+    connect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+    update?: TeacherUpdateWithWhereUniqueWithoutAcademicSessionInput | TeacherUpdateWithWhereUniqueWithoutAcademicSessionInput[]
+    updateMany?: TeacherUpdateManyWithWhereWithoutAcademicSessionInput | TeacherUpdateManyWithWhereWithoutAcademicSessionInput[]
+    deleteMany?: TeacherScalarWhereInput | TeacherScalarWhereInput[]
+  }
+
   export type TopicProgressUpdateManyWithoutAcademicSessionNestedInput = {
     create?: XOR<TopicProgressCreateWithoutAcademicSessionInput, TopicProgressUncheckedCreateWithoutAcademicSessionInput> | TopicProgressCreateWithoutAcademicSessionInput[] | TopicProgressUncheckedCreateWithoutAcademicSessionInput[]
     connectOrCreate?: TopicProgressCreateOrConnectWithoutAcademicSessionInput | TopicProgressCreateOrConnectWithoutAcademicSessionInput[]
@@ -30555,6 +30686,20 @@ export namespace Prisma {
     deleteMany?: TeacherClassScalarWhereInput | TeacherClassScalarWhereInput[]
   }
 
+  export type TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput = {
+    create?: XOR<TeacherCreateWithoutAcademicSessionInput, TeacherUncheckedCreateWithoutAcademicSessionInput> | TeacherCreateWithoutAcademicSessionInput[] | TeacherUncheckedCreateWithoutAcademicSessionInput[]
+    connectOrCreate?: TeacherCreateOrConnectWithoutAcademicSessionInput | TeacherCreateOrConnectWithoutAcademicSessionInput[]
+    upsert?: TeacherUpsertWithWhereUniqueWithoutAcademicSessionInput | TeacherUpsertWithWhereUniqueWithoutAcademicSessionInput[]
+    createMany?: TeacherCreateManyAcademicSessionInputEnvelope
+    set?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+    disconnect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+    delete?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+    connect?: TeacherWhereUniqueInput | TeacherWhereUniqueInput[]
+    update?: TeacherUpdateWithWhereUniqueWithoutAcademicSessionInput | TeacherUpdateWithWhereUniqueWithoutAcademicSessionInput[]
+    updateMany?: TeacherUpdateManyWithWhereWithoutAcademicSessionInput | TeacherUpdateManyWithWhereWithoutAcademicSessionInput[]
+    deleteMany?: TeacherScalarWhereInput | TeacherScalarWhereInput[]
+  }
+
   export type TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput = {
     create?: XOR<TopicProgressCreateWithoutAcademicSessionInput, TopicProgressUncheckedCreateWithoutAcademicSessionInput> | TopicProgressCreateWithoutAcademicSessionInput[] | TopicProgressUncheckedCreateWithoutAcademicSessionInput[]
     connectOrCreate?: TopicProgressCreateOrConnectWithoutAcademicSessionInput | TopicProgressCreateOrConnectWithoutAcademicSessionInput[]
@@ -30659,6 +30804,12 @@ export namespace Prisma {
     update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutSubscriptionsInput, SchoolUpdateWithoutSubscriptionsInput>, SchoolUncheckedUpdateWithoutSubscriptionsInput>
   }
 
+  export type AcademicSessionCreateNestedOneWithoutTeachersInput = {
+    create?: XOR<AcademicSessionCreateWithoutTeachersInput, AcademicSessionUncheckedCreateWithoutTeachersInput>
+    connectOrCreate?: AcademicSessionCreateOrConnectWithoutTeachersInput
+    connect?: AcademicSessionWhereUniqueInput
+  }
+
   export type ChapterProgressCreateNestedManyWithoutTeacherInput = {
     create?: XOR<ChapterProgressCreateWithoutTeacherInput, ChapterProgressUncheckedCreateWithoutTeacherInput> | ChapterProgressCreateWithoutTeacherInput[] | ChapterProgressUncheckedCreateWithoutTeacherInput[]
     connectOrCreate?: ChapterProgressCreateOrConnectWithoutTeacherInput | ChapterProgressCreateOrConnectWithoutTeacherInput[]
@@ -30711,6 +30862,16 @@ export namespace Prisma {
     connectOrCreate?: TopicProgressCreateOrConnectWithoutTeacherInput | TopicProgressCreateOrConnectWithoutTeacherInput[]
     createMany?: TopicProgressCreateManyTeacherInputEnvelope
     connect?: TopicProgressWhereUniqueInput | TopicProgressWhereUniqueInput[]
+  }
+
+  export type AcademicSessionUpdateOneWithoutTeachersNestedInput = {
+    create?: XOR<AcademicSessionCreateWithoutTeachersInput, AcademicSessionUncheckedCreateWithoutTeachersInput>
+    connectOrCreate?: AcademicSessionCreateOrConnectWithoutTeachersInput
+    upsert?: AcademicSessionUpsertWithoutTeachersInput
+    disconnect?: AcademicSessionWhereInput | boolean
+    delete?: AcademicSessionWhereInput | boolean
+    connect?: AcademicSessionWhereUniqueInput
+    update?: XOR<XOR<AcademicSessionUpdateToOneWithWhereWithoutTeachersInput, AcademicSessionUpdateWithoutTeachersInput>, AcademicSessionUncheckedUpdateWithoutTeachersInput>
   }
 
   export type ChapterProgressUpdateManyWithoutTeacherNestedInput = {
@@ -32294,6 +32455,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
+    academicSession?: AcademicSessionCreateNestedOneWithoutTeachersInput
     chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
     school: SchoolCreateNestedOneWithoutTeachersInput
@@ -32303,6 +32465,7 @@ export namespace Prisma {
   export type TeacherUncheckedCreateWithoutUserInput = {
     id?: string
     schoolId: string
+    academicSessionId?: string | null
     status?: $Enums.UserStatus
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -32583,6 +32746,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicSession?: AcademicSessionUpdateOneWithoutTeachersNestedInput
     chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
     school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
@@ -32592,6 +32756,7 @@ export namespace Prisma {
   export type TeacherUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32814,6 +32979,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -32831,6 +32997,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicUncheckedCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -33150,6 +33317,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
+    academicSession?: AcademicSessionCreateNestedOneWithoutTeachersInput
     chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
     user: UserCreateNestedOneWithoutTeacherInput
@@ -33158,6 +33326,7 @@ export namespace Prisma {
 
   export type TeacherUncheckedCreateWithoutSchoolInput = {
     id?: string
+    academicSessionId?: string | null
     userId: string
     status?: $Enums.UserStatus
     createdAt?: Date | string
@@ -33537,6 +33706,7 @@ export namespace Prisma {
     NOT?: TeacherScalarWhereInput | TeacherScalarWhereInput[]
     id?: StringFilter<"Teacher"> | string
     schoolId?: StringFilter<"Teacher"> | string
+    academicSessionId?: StringNullableFilter<"Teacher"> | string | null
     userId?: StringFilter<"Teacher"> | string
     status?: EnumUserStatusFilter<"Teacher"> | $Enums.UserStatus
     createdAt?: DateTimeFilter<"Teacher"> | Date | string
@@ -33949,6 +34119,42 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type TeacherCreateWithoutAcademicSessionInput = {
+    id?: string
+    status?: $Enums.UserStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
+    teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
+    school: SchoolCreateNestedOneWithoutTeachersInput
+    user: UserCreateNestedOneWithoutTeacherInput
+    topicProgress?: TopicProgressCreateNestedManyWithoutTeacherInput
+  }
+
+  export type TeacherUncheckedCreateWithoutAcademicSessionInput = {
+    id?: string
+    schoolId: string
+    userId: string
+    status?: $Enums.UserStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutTeacherInput
+    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTeacherInput
+  }
+
+  export type TeacherCreateOrConnectWithoutAcademicSessionInput = {
+    where: TeacherWhereUniqueInput
+    create: XOR<TeacherCreateWithoutAcademicSessionInput, TeacherUncheckedCreateWithoutAcademicSessionInput>
+  }
+
+  export type TeacherCreateManyAcademicSessionInputEnvelope = {
+    data: TeacherCreateManyAcademicSessionInput | TeacherCreateManyAcademicSessionInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TopicProgressCreateWithoutAcademicSessionInput = {
     id?: string
     schoolId: string
@@ -34169,6 +34375,22 @@ export namespace Prisma {
     classId?: StringFilter<"TeacherClass"> | string
     subjectId?: StringNullableFilter<"TeacherClass"> | string | null
     createdAt?: DateTimeFilter<"TeacherClass"> | Date | string
+  }
+
+  export type TeacherUpsertWithWhereUniqueWithoutAcademicSessionInput = {
+    where: TeacherWhereUniqueInput
+    update: XOR<TeacherUpdateWithoutAcademicSessionInput, TeacherUncheckedUpdateWithoutAcademicSessionInput>
+    create: XOR<TeacherCreateWithoutAcademicSessionInput, TeacherUncheckedCreateWithoutAcademicSessionInput>
+  }
+
+  export type TeacherUpdateWithWhereUniqueWithoutAcademicSessionInput = {
+    where: TeacherWhereUniqueInput
+    data: XOR<TeacherUpdateWithoutAcademicSessionInput, TeacherUncheckedUpdateWithoutAcademicSessionInput>
+  }
+
+  export type TeacherUpdateManyWithWhereWithoutAcademicSessionInput = {
+    where: TeacherScalarWhereInput
+    data: XOR<TeacherUpdateManyMutationInput, TeacherUncheckedUpdateManyWithoutAcademicSessionInput>
   }
 
   export type TopicProgressUpsertWithWhereUniqueWithoutAcademicSessionInput = {
@@ -34433,6 +34655,47 @@ export namespace Prisma {
     users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
+  export type AcademicSessionCreateWithoutTeachersInput = {
+    id?: string
+    name: string
+    status?: $Enums.SessionStatus
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    school: SchoolCreateNestedOneWithoutAcademicSessionsInput
+    academicTerms?: AcademicTermCreateNestedManyWithoutAcademicSessionInput
+    chapterProgress?: ChapterProgressCreateNestedManyWithoutAcademicSessionInput
+    classes?: ClassCreateNestedManyWithoutAcademicSessionInput
+    subjects?: SubjectCreateNestedManyWithoutAcademicSessionInput
+    chapters?: ChapterCreateNestedManyWithoutAcademicSessionInput
+    topics?: TopicCreateNestedManyWithoutAcademicSessionInput
+    teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
+    topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
+  }
+
+  export type AcademicSessionUncheckedCreateWithoutTeachersInput = {
+    id?: string
+    schoolId: string
+    name: string
+    status?: $Enums.SessionStatus
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutAcademicSessionInput
+    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
+    classes?: ClassUncheckedCreateNestedManyWithoutAcademicSessionInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutAcademicSessionInput
+    chapters?: ChapterUncheckedCreateNestedManyWithoutAcademicSessionInput
+    topics?: TopicUncheckedCreateNestedManyWithoutAcademicSessionInput
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
+    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
+  }
+
+  export type AcademicSessionCreateOrConnectWithoutTeachersInput = {
+    where: AcademicSessionWhereUniqueInput
+    create: XOR<AcademicSessionCreateWithoutTeachersInput, AcademicSessionUncheckedCreateWithoutTeachersInput>
+  }
+
   export type ChapterProgressCreateWithoutTeacherInput = {
     id?: string
     schoolId: string
@@ -34643,6 +34906,53 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type AcademicSessionUpsertWithoutTeachersInput = {
+    update: XOR<AcademicSessionUpdateWithoutTeachersInput, AcademicSessionUncheckedUpdateWithoutTeachersInput>
+    create: XOR<AcademicSessionCreateWithoutTeachersInput, AcademicSessionUncheckedCreateWithoutTeachersInput>
+    where?: AcademicSessionWhereInput
+  }
+
+  export type AcademicSessionUpdateToOneWithWhereWithoutTeachersInput = {
+    where?: AcademicSessionWhereInput
+    data: XOR<AcademicSessionUpdateWithoutTeachersInput, AcademicSessionUncheckedUpdateWithoutTeachersInput>
+  }
+
+  export type AcademicSessionUpdateWithoutTeachersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    status?: EnumSessionStatusFieldUpdateOperationsInput | $Enums.SessionStatus
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneRequiredWithoutAcademicSessionsNestedInput
+    academicTerms?: AcademicTermUpdateManyWithoutAcademicSessionNestedInput
+    chapterProgress?: ChapterProgressUpdateManyWithoutAcademicSessionNestedInput
+    classes?: ClassUpdateManyWithoutAcademicSessionNestedInput
+    subjects?: SubjectUpdateManyWithoutAcademicSessionNestedInput
+    chapters?: ChapterUpdateManyWithoutAcademicSessionNestedInput
+    topics?: TopicUpdateManyWithoutAcademicSessionNestedInput
+    teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
+    topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
+  }
+
+  export type AcademicSessionUncheckedUpdateWithoutTeachersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    status?: EnumSessionStatusFieldUpdateOperationsInput | $Enums.SessionStatus
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    academicTerms?: AcademicTermUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    classes?: ClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    chapters?: ChapterUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
+  }
+
   export type ChapterProgressUpsertWithWhereUniqueWithoutTeacherInput = {
     where: ChapterProgressWhereUniqueInput
     update: XOR<ChapterProgressUpdateWithoutTeacherInput, ChapterProgressUncheckedUpdateWithoutTeacherInput>
@@ -34823,6 +35133,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -34840,6 +35151,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicUncheckedCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -35044,6 +35356,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -35061,6 +35374,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -35189,6 +35503,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -35206,6 +35521,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicUncheckedCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -35405,6 +35721,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -35422,6 +35739,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -35577,6 +35895,7 @@ export namespace Prisma {
     subjects?: SubjectCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -35594,6 +35913,7 @@ export namespace Prisma {
     subjects?: SubjectUncheckedCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicUncheckedCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -35838,6 +36158,7 @@ export namespace Prisma {
     subjects?: SubjectUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -35855,6 +36176,7 @@ export namespace Prisma {
     subjects?: SubjectUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -36053,6 +36375,7 @@ export namespace Prisma {
     subjects?: SubjectCreateNestedManyWithoutAcademicSessionInput
     chapters?: ChapterCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -36070,6 +36393,7 @@ export namespace Prisma {
     subjects?: SubjectUncheckedCreateNestedManyWithoutAcademicSessionInput
     chapters?: ChapterUncheckedCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -36233,6 +36557,7 @@ export namespace Prisma {
     subjects?: SubjectUpdateManyWithoutAcademicSessionNestedInput
     chapters?: ChapterUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -36250,6 +36575,7 @@ export namespace Prisma {
     subjects?: SubjectUncheckedUpdateManyWithoutAcademicSessionNestedInput
     chapters?: ChapterUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -36391,6 +36717,7 @@ export namespace Prisma {
     subjects?: SubjectCreateNestedManyWithoutAcademicSessionInput
     chapters?: ChapterCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -36408,6 +36735,7 @@ export namespace Prisma {
     subjects?: SubjectUncheckedCreateNestedManyWithoutAcademicSessionInput
     chapters?: ChapterUncheckedCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicUncheckedCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -36496,6 +36824,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
+    academicSession?: AcademicSessionCreateNestedOneWithoutTeachersInput
     chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
     school: SchoolCreateNestedOneWithoutTeachersInput
     user: UserCreateNestedOneWithoutTeacherInput
@@ -36505,6 +36834,7 @@ export namespace Prisma {
   export type TeacherUncheckedCreateWithoutTeacherClassesInput = {
     id?: string
     schoolId: string
+    academicSessionId?: string | null
     userId: string
     status?: $Enums.UserStatus
     createdAt?: Date | string
@@ -36544,6 +36874,7 @@ export namespace Prisma {
     subjects?: SubjectUpdateManyWithoutAcademicSessionNestedInput
     chapters?: ChapterUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -36561,6 +36892,7 @@ export namespace Prisma {
     subjects?: SubjectUncheckedUpdateManyWithoutAcademicSessionNestedInput
     chapters?: ChapterUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -36667,6 +36999,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicSession?: AcademicSessionUpdateOneWithoutTeachersNestedInput
     chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
     school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
     user?: UserUpdateOneRequiredWithoutTeacherNestedInput
@@ -36676,6 +37009,7 @@ export namespace Prisma {
   export type TeacherUncheckedUpdateWithoutTeacherClassesInput = {
     id?: StringFieldUpdateOperationsInput | string
     schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36699,6 +37033,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -36716,6 +37051,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicUncheckedCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -36769,6 +37105,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
+    academicSession?: AcademicSessionCreateNestedOneWithoutTeachersInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
     school: SchoolCreateNestedOneWithoutTeachersInput
     user: UserCreateNestedOneWithoutTeacherInput
@@ -36778,6 +37115,7 @@ export namespace Prisma {
   export type TeacherUncheckedCreateWithoutChapterProgressInput = {
     id?: string
     schoolId: string
+    academicSessionId?: string | null
     userId: string
     status?: $Enums.UserStatus
     createdAt?: Date | string
@@ -36866,6 +37204,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -36883,6 +37222,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -36948,6 +37288,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicSession?: AcademicSessionUpdateOneWithoutTeachersNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
     school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
     user?: UserUpdateOneRequiredWithoutTeacherNestedInput
@@ -36957,6 +37298,7 @@ export namespace Prisma {
   export type TeacherUncheckedUpdateWithoutChapterProgressInput = {
     id?: StringFieldUpdateOperationsInput | string
     schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37036,6 +37378,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionUncheckedCreateWithoutTopicProgressInput = {
@@ -37053,6 +37396,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicUncheckedCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionCreateOrConnectWithoutTopicProgressInput = {
@@ -37066,6 +37410,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
+    academicSession?: AcademicSessionCreateNestedOneWithoutTeachersInput
     chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
     school: SchoolCreateNestedOneWithoutTeachersInput
@@ -37075,6 +37420,7 @@ export namespace Prisma {
   export type TeacherUncheckedCreateWithoutTopicProgressInput = {
     id?: string
     schoolId: string
+    academicSessionId?: string | null
     userId: string
     status?: $Enums.UserStatus
     createdAt?: Date | string
@@ -37197,6 +37543,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type AcademicSessionUncheckedUpdateWithoutTopicProgressInput = {
@@ -37214,6 +37561,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type TeacherUpsertWithoutTopicProgressInput = {
@@ -37233,6 +37581,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicSession?: AcademicSessionUpdateOneWithoutTeachersNestedInput
     chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
     school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
@@ -37242,6 +37591,7 @@ export namespace Prisma {
   export type TeacherUncheckedUpdateWithoutTopicProgressInput = {
     id?: StringFieldUpdateOperationsInput | string
     schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -38031,6 +38381,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -38048,6 +38399,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutAcademicSessionInput
     topics?: TopicUncheckedCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
@@ -38164,6 +38516,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -38181,6 +38534,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -38752,6 +39106,7 @@ export namespace Prisma {
 
   export type TeacherCreateManySchoolInput = {
     id?: string
+    academicSessionId?: string | null
     userId: string
     status?: $Enums.UserStatus
     createdAt?: Date | string
@@ -38801,6 +39156,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -38818,6 +39174,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topics?: TopicUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
@@ -39158,6 +39515,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicSession?: AcademicSessionUpdateOneWithoutTeachersNestedInput
     chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
     user?: UserUpdateOneRequiredWithoutTeacherNestedInput
@@ -39166,6 +39524,7 @@ export namespace Prisma {
 
   export type TeacherUncheckedUpdateWithoutSchoolInput = {
     id?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -39178,6 +39537,7 @@ export namespace Prisma {
 
   export type TeacherUncheckedUpdateManyWithoutSchoolInput = {
     id?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -39379,6 +39739,16 @@ export namespace Prisma {
     classId: string
     subjectId?: string | null
     createdAt?: Date | string
+  }
+
+  export type TeacherCreateManyAcademicSessionInput = {
+    id?: string
+    schoolId: string
+    userId: string
+    status?: $Enums.UserStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
   }
 
   export type TopicProgressCreateManyAcademicSessionInput = {
@@ -39697,6 +40067,42 @@ export namespace Prisma {
     classId?: StringFieldUpdateOperationsInput | string
     subjectId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TeacherUpdateWithoutAcademicSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
+    teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
+    school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
+    user?: UserUpdateOneRequiredWithoutTeacherNestedInput
+    topicProgress?: TopicProgressUpdateManyWithoutTeacherNestedInput
+  }
+
+  export type TeacherUncheckedUpdateWithoutAcademicSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
+    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
+    topicProgress?: TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput
+  }
+
+  export type TeacherUncheckedUpdateManyWithoutAcademicSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type TopicProgressUpdateWithoutAcademicSessionInput = {

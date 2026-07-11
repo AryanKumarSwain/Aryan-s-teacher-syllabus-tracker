@@ -23,11 +23,11 @@ export const academicSessionController = {
 
   async getBySchool(req: Request, res: Response, next: NextFunction) {
     try {
-      const schoolId = String(req.query.schoolId);
+      const schoolId = req.schoolId || String(req.query.schoolId);
       if (!schoolId) {
         return res
           .status(400)
-          .json({ success: false, error: 'schoolId query parameter is required' });
+          .json({ success: false, error: 'schoolId is required' });
       }
       const sessions = await academicSessionService.getBySchoolId(schoolId);
       sendSuccess(res, sessions);
@@ -36,23 +36,12 @@ export const academicSessionController = {
     }
   },
 
-  async create(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { name } = req.body as { name: string; schoolId?: string };
-      const schoolId = req.body.schoolId || req.schoolId;
-      if (!schoolId || !name) {
-        return res.status(400).json({ success: false, error: 'schoolId and name are required' });
-      }
-      const session = await academicSessionService.create({ schoolId, name });
-      sendSuccess(res, session, 201);
-    } catch (err) {
-      next(err);
-    }
-  },
 
   async switchSession(req: Request, res: Response, next: NextFunction) {
     try {
-      const { schoolId, sessionId } = req.body;
+      const schoolId = req.schoolId || String(req.body.schoolId);
+      const sessionId = String(req.body.sessionId);
+      
       if (!schoolId || !sessionId) {
         return res
           .status(400)

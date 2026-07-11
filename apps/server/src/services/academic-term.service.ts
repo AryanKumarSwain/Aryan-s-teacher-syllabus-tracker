@@ -12,10 +12,16 @@ export const academicTermService = {
     status?: string;
   }) {
     const { skip, page, pageSize } = getPagination(params.page, params.pageSize);
+    
+    // academicSessionId is required for session isolation
+    if (!params.academicSessionId) {
+      throw new AppError('Academic session ID is required', 400);
+    }
+
     const where = {
       ...softDeleteFilter(),
       ...(params.schoolId && { schoolId: params.schoolId }),
-      ...(params.academicSessionId && { academicSessionId: params.academicSessionId }),
+      academicSessionId: params.academicSessionId,
       ...(params.status && { status: params.status as AcademicTermStatus }),
     };
 
@@ -73,6 +79,18 @@ export const academicTermService = {
     vacationDays?: Array<{ startDate: Date; endDate: Date; reason?: string }>;
     terms?: Array<{ name: string; startDate: string; endDate: string }>;
   }) {
+    // Validate that the academic session exists and belongs to the school
+    const session = await prisma.academicSession.findFirst({
+      where: {
+        id: data.academicSessionId,
+        schoolId: data.schoolId,
+      },
+    });
+
+    if (!session) {
+      throw new AppError('Academic session not found or does not belong to this school', 400);
+    }
+
     const weeklyHolidays = data.weeklyHolidays || [0]; // Default to Sunday
 
     // Validate terms date constraints

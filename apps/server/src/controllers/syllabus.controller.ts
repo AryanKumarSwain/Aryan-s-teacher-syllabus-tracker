@@ -7,13 +7,25 @@ import { sendPaginated, sendSuccess } from '../utils/api-response.js';
 export const syllabusController = {
   async listClasses(req: Request, res: Response, next: NextFunction) {
     try {
+      const schoolId = getTenantId(req);
+      
+      // Get school's current session if not provided
+      let academicSessionId = req.query.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+
       const params = {
         page: Number(req.query.page) || 1,
         pageSize: Number(req.query.pageSize) || 100,
         search: req.query.search as string | undefined,
-        academicSessionId: req.query.academicSessionId as string | undefined,
+        academicSessionId,
       };
-      const result = await syllabusService.listClasses(getTenantId(req), params);
+      const result = await syllabusService.listClasses(schoolId, params);
       sendPaginated(res, result.items, result.total, result.page, result.pageSize);
     } catch (err) {
       next(err);
@@ -41,10 +53,21 @@ export const syllabusController = {
         teacherId = teacher?.id;
       }
 
+      // Get school's current session if not provided
+      let academicSessionId = req.query.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+
       const item = await syllabusService.getClassDetails(
         schoolId,
         String(req.params.id),
         teacherId,
+        academicSessionId,
       );
       sendSuccess(res, item);
     } catch (err) {
@@ -59,10 +82,25 @@ export const syllabusController = {
         where: { schoolId, userId: req.user!.sub },
       });
       if (!teacher) throw new Error('Teacher profile not found');
+      
+      // Get school's current session if not provided
+      let academicSessionId = req.query.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+      
+      const params = {
+        ...req.query,
+        academicSessionId,
+      };
       const result = await syllabusService.listAssignedClasses(
         schoolId,
         teacher.id,
-        req.query as never,
+        params as never,
       );
       sendPaginated(res, result.items, result.total, result.page, result.pageSize);
     } catch (err) {
@@ -111,10 +149,22 @@ export const syllabusController = {
 
   async listSubjects(req: Request, res: Response, next: NextFunction) {
     try {
+      const schoolId = getTenantId(req);
+      
+      // Get school's current session if not provided
+      let academicSessionId = req.query.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+
       const items = await syllabusService.listSubjects(
-        getTenantId(req),
+        schoolId,
         req.query.classId as string | undefined,
-        req.query.academicSessionId as string | undefined,
+        academicSessionId,
       );
       sendSuccess(res, items);
     } catch (err) {
@@ -144,11 +194,21 @@ export const syllabusController = {
         teacherId = teacher?.id;
       }
 
+      // Get school's current session if not provided
+      let academicSessionId = req.query.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+
       const items = await syllabusService.listChapters(
         schoolId,
         req.query.subjectId as string | undefined,
         teacherId,
-        req.query.academicSessionId as string | undefined,
+        academicSessionId,
       );
       sendSuccess(res, items);
     } catch (err) {
@@ -176,9 +236,21 @@ export const syllabusController = {
 
   async getTree(req: Request, res: Response, next: NextFunction) {
     try {
+      const schoolId = getTenantId(req);
+      
+      // Get school's current session if not provided
+      let academicSessionId = req.query.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+
       const tree = await syllabusService.getTree(
-        getTenantId(req),
-        req.query.academicSessionId as string | undefined,
+        schoolId,
+        academicSessionId,
       );
       sendSuccess(res, tree);
     } catch (err) {

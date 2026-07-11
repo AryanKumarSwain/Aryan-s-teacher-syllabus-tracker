@@ -98,6 +98,7 @@ model AcademicSession {
   chapters        Chapter[]
   topics          Topic[]
   teacherClasses  TeacherClass[]
+  teachers        Teacher[]
   topicProgress   TopicProgress[]
 
   @@unique([schoolId, name])
@@ -145,8 +146,13 @@ model Subscription {
 }
 
 model Teacher {
-  id              String            @id @default(uuid()) @db.VarChar(50)
-  schoolId        String            @map("school_id") @db.VarChar(50)
+  id       String @id @default(uuid()) @db.VarChar(50)
+  schoolId String @map("school_id") @db.VarChar(50)
+
+  // Changed these two lines to be optional (added `?`)
+  academicSessionId String?          @map("academic_session_id") @db.VarChar(50)
+  academicSession   AcademicSession? @relation(fields: [academicSessionId], references: [id], onDelete: Cascade)
+
   userId          String            @unique @map("user_id") @db.VarChar(50)
   status          UserStatus        @default(ACTIVE)
   createdAt       DateTime          @default(now()) @map("created_at")
@@ -158,8 +164,9 @@ model Teacher {
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   topicProgress   TopicProgress[]
 
-  @@unique([schoolId, userId])
+  @@unique([schoolId, userId, academicSessionId])
   @@index([schoolId])
+  @@index([academicSessionId])
   @@index([schoolId, status])
   @@map("teachers")
 }

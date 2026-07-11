@@ -15,7 +15,17 @@ export const dashboardController = {
         return sendSuccess(res, stats);
       }
       const schoolId = getTenantId(req);
-      const academicSessionId = req.query.academicSessionId as string;
+      
+      // Get school's current session if not provided
+      let academicSessionId = req.query.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+      
       const stats = await progressService.getSchoolDashboardStats(schoolId, academicSessionId);
       sendSuccess(res, stats);
     } catch (err) {
@@ -154,7 +164,17 @@ export const dashboardController = {
   async getAnalytics(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
-      const academicSessionId = req.query.academicSessionId as string;
+      
+      // Get school's current session if not provided
+      let academicSessionId = req.query.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+      
       const academicYearId = req.query.academicYearId as string | undefined;
       
       // Resolve academic session ID from academic year ID if needed

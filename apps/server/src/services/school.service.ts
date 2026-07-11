@@ -1,7 +1,10 @@
-import { prisma, SchoolStatus } from '@school-syllabus/database';
+import { prisma, SchoolStatus, SessionStatus } from '@school-syllabus/database';
 import { AppError } from '../middleware/error-handler.js';
 import { getPagination, softDeleteFilter } from '../repositories/base.repository.js';
 import { withTenant } from '../repositories/base.repository.js';
+
+// Hardcoded sessions as per requirements
+const HARDCODED_SESSIONS = ['2026-27', '2027-28', '2028-29'];
 export const schoolService = {
   async list(params: { page: number; pageSize: number; search?: string; status?: string }) {
     const { skip, page, pageSize } = getPagination(params.page, params.pageSize);
@@ -67,6 +70,28 @@ export const schoolService = {
           phone: data.phone,
           address: data.address,
         },
+      });
+
+      // Create hardcoded academic sessions for the school
+      const sessions = await Promise.all(
+        HARDCODED_SESSIONS.map((sessionName) =>
+          tx.academicSession.create({
+            data: {
+              schoolId: school.id,
+              name: sessionName,
+              status: SessionStatus.ACTIVE,
+              isArchived: false,
+            },
+          })
+        )
+      );
+
+      // Set 2026-27 as the default current session
+      const session2026 = sessions.find(s => s.name === '2026-27');
+      const targetSession = session2026 || sessions[0];
+      await tx.school.update({
+        where: { id: school.id },
+        data: { currentAcademicSessionId: targetSession.id },
       });
 
       if (data.planId) {

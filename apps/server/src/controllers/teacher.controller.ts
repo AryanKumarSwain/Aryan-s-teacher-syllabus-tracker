@@ -25,7 +25,23 @@ export const teacherController = {
   async list(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
-      const result = await teacherService.list(schoolId, req.query as never);
+      
+      // Get school's current session if not provided
+      let academicSessionId = req.query.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const { prisma } = await import('@school-syllabus/database');
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+      
+      const params = {
+        ...req.query,
+        academicSessionId,
+      };
+      const result = await teacherService.list(schoolId, params as never);
       sendPaginated(res, result.items, result.total, result.page, result.pageSize);
     } catch (err) {
       next(err);
@@ -34,8 +50,23 @@ export const teacherController = {
 
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const academicSessionId = (req.query.academicSessionId as string) || (req.body.academicSessionId as string);
-      const teacher = await teacherService.getById(getTenantId(req), academicSessionId, String(req.params.id));
+      const schoolId = getTenantId(req);
+      
+      // Get school's current session if not provided
+      let academicSessionId = (req.query.academicSessionId as string) || (req.body.academicSessionId as string);
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+      
+      if (!academicSessionId) {
+        return res.status(400).json({ success: false, error: 'Academic session ID is required' });
+      }
+      
+      const teacher = await teacherService.getById(schoolId, academicSessionId, String(req.params.id));
       sendSuccess(res, teacher);
     } catch (err) {
       next(err);
@@ -45,8 +76,23 @@ export const teacherController = {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       console.log('[CREATE TEACHER] body:', JSON.stringify(req.body, null, 2));
-      const academicSessionId = req.body.academicSessionId as string;
-      const result = await teacherService.create(getTenantId(req), academicSessionId, req.body);
+      const schoolId = getTenantId(req);
+      
+      // Get school's current session if not provided
+      let academicSessionId = req.body.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+      
+      if (!academicSessionId) {
+        return res.status(400).json({ success: false, error: 'Academic session ID is required' });
+      }
+      
+      const result = await teacherService.create(schoolId, academicSessionId, req.body);
       sendSuccess(res, result, 201);
     } catch (err) {
       console.error('[CREATE TEACHER ERROR]', err);
@@ -56,9 +102,24 @@ export const teacherController = {
 
   async addAssignment(req: Request, res: Response, next: NextFunction) {
     try {
-      const academicSessionId = req.body.academicSessionId as string;
+      const schoolId = getTenantId(req);
+      
+      // Get school's current session if not provided
+      let academicSessionId = req.body.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+      
+      if (!academicSessionId) {
+        return res.status(400).json({ success: false, error: 'Academic session ID is required' });
+      }
+      
       const assignment = await teacherService.createAssignment(
-        getTenantId(req),
+        schoolId,
         academicSessionId,
         String(req.params.id),
         req.body,
@@ -84,9 +145,24 @@ export const teacherController = {
 
   async update(req: Request, res: Response, next: NextFunction) {
     try {
-      const academicSessionId = req.body.academicSessionId as string;
+      const schoolId = getTenantId(req);
+      
+      // Get school's current session if not provided
+      let academicSessionId = req.body.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+      
+      if (!academicSessionId) {
+        return res.status(400).json({ success: false, error: 'Academic session ID is required' });
+      }
+      
       const teacher = await teacherService.update(
-        getTenantId(req),
+        schoolId,
         academicSessionId,
         String(req.params.id),
         req.body,
@@ -99,8 +175,23 @@ export const teacherController = {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const academicSessionId = (req.query.academicSessionId as string) || (req.body.academicSessionId as string);
-      await teacherService.softDelete(getTenantId(req), academicSessionId, String(req.params.id));
+      const schoolId = getTenantId(req);
+      
+      // Get school's current session if not provided
+      let academicSessionId = (req.query.academicSessionId as string) || (req.body.academicSessionId as string);
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+      
+      if (!academicSessionId) {
+        return res.status(400).json({ success: false, error: 'Academic session ID is required' });
+      }
+      
+      await teacherService.softDelete(schoolId, academicSessionId, String(req.params.id));
       sendSuccess(res, { message: 'Teacher deleted' });
     } catch (err) {
       next(err);

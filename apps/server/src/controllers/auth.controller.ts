@@ -391,6 +391,31 @@ export const authController = {
       });
       console.log('[completeGoogleProfile] School created:', school.id);
 
+      // Create hardcoded academic sessions for the school
+      const HARDCODED_SESSIONS = ['2026-27', '2027-28', '2028-29'];
+      const sessions = await Promise.all(
+        HARDCODED_SESSIONS.map((sessionName) =>
+          prisma.academicSession.create({
+            data: {
+              schoolId: school.id,
+              name: sessionName,
+              status: 'ACTIVE',
+              isArchived: false,
+            },
+          })
+        )
+      );
+      console.log('[completeGoogleProfile] Sessions created:', sessions.length);
+
+      // Set 2026-27 as the default current session
+      const session2026 = sessions.find(s => s.name === '2026-27');
+      const targetSession = session2026 || sessions[0];
+      await prisma.school.update({
+        where: { id: school.id },
+        data: { currentAcademicSessionId: targetSession.id },
+      });
+      console.log('[completeGoogleProfile] Current session set:', targetSession.name);
+
       // Update user with phone and schoolId
       const updatedUser = await prisma.user.update({
         where: { id: userId },

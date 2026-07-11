@@ -2,11 +2,22 @@ import { prisma, SessionStatus } from '@school-syllabus/database';
 import { AppError } from '../middleware/error-handler.js';
 import { getPagination, softDeleteFilter } from '../repositories/base.repository.js';
 
+// Hardcoded sessions as per requirements
+const HARDCODED_SESSIONS = ['2026-27', '2027-28', '2028-29'];
+
 export const academicSessionService = {
   async list(params: { page: number; pageSize: number; schoolId?: string; status?: string }) {
     const { skip, page, pageSize } = getPagination(params.page, params.pageSize);
+    const schoolId = params.schoolId;
+
+    if (!schoolId) {
+      return { items: [], total: 0, page, pageSize };
+    }
+
+    // Return only hardcoded sessions from database
     const where = {
-      ...(params.schoolId && { schoolId: params.schoolId }),
+      schoolId,
+      name: { in: HARDCODED_SESSIONS },
       ...(params.status && { status: params.status as SessionStatus }),
     };
 
@@ -15,7 +26,7 @@ export const academicSessionService = {
         where,
         skip,
         take: pageSize,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { name: 'asc' },
         include: {
           _count: {
             select: {
@@ -52,53 +63,39 @@ export const academicSessionService = {
   },
 
   async getBySchoolId(schoolId: string) {
+    // Return only hardcoded sessions for this school from database
     return prisma.academicSession.findMany({
-      where: { schoolId },
-      orderBy: { createdAt: 'desc' },
+      where: {
+        schoolId,
+        name: { in: HARDCODED_SESSIONS },
+      },
+      orderBy: { name: 'asc' },
       include: {
         _count: {
           select: {
             academicTerms: true,
             classes: true,
             subjects: true,
+            chapters: true,
           },
         },
       },
     });
   },
 
-  async create(data: { schoolId: string; name: string }) {
-    // Check if session name already exists for this school
-    const existing = await prisma.academicSession.findFirst({
-      where: { schoolId: data.schoolId, name: data.name },
-    });
 
-    if (existing) {
-      throw new AppError(`Session "${data.name}" already exists for this school`, 400);
-    }
-
-    const session = await prisma.academicSession.create({
-      data: {
-        schoolId: data.schoolId,
-        name: data.name,
-        status: SessionStatus.ACTIVE,
+  async switchSession(schoolId: string, sessionId: string) {
+    // Verify session exists and is one of the hardcoded sessions for this school
+    const session = await prisma.academicSession.findFirst({
+      where: {
+        id: sessionId,
+        schoolId,
+        name: { in: HARDCODED_SESSIONS },
       },
     });
 
-    // Always set the newly created session as the current session
-    await prisma.school.update({
-      where: { id: data.schoolId },
-      data: { currentAcademicSessionId: session.id },
-    });
-
-    return session;
-  },
-
-  async switchSession(schoolId: string, sessionId: string) {
-    // Verify session belongs to school
-    const session = await this.getById(sessionId);
-    if (session.schoolId !== schoolId) {
-      throw new AppError('Session does not belong to this school', 403);
+    if (!session) {
+      throw new AppError('Invalid session for this school', 403);
     }
 
     // Update current session

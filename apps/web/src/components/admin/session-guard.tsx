@@ -16,9 +16,9 @@ export function AdminSessionGuard() {
       return;
     }
 
-    if (sessions.length === 0 && pathname !== '/admin') {
-      router.replace('/admin');
-    }
+    // With hardcoded sessions, sessions will always be available (3 sessions)
+    // No need to redirect to /admin for session creation
+    // The guard is now just a placeholder for future session validation if needed
   }, [schoolId, isLoading, sessions.length, pathname, router]);
 
   return null;

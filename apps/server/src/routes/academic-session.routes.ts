@@ -25,21 +25,22 @@ academicSessionRoutes.get('/', async (req, res, next) => {
 });
 
 // Get sessions by school
-academicSessionRoutes.get('/by-school', academicSessionController.getBySchool);
+academicSessionRoutes.get(
+  '/by-school',
+  requireSchoolTenant,
+  academicSessionController.getBySchool
+);
 
 // Get specific session
 academicSessionRoutes.get('/:id', academicSessionController.getById);
 
-// Create new session
-academicSessionRoutes.post(
-  '/',
-  requireSchoolTenant,
-  validateBody(z.object({ name: z.string().min(1), schoolId: z.string().optional() })),
-  academicSessionController.create,
-);
 
 // Switch active session
-academicSessionRoutes.post('/switch', academicSessionController.switchSession);
+academicSessionRoutes.post(
+  '/switch',
+  requireSchoolTenant,
+  academicSessionController.switchSession
+);
 
 // Archive a session
 academicSessionRoutes.patch('/:id/archive', academicSessionController.archive);

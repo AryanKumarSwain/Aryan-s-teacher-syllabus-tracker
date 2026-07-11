@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/empty-state';
 import { api } from '@/services/api-client';
+import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { cn } from '@/lib/utils';
 
 interface AssignedClass {
@@ -22,7 +23,7 @@ interface AssignedClass {
 }
 
 export default function TeacherClassesPage() {
-  const { school } = useAuthStore((s) => ({ school: s.user?.school }));
+  const { school } = useSchool();
   const schoolId = school?.id;
   const academicSessionId = school?.currentAcademicSessionId;
 

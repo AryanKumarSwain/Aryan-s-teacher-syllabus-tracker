@@ -1,11 +1,30 @@
 import type { Request, Response, NextFunction } from 'express';
+import { prisma } from '@school-syllabus/database';
 import { academicTermService } from '../services/academic-term.service.js';
 import { sendPaginated, sendSuccess } from '../utils/api-response.js';
+import { getTenantId } from '../middleware/tenant.js';
 
 export const academicTermController = {
   async list(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await academicTermService.list(req.query as never);
+      const schoolId = getTenantId(req);
+      
+      // Get school's current session if not provided
+      let academicSessionId = req.query.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+
+      const params = {
+        ...req.query,
+        schoolId,
+        academicSessionId,
+      };
+      const result = await academicTermService.list(params as never);
       sendPaginated(res, result.items, result.total, result.page, result.pageSize);
     } catch (err) {
       next(err);

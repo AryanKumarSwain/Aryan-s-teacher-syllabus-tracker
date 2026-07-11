@@ -152,7 +152,6 @@ export default function AdminSyllabusPage() {
     enabled: Boolean(schoolId),
   });
 
-  // Fetch existing academic terms so the admin can pick which term a chapter belongs to
   const { data: academicYearsResponse } = useQuery({
     queryKey: ['academic-terms', schoolId],
     queryFn: async () => {
@@ -203,7 +202,6 @@ export default function AdminSyllabusPage() {
     );
   }, [academicYears]);
 
-  // De-duped list of term names for the filter dropdown (only active-year terms)
   const termFilterOptions = useMemo(() => {
     const seen = new Set<string>();
     const opts: { termName: string; label: string }[] = [];
@@ -301,7 +299,6 @@ export default function AdminSyllabusPage() {
     onError: () => toast.error('Failed to delete chapter'),
   });
 
-  // NOTE: adjust the endpoint/payload here to match your actual "create class" API.
   const createClassMutation = useMutation({
     mutationFn: (payload: { name: string }) => {
       if (!school?.currentAcademicSessionId) {
@@ -341,7 +338,6 @@ export default function AdminSyllabusPage() {
 
     return tree
       .map((cls) => {
-        // Apply term filter first (only keep chapters matching the selected term)
         const subjectsAfterTermFilter = cls.subjects
           .map((sub) => ({
             ...sub,
@@ -381,14 +377,15 @@ export default function AdminSyllabusPage() {
       setEditTermKey(item.termKey);
     }
   };
-
+  
   const openEditChapter = (chapter: Chapter) => {
     const matchedTerm = termOptions.find((t) => t.termName === chapter.termName);
+    const chNo = chapter.chapterNo ?? (chapter as any).chapter_no;
     openEdit({
       type: 'chapter',
       id: chapter.id,
       title: chapter.title,
-      chapterNo: chapter.chapterNo != null ? String(chapter.chapterNo) : '',
+      chapterNo: chNo != null ? String(chNo) : '',
       termKey: matchedTerm?.key ?? '',
     });
   };
@@ -422,7 +419,6 @@ export default function AdminSyllabusPage() {
       return;
     }
 
-    // chapter
     if (!editChapterNo.trim()) return toast.error('Chapter no. is required');
     if (Number.isNaN(Number(editChapterNo)) || Number(editChapterNo) <= 0)
       return toast.error('Chapter no. must be a valid number');
@@ -674,63 +670,61 @@ export default function AdminSyllabusPage() {
                                     <div className="space-y-1.5 border-l-2 border-gray-200 py-1 pl-4">
                                       {subject.chapters.map((chapter) => {
                                         const tc = getTermColor(chapter.termName);
+                                        // Ensuring both API casing variables are handled properly
+                                        const chNo = chapter.chapterNo ?? (chapter as any).chapter_no;
+                                        
                                         return (
                                           <div
                                             key={chapter.id}
-                                            className={cn(
-                                              'group flex items-center justify-between gap-3 rounded-lg border px-3 py-2 transition-all duration-200 hover:shadow-sm',
-                                              chapter.termName ? tc.border : 'border-gray-200',
-                                              chapter.termName ? tc.light : 'bg-white',
-                                            )}
+                                            className="group flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2 transition-all duration-200 hover:shadow-sm"
                                           >
                                             <span className="flex items-center gap-2 text-xs font-medium text-gray-700">
-                                              {chapter.chapterNo != null && (
-                                                <span
-                                                  className={cn(
-                                                    'rounded px-1.5 py-0.5 text-[10px] font-semibold',
-                                                    chapter.termName ? tc.text : 'text-gray-500',
-                                                    chapter.termName ? tc.light : 'bg-gray-100',
-                                                  )}
-                                                >
-                                                  Ch {chapter.chapterNo}
-                                                </span>
-                                              )}
-                                              {chapter.title}
+                                              <span className="font-bold text-gray-900">
+                                                {chNo != null
+                                                  ? `Chapter ${chNo} :- ${chapter.title}`
+                                                  : chapter.title}
+                                              </span>
+                                            </span>
+                                            
+                                            <div className="flex items-center gap-3">
+                                              {/* Term Label outside and distinct */}
                                               {chapter.termName && (
                                                 <span
                                                   className={cn(
-                                                    'rounded-full px-2 py-0.5 text-[10px] font-semibold',
+                                                    'rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider',
                                                     tc.text,
                                                     tc.light,
+                                                    tc.border
                                                   )}
                                                 >
                                                   {chapter.termName}
                                                 </span>
                                               )}
-                                            </span>
-                                            <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                                              <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="text-muted-foreground hover:text-foreground h-7 px-2 text-xs"
-                                                onClick={() => openEditChapter(chapter)}
-                                              >
-                                                <Pencil className="h-3 w-3" />
-                                              </Button>
-                                              <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="text-destructive hover:bg-destructive/10 hover:text-destructive h-7 px-2 text-xs"
-                                                onClick={() => {
-                                                  if (confirm(`Delete "${chapter.title}"?`)) {
-                                                    deleteChapterMutation.mutate({
-                                                      chapterId: chapter.id,
-                                                    });
-                                                  }
-                                                }}
-                                              >
-                                                <Trash2 className="h-3 w-3" />
-                                              </Button>
+                                              
+                                              <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="text-muted-foreground hover:text-foreground h-7 px-2 text-xs"
+                                                  onClick={() => openEditChapter(chapter)}
+                                                >
+                                                  <Pencil className="h-3 w-3" />
+                                                </Button>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="text-destructive hover:bg-destructive/10 hover:text-destructive h-7 px-2 text-xs"
+                                                  onClick={() => {
+                                                    if (confirm(`Delete "${chapter.title}"?`)) {
+                                                      deleteChapterMutation.mutate({
+                                                        chapterId: chapter.id,
+                                                      });
+                                                    }
+                                                  }}
+                                                >
+                                                  <Trash2 className="h-3 w-3" />
+                                                </Button>
+                                              </div>
                                             </div>
                                           </div>
                                         );
@@ -742,16 +736,16 @@ export default function AdminSyllabusPage() {
                                             <Input
                                               value={newChapterNo}
                                               onChange={(e) => setNewChapterNo(e.target.value)}
-                                              placeholder="No."
+                                              placeholder="Chapter No."
                                               type="number"
                                               min={1}
-                                              className="h-8 w-16 text-xs"
+                                              className="h-8 w-24 text-xs"
                                               autoFocus
                                             />
                                             <Input
                                               value={newChapterTitle}
                                               onChange={(e) => setNewChapterTitle(e.target.value)}
-                                              placeholder="e.g. Introduction"
+                                              placeholder="Chapter Name"
                                               className="h-8 min-w-[10rem] flex-1 text-xs"
                                             />
                                             <select
@@ -877,10 +871,10 @@ export default function AdminSyllabusPage() {
                 <Input
                   value={editChapterNo}
                   onChange={(e) => setEditChapterNo(e.target.value)}
-                  placeholder="Ch. No."
+                  placeholder="Chapter No."
                   type="number"
                   min={1}
-                  className="w-24"
+                  className="w-28"
                 />
                 <select
                   value={editTermKey}
@@ -902,7 +896,7 @@ export default function AdminSyllabusPage() {
             <Input
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              placeholder={`Enter new ${editing?.type} name`}
+              placeholder={editing?.type === 'chapter' ? "Chapter Name" : `Enter new ${editing?.type} name`}
             />
           </div>
           <DialogFooter className="gap-2">
