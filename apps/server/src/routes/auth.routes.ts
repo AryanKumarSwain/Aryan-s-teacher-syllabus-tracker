@@ -15,6 +15,10 @@ export const authRoutes = Router();
 
 authRoutes.post('/login', validateBody(loginSchema), authController.login);
 authRoutes.post('/register', validateBody(registerSchema), authController.register);
+authRoutes.post('/register/send-otp', authController.sendRegistrationOtp);
+authRoutes.post('/register/verify-otp', authController.verifyRegistrationOtp);
+authRoutes.post('/password-reset/send-otp', authController.sendPasswordResetOtp);
+authRoutes.post('/password-reset/verify', authController.verifyOtpAndResetPassword);
 authRoutes.post('/refresh', validateBody(refreshSchema), authController.refresh);
 authRoutes.post('/logout', authController.logout);
 authRoutes.get('/me', authenticate, authController.me);

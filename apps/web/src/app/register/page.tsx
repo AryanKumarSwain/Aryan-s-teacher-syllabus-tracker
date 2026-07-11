@@ -16,6 +16,10 @@ import { toast } from 'sonner';
 export default function RegisterPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
 
   const {
     register,
@@ -28,8 +32,48 @@ export default function RegisterPage() {
   });
 
   const password = watch('password', '');
+  const email = watch('email', '');
+
+  const handleSendOtp = async () => {
+    if (!email || errors.email) {
+      toast.error('Please enter a valid email first');
+      return;
+    }
+    try {
+      setSendingOtp(true);
+      await api.post('/auth/register/send-otp', { email }, true);
+      setOtpSent(true);
+      toast.success('OTP sent to your email');
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : 'Failed to send OTP');
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    const otp = watch('otp', '');
+    if (!otp || otp.length !== 6) {
+      toast.error('Please enter a valid 6-digit OTP');
+      return;
+    }
+    try {
+      setVerifyingOtp(true);
+      await api.post('/auth/register/verify-otp', { email, otp }, true);
+      setOtpVerified(true);
+      toast.success('Email verified successfully');
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : 'Invalid OTP');
+    } finally {
+      setVerifyingOtp(false);
+    }
+  };
 
   const onSubmit = async (data: RegisterFormData) => {
+    if (!otpVerified) {
+      toast.error('Please verify your email with OTP first');
+      return;
+    }
     try {
       await api.post(
         '/auth/register',
@@ -165,14 +209,60 @@ export default function RegisterPage() {
                   <Label className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                     Email <span className="text-red-400">*</span>
                   </Label>
-                  <Input
-                    type="email"
-                    {...register('email')}
-                    placeholder="admin@school.com"
-                    className="rounded-lg border-gray-200 focus:border-[#1a73e8] focus:ring-[#1a73e8]/20"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      type="email"
+                      {...register('email')}
+                      placeholder="admin@school.com"
+                      className="rounded-lg border-gray-200 focus:border-[#1a73e8] focus:ring-[#1a73e8]/20"
+                      disabled={otpVerified}
+                    />
+                    {!otpVerified && (
+                      <button
+                        type="button"
+                        onClick={handleSendOtp}
+                        disabled={sendingOtp || !email || !!errors.email}
+                        className="rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {sendingOtp ? 'Sending...' : otpSent ? 'Resend' : 'Send OTP'}
+                      </button>
+                    )}
+                  </div>
                   {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
                 </div>
+
+                {/* OTP */}
+                {!otpVerified && otpSent && (
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      OTP <span className="text-red-400">*</span>
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="text"
+                        {...register('otp')}
+                        placeholder="Enter 6-digit code"
+                        maxLength={6}
+                        className="rounded-lg border-gray-200 focus:border-[#1a73e8] focus:ring-[#1a73e8]/20"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleVerifyOtp}
+                        disabled={verifyingOtp}
+                        className="rounded-lg bg-[#1a73e8] px-3 text-sm font-medium text-white hover:bg-[#1558b0] disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {verifyingOtp ? 'Verifying...' : 'Verify'}
+                      </button>
+                    </div>
+                    {errors.otp && <p className="text-xs text-red-500">{errors.otp.message}</p>}
+                  </div>
+                )}
+
+                {otpVerified && (
+                  <div className="rounded-lg bg-green-50 border border-green-200 p-3">
+                    <p className="text-sm font-medium text-green-700">✓ Email verified successfully</p>
+                  </div>
+                )}
 
                 {/* Phone */}
                 <div className="space-y-1.5">

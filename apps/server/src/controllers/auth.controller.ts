@@ -84,6 +84,151 @@ export const authController = {
     }
   },
 
+  // Send OTP for email verification during registration
+  async sendRegistrationOtp(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ success: false, error: 'Email is required' });
+      }
+
+      const otp = generateOtp();
+      const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+      // Use email as key for registration OTP
+      otpStore.set(`reg_${email}`, { otp, expiresAt });
+
+      try {
+        await sendOtpEmail({
+          to: email,
+          name: 'User',
+          otp,
+        });
+      } catch (emailErr) {
+        otpStore.delete(`reg_${email}`);
+        const message = emailErr instanceof Error ? emailErr.message : 'Failed to send verification email';
+        console.error('[Auth] sendRegistrationOtp email failed', { email, message });
+        throw new AppError(
+          `Could not send verification code: ${message}. Check SMTP or Resend configuration.`,
+          502,
+        );
+      }
+
+      sendSuccess(res, { message: `Verification code sent to ${email}` });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // Verify OTP for registration
+  async verifyRegistrationOtp(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, otp } = req.body;
+      if (!email || !otp) {
+        return res.status(400).json({ success: false, error: 'Email and OTP are required' });
+      }
+
+      const stored = otpStore.get(`reg_${email}`);
+
+      if (!stored) {
+        throw new AppError('No OTP requested. Please request a new code.', 400);
+      }
+      if (Date.now() > stored.expiresAt) {
+        otpStore.delete(`reg_${email}`);
+        throw new AppError('OTP has expired. Please request a new code.', 400);
+      }
+      if (stored.otp !== otp) {
+        throw new AppError('Invalid verification code.', 401);
+      }
+
+      // OTP is valid, delete it
+      otpStore.delete(`reg_${email}`);
+
+      sendSuccess(res, { message: 'OTP verified successfully' });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // Send OTP for password reset (no auth required)
+  async sendPasswordResetOtp(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ success: false, error: 'Email is required' });
+      }
+
+      const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+      if (!user) {
+        // Don't reveal if email exists or not for security
+        return sendSuccess(res, { message: 'If an account exists with this email, a verification code will be sent' });
+      }
+
+      const otp = generateOtp();
+      const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+      // Use email as key for password reset OTP
+      otpStore.set(`reset_${email}`, { otp, expiresAt });
+
+      try {
+        await sendOtpEmail({
+          to: user.email,
+          name: user.name ?? 'User',
+          otp,
+        });
+      } catch (emailErr) {
+        otpStore.delete(`reset_${email}`);
+        const message = emailErr instanceof Error ? emailErr.message : 'Failed to send verification email';
+        console.error('[Auth] sendPasswordResetOtp email failed', { email, message });
+        throw new AppError(
+          `Could not send verification code: ${message}. Check SMTP or Resend configuration.`,
+          502,
+        );
+      }
+
+      sendSuccess(res, { message: `Verification code sent to ${user.email}` });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // Verify OTP and reset password (no auth required)
+  async verifyOtpAndResetPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, otp, newPassword } = req.body;
+      if (!email || !otp || !newPassword) {
+        return res.status(400).json({ success: false, error: 'Email, OTP, and new password are required' });
+      }
+
+      const stored = otpStore.get(`reset_${email}`);
+
+      if (!stored) {
+        throw new AppError('No OTP requested. Please request a new code.', 400);
+      }
+      if (Date.now() > stored.expiresAt) {
+        otpStore.delete(`reset_${email}`);
+        throw new AppError('OTP has expired. Please request a new code.', 400);
+      }
+      if (stored.otp !== otp) {
+        throw new AppError('Invalid verification code.', 401);
+      }
+
+      // OTP is valid, delete it
+      otpStore.delete(`reset_${email}`);
+
+      // Update password
+      const passwordHash = await bcrypt.hash(newPassword, 12);
+      await prisma.user.update({
+        where: { email: email.toLowerCase() },
+        data: { passwordHash },
+      });
+
+      sendSuccess(res, { message: 'Password reset successfully' });
+    } catch (err) {
+      next(err);
+    }
+  },
+
   async refresh(req: Request, res: Response, next: NextFunction) {
     try {
       const refreshToken =
