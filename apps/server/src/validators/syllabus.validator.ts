@@ -48,6 +48,8 @@ export const createChapterSchema = z.object({
   description: z.string().optional(),
   notes: z.string().optional(),
   estimatedTeachingDays: z.number().int().min(0).optional(),
+  chapterNo: z.number().int().optional(),
+  termName: z.string().optional(),
 });
 
 export const updateChapterSchema = z
@@ -55,6 +57,8 @@ export const updateChapterSchema = z
     title: z.string().min(1).optional(),
     description: z.string().optional(),
     notes: z.string().optional(),
+    chapterNo: z.number().int().optional(),
+    termName: z.string().optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: 'At least one field is required',

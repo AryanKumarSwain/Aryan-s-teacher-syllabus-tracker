@@ -48,12 +48,14 @@ export class ProgressionService {
   async getProgressionAnalytics(
     schoolId: string,
     academicYearId?: string,
+    termFilter?: string,
   ): Promise<ProgressionMetrics> {
     // Get active academic term, or use the specified academic year/session
     let activeTerm;
     let academicSessionId: string | undefined;
 
     if (academicYearId) {
+      // When academicYearId is explicitly provided, it is authoritative
       // First, try to find if it's an academic term
       const academicTerm = await prisma.academicTerm.findFirst({
         where: {
@@ -66,16 +68,17 @@ export class ProgressionService {
         activeTerm = academicTerm;
         academicSessionId = academicTerm.academicSessionId;
       } else {
-        // If not a term, try to find it as an academic session and get its active term
+        // If not a term, try to find it as an academic session
         const academicSession = await prisma.academicSession.findFirst({
           where: {
             id: academicYearId,
             schoolId,
-            deletedAt: null,
+            
           },
         });
         if (academicSession) {
           academicSessionId = academicSession.id;
+          // Try to find an active term for this session, but don't override academicSessionId
           activeTerm = await prisma.academicTerm.findFirst({
             where: {
               schoolId,
@@ -86,24 +89,25 @@ export class ProgressionService {
           });
         }
       }
-    }
-
-    // Fallback to ACTIVE status if no specific year provided or not found
-    if (!activeTerm) {
-      activeTerm = await prisma.academicTerm.findFirst({
-        where: {
-          schoolId,
-          status: 'ACTIVE',
-          deletedAt: null,
-        },
-      });
-      if (activeTerm) {
-        academicSessionId = activeTerm.academicSessionId;
+      // If academicYearId was provided but we couldn't resolve it, return empty state
+      // Do NOT fall back to a different session's ACTIVE term
+      if (!academicSessionId) {
+        return {
+          globalTimeline: {
+            startDate: new Date(),
+            endDate: new Date(),
+            totalTeachingDays: 0,
+            elapsedTeachingDays: 0,
+            remainingTeachingDays: 0,
+            percentageComplete: 0,
+          },
+          classProgress: [],
+          subjectProgress: [],
+          teacherProgress: [],
+        };
       }
-    }
-
-    if (!activeTerm || !academicSessionId) {
-      // Return empty analytics if no active term or session found
+    } else {
+      // No academicYearId provided - return empty state
       return {
         globalTimeline: {
           startDate: new Date(),
@@ -119,23 +123,116 @@ export class ProgressionService {
       };
     }
 
-    // Fetch vacation days for the active term
-    const vacationDays = await prisma.vacationDay.findMany({
-      where: { academicTermId: activeTerm.id },
-    });
+    // If we still don't have an academicSessionId, return empty state
+    if (!academicSessionId) {
+      return {
+        globalTimeline: {
+          startDate: new Date(),
+          endDate: new Date(),
+          totalTeachingDays: 0,
+          elapsedTeachingDays: 0,
+          remainingTeachingDays: 0,
+          percentageComplete: 0,
+        },
+        classProgress: [],
+        subjectProgress: [],
+        teacherProgress: [],
+      };
+    }
+
+    // If termFilter is provided, extract the term name
+    let filteredTermName: string | undefined;
+    if (termFilter && termFilter !== 'all') {
+      try {
+        // Parse termFilter format: ${yearId}-${termIndex}
+        const lastDash = termFilter.lastIndexOf('-');
+        const yearId = termFilter.substring(0, lastDash);
+        const termIndex = termFilter.substring(lastDash + 1);
+        const termIdx = parseInt(termIndex, 10);
+        
+        // Try to find as academicTerm first
+        let academicYear = await prisma.academicTerm.findFirst({
+          where: { id: yearId, schoolId, deletedAt: null },
+          select: { terms: true },
+        });
+        
+        // If not found, try as academicSession
+        if (!academicYear) {
+          const academicSession = await prisma.academicSession.findFirst({
+            where: { id: yearId, schoolId},
+          });
+          if (academicSession) {
+          // Get the academic term for this session
+          academicYear = await prisma.academicTerm.findFirst({
+            where: { 
+              academicSessionId: academicSession.id, 
+              schoolId, 
+              deletedAt: null 
+            },
+            select: { terms: true },
+          });
+        }
+      }
+      
+      if (academicYear && academicYear.terms) {
+        const terms = typeof academicYear.terms === 'string' 
+          ? JSON.parse(academicYear.terms) 
+          : academicYear.terms;
+        if (terms[termIdx]) {
+          filteredTermName = terms[termIdx].name;
+        }
+      }
+      } catch (err) {
+        // Silently ignore termFilter errors
+      }
+    }
+
+    // Fetch vacation days for the active term (if available)
+    let vacationDays = [];
+    if (activeTerm) {
+      vacationDays = await prisma.vacationDay.findMany({
+        where: { academicTermId: activeTerm.id },
+      });
+    }
 
     // Calculate global timeline metrics based on teaching days
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const startDate = new Date(activeTerm.startDate);
-    startDate.setHours(0, 0, 0, 0);
-    const endDate = new Date(activeTerm.endDate);
-    endDate.setHours(0, 0, 0, 0);
+    let startDate, endDate, totalTeachingDays;
 
-    const totalTeachingDays = activeTerm.actualAvailableDays || activeTerm.totalWorkingDays || 0;
+    if (activeTerm) {
+      startDate = new Date(activeTerm.startDate);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(activeTerm.endDate);
+      endDate.setHours(0, 0, 0, 0);
+      totalTeachingDays = activeTerm.actualAvailableDays || activeTerm.totalWorkingDays || 0;
+    } else {
+      // If no active term, use the academic session dates
+      const academicSession = await prisma.academicSession.findFirst({
+        where: { id: academicSessionId },
+        select: { startDate: true, endDate: true },
+      });
+      if (academicSession) {
+        startDate = new Date(academicSession.startDate);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(academicSession.endDate);
+        endDate.setHours(0, 0, 0, 0);
+        // Estimate teaching days (rough calculation)
+        const diffTime = endDate.getTime() - startDate.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        totalTeachingDays = Math.floor(diffDays * 0.7); // Assume 70% are teaching days
+      } else {
+        // Fallback to current year
+        startDate = new Date(new Date().getFullYear(), 0, 1);
+        endDate = new Date(new Date().getFullYear(), 11, 31);
+        totalTeachingDays = 200;
+      }
+    }
 
     // Calculate elapsed teaching days by counting weekdays minus holidays up to today
-    const weeklyHolidays = JSON.parse((activeTerm.weeklyHolidays as string) || '[0]');
+    const weeklyHolidays = activeTerm
+      ? (typeof activeTerm.weeklyHolidays === 'string' ? JSON.parse(activeTerm.weeklyHolidays) : activeTerm.weeklyHolidays) || [0]
+      : [0];
     let elapsedTeachingDays = 0;
     let currentDate = new Date(startDate);
 
@@ -159,19 +256,20 @@ export class ProgressionService {
     const percentageComplete =
       totalTeachingDays > 0 ? (elapsedTeachingDays / totalTeachingDays) * 100 : 0;
 
-    // Get all classes with their topics and progress
+    // Get all classes with their chapters and progress
     const classes = await prisma.class.findMany({
       where: { schoolId, deletedAt: null, academicSessionId },
       include: {
         subjects: {
-          where: { academicSessionId },
+          where: { academicSessionId, deletedAt: null },
           include: {
             chapters: {
-              where: { academicSessionId },
+              where: { 
+                academicSessionId,
+                deletedAt: null,
+                ...(filteredTermName && { termName: filteredTermName }),
+              },
               include: {
-                topics: {
-                  where: { academicSessionId },
-                },
                 chapterProgress: {
                   where: { schoolId, academicSessionId },
                 },
@@ -182,59 +280,27 @@ export class ProgressionService {
       },
     });
 
-    // Get all topic progress for the school
-    const topicProgress = await prisma.topicProgress.findMany({
-      where: { schoolId, academicSessionId },
-      include: {
-        topic: {
-          include: {
-            chapter: {
-              include: {
-                subject: {
-                  select: {
-                    id: true,
-                    name: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-        teacher: {
-          select: {
-            id: true,
-            user: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
     // Calculate class progress
-    const classProgress = this.calculateClassProgress(classes, topicProgress, percentageComplete);
+    const classProgress = this.calculateClassProgress(classes, percentageComplete);
 
     // Calculate subject progress
     const subjectProgress = this.calculateSubjectProgress(
       classes,
-      topicProgress,
       percentageComplete,
     );
 
     // Calculate teacher progress
     const teacherProgress = await this.calculateTeacherProgress(
       schoolId,
-      topicProgress,
       percentageComplete,
       academicSessionId,
+      filteredTermName,
     );
 
     return {
       globalTimeline: {
-        startDate: activeTerm.startDate,
-        endDate: activeTerm.endDate,
+        startDate: startDate,
+        endDate: endDate,
         totalTeachingDays,
         elapsedTeachingDays,
         remainingTeachingDays,
@@ -248,16 +314,15 @@ export class ProgressionService {
 
   private calculateClassProgress(
     classes: any[],
-    topicProgress: any[],
     timelinePercentage: number,
   ): ClassProgressItem[] {
     return classes.map((cls) => {
-      let totalTopics = 0;
-      let completedTopics = 0;
+      let totalChapters = 0;
+      let completedChapters = 0;
 
       cls.subjects.forEach((subject: any) => {
         subject.chapters.forEach((chapter: any) => {
-          totalTopics += chapter.topics.length;
+          totalChapters++;
 
           // Check if chapter is marked as completed by any teacher
           const chapterCompleted = chapter.chapterProgress?.some(
@@ -265,28 +330,19 @@ export class ProgressionService {
           );
 
           if (chapterCompleted) {
-            // If chapter is completed, count all its topics as completed
-            completedTopics += chapter.topics.length;
-          } else {
-            // Otherwise, check individual topic progress
-            chapter.topics.forEach((topic: any) => {
-              const progress = topicProgress.find((tp) => tp.topicId === topic.id);
-              if (progress && progress.status === 'COMPLETED') {
-                completedTopics++;
-              }
-            });
+            completedChapters++;
           }
         });
       });
 
-      const percentageComplete = totalTopics > 0 ? (completedTopics / totalTopics) * 100 : 0;
+      const percentageComplete = totalChapters > 0 ? (completedChapters / totalChapters) * 100 : 0;
       const velocity = this.getVelocity(percentageComplete, timelinePercentage);
 
       return {
         classId: cls.id,
         className: cls.name,
-        totalTopics,
-        completedTopics,
+        totalTopics: totalChapters,
+        completedTopics: completedChapters,
         percentageComplete,
         velocity,
       };
@@ -295,18 +351,17 @@ export class ProgressionService {
 
   private calculateSubjectProgress(
     classes: any[],
-    topicProgress: any[],
     timelinePercentage: number,
   ): SubjectProgressItem[] {
     const subjectProgress: SubjectProgressItem[] = [];
 
     classes.forEach((cls) => {
       cls.subjects.forEach((subject: any) => {
-        let totalTopics = 0;
-        let completedTopics = 0;
+        let totalChapters = 0;
+        let completedChapters = 0;
 
         subject.chapters.forEach((chapter: any) => {
-          totalTopics += chapter.topics.length;
+          totalChapters++;
 
           // Check if chapter is marked as completed by any teacher
           const chapterCompleted = chapter.chapterProgress?.some(
@@ -314,20 +369,11 @@ export class ProgressionService {
           );
 
           if (chapterCompleted) {
-            // If chapter is completed, count all its topics as completed
-            completedTopics += chapter.topics.length;
-          } else {
-            // Otherwise, check individual topic progress
-            chapter.topics.forEach((topic: any) => {
-              const progress = topicProgress.find((tp) => tp.topicId === topic.id);
-              if (progress && progress.status === 'COMPLETED') {
-                completedTopics++;
-              }
-            });
+            completedChapters++;
           }
         });
 
-        const percentageComplete = totalTopics > 0 ? (completedTopics / totalTopics) * 100 : 0;
+        const percentageComplete = totalChapters > 0 ? (completedChapters / totalChapters) * 100 : 0;
         const velocity = this.getVelocity(percentageComplete, timelinePercentage);
 
         subjectProgress.push({
@@ -335,8 +381,8 @@ export class ProgressionService {
           subjectName: subject.name,
           classId: cls.id,
           className: cls.name,
-          totalTopics,
-          completedTopics,
+          totalTopics: totalChapters,
+          completedTopics: completedChapters,
           percentageComplete,
           velocity,
         });
@@ -348,12 +394,12 @@ export class ProgressionService {
 
   private async calculateTeacherProgress(
     schoolId: string,
-    topicProgress: any[],
     timelinePercentage: number,
     academicSessionId: string,
+    filteredTermName?: string,
   ): Promise<TeacherProgressItem[]> {
     const teachers = await prisma.teacher.findMany({
-      where: { schoolId },
+      where: { schoolId, academicSessionId },
       include: {
         user: true,
         teacherClasses: {
@@ -365,96 +411,55 @@ export class ProgressionService {
       },
     });
 
-    // Calculate progress for each teacher using the same logic as teacher.service.getById
+    // Calculate progress for each teacher using chapter counts
     return Promise.all(
       teachers.map(async (teacher: any) => {
         const assignedSubjectIds = teacher.teacherClasses
           .map((tc: any) => tc.subject?.id)
           .filter((s: string | undefined): s is string => Boolean(s));
 
-        // Get all topics from assigned subjects (same as teacher.service.getById)
-        const topicsFromSubjects = await prisma.topic.findMany({
+        // Get all chapters from assigned subjects
+        const chaptersFromSubjects = await prisma.chapter.findMany({
           where: {
             schoolId,
             academicSessionId,
-            chapter: { subjectId: { in: assignedSubjectIds }, deletedAt: null, academicSessionId },
+            subjectId: { in: assignedSubjectIds },
             deletedAt: null,
+            ...(filteredTermName && { termName: filteredTermName }),
           },
           select: { id: true },
         });
 
-        const totalTopics = topicsFromSubjects.length;
+        const totalChapters = chaptersFromSubjects.length;
 
-        // Get topic progress for this teacher (same as teacher.service.getById)
-        const teacherTopicProgress = await prisma.topicProgress.findMany({
-          where: {
-            schoolId,
-            academicSessionId,
-            teacherId: teacher.id,
-            topicId: { in: topicsFromSubjects.map((t) => t.id) },
-          },
-          include: {
-            topic: {
-              select: {
-                chapterId: true,
-                academicSessionId: true,
-              },
-            },
-          },
-        });
-
-        const completedTopics = teacherTopicProgress.filter(
-          (tp) => tp.status === 'COMPLETED',
-        ).length;
-
-        // Get chapter progress for this teacher (same as teacher.service.getById)
+        // Get chapter progress for this teacher
         const chapterProgress = await prisma.chapterProgress.findMany({
           where: {
             schoolId,
             academicSessionId,
             teacherId: teacher.id,
-            chapter: { subjectId: { in: assignedSubjectIds }, academicSessionId },
-          },
-          include: {
             chapter: {
-              include: {
-                topics: {
-                  where: { academicSessionId },
-                },
-              },
+              subjectId: { in: assignedSubjectIds },
+              academicSessionId,
+              deletedAt: null,
+              ...(filteredTermName && { termName: filteredTermName }),
             },
           },
         });
 
-        // Add topics from completed chapters (same as teacher.service.getById)
-        let totalCompletedTopics = completedTopics;
-        chapterProgress.forEach((cp: any) => {
-          if (cp.chapterStatus === 'COMPLETED') {
-            const chapterTopics = cp.chapter.topics;
-            const alreadyCountedTopics = teacherTopicProgress
-              .filter((tp) => tp.topic.chapterId === cp.chapterId)
-              .map((tp) => tp.topicId);
-
-            chapterTopics.forEach((topic: any) => {
-              if (
-                !alreadyCountedTopics.includes(topic.id) &&
-                topicsFromSubjects.some((t) => t.id === topic.id)
-              ) {
-                totalCompletedTopics++;
-              }
-            });
-          }
-        });
+        const completedChapters = chapterProgress.filter(
+          (cp) => cp.chapterStatus === 'COMPLETED',
+        ).length;
 
         const percentageComplete =
-          totalTopics > 0 ? Math.round((totalCompletedTopics / totalTopics) * 100) : 0;
+          totalChapters > 0 ? Math.round((completedChapters / totalChapters) * 100) : 0;
         const velocity = this.getVelocity(percentageComplete, timelinePercentage);
 
         return {
           teacherId: teacher.id,
           teacherName: teacher.user.name,
-          totalTopics,
-          completedTopics: totalCompletedTopics,
+          totalTopics: totalChapters,
+          completedTopics: completedChapters,
           percentageComplete,
           velocity,
         };

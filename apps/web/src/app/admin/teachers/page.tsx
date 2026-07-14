@@ -13,6 +13,7 @@ import {
   Eye,
   BookOpen,
   ChevronRight,
+  Pencil,
 } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/empty-state';
 import { CreateTeacherDialog } from '@/features/teachers/components/create-teacher-dialog';
 import { BulkImportTeachersDialog } from '@/features/teachers/components/bulk-import-dialog';
+import { EditTeacherDialog } from '@/features/teachers/components/edit-teacher-dialog';
 import { cn } from '@/lib/utils';
 import {
   useTeachers,
@@ -30,6 +32,9 @@ import {
   useUpdateTeacherStatus,
 } from '@/features/teachers/hooks/use-teachers';
 import { ImportDataButton } from '@/components/admin/import-data-button';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '@/services/api-client';
+import { useSchool } from '@/features/syllabus/hooks/use-school';
 
 function teacherStatusBadge(status: string) {
   if (status === 'SUSPENDED') {
@@ -96,14 +101,53 @@ export default function AdminTeachersPage() {
   const [search, setSearch] = useState('');
   const [selectedClassFilter, setSelectedClassFilter] = useState('all');
   const [selectedSubjectFilter, setSelectedSubjectFilter] = useState('all');
+  const [selectedTermFilter, setSelectedTermFilter] = useState('all');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedTeacher, setSelectedTeacher] = useState<{ id: string; user: { name: string; email: string; phone: string | null } } | null>(null);
 
-  const { data, isLoading } = useTeachers({ search: search || undefined });
+  const { school } = useSchool();
+
+  const { data, isLoading } = useTeachers({ search: search || undefined, termFilter: selectedTermFilter, academicSessionId: school?.currentAcademicSessionId });
   const deleteTeacher = useDeleteTeacher();
   const updateStatus = useUpdateTeacherStatus();
 
   const teachers = data?.items ?? [];
+
+  // Fetch academic years for term filter
+  const { data: academicYears } = useQuery({
+    queryKey: ['academic-terms'],
+    queryFn: async () => {
+      const response = await api.getPaginated<any>('/academic-terms');
+      return {
+        ...response,
+        items: response.items.map((year: any) => ({
+          ...year,
+          terms: typeof year.terms === 'string' ? JSON.parse(year.terms) : year.terms || [],
+        })),
+      };
+    },
+  });
+
+  // Extract all terms from academic years
+  const allTerms = useMemo(() => {
+    if (!academicYears?.items) return [];
+    const terms: { id: string; name: string; yearId: string; yearName: string }[] = [];
+    academicYears.items.forEach((year: any) => {
+      if (year.terms && Array.isArray(year.terms)) {
+        year.terms.forEach((term: any, index: number) => {
+          terms.push({
+            id: `${year.id}-${index}`,
+            name: term.name || `Term ${index + 1}`,
+            yearId: year.id,
+            yearName: year.name,
+          });
+        });
+      }
+    });
+    return terms;
+  }, [academicYears]);
 
   const classOptions = useMemo(() => {
     const classesMap = new Map<string, string>();
@@ -184,6 +228,21 @@ export default function AdminTeachersPage() {
                 {subjectOptions.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="relative min-w-[140px]">
+              <select
+                value={selectedTermFilter}
+                onChange={(e) => setSelectedTermFilter(e.target.value)}
+                className="border-input bg-background focus-visible:ring-ring flex h-10 w-full cursor-pointer rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
+              >
+                <option value="all">All Terms</option>
+                {allTerms.map((term) => (
+                  <option key={term.id} value={term.id}>
+                    {term.name} ({term.yearName})
                   </option>
                 ))}
               </select>
@@ -327,6 +386,17 @@ export default function AdminTeachersPage() {
                         size="icon"
                         className="text-muted-foreground hover:text-foreground h-7 w-7"
                         onClick={() => {
+                          setSelectedTeacher(teacher);
+                          setEditDialogOpen(true);
+                        }}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-muted-foreground hover:text-foreground h-7 w-7"
+                        onClick={() => {
                           updateStatus.mutate({
                             id: teacher.id,
                             status: status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED',
@@ -363,6 +433,7 @@ export default function AdminTeachersPage() {
 
       <CreateTeacherDialog open={dialogOpen} onOpenChange={setDialogOpen} />
       <BulkImportTeachersDialog open={bulkOpen} onOpenChange={setBulkOpen} />
+      <EditTeacherDialog open={editDialogOpen} onOpenChange={setEditDialogOpen} teacher={selectedTeacher} />
     </DashboardShell>
   );
 }

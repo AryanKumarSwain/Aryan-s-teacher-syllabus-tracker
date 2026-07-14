@@ -24,7 +24,7 @@ export const progressController = {
 
       if (req.user!.role === 'TEACHER') {
         const teacher = await prisma.teacher.findFirst({
-          where: { schoolId, userId: req.user!.sub },
+          where: { schoolId, userId: req.user!.sub, academicSessionId },
         });
         if (!teacher) throw new AppError('Teacher profile not found', 404);
         teacherId = teacher.id;
@@ -64,7 +64,7 @@ export const progressController = {
 
       if (req.user!.role === 'TEACHER') {
         const teacher = await prisma.teacher.findFirst({
-          where: { schoolId, userId: req.user!.sub },
+          where: { schoolId, userId: req.user!.sub, academicSessionId },
         });
         if (!teacher) throw new AppError('Teacher profile not found', 404);
         teacherId = teacher.id;
@@ -101,10 +101,10 @@ export const progressController = {
       }
       
       const teacher = await prisma.teacher.findFirst({
-        where: { schoolId, userId: req.user!.sub },
+        where: { schoolId, userId: req.user!.sub, academicSessionId },
       });
       if (!teacher) throw new AppError('Teacher profile not found', 404);
-      const stats = await progressService.getTeacherTopicProgress(schoolId, teacher.id, academicSessionId);
+      const stats = await progressService.getTeacherChapterProgress(schoolId, teacher.id, academicSessionId);
       sendSuccess(res, stats);
     } catch (err) {
       next(err);

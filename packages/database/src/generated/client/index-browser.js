@@ -248,6 +248,8 @@ exports.Prisma.ChapterScalarFieldEnum = {
   description: 'description',
   notes: 'notes',
   estimatedTeachingDays: 'estimatedTeachingDays',
+  chapterNo: 'chapterNo',
+  termName: 'termName',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -483,7 +485,8 @@ exports.Prisma.ChapterOrderByRelevanceFieldEnum = {
   classId: 'classId',
   title: 'title',
   description: 'description',
-  notes: 'notes'
+  notes: 'notes',
+  termName: 'termName'
 };
 
 exports.Prisma.TopicOrderByRelevanceFieldEnum = {

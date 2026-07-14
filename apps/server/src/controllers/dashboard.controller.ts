@@ -38,15 +38,27 @@ export const dashboardController = {
       const schoolId = getTenantId(req);
       const { teacherName } = req.params;
 
-      // Find teacher by name
+      // Get school's current session if not provided
+      let academicSessionId = req.query.academicSessionId as string | undefined;
+      if (!academicSessionId) {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        academicSessionId = school?.currentAcademicSessionId || undefined;
+      }
+
+      // Find teacher by name and session
       const teacher = await prisma.teacher.findFirst({
         where: {
           schoolId,
+          academicSessionId,
           user: { name: teacherName as string },
         },
         include: {
           user: true,
           teacherClasses: {
+            where: { academicSessionId },
             include: {
               subject: true,
             },
@@ -164,6 +176,7 @@ export const dashboardController = {
   async getAnalytics(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
+      console.log('[DEBUG] dashboard.getAnalytics - schoolId:', schoolId);
       
       // Get school's current session if not provided
       let academicSessionId = req.query.academicSessionId as string | undefined;
@@ -174,8 +187,11 @@ export const dashboardController = {
         });
         academicSessionId = school?.currentAcademicSessionId || undefined;
       }
+      console.log('[DEBUG] dashboard.getAnalytics - academicSessionId:', academicSessionId);
       
       const academicYearId = req.query.academicYearId as string | undefined;
+      const termFilter = req.query.termFilter as string | undefined;
+      console.log('[DEBUG] dashboard.getAnalytics - academicYearId:', academicYearId, 'termFilter:', termFilter);
       
       // Resolve academic session ID from academic year ID if needed
       let resolvedSessionId = academicSessionId;
@@ -183,16 +199,38 @@ export const dashboardController = {
         // Try to find if it's an academic session
         const { prisma } = await import('@school-syllabus/database');
         const session = await prisma.academicSession.findFirst({
-          where: { id: academicYearId, schoolId, deletedAt: null },
+          where: { id: academicYearId, schoolId },
         });
         if (session) {
           resolvedSessionId = session.id;
         }
       }
+      console.log('[DEBUG] dashboard.getAnalytics - resolvedSessionId:', resolvedSessionId);
       
-      const analytics = await progressionService.getProgressionAnalytics(schoolId, academicYearId);
+      // If no session is resolved, return empty state
+      if (!resolvedSessionId) {
+        console.log('[DEBUG] dashboard.getAnalytics - no session resolved, returning empty state');
+        return sendSuccess(res, {
+          globalTimeline: {
+            startDate: new Date(),
+            endDate: new Date(),
+            totalTeachingDays: 0,
+            elapsedTeachingDays: 0,
+            remainingTeachingDays: 0,
+            percentageComplete: 0,
+          },
+          subjectProgress: [],
+          teacherProgress: [],
+          classProgress: [],
+        });
+      }
+      
+      // Use resolvedSessionId as academicYearId for progression service
+      console.log('[DEBUG] dashboard.getAnalytics - calling progressionService.getProgressionAnalytics');
+      const analytics = await progressionService.getProgressionAnalytics(schoolId, resolvedSessionId, termFilter);
 
       // Use progressService for teacher progress to match /admin/teachers
+      console.log('[DEBUG] dashboard.getAnalytics - calling progressService.getTeacherWiseProgress');
       const teacherProgressData = await progressService.getTeacherWiseProgress(schoolId, resolvedSessionId);
       const subjectProgressData = await progressService.getSubjectWiseProgress(schoolId, resolvedSessionId);
 

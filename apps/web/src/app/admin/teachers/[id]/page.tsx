@@ -57,6 +57,7 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
   const { data: teacher, isLoading } = useQuery({
     queryKey: ['teacher', id],
     queryFn: () => api.get<TeacherProfile>(`/teachers/${id}`),
+    refetchInterval: 30000, // Refetch every 30 seconds to get updated progress
   });
 
   const completed = teacher?.completedChapters ?? 0;

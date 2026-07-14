@@ -15,19 +15,33 @@ import {
 import { toast } from 'sonner';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
 
-export function SessionSelector() {
+interface SessionSelectorProps {
+  selectedSessionId?: string;
+  onSessionChange?: (sessionId: string) => void;
+}
+
+export function SessionSelector({ selectedSessionId, onSessionChange }: SessionSelectorProps) {
   const { sessions, isLoading, switchSession } = useAcademicSessions();
   const { school } = useSchool();
 
-  const currentSession = sessions.find((s) => s.id === school?.currentAcademicSessionId);
+  // If controlled mode (onSessionChange provided), use selectedSessionId
+  // Otherwise, use school's current session
+  const currentSessionId = onSessionChange ? selectedSessionId : school?.currentAcademicSessionId;
+  const currentSession = sessions.find((s) => s.id === currentSessionId);
   const activeSessions = sessions.filter((s) => !s.isArchived);
 
   const handleSwitchSession = async (sessionId: string) => {
-    try {
-      await switchSession.mutateAsync(sessionId);
-      toast.success('Session switched successfully');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to switch session');
+    if (onSessionChange) {
+      // Controlled mode: just call the callback
+      onSessionChange(sessionId);
+    } else {
+      // Default mode: switch the session globally
+      try {
+        await switchSession.mutateAsync(sessionId);
+        toast.success('Session switched successfully');
+      } catch (error: any) {
+        toast.error(error.message || 'Failed to switch session');
+      }
     }
   };
 
@@ -38,7 +52,7 @@ export function SessionSelector() {
           variant="outline"
           size="sm"
           disabled={isLoading || activeSessions.length === 0}
-          className="gap-2"
+          className="gap-2 min-w-[200px] bg-white"
         >
           <span className="max-w-[150px] truncate text-left">
             {currentSession?.name || 'Select Session'}
@@ -66,7 +80,7 @@ export function SessionSelector() {
               <div className="flex flex-col">
                 <span className="font-medium">{session.name}</span>
                 <span className="text-muted-foreground text-xs">
-                  {session._count.classes} classes • {session._count.subjects} subjects
+                  {session._count.classes} classes • {session._count.subjects} subjects • {session._count.teachers} teachers
                 </span>
               </div>
             </DropdownMenuCheckboxItem>

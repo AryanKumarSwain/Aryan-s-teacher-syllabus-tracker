@@ -55,6 +55,3 @@ ALTER TABLE `chapter_progress` ADD CONSTRAINT `chapter_progress_academic_session
 
 -- AddForeignKey
 ALTER TABLE `topic_progress` ADD CONSTRAINT `topic_progress_academic_session_id_fkey` FOREIGN KEY (`academic_session_id`) REFERENCES `academic_sessions`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `topic_progress` ADD CONSTRAINT `topic_progress_academic_session_id_fkey` FOREIGN KEY (`academic_session_id`) REFERENCES `academic_sessions`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

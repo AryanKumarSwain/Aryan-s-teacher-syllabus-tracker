@@ -36,7 +36,6 @@ import { syllabusKeys } from '@/features/syllabus/query-keys';
 import { invalidateSyllabusStructure } from '@/features/syllabus/invalidate-syllabus';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
-import { ImportDataButton } from '@/components/admin/import-data-button';
 
 interface Chapter {
   id: string;
@@ -60,14 +59,13 @@ interface ClassNode {
 type EditingItem =
   | { type: 'subject'; id: string; name: string }
   | {
-      type: 'chapter';
-      id: string;
-      title: string;
-      chapterNo: string;
-      termKey: string;
-    };
+    type: 'chapter';
+    id: string;
+    title: string;
+    chapterNo: string;
+    termKey: string;
+  };
 
-// -- academic term lookup (used to populate the "Term" dropdown when adding/editing a chapter) --
 interface AcademicTerm {
   name: string;
   startDate: string;
@@ -130,7 +128,7 @@ export default function AdminSyllabusPage() {
   const [editChapterNo, setEditChapterNo] = useState('');
   const [editTermKey, setEditTermKey] = useState('');
   const [search, setSearch] = useState('');
-  const [termFilter, setTermFilter] = useState(''); // '' = all terms
+  const [termFilter, setTermFilter] = useState('');
   const [creatingChapterFor, setCreatingChapterFor] = useState<{
     classId: string;
     subjectId: string;
@@ -146,7 +144,7 @@ export default function AdminSyllabusPage() {
 
   const { data: tree = [], isLoading } = useQuery({
     queryKey: syllabusKeys.syllabusTree(schoolId, school?.currentAcademicSessionId),
-    queryFn: () => api.get<ClassNode[]>('/syllabus/tree', 
+    queryFn: () => api.get<ClassNode[]>('/syllabus/tree',
       school?.currentAcademicSessionId ? { academicSessionId: school.currentAcademicSessionId } : undefined
     ),
     enabled: Boolean(schoolId),
@@ -377,7 +375,7 @@ export default function AdminSyllabusPage() {
       setEditTermKey(item.termKey);
     }
   };
-  
+
   const openEditChapter = (chapter: Chapter) => {
     const matchedTerm = termOptions.find((t) => t.termName === chapter.termName);
     const chNo = chapter.chapterNo ?? (chapter as any).chapter_no;
@@ -403,7 +401,7 @@ export default function AdminSyllabusPage() {
       classId,
       subjectId,
       title: newChapterTitle.trim(),
-      chapterNo: Number(newChapterNo),
+      chapterNo: parseInt(newChapterNo, 10),
       academicYearId: selectedTermOption?.academicYearId,
       termIndex: selectedTermOption?.termIndex,
       termName: selectedTermOption?.termName,
@@ -526,7 +524,6 @@ export default function AdminSyllabusPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <ImportDataButton type="syllabus" label="Import Syllabus" />
             <Button
               variant="outline"
               size="sm"
@@ -669,62 +666,53 @@ export default function AdminSyllabusPage() {
                                   <div className="overflow-hidden pl-5">
                                     <div className="space-y-1.5 border-l-2 border-gray-200 py-1 pl-4">
                                       {subject.chapters.map((chapter) => {
-                                        const tc = getTermColor(chapter.termName);
-                                        // Ensuring both API casing variables are handled properly
+                                        // Safe extraction matching the backend field naming conventions
                                         const chNo = chapter.chapterNo ?? (chapter as any).chapter_no;
-                                        
+                                        const tName = chapter.termName ?? (chapter as any).term_name;
+                                        const tc = getTermColor(tName);
+
                                         return (
                                           <div
                                             key={chapter.id}
                                             className="group flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2 transition-all duration-200 hover:shadow-sm"
                                           >
-                                            <span className="flex items-center gap-2 text-xs font-medium text-gray-700">
+                                            {/* Left side: Chapter Number & Title + Term Tag Badge */}
+                                            <div className="flex items-center gap-3 text-xs font-medium text-gray-700">
                                               <span className="font-bold text-gray-900">
-                                                {chNo != null
-                                                  ? `Chapter ${chNo} :- ${chapter.title}`
-                                                  : chapter.title}
+                                                {chNo ? `Chapter ${chNo} ` : ''}{chapter.title}
                                               </span>
-                                            </span>
-                                            
-                                            <div className="flex items-center gap-3">
-                                              {/* Term Label outside and distinct */}
-                                              {chapter.termName && (
-                                                <span
-                                                  className={cn(
-                                                    'rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider',
-                                                    tc.text,
-                                                    tc.light,
-                                                    tc.border
-                                                  )}
-                                                >
-                                                  {chapter.termName}
+
+                                              {tName && (
+                                                <span className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold', tc.light, tc.text, `ring-1 ring-inset ${tc.ring}`)}>
+                                                  {tName}
                                                 </span>
                                               )}
-                                              
-                                              <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                                                <Button
-                                                  variant="ghost"
-                                                  size="sm"
-                                                  className="text-muted-foreground hover:text-foreground h-7 px-2 text-xs"
-                                                  onClick={() => openEditChapter(chapter)}
-                                                >
-                                                  <Pencil className="h-3 w-3" />
-                                                </Button>
-                                                <Button
-                                                  variant="ghost"
-                                                  size="sm"
-                                                  className="text-destructive hover:bg-destructive/10 hover:text-destructive h-7 px-2 text-xs"
-                                                  onClick={() => {
-                                                    if (confirm(`Delete "${chapter.title}"?`)) {
-                                                      deleteChapterMutation.mutate({
-                                                        chapterId: chapter.id,
-                                                      });
-                                                    }
-                                                  }}
-                                                >
-                                                  <Trash2 className="h-3 w-3" />
-                                                </Button>
-                                              </div>
+                                            </div>
+
+                                            {/* Right side: Action Buttons */}
+                                            <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                              <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-muted-foreground hover:text-foreground h-7 px-2 text-xs"
+                                                onClick={() => openEditChapter(chapter)}
+                                              >
+                                                <Pencil className="h-3 w-3" />
+                                              </Button>
+                                              <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-destructive hover:bg-destructive/10 hover:text-destructive h-7 px-2 text-xs"
+                                                onClick={() => {
+                                                  if (confirm(`Delete "${chapter.title}"?`)) {
+                                                    deleteChapterMutation.mutate({
+                                                      chapterId: chapter.id,
+                                                    });
+                                                  }
+                                                }}
+                                              >
+                                                <Trash2 className="h-3 w-3" />
+                                              </Button>
                                             </div>
                                           </div>
                                         );

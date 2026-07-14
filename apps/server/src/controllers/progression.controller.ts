@@ -8,9 +8,15 @@ export const progressionController = {
     try {
       const schoolId = getTenantId(req);
       const academicYearId = req.query.academicYearId as string | undefined;
-      const analytics = await progressionService.getProgressionAnalytics(schoolId, academicYearId);
+      const termFilter = req.query.termFilter as string | undefined;
+      console.log('[DEBUG] progression.getAnalytics - schoolId:', schoolId, 'academicYearId:', academicYearId, 'termFilter:', termFilter);
+      const analytics = await progressionService.getProgressionAnalytics(schoolId, academicYearId, termFilter);
+      console.log('[DEBUG] progression.getAnalytics - classProgress count:', analytics.classProgress.length);
+      console.log('[DEBUG] progression.getAnalytics - subjectProgress count:', analytics.subjectProgress.length);
+      console.log('[DEBUG] progression.getAnalytics - teacherProgress count:', analytics.teacherProgress.length);
       sendSuccess(res, analytics);
     } catch (err) {
+      console.log('[DEBUG] progression.getAnalytics error:', err);
       next(err);
     }
   },

@@ -6,12 +6,17 @@ import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/auth-store';
 import { api } from '@/services/api-client';
 import { SessionSelector } from '@/components/admin/session-selector';
+import { useSchool } from '@/features/syllabus/hooks/use-school';
+import { useAcademicSessions } from '@/features/syllabus/hooks/use-academic-sessions';
 
 export function Navbar({ title }: { title: string }) {
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const router = useRouter();
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith('/admin');
+  const isTeacherRoute = pathname?.startsWith('/teacher');
+  const { school } = useSchool();
+  const { data: sessions } = useAcademicSessions();
 
   const handleLogout = async () => {
     try {
@@ -21,6 +26,9 @@ export function Navbar({ title }: { title: string }) {
       router.push('/login');
     }
   };
+
+  // Find current session name for teacher routes
+  const currentSession = sessions?.find(s => s.id === school?.currentAcademicSessionId);
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6">
@@ -34,9 +42,15 @@ export function Navbar({ title }: { title: string }) {
         </div>
       </div>
 
-      {/* Middle — session selector for admin routes */}
+      {/* Middle — session selector for admin routes, batch name for teacher routes */}
       <div className="flex flex-1 items-center justify-center">
         {isAdminRoute && <SessionSelector />}
+        {isTeacherRoute && currentSession && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-600">Batch:</span>
+            <span className="text-sm font-semibold text-gray-900">{currentSession.name}</span>
+          </div>
+        )}
       </div>
 
       {/* Right — logout only */}

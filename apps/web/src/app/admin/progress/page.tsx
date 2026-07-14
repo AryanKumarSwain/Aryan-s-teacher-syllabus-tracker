@@ -28,6 +28,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { Input } from '@/components/ui/input';
 import { api } from '@/services/api-client';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
@@ -81,6 +82,7 @@ type VelocityFilter = 'all' | 'less' | 'neutral' | 'more';
 
 export default function AdminProgressPage() {
   const schoolId = useSchoolId();
+  const { school } = useSchool();
   const [groupBy, setGroupBy] = useState<GroupBy>('classes');
   const [velocityFilter, setVelocityFilter] = useState<VelocityFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -88,11 +90,15 @@ export default function AdminProgressPage() {
   const [selectedTermFilter, setSelectedTermFilter] = useState<string>('all');
   const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<string>('');
 
-  // Load selected academic year from localStorage
+  // Use school's currentAcademicSessionId as the default, fallback to localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('selected-academic-year');
-    if (saved) setSelectedAcademicYearId(saved);
-  }, []);
+    if (school?.currentAcademicSessionId) {
+      setSelectedAcademicYearId(school.currentAcademicSessionId);
+    } else {
+      const saved = localStorage.getItem('selected-academic-year');
+      if (saved) setSelectedAcademicYearId(saved);
+    }
+  }, [school?.currentAcademicSessionId]);
 
   // Update localStorage when selection changes
   useEffect(() => {
@@ -121,18 +127,30 @@ export default function AdminProgressPage() {
   };
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['progression-analytics', schoolId, selectedAcademicYearId],
+    queryKey: ['progression-analytics', schoolId, selectedAcademicYearId, selectedTermFilter],
     queryFn: () =>
       api.get<ProgressionMetrics>(
         '/progression/analytics',
-        selectedAcademicYearId ? { academicYearId: selectedAcademicYearId } : undefined,
+        {
+          ...(selectedAcademicYearId && { academicYearId: selectedAcademicYearId }),
+          ...(selectedTermFilter && selectedTermFilter !== 'all' && { termFilter: selectedTermFilter }),
+        },
       ),
     enabled: Boolean(schoolId),
   });
 
   const { data: academicYears } = useQuery({
     queryKey: ['academic-terms', schoolId],
-    queryFn: () => api.getPaginated<any>('/academic-terms', schoolId ? { schoolId } : undefined),
+    queryFn: async () => {
+      const response = await api.getPaginated<any>('/academic-terms', schoolId ? { schoolId } : undefined);
+      return {
+        ...response,
+        items: response.items.map((year: any) => ({
+          ...year,
+          terms: typeof year.terms === 'string' ? JSON.parse(year.terms) : year.terms || [],
+        })),
+      };
+    },
     enabled: Boolean(schoolId),
   });
 

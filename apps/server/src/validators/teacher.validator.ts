@@ -52,6 +52,7 @@ export const createAssignmentSchema = z.object({
 
 export const updateTeacherSchema = z.object({
   name: z.string().min(2).optional(),
+  email: z.string().email().optional(),
   phone: z.string().optional().nullable(),
   status: z.enum(['ACTIVE', 'SUSPENDED']).optional(),
 });

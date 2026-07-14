@@ -112,6 +112,7 @@ export const teacherService = {
       classId?: string;
       subjectId?: string;
       academicSessionId?: string;
+      termFilter?: string;
     },
   ) {
     const { skip, page, pageSize } = getPagination(params.page, params.pageSize);
@@ -123,8 +124,8 @@ export const teacherService = {
 
     const where = withTenant(schoolId, {
       ...softDeleteFilter(),
-      // Show all teachers in the school for this session
-      // Teachers without assignments will also be shown
+      // Filter teachers by academicSessionId (now required in schema)
+      academicSessionId: params.academicSessionId,
       ...(params.classId && { teacherClasses: { some: { classId: params.classId, academicSessionId: params.academicSessionId } } }),
       ...(params.subjectId && { teacherClasses: { some: { subjectId: params.subjectId, academicSessionId: params.academicSessionId } } }),
       ...(params.search && {
@@ -156,116 +157,98 @@ export const teacherService = {
       prisma.teacher.count({ where }),
     ]);
 
-    // Calculate progress for each teacher based on topics (not chapters)
+    // Extract term name from termFilter if provided
+    let filteredTermName: string | undefined;
+    if (params.termFilter && params.termFilter !== 'all') {
+      const lastDash = params.termFilter.lastIndexOf('-');
+      const yearId = params.termFilter.substring(0, lastDash);
+      const termIndex = params.termFilter.substring(lastDash + 1);
+      const termIdx = parseInt(termIndex, 10);
+
+      const academicYear = await prisma.academicTerm.findFirst({
+        where: { id: yearId, schoolId, deletedAt: null },
+        select: { terms: true },
+      });
+
+      if (!academicYear) {
+        const academicSession = await prisma.academicSession.findFirst({
+          where: { id: yearId, schoolId, deletedAt: null },
+        });
+        if (academicSession) {
+          const sessionYear = await prisma.academicTerm.findFirst({
+            where: { academicSessionId: academicSession.id, schoolId, deletedAt: null },
+            select: { terms: true },
+          });
+          if (sessionYear?.terms) {
+            const terms = typeof sessionYear.terms === 'string' ? JSON.parse(sessionYear.terms) : sessionYear.terms;
+            if (terms[termIdx]) filteredTermName = terms[termIdx].name;
+          }
+        }
+      } else if (academicYear.terms) {
+        const terms = typeof academicYear.terms === 'string' ? JSON.parse(academicYear.terms) : academicYear.terms;
+        if (terms[termIdx]) filteredTermName = terms[termIdx].name;
+      }
+    }
+
+    // Calculate progress for each teacher based on chapters
+    console.log('[DEBUG] teacher.list - calculating progress for', items.length, 'teachers');
     const itemsWithProgress = await Promise.all(
-      items.map(async (teacher) => {
-        const assignedSubjectIds = teacher.teacherClasses
-          .map((tc) => tc.subject?.id)
-          .filter((s): s is string => Boolean(s));
+    items.map(async (teacher) => {
+      console.log('[DEBUG] teacher.list - processing teacher:', teacher.user?.name, 'id:', teacher.id);
+      const assignedSubjectIds = teacher.teacherClasses
+        .map((tc) => tc.subject?.id)
+        .filter((s): s is string => Boolean(s));
+      console.log('[DEBUG] teacher.list - assignedSubjectIds:', assignedSubjectIds);
 
-        // Get all topics from assigned subjects
-        const sessionFilter = params.academicSessionId ? { academicSessionId: params.academicSessionId } : {};
-        const topicsFromSubjects = await prisma.topic.findMany({
-          where: {
-            schoolId,
+      // Get all chapters from assigned subjects
+      const sessionFilter = params.academicSessionId ? { academicSessionId: params.academicSessionId } : {};
+      console.log('[DEBUG] teacher.list - sessionFilter:', sessionFilter, 'filteredTermName:', filteredTermName);
+      const chaptersFromSubjects = await prisma.chapter.findMany({
+        where: {
+          schoolId,
+          subjectId: { in: assignedSubjectIds },
+          deletedAt: null,
+          ...sessionFilter,
+          ...(filteredTermName && { termName: filteredTermName }),
+        },
+        select: { id: true },
+      });
+
+      const totalChapters = chaptersFromSubjects.length;
+      console.log('[DEBUG] teacher.list - totalChapters:', totalChapters);
+
+      // Get chapter progress for this teacher
+      const chapterProgress = await prisma.chapterProgress.findMany({
+        where: {
+          schoolId,
+          ...sessionFilter,
+          teacherId: teacher.id,
+          chapter: {
+            subjectId: { in: assignedSubjectIds },
             ...sessionFilter,
-            chapter: { subjectId: { in: assignedSubjectIds }, deletedAt: null, ...sessionFilter },
             deletedAt: null,
+            ...(filteredTermName && { termName: filteredTermName }),
           },
-          select: { id: true },
-        });
+        },
+      });
+      console.log('[DEBUG] teacher.list - chapterProgress count:', chapterProgress.length);
 
-        const totalTopics = topicsFromSubjects.length;
+      const completedChapters = chapterProgress.filter((cp) => cp.chapterStatus === 'COMPLETED').length;
+      console.log('[DEBUG] teacher.list - completedChapters:', completedChapters);
 
-        // Get topic progress for this teacher
-        const topicProgress = await prisma.topicProgress.findMany({
-          where: {
-            schoolId,
-            ...sessionFilter,
-            teacherId: teacher.id,
-            topicId: { in: topicsFromSubjects.map((t) => t.id) },
-          },
-          include: {
-            topic: {
-              select: {
-                chapterId: true,
-              },
-            },
-          },
-        });
+      const progressPercentage =
+        totalChapters > 0 ? Math.round((completedChapters / totalChapters) * 100) : 0;
+      console.log('[DEBUG] teacher.list - final progressPercentage:', progressPercentage, 'for teacher:', teacher.user?.name);
 
-        const completedTopics = topicProgress.filter((tp) => tp.status === 'COMPLETED').length;
+      return {
+        ...teacher,
+        progressPercentage,
+      };
+    }),
+  );
 
-        // Get chapter progress for this teacher
-        const chapterProgress = await prisma.chapterProgress.findMany({
-          where: {
-            schoolId,
-            ...sessionFilter,
-            teacherId: teacher.id,
-            chapter: { subjectId: { in: assignedSubjectIds }, ...sessionFilter },
-          },
-          include: {
-            chapter: {
-              include: {
-                topics: {
-                  where: sessionFilter,
-                },
-              },
-            },
-          },
-        });
-
-        // Add topics from completed chapters
-        chapterProgress.forEach((cp) => {
-          if (cp.chapterStatus === 'COMPLETED') {
-            const chapterTopics = cp.chapter.topics;
-            const alreadyCountedTopics = topicProgress
-              .filter((tp) => tp.topic.chapterId === cp.chapterId)
-              .map((tp) => tp.topicId);
-
-            chapterTopics.forEach((topic) => {
-              if (!alreadyCountedTopics.includes(topic.id)) {
-                // Check if this topic is in assigned topics
-                if (topicsFromSubjects.some((t) => t.id === topic.id)) {
-                  // We need to track this separately since we can't modify completedTopics after calculation
-                }
-              }
-            });
-          }
-        });
-
-        // Recalculate with chapter progress included
-        let totalCompletedTopics = completedTopics;
-        chapterProgress.forEach((cp) => {
-          if (cp.chapterStatus === 'COMPLETED') {
-            const chapterTopics = cp.chapter.topics;
-            const alreadyCountedTopics = topicProgress
-              .filter((tp) => tp.topic.chapterId === cp.chapterId)
-              .map((tp) => tp.topicId);
-
-            chapterTopics.forEach((topic) => {
-              if (
-                !alreadyCountedTopics.includes(topic.id) &&
-                topicsFromSubjects.some((t) => t.id === topic.id)
-              ) {
-                totalCompletedTopics++;
-              }
-            });
-          }
-        });
-
-        const progressPercentage =
-          totalTopics > 0 ? Math.round((totalCompletedTopics / totalTopics) * 100) : 0;
-
-        return {
-          ...teacher,
-          progressPercentage,
-        };
-      }),
-    );
-
-    return { items: itemsWithProgress, total, page, pageSize };
-  },
+  return { items: itemsWithProgress, total, page, pageSize };
+},
 
   async bulkCreate(
     schoolId: string,
@@ -385,320 +368,319 @@ export const teacherService = {
 
     return results;
   },
-  async create(
-    schoolId: string,
-    academicSessionId: string,
-    data: {
+    async create(
+      schoolId: string,
+      academicSessionId: string,
+      data: {
       name: string;
       email: string;
       phone?: string;
       classIds?: string[];
       assignments?: { classId: string; subjectId: string }[];
     },
-  ) {
-    const email = data.email.toLowerCase();
-    const resolution = await resolveTeacherCreate(schoolId, email);
-    const assignments = await buildAssignments(schoolId, data);
+    ) {
+  const email = data.email.toLowerCase();
+  const resolution = await resolveTeacherCreate(schoolId, email);
+  const assignments = await buildAssignments(schoolId, data);
 
-    const tempPassword = authService.generateSecurePassword();
-    const passwordHash = await hashPassword(tempPassword);
-    const school = await prisma.school.findUnique({ where: { id: schoolId } });
-    if (!school) throw new AppError('School not found', 404);
+  const tempPassword = authService.generateSecurePassword();
+  const passwordHash = await hashPassword(tempPassword);
+  const school = await prisma.school.findUnique({ where: { id: schoolId } });
+  if (!school) throw new AppError('School not found', 404);
 
-    const restored = resolution.action === 'restore';
+  const restored = resolution.action === 'restore';
 
-    const teacher = await prisma.$transaction(async (tx) => {
-      if (restored) {
-        await tx.user.update({
-          where: { id: resolution.userId },
-          data: {
-            deletedAt: null,
-            name: data.name,
-            phone: data.phone,
-            passwordHash,
-            role: 'TEACHER',
-            schoolId,
-            status: 'ACTIVE',
-          },
-        });
-        const restoredTeacher = await tx.teacher.update({
-          where: { id: resolution.teacherId },
-          data: { deletedAt: null, status: 'ACTIVE', academicSessionId },
-        });
-        await applyTeacherAssignments(tx, schoolId, academicSessionId, restoredTeacher.id, assignments);
-        return restoredTeacher;
-      }
-
-      const user = await tx.user.create({
+  const teacher = await prisma.$transaction(async (tx) => {
+    if (restored) {
+      await tx.user.update({
+        where: { id: resolution.userId },
         data: {
-          email,
-          passwordHash,
+          deletedAt: null,
           name: data.name,
+          phone: data.phone,
+          passwordHash,
           role: 'TEACHER',
           schoolId,
-          phone: data.phone,
           status: 'ACTIVE',
         },
       });
-      const created = await tx.teacher.create({
-        data: { schoolId, academicSessionId, userId: user.id, status: 'ACTIVE' },
+      const restoredTeacher = await tx.teacher.update({
+        where: { id: resolution.teacherId },
+        data: { deletedAt: null, status: 'ACTIVE', academicSessionId },
       });
-      await applyTeacherAssignments(tx, schoolId, academicSessionId, created.id, assignments);
-      return created;
-    });
+      await applyTeacherAssignments(tx, schoolId, academicSessionId, restoredTeacher.id, assignments);
+      return restoredTeacher;
+    }
 
-    const emailResult = await trySendTeacherCredentials({
-      to: email,
-      teacherName: data.name,
-      schoolName: school.name,
-      email,
-      tempPassword,
+    const user = await tx.user.create({
+      data: {
+        email,
+        passwordHash,
+        name: data.name,
+        role: 'TEACHER',
+        schoolId,
+        phone: data.phone,
+        status: 'ACTIVE',
+      },
     });
+    const created = await tx.teacher.create({
+      data: { schoolId, academicSessionId, userId: user.id, status: 'ACTIVE' },
+    });
+    await applyTeacherAssignments(tx, schoolId, academicSessionId, created.id, assignments);
+    return created;
+  });
 
-    return {
-      teacher,
-      emailSent: emailResult.emailSent,
-      emailError: emailResult.emailError,
-      restored,
-    };
-  },
+  const emailResult = await trySendTeacherCredentials({
+    to: email,
+    teacherName: data.name,
+    schoolName: school.name,
+    email,
+    tempPassword,
+  });
+
+  return {
+    teacher,
+    emailSent: emailResult.emailSent,
+    emailError: emailResult.emailError,
+    restored,
+  };
+},
 
   async createAssignment(
-    schoolId: string,
-    academicSessionId: string,
-    teacherId: string,
-    data: { classId: string; subjectId: string },
-  ) {
-    const teacher = await prisma.teacher.findFirst({
-      where: withTenant(schoolId, { id: teacherId, academicSessionId, ...softDeleteFilter() }),
-    });
-    if (!teacher) throw new AppError('Teacher not found', 404);
+  schoolId: string,
+  academicSessionId: string,
+  teacherId: string,
+  data: { classId: string; subjectId: string },
+) {
+  const teacher = await prisma.teacher.findFirst({
+    where: withTenant(schoolId, { id: teacherId, academicSessionId, ...softDeleteFilter() }),
+  });
+  if (!teacher) throw new AppError('Teacher not found', 404);
 
-    const cls = await prisma.class.findFirst({
-      where: withTenant(schoolId, { id: data.classId, academicSessionId, ...softDeleteFilter() }),
-      select: { id: true },
-    });
-    if (!cls) throw new AppError('Class not found', 404);
+  const cls = await prisma.class.findFirst({
+    where: withTenant(schoolId, { id: data.classId, academicSessionId, ...softDeleteFilter() }),
+    select: { id: true },
+  });
+  if (!cls) throw new AppError('Class not found', 404);
 
-    const subject = await prisma.subject.findFirst({
-      where: withTenant(schoolId, { id: data.subjectId, academicSessionId, ...softDeleteFilter() }),
-      select: { id: true, classId: true },
-    });
-    if (!subject) throw new AppError('Subject not found', 404);
-    if (subject.classId && subject.classId !== data.classId)
-      throw new AppError('Subject does not belong to selected class', 422);
+  const subject = await prisma.subject.findFirst({
+    where: withTenant(schoolId, { id: data.subjectId, academicSessionId, ...softDeleteFilter() }),
+    select: { id: true, classId: true },
+  });
+  if (!subject) throw new AppError('Subject not found', 404);
+  if (subject.classId && subject.classId !== data.classId)
+    throw new AppError('Subject does not belong to selected class', 422);
 
-    try {
-      return await prisma.teacherClass.create({
-        data: { schoolId, academicSessionId, teacherId, classId: data.classId, subjectId: data.subjectId },
-        include: {
-          class: { select: { id: true, name: true } },
-          subject: { select: { id: true, name: true } },
-        },
-      });
-    } catch (e: any) {
-      if (e?.code === 'P2002') throw new AppError('Assignment already exists', 409);
-      throw e;
-    }
-  },
+  try {
+    return await prisma.teacherClass.create({
+      data: { schoolId, academicSessionId, teacherId, classId: data.classId, subjectId: data.subjectId },
+      include: {
+        class: { select: { id: true, name: true } },
+        subject: { select: { id: true, name: true } },
+      },
+    });
+  } catch (e: any) {
+    if (e?.code === 'P2002') throw new AppError('Assignment already exists', 409);
+    throw e;
+  }
+},
 
   async deleteAssignment(schoolId: string, teacherId: string, assignmentId: string) {
-    const assignment = await prisma.teacherClass.findFirst({
-      where: withTenant(schoolId, { id: assignmentId, teacherId }),
-      select: { id: true, subjectId: true, classId: true },
-    });
-    if (!assignment) throw new AppError('Assignment not found', 404);
+  const assignment = await prisma.teacherClass.findFirst({
+    where: withTenant(schoolId, { id: assignmentId, teacherId }),
+    select: { id: true, subjectId: true, classId: true },
+  });
+  if (!assignment) throw new AppError('Assignment not found', 404);
 
-    await prisma.$transaction(async (tx) => {
-      const chapters = await tx.chapter.findMany({
-        where: {
-          schoolId,
-          subjectId: assignment.subjectId ?? undefined,
-          classId: assignment.classId,
-        },
-        select: { id: true },
-      });
-      const chapterIds = chapters.map((c) => c.id);
-
-      if (chapterIds.length > 0) {
-        const topics = await tx.topic.findMany({
-          where: { schoolId, chapterId: { in: chapterIds } },
-          select: { id: true },
-        });
-        const topicIds = topics.map((t) => t.id);
-
-        if (topicIds.length > 0) {
-          await tx.topicProgress.deleteMany({
-            where: { teacherId, topicId: { in: topicIds } },
-          });
-        }
-
-        await tx.chapterProgress.deleteMany({
-          where: { teacherId, chapterId: { in: chapterIds } },
-        });
-      }
-
-      await tx.teacherClass.delete({ where: { id: assignmentId } });
-    });
-  },
-
-  async getById(schoolId: string, academicSessionId: string, id: string) {
-    const teacher = await prisma.teacher.findFirst({
-      where: withTenant(schoolId, { id, academicSessionId, ...softDeleteFilter() }),
-      include: {
-        user: true,
-        teacherClasses: {
-          include: {
-            class: { select: { id: true, name: true, grade: true, section: true } },
-            subject: { select: { id: true, name: true } },
-          },
-          orderBy: { createdAt: 'desc' },
-        },
-      },
-    });
-    if (!teacher) throw new AppError('Teacher not found', 404);
-
-    const assignedSubjectIds = teacher.teacherClasses
-      .map((tc) => tc.subject?.id)
-      .filter((s): s is string => Boolean(s));
-
-    // Get all topics from assigned subjects
-    const sessionFilter = academicSessionId ? { academicSessionId } : {};
-    const topicsFromSubjects = await prisma.topic.findMany({
+  await prisma.$transaction(async (tx) => {
+    const chapters = await tx.chapter.findMany({
       where: {
         schoolId,
-        ...sessionFilter,
-        chapter: { subjectId: { in: assignedSubjectIds }, deletedAt: null, ...sessionFilter },
-        deletedAt: null,
+        subjectId: assignment.subjectId ?? undefined,
+        classId: assignment.classId,
       },
       select: { id: true },
     });
+    const chapterIds = chapters.map((c) => c.id);
 
-    const totalTopics = topicsFromSubjects.length;
+    if (chapterIds.length > 0) {
+      const topics = await tx.topic.findMany({
+        where: { schoolId, chapterId: { in: chapterIds } },
+        select: { id: true },
+      });
+      const topicIds = topics.map((t) => t.id);
 
-    // Get topic progress for this teacher
-    const topicProgress = await prisma.topicProgress.findMany({
-      where: {
-        schoolId,
-        ...sessionFilter,
-        teacherId: id,
-        topicId: { in: topicsFromSubjects.map((t) => t.id) },
-      },
-      include: {
-        topic: {
-          select: {
-            chapterId: true,
-          },
-        },
-      },
-    });
-
-    const completedTopics = topicProgress.filter((tp) => tp.status === 'COMPLETED').length;
-
-    // Get chapter progress for this teacher
-    const chapterProgress = await prisma.chapterProgress.findMany({
-      where: {
-        schoolId,
-        ...sessionFilter,
-        teacherId: id,
-        chapter: { subjectId: { in: assignedSubjectIds }, ...sessionFilter },
-      },
-      include: {
-        chapter: {
-          include: {
-            topics: {
-              where: sessionFilter,
-            },
-          },
-        },
-      },
-    });
-
-    // Add topics from completed chapters
-    let totalCompletedTopics = completedTopics;
-    chapterProgress.forEach((cp) => {
-      if (cp.chapterStatus === 'COMPLETED') {
-        const chapterTopics = cp.chapter.topics;
-        const alreadyCountedTopics = topicProgress
-          .filter((tp) => tp.topic.chapterId === cp.chapterId)
-          .map((tp) => tp.topicId);
-
-        chapterTopics.forEach((topic) => {
-          if (
-            !alreadyCountedTopics.includes(topic.id) &&
-            topicsFromSubjects.some((t) => t.id === topic.id)
-          ) {
-            totalCompletedTopics++;
-          }
+      if (topicIds.length > 0) {
+        await tx.topicProgress.deleteMany({
+          where: { teacherId, topicId: { in: topicIds } },
         });
       }
-    });
 
-    const progressPercentage =
-      totalTopics > 0 ? Math.round((totalCompletedTopics / totalTopics) * 100) : 0;
-
-    return {
-      ...teacher,
-      chapterProgress, // Include chapter progress for frontend
-      totalChapters: totalTopics, // Renamed for frontend compatibility
-      completedChapters: totalCompletedTopics, // Renamed for frontend compatibility
-      progressPercentage,
-    };
-  },
-
-  async update(
-    schoolId: string,
-    academicSessionId: string,
-    id: string,
-    data: { name?: string; phone?: string; status?: 'ACTIVE' | 'SUSPENDED' | 'INACTIVE' },
-  ) {
-    const teacher = await this.getById(schoolId, academicSessionId, id);
-
-    if (data.status === 'SUSPENDED' || data.status === 'ACTIVE') {
-      return this.setSuspended(schoolId, academicSessionId, id, data.status === 'SUSPENDED');
+      await tx.chapterProgress.deleteMany({
+        where: { teacherId, chapterId: { in: chapterIds } },
+      });
     }
 
-    return prisma.$transaction(async (tx) => {
-      if (data.name || data.phone) {
-        await tx.user.update({
-          where: { id: teacher.userId },
-          data: {
-            ...(data.name && { name: data.name }),
-            ...(data.phone !== undefined && { phone: data.phone }),
-          },
-        });
-      }
+    await tx.teacherClass.delete({ where: { id: assignmentId } });
+  });
+},
 
-      return tx.teacher.findUnique({
-        where: { id: teacher.id },
+  async getById(schoolId: string, academicSessionId: string, id: string, termFilter?: string) {
+  const teacher = await prisma.teacher.findFirst({
+    where: withTenant(schoolId, { id, academicSessionId, ...softDeleteFilter() }),
+    include: {
+      user: true,
+      teacherClasses: {
         include: {
-          user: true,
-          teacherClasses: {
-            include: { class: true, subject: true },
-            orderBy: { createdAt: 'desc' },
-          },
+          class: { select: { id: true, name: true, grade: true, section: true } },
+          subject: { select: { id: true, name: true } },
         },
-      });
+        orderBy: { createdAt: 'desc' },
+      },
+    },
+  });
+  if (!teacher) throw new AppError('Teacher not found', 404);
+
+  // Extract term name from termFilter if provided
+  let filteredTermName: string | undefined;
+  if (termFilter && termFilter !== 'all') {
+    const lastDash = termFilter.lastIndexOf('-');
+    const yearId = termFilter.substring(0, lastDash);
+    const termIndex = termFilter.substring(lastDash + 1);
+    const termIdx = parseInt(termIndex, 10);
+
+    const academicYear = await prisma.academicTerm.findFirst({
+      where: { id: yearId, schoolId, deletedAt: null },
+      select: { terms: true },
     });
-  },
 
-  /** Suspend or re-activate a teacher (distinct from soft delete). */
-  async setSuspended(schoolId: string, academicSessionId: string, id: string, suspended: boolean) {
-    const teacher = await this.getById(schoolId, academicSessionId, id);
-    const status = suspended ? 'SUSPENDED' : 'ACTIVE';
+    if (!academicYear) {
+      const academicSession = await prisma.academicSession.findFirst({
+        where: { id: yearId, schoolId, deletedAt: null },
+      });
+      if (academicSession) {
+        const sessionYear = await prisma.academicTerm.findFirst({
+          where: { academicSessionId: academicSession.id, schoolId, deletedAt: null },
+          select: { terms: true },
+        });
+        if (sessionYear?.terms) {
+          const terms = typeof sessionYear.terms === 'string' ? JSON.parse(sessionYear.terms) : sessionYear.terms;
+          if (terms[termIdx]) filteredTermName = terms[termIdx].name;
+        }
+      }
+    } else if (academicYear.terms) {
+      const terms = typeof academicYear.terms === 'string' ? JSON.parse(academicYear.terms) : academicYear.terms;
+      if (terms[termIdx]) filteredTermName = terms[termIdx].name;
+    }
+  }
 
-    await prisma.$transaction([
-      prisma.user.update({
+  const assignedSubjectIds = teacher.teacherClasses
+    .map((tc) => tc.subject?.id)
+    .filter((s): s is string => Boolean(s));
+
+  // Get all chapters from assigned subjects
+  const sessionFilter = academicSessionId ? { academicSessionId } : {};
+  const chaptersFromSubjects = await prisma.chapter.findMany({
+    where: {
+      schoolId,
+      subjectId: { in: assignedSubjectIds },
+      deletedAt: null,
+      ...sessionFilter,
+      ...(filteredTermName && { termName: filteredTermName }),
+    },
+    select: { id: true },
+  });
+
+  const totalChapters = chaptersFromSubjects.length;
+
+  // Get chapter progress for this teacher
+  const chapterProgress = await prisma.chapterProgress.findMany({
+    where: {
+      schoolId,
+      ...sessionFilter,
+      teacherId: id,
+      chapter: { 
+        subjectId: { in: assignedSubjectIds }, 
+        ...sessionFilter,
+        deletedAt: null,
+        ...(filteredTermName && { termName: filteredTermName }),
+      },
+    },
+  });
+
+  const completedChapters = chapterProgress.filter((cp) => cp.chapterStatus === 'COMPLETED').length;
+
+  const progressPercentage =
+    totalChapters > 0 ? Math.round((completedChapters / totalChapters) * 100) : 0;
+
+  return {
+    ...teacher,
+    chapterProgress, // Include chapter progress for frontend
+    totalChapters,
+    completedChapters,
+    progressPercentage,
+  };
+},
+
+  async update(
+  schoolId: string,
+  academicSessionId: string,
+  id: string,
+  data: { name?: string; email?: string; phone?: string; status?: 'ACTIVE' | 'SUSPENDED' | 'INACTIVE' },
+) {
+  const teacher = await this.getById(schoolId, academicSessionId, id);
+
+  if (data.status === 'SUSPENDED' || data.status === 'ACTIVE') {
+    return this.setSuspended(schoolId, academicSessionId, id, data.status === 'SUSPENDED');
+  }
+
+  const school = await prisma.school.findUnique({ where: { id: schoolId } });
+  if (!school) throw new AppError('School not found', 404);
+
+  let emailChanged = false;
+  let newEmail = teacher.user.email;
+  let tempPassword: string | null = null;
+
+  // Check if email is being changed
+  if (data.email && data.email.toLowerCase() !== teacher.user.email.toLowerCase()) {
+    const newEmailLower = data.email.toLowerCase();
+
+    // Check if new email is already in use
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        email: newEmailLower,
+        schoolId,
+        deletedAt: null,
+      },
+    });
+
+    if (existingUser) {
+      throw new AppError('Email already in use', 400);
+    }
+
+    emailChanged = true;
+    newEmail = newEmailLower;
+    tempPassword = authService.generateSecurePassword();
+    const passwordHash = await hashPassword(tempPassword);
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const updateData: any = {};
+    if (data.name) updateData.name = data.name;
+    if (data.phone !== undefined) updateData.phone = data.phone;
+    if (emailChanged && tempPassword) {
+      updateData.email = newEmail;
+      updateData.passwordHash = await hashPassword(tempPassword);
+    }
+
+    if (Object.keys(updateData).length > 0) {
+      await tx.user.update({
         where: { id: teacher.userId },
-        data: { status, deletedAt: null },
-      }),
-      prisma.teacher.update({
-        where: { id: teacher.id },
-        data: { status, deletedAt: null },
-      }),
-    ]);
+        data: updateData,
+      });
+    }
 
-    return prisma.teacher.findUnique({
+    const updatedTeacher = await tx.teacher.findUnique({
       where: { id: teacher.id },
       include: {
         user: true,
@@ -708,19 +690,65 @@ export const teacherService = {
         },
       },
     });
-  },
+
+    // Send credentials email if email was changed
+    if (emailChanged && tempPassword) {
+      try {
+        await trySendTeacherCredentials({
+          to: newEmail,
+          teacherName: updatedTeacher!.user.name,
+          schoolName: school.name,
+          email: newEmail,
+          tempPassword,
+        });
+      } catch (emailError) {
+        console.error('Failed to send credentials email:', emailError);
+      }
+    }
+
+    return updatedTeacher;
+  });
+},
+
+  /** Suspend or re-activate a teacher (distinct from soft delete). */
+  async setSuspended(schoolId: string, academicSessionId: string, id: string, suspended: boolean) {
+  const teacher = await this.getById(schoolId, academicSessionId, id);
+  const status = suspended ? 'SUSPENDED' : 'ACTIVE';
+
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: teacher.userId },
+      data: { status, deletedAt: null },
+    }),
+    prisma.teacher.update({
+      where: { id: teacher.id },
+      data: { status, deletedAt: null },
+    }),
+  ]);
+
+  return prisma.teacher.findUnique({
+    where: { id: teacher.id },
+    include: {
+      user: true,
+      teacherClasses: {
+        include: { class: true, subject: true },
+        orderBy: { createdAt: 'desc' },
+      },
+    },
+  });
+},
 
   async softDelete(schoolId: string, academicSessionId: string, id: string) {
-    const teacher = await this.getById(schoolId, academicSessionId, id);
-    return prisma.$transaction([
-      prisma.teacher.update({
-        where: { id },
-        data: { deletedAt: new Date(), status: 'INACTIVE' },
-      }),
-      prisma.user.update({
-        where: { id: teacher.userId },
-        data: { deletedAt: new Date(), status: 'INACTIVE' },
-      }),
-    ]);
-  },
+  const teacher = await this.getById(schoolId, academicSessionId, id);
+  return prisma.$transaction([
+    prisma.teacher.update({
+      where: { id },
+      data: { deletedAt: new Date(), status: 'INACTIVE' },
+    }),
+    prisma.user.update({
+      where: { id: teacher.userId },
+      data: { deletedAt: new Date(), status: 'INACTIVE' },
+    }),
+  ]);
+},
 };

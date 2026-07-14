@@ -75,23 +75,18 @@ export const progressService = {
       totalSubjects,
       totalChapters,
       completedChapters,
-      totalTopics,
-      completedTopics,
     ] = await Promise.all([
-      prisma.teacher.count({ where: { schoolId, deletedAt: null } }),
+      prisma.teacher.count({ where: { schoolId, deletedAt: null, ...sessionFilter } }),
       prisma.class.count({ where: { schoolId, deletedAt: null, ...sessionFilter } }),
       prisma.subject.count({ where: { schoolId, deletedAt: null, ...sessionFilter } }),
       prisma.chapter.count({ where: { schoolId, deletedAt: null, ...sessionFilter } }),
       prisma.chapterProgress.count({
-        where: { schoolId, chapterStatus: 'COMPLETED', ...sessionFilter },
+        where: { schoolId, chapterStatus: 'COMPLETED', ...sessionFilter, chapter: { deletedAt: null } },
       }),
-      prisma.topic.count({ where: { schoolId, deletedAt: null, ...sessionFilter } }),
-      prisma.topicProgress.count({ where: { schoolId, status: 'COMPLETED', ...sessionFilter } }),
     ]);
 
     const pendingChapters = totalChapters - completedChapters;
     const chapterProgress = computeOverallProgress(completedChapters, totalChapters);
-    const topicProgress = computeOverallProgress(completedTopics, totalTopics);
 
     return {
       totalTeachers,
@@ -100,11 +95,7 @@ export const progressService = {
       totalChapters,
       completedChapters,
       pendingChapters: Math.max(0, pendingChapters),
-      overallProgress: topicProgress || chapterProgress,
-      totalTopics,
-      completedTopics,
-      pendingTopics: Math.max(0, totalTopics - completedTopics),
-      topicProgress,
+      overallProgress: chapterProgress,
       chapterProgress,
     };
   },
@@ -199,19 +190,58 @@ export const progressService = {
     });
   },
 
-  async getTeacherTopicProgress(schoolId: string, teacherId: string, academicSessionId?: string) {
+  async getTeacherChapterProgress(schoolId: string, teacherId: string, academicSessionId?: string) {
     const sessionFilter = academicSessionId ? { academicSessionId } : {};
-    const [totalTopics, completedTopics] = await Promise.all([
-      prisma.topic.count({ where: { schoolId, deletedAt: null, ...sessionFilter } }),
-      prisma.topicProgress.count({
-        where: { schoolId, teacherId, status: 'COMPLETED', ...sessionFilter },
+    
+    // Get teacher's assigned subjects
+    const teacher = await prisma.teacher.findUnique({
+      where: { id: teacherId },
+      include: {
+        teacherClasses: {
+          where: sessionFilter,
+          include: {
+            subject: true,
+          },
+        },
+      },
+    });
+
+    if (!teacher) {
+      return {
+        totalChapters: 0,
+        completedChapters: 0,
+        progress: 0,
+      };
+    }
+
+    const assignedSubjectIds = teacher.teacherClasses
+      .map((tc: any) => tc.subject?.id)
+      .filter((s: string | undefined): s is string => Boolean(s));
+
+    const [totalChapters, completedChapters] = await Promise.all([
+      prisma.chapter.count({
+        where: {
+          schoolId,
+          subjectId: { in: assignedSubjectIds },
+          deletedAt: null,
+          ...sessionFilter,
+        },
+      }),
+      prisma.chapterProgress.count({
+        where: {
+          schoolId,
+          teacherId,
+          chapterStatus: 'COMPLETED',
+          ...sessionFilter,
+          chapter: { deletedAt: null },
+        },
       }),
     ]);
 
     return {
-      totalTopics,
-      completedTopics,
-      progress: computeOverallProgress(completedTopics, totalTopics),
+      totalChapters,
+      completedChapters,
+      progress: computeOverallProgress(completedChapters, totalChapters),
     };
   },
 
@@ -220,7 +250,7 @@ export const progressService = {
 
     const sessionFilter = academicSessionId ? { academicSessionId } : {};
     const teachers = await prisma.teacher.findMany({
-      where: { schoolId, deletedAt: null },
+      where: { schoolId, deletedAt: null, ...sessionFilter },
       include: {
         user: { select: { name: true } },
         teacherClasses: {
@@ -245,122 +275,92 @@ export const progressService = {
           `[getTeacherWiseProgress] Teacher ${t.user.name}: Assigned subjects: ${assignedSubjectIds.length}`,
         );
 
-        // Get all topics from assigned subjects (same as teacher.service.getById)
-        const topicsFromSubjects = await prisma.topic.findMany({
+        // Get all chapters from assigned subjects
+        const chaptersFromSubjects = await prisma.chapter.findMany({
           where: {
             schoolId,
-            chapter: { subjectId: { in: assignedSubjectIds }, deletedAt: null, ...sessionFilter },
+            subjectId: { in: assignedSubjectIds },
             deletedAt: null,
             ...sessionFilter,
           },
           select: { id: true },
         });
 
-        const totalTopics = topicsFromSubjects.length;
+        const totalChapters = chaptersFromSubjects.length;
         console.log(
-          `[getTeacherWiseProgress] Teacher ${t.user.name}: Total topics: ${totalTopics}`,
+          `[getTeacherWiseProgress] Teacher ${t.user.name}: Total chapters: ${totalChapters}`,
         );
 
-        // Get topic progress for this teacher (same as teacher.service.getById)
-        const topicProgress = await prisma.topicProgress.findMany({
-          where: {
-            schoolId,
-            teacherId: t.id,
-            topicId: { in: topicsFromSubjects.map((t) => t.id) },
-            ...sessionFilter,
-          },
-          include: {
-            topic: {
-              select: {
-                chapterId: true,
-              },
-            },
-          },
-        });
-
-        const completedTopics = topicProgress.filter((tp) => tp.status === 'COMPLETED').length;
-        console.log(
-          `[getTeacherWiseProgress] Teacher ${t.user.name}: Completed topics from topicProgress: ${completedTopics}`,
-        );
-
-        // Get chapter progress for this teacher (same as teacher.service.getById)
+        // Get chapter progress for this teacher
         const chapterProgress = await prisma.chapterProgress.findMany({
           where: {
             schoolId,
             teacherId: t.id,
-            chapter: { subjectId: { in: assignedSubjectIds }, ...sessionFilter },
+            chapter: { subjectId: { in: assignedSubjectIds }, ...sessionFilter, deletedAt: null },
             ...sessionFilter,
           },
-          include: {
-            chapter: {
-              include: {
-                topics: {
-                  where: sessionFilter,
-                },
-              },
-            },
-          },
         });
 
-        // Add topics from completed chapters (same as teacher.service.getById)
-        let totalCompletedTopics = completedTopics;
-        chapterProgress.forEach((cp) => {
-          if (cp.chapterStatus === 'COMPLETED') {
-            const chapterTopics = cp.chapter.topics;
-            const alreadyCountedTopics = topicProgress
-              .filter((tp) => tp.topic.chapterId === cp.chapterId)
-              .map((tp) => tp.topicId);
-
-            chapterTopics.forEach((topic) => {
-              if (
-                !alreadyCountedTopics.includes(topic.id) &&
-                topicsFromSubjects.some((t) => t.id === topic.id)
-              ) {
-                totalCompletedTopics++;
-              }
-            });
-          }
-        });
-
+        const completedChapters = chapterProgress.filter((cp) => cp.chapterStatus === 'COMPLETED').length;
         console.log(
-          `[getTeacherWiseProgress] Teacher ${t.user.name}: Total completed topics: ${totalCompletedTopics}`,
+          `[getTeacherWiseProgress] Teacher ${t.user.name}: Completed chapters: ${completedChapters}`,
         );
 
         const progress =
-          totalTopics > 0 ? Math.round((totalCompletedTopics / totalTopics) * 100) : 0;
+          totalChapters > 0 ? Math.round((completedChapters / totalChapters) * 100) : 0;
 
         console.log(
           `[getTeacherWiseProgress] Teacher ${t.user.name}: Final progress = ${progress}%`,
         );
 
-        return { name: t.user.name, progress, totalTopics, completedTopics: totalCompletedTopics };
+        return { name: t.user.name, progress, totalChapters, completedChapters };
       }),
     );
   },
 
-  async getClassWiseProgress(schoolId: string) {
+  async getClassWiseProgress(schoolId: string, academicSessionId?: string) {
+    const sessionFilter = academicSessionId ? { academicSessionId } : {};
     const classes = await prisma.class.findMany({
-      where: { schoolId, deletedAt: null },
+      where: { schoolId, deletedAt: null, ...sessionFilter },
       include: {
         subjects: {
-          where: { deletedAt: null },
+          where: { deletedAt: null, ...sessionFilter },
           include: {
             chapters: {
-              where: { deletedAt: null },
-              include: { topics: { where: { deletedAt: null } } },
+              where: { deletedAt: null, ...sessionFilter },
             },
           },
         },
       },
     });
 
-    return classes.map((cls) => {
-      const allTopics = cls.subjects.flatMap((s) => s.chapters.flatMap((c) => c.topics));
-      return {
-        name: cls.name,
-        total: allTopics.length,
-        progress: 0,
-      };
-    });
+    return Promise.all(
+      classes.map(async (cls) => {
+        const allChapters = cls.subjects.flatMap((s) => s.chapters);
+        const totalChapters = allChapters.length;
+        
+        // Count completed chapters for this class (any teacher)
+        const completedChapters = await prisma.chapterProgress.count({
+          where: {
+            schoolId,
+            chapterStatus: 'COMPLETED',
+            ...sessionFilter,
+            chapter: {
+              id: { in: allChapters.map((c) => c.id) },
+              deletedAt: null,
+            },
+          },
+        });
+
+        const progress = totalChapters > 0 ? Math.round((completedChapters / totalChapters) * 100) : 0;
+
+        return {
+          name: cls.name,
+          total: totalChapters,
+          completed: completedChapters,
+          progress,
+        };
+      }),
+    );
   },
 };

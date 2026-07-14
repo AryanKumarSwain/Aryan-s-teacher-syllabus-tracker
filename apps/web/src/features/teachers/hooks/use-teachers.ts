@@ -38,7 +38,7 @@ export interface CreateTeacherResponse {
   restored?: boolean;
 }
 
-export function useTeachers(params: { page?: number; search?: string }) {
+export function useTeachers(params: { page?: number; search?: string; termFilter?: string; academicSessionId?: string }) {
   return useQuery({
     queryKey: ['teachers', params],
     queryFn: () =>
@@ -46,7 +46,11 @@ export function useTeachers(params: { page?: number; search?: string }) {
         page: params.page ?? 1,
         pageSize: 20,
         search: params.search,
+        academicSessionId: params.academicSessionId,
+        ...(params.termFilter && params.termFilter !== 'all' && { termFilter: params.termFilter }),
       }),
+    enabled: !!params.academicSessionId,
+    refetchInterval: 30000, // Refetch every 30 seconds to get updated progress
   });
 }
 

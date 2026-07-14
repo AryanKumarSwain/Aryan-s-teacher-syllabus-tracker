@@ -148,11 +148,8 @@ model Subscription {
 model Teacher {
   id                String           @id @default(uuid()) @db.VarChar(50)
   schoolId          String           @map("school_id") @db.VarChar(50)
-  
-  // Changed these two lines to be optional (added `?`)
-  academicSessionId String?          @map("academic_session_id") @db.VarChar(50)
-  academicSession   AcademicSession? @relation(fields: [academicSessionId], references: [id], onDelete: Cascade)
-  
+  academicSessionId String           @map("academic_session_id") @db.VarChar(50)
+  academicSession   AcademicSession  @relation(fields: [academicSessionId], references: [id], onDelete: Cascade)
   userId            String           @unique @map("user_id") @db.VarChar(50)
   status            UserStatus       @default(ACTIVE)
   createdAt         DateTime         @default(now()) @map("created_at")
@@ -232,6 +229,8 @@ model Chapter {
   description           String?           @db.Text
   notes                 String?           @db.LongText
   estimatedTeachingDays Int?              @default(0) @map("estimated_teaching_days")
+  chapterNo             Int?              @map("chapter_no")
+  termName              String?           @map("term_name")
   sortOrder             Int               @default(0) @map("sort_order")
   createdAt             DateTime          @default(now()) @map("created_at")
   updatedAt             DateTime          @updatedAt @map("updated_at")

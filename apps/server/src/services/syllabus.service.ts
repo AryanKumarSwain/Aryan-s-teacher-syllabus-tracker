@@ -10,7 +10,7 @@ export const syllabusService = {
     teacherId?: string,
   ) {
     const { skip, page, pageSize } = getPagination(params.page, params.pageSize);
-    
+
     // academicSessionId is now required for session isolation
     if (!params.academicSessionId) {
       throw new AppError('Academic session ID is required', 400);
@@ -31,16 +31,16 @@ export const syllabusService = {
         orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
         include: teacherId
           ? {
-              _count: {
-                select: {
-                  subjects: {
-                    where: {
-                      teacherClasses: { some: { teacherId } },
-                    },
+            _count: {
+              select: {
+                subjects: {
+                  where: {
+                    teacherClasses: { some: { teacherId } },
                   },
                 },
               },
-            }
+            },
+          }
           : { _count: { select: { subjects: true } } },
       }),
       prisma.class.count({ where }),
@@ -121,8 +121,8 @@ export const syllabusService = {
         progress:
           (chapterCountByClass[cls.id] ?? 0) > 0
             ? Math.round(
-                ((completedCountByClass[cls.id] ?? 0) / (chapterCountByClass[cls.id] ?? 1)) * 100,
-              )
+              ((completedCountByClass[cls.id] ?? 0) / (chapterCountByClass[cls.id] ?? 1)) * 100,
+            )
             : 0,
       })),
       total,
@@ -172,13 +172,13 @@ export const syllabusService = {
         description: data.description,
         subjects: data.subjects?.length
           ? {
-              create: data.subjects.map((name, index) => ({
-                schoolId,
-                academicSessionId: data.academicSessionId,
-                name,
-                sortOrder: index + 1,
-              })),
-            }
+            create: data.subjects.map((name, index) => ({
+              schoolId,
+              academicSessionId: data.academicSessionId,
+              name,
+              sortOrder: index + 1,
+            })),
+          }
           : undefined,
       },
       include: {
@@ -232,15 +232,15 @@ export const syllabusService = {
                 // ✅ No topics included — removed
                 chapterProgress: teacherId
                   ? {
-                      where: { teacherId },
-                      select: {
-                        teachingCompleted: true,
-                        qaCompleted: true,
-                        copyChecked: true,
-                        chapterStatus: true,
-                        completionPercentage: true,
-                      },
-                    }
+                    where: { teacherId },
+                    select: {
+                      teachingCompleted: true,
+                      qaCompleted: true,
+                      copyChecked: true,
+                      chapterStatus: true,
+                      completionPercentage: true,
+                    },
+                  }
                   : false,
               },
             },
@@ -280,17 +280,17 @@ export const syllabusService = {
         subjectId: true,
         chapterProgress: teacherId
           ? {
-              where: { teacherId },
-              select: {
-                teachingCompleted: true,
-                qaCompleted: true,
-                chapterStatus: true,
-              },
-            }
-          : {
-              where: { chapterStatus: 'COMPLETED' },
-              select: { chapterStatus: true },
+            where: { teacherId },
+            select: {
+              teachingCompleted: true,
+              qaCompleted: true,
+              chapterStatus: true,
             },
+          }
+          : {
+            where: { chapterStatus: 'COMPLETED' },
+            select: { chapterStatus: true },
+          },
       },
     });
 
@@ -503,6 +503,8 @@ export const syllabusService = {
       title: string;
       description?: string;
       notes?: string;
+      chapterNo?: number | string; 
+      termName?: string;           
     },
   ) {
     const maxOrder = await prisma.chapter.aggregate({
@@ -560,12 +562,12 @@ export const syllabusService = {
               },
               orderBy: [{ sortOrder: 'asc' }],
               include: {
-                topics: { 
+                topics: {
                   where: {
                     ...softDeleteFilter(),
                     academicSessionId,
                   },
-                  orderBy: [{ sortOrder: 'asc' }] 
+                  orderBy: [{ sortOrder: 'asc' }]
                 },
               },
             },

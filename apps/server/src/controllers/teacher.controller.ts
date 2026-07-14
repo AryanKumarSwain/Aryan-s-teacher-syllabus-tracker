@@ -28,6 +28,7 @@ export const teacherController = {
       
       // Get school's current session if not provided
       let academicSessionId = req.query.academicSessionId as string | undefined;
+      console.log('[DEBUG] teacher.list - initial academicSessionId from query:', academicSessionId);
       if (!academicSessionId) {
         const { prisma } = await import('@school-syllabus/database');
         const school = await prisma.school.findUnique({
@@ -35,15 +36,23 @@ export const teacherController = {
           select: { currentAcademicSessionId: true },
         });
         academicSessionId = school?.currentAcademicSessionId || undefined;
+        console.log('[DEBUG] teacher.list - academicSessionId from school:', academicSessionId);
       }
       
       const params = {
         ...req.query,
         academicSessionId,
+        termFilter: req.query.termFilter as string | undefined,
       };
+      console.log('[DEBUG] teacher.list - calling service with academicSessionId:', academicSessionId);
       const result = await teacherService.list(schoolId, params as never);
+      console.log('[DEBUG] teacher.list - result items count:', result.items.length);
+      result.items.forEach((t: any) => {
+        console.log('[DEBUG] teacher:', t.user?.name, 'progressPercentage:', t.progressPercentage);
+      });
       sendPaginated(res, result.items, result.total, result.page, result.pageSize);
     } catch (err) {
+      console.log('[DEBUG] teacher.list error:', err);
       next(err);
     }
   },
@@ -66,7 +75,8 @@ export const teacherController = {
         return res.status(400).json({ success: false, error: 'Academic session ID is required' });
       }
       
-      const teacher = await teacherService.getById(schoolId, academicSessionId, String(req.params.id));
+      const termFilter = req.query.termFilter as string | undefined;
+      const teacher = await teacherService.getById(schoolId, academicSessionId, String(req.params.id), termFilter);
       sendSuccess(res, teacher);
     } catch (err) {
       next(err);
