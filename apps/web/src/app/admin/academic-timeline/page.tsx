@@ -613,25 +613,6 @@ export default function AcademicTimelinePage() {
           )}
         </div>
 
-        {/* Term selector - only show if timeline exists */}
-        {timelineExists && (
-          <div className="flex flex-wrap gap-3">
-            <div className="bg-background flex items-center gap-2 rounded-md border px-3 py-1.5 shadow-sm">
-              <Filter className="text-muted-foreground h-4 w-4" />
-              <select
-                value={selectedTermId}
-                onChange={(e) => setSelectedTermId(e.target.value)}
-                className="cursor-pointer bg-transparent text-sm font-medium focus:outline-none"
-              >
-                {academicYears.map((year) => (
-                  <option key={year.id} value={year.id}>
-                    {year.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        )}
 
         {isLoading ? (
           <div className="grid gap-4 md:grid-cols-2">

@@ -144,11 +144,14 @@ export class ProgressionService {
     let filteredTermName: string | undefined;
     if (termFilter && termFilter !== 'all') {
       try {
+        console.log('[getProgressionAnalytics] termFilter provided:', termFilter);
         // Parse termFilter format: ${yearId}-${termIndex}
         const lastDash = termFilter.lastIndexOf('-');
         const yearId = termFilter.substring(0, lastDash);
         const termIndex = termFilter.substring(lastDash + 1);
         const termIdx = parseInt(termIndex, 10);
+        
+        console.log('[getProgressionAnalytics] Parsed yearId:', yearId, 'termIdx:', termIdx);
         
         // Try to find as academicTerm first
         let academicYear = await prisma.academicTerm.findFirst({
@@ -156,11 +159,15 @@ export class ProgressionService {
           select: { terms: true },
         });
         
+        console.log('[getProgressionAnalytics] academicYear found:', !!academicYear);
+        
         // If not found, try as academicSession
         if (!academicYear) {
+          console.log('[getProgressionAnalytics] Not found as academicTerm, trying as academicSession');
           const academicSession = await prisma.academicSession.findFirst({
             where: { id: yearId, schoolId},
           });
+          console.log('[getProgressionAnalytics] academicSession found:', !!academicSession);
           if (academicSession) {
           // Get the academic term for this session
           academicYear = await prisma.academicTerm.findFirst({
@@ -171,6 +178,7 @@ export class ProgressionService {
             },
             select: { terms: true },
           });
+          console.log('[getProgressionAnalytics] academicYear from session found:', !!academicYear);
         }
       }
       
@@ -178,13 +186,22 @@ export class ProgressionService {
         const terms = typeof academicYear.terms === 'string' 
           ? JSON.parse(academicYear.terms) 
           : academicYear.terms;
+        console.log('[getProgressionAnalytics] terms array:', terms);
         if (terms[termIdx]) {
           filteredTermName = terms[termIdx].name;
+          console.log('[getProgressionAnalytics] filteredTermName set to:', filteredTermName);
+        } else {
+          console.log('[getProgressionAnalytics] No term found at index:', termIdx);
         }
+      } else {
+        console.log('[getProgressionAnalytics] academicYear or terms not found');
       }
       } catch (err) {
+        console.log('[getProgressionAnalytics] Error parsing termFilter:', err);
         // Silently ignore termFilter errors
       }
+    } else {
+      console.log('[getProgressionAnalytics] No termFilter or termFilter is "all"');
     }
 
     // Fetch vacation days for the active term (if available)

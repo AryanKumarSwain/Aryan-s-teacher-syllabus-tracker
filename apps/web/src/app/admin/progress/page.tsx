@@ -299,22 +299,6 @@ export default function AdminProgressPage() {
               <h1 className="text-3xl font-bold tracking-tight">Syllabus Progress</h1>
               <p className="text-muted-foreground">Track academic progression across your school</p>
             </div>
-            {academicYears?.items && academicYears.items.length > 0 && (
-              <div className="bg-background flex items-center gap-2 rounded-md border px-3 py-1.5 shadow-sm">
-                <Calendar className="text-muted-foreground h-4 w-4" />
-                <select
-                  value={selectedAcademicYearId}
-                  onChange={(e) => setSelectedAcademicYearId(e.target.value)}
-                  className="cursor-pointer bg-transparent text-sm font-medium focus:outline-none"
-                >
-                  {academicYears.items.map((year: any) => (
-                    <option key={year.id} value={year.id}>
-                      {year.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
           </div>
         </div>
 

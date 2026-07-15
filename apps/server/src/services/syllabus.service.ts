@@ -35,13 +35,26 @@ export const syllabusService = {
               select: {
                 subjects: {
                   where: {
-                    teacherClasses: { some: { teacherId } },
+                    teacherClasses: { 
+                      some: { 
+                        teacherId,
+                        academicSessionId: params.academicSessionId,
+                      },
+                    },
                   },
                 },
               },
             },
           }
-          : { _count: { select: { subjects: true } } },
+          : { 
+            _count: { 
+              select: { 
+                subjects: {
+                  where: { academicSessionId: params.academicSessionId },
+                },
+              } 
+            } 
+          },
       }),
       prisma.class.count({ where }),
     ]);
