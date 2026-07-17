@@ -12,7 +12,7 @@ export function signAccessToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): strin
 
 export function signRefreshToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
   return jwt.sign(
-    { ...payload, sessionId: payload.sessionId || uuidv4() },
+    { ...payload, sessionId: payload.sessionId || uuidv4(), jti: uuidv4() },
     env.JWT_REFRESH_SECRET,
     {
       expiresIn: env.JWT_REFRESH_EXPIRES_IN as SignOptions['expiresIn'],

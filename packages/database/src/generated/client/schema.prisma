@@ -51,18 +51,18 @@ model RefreshToken {
 }
 
 model School {
-  id                       String            @id @default(uuid()) @db.VarChar(50)
+  id                       String              @id @default(uuid()) @db.VarChar(50)
   name                     String
-  slug                     String            @unique @db.VarChar(191)
+  slug                     String              @unique @db.VarChar(191)
   email                    String
   phone                    String?
   address                  String?
   logo                     String?
-  status                   SchoolStatus      @default(ACTIVE)
-  currentAcademicSessionId String?           @map("current_academic_session_id") @db.VarChar(50)
-  createdAt                DateTime          @default(now()) @map("created_at")
-  updatedAt                DateTime          @updatedAt @map("updated_at")
-  deletedAt                DateTime?         @map("deleted_at")
+  status                   SchoolStatus        @default(ACTIVE)
+  currentAcademicSessionId String?             @map("current_academic_session_id") @db.VarChar(50)
+  createdAt                DateTime            @default(now()) @map("created_at")
+  updatedAt                DateTime            @updatedAt @map("updated_at")
+  deletedAt                DateTime?           @map("deleted_at")
   academicSessions         AcademicSession[]
   academicTerms            AcademicTerm[]
   activityLogs             ActivityLog[]
@@ -75,6 +75,8 @@ model School {
   teachers                 Teacher[]
   topics                   Topic[]
   users                    User[]
+  examPapers               ExamPaper[]
+  examPaperTemplates       ExamPaperTemplate[]
 
   @@index([status])
   @@index([slug])
@@ -100,6 +102,7 @@ model AcademicSession {
   teacherClasses  TeacherClass[]
   teachers        Teacher[]
   topicProgress   TopicProgress[]
+  examPapers      ExamPaper[] // ➕ Back-relation added here to resolve validation error
 
   @@unique([schoolId, name])
   @@index([schoolId])
@@ -160,6 +163,7 @@ model Teacher {
   school            School            @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   topicProgress     TopicProgress[]
+  examPapers        ExamPaper[]
 
   @@unique([schoolId, userId, academicSessionId])
   @@index([schoolId])
@@ -185,6 +189,7 @@ model Class {
   school            School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   subjects          Subject[]
   teacherClasses    TeacherClass[]
+  examPapers        ExamPaper[]
 
   @@unique([schoolId, academicSessionId, name, section])
   @@index([schoolId])
@@ -211,6 +216,7 @@ model Subject {
   class             Class?          @relation(fields: [classId], references: [id], onDelete: Cascade)
   school            School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   teacherClasses    TeacherClass[]
+  examPapers        ExamPaper[]
 
   @@unique([schoolId, academicSessionId, classId, name])
   @@index([schoolId])
@@ -348,6 +354,84 @@ model TopicProgress {
   @@index([topicId], map: "topic_progress_topic_id_fkey")
   @@index([updatedById], map: "topic_progress_updated_by_fkey")
   @@map("topic_progress")
+}
+
+model ExamPaper {
+  id                String          @id @default(uuid()) @db.VarChar(50)
+  schoolId          String          @map("school_id") @db.VarChar(50)
+  academicSessionId String          @map("academic_session_id") @db.VarChar(50)
+  teacherId         String          @map("teacher_id") @db.VarChar(50)
+  classId           String          @map("class_id") @db.VarChar(50)
+  subjectId         String          @map("subject_id") @db.VarChar(50)
+  examName          String          @map("exam_name") @db.VarChar(191)
+  examDate          DateTime        @default(now()) @map("exam_date")
+  totalMarks        Int?            @map("total_marks")
+  duration          Int?            @map("duration")
+  instructions      String?         @db.Text
+  status            ExamPaperStatus @default(DRAFT)
+  styleFontFamily   String?         @map("style_font_family") @db.VarChar(50)
+  styleFontSize     String?         @map("style_font_size") @db.VarChar(50)
+  styleColor        String?         @map("style_color") @db.VarChar(50)
+  templateType      String?         @default("SINGLE") @map("template_type") @db.VarChar(50)
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  school            School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  academicSession   AcademicSession @relation(fields: [academicSessionId], references: [id], onDelete: Cascade)
+  teacher           Teacher         @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  class             Class           @relation(fields: [classId], references: [id], onDelete: Cascade)
+  subject           Subject         @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  sections          ExamSection[]
+
+  @@index([schoolId])
+  @@index([academicSessionId])
+  @@index([teacherId])
+  @@index([classId])
+  @@index([subjectId])
+  @@index([status])
+  @@map("exam_papers")
+}
+
+model ExamSection {
+  id          String         @id @default(uuid()) @db.VarChar(50)
+  examPaperId String         @map("exam_paper_id") @db.VarChar(50)
+  label       String         @db.VarChar(191)
+  type        QuestionType   @default(CUSTOM)
+  marksEach   Int            @map("marks_each")
+  order       Int            @default(0)
+  examPaper   ExamPaper      @relation(fields: [examPaperId], references: [id], onDelete: Cascade)
+  questions   ExamQuestion[]
+
+  @@index([examPaperId])
+  @@index([order])
+  @@map("exam_sections")
+}
+
+model ExamQuestion {
+  id           String      @id @default(uuid()) @db.VarChar(50)
+  sectionId    String      @map("section_id") @db.VarChar(50)
+  questionText String      @map("question_text") @db.Text
+  options      Json?       @db.Json
+  imageUrl     String?     @map("image_url") @db.VarChar(500)
+  subject      String?     @map("subject") @db.VarChar(191)
+  order        Int         @default(0)
+  section      ExamSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@index([sectionId])
+  @@index([order])
+  @@map("exam_questions")
+}
+
+model ExamPaperTemplate {
+  id           String   @id @default(uuid()) @db.VarChar(50)
+  schoolId     String   @unique @map("school_id") @db.VarChar(50)
+  headerHtml   String   @map("header_html") @db.Text
+  footerHtml   String?  @map("footer_html") @db.Text
+  instructions String?  @db.Text
+  logoUrl      String?  @map("logo_url") @db.VarChar(500)
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  school       School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@map("exam_paper_templates")
 }
 
 model Notification {
@@ -499,4 +583,18 @@ enum AcademicTermStatus {
 enum SessionStatus {
   ACTIVE
   ARCHIVED
+}
+
+enum ExamPaperStatus {
+  DRAFT
+  SUBMITTED
+  REVIEWED
+}
+
+enum QuestionType {
+  MCQ
+  FILL_IN_THE_BLANK
+  SHORT_ANSWER
+  DESCRIPTIVE
+  CUSTOM
 }

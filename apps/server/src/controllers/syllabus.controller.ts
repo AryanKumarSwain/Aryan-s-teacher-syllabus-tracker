@@ -8,6 +8,14 @@ export const syllabusController = {
   async listClasses(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
+      let teacherId: string | undefined;
+
+      if (req.user?.role === 'TEACHER') {
+        const teacher = await prisma.teacher.findFirst({
+          where: { schoolId, userId: req.user.sub },
+        });
+        teacherId = teacher?.id;
+      }
       
       // Get school's current session if not provided
       let academicSessionId = req.query.academicSessionId as string | undefined;
@@ -25,7 +33,7 @@ export const syllabusController = {
         search: req.query.search as string | undefined,
         academicSessionId,
       };
-      const result = await syllabusService.listClasses(schoolId, params);
+      const result = await syllabusService.listClasses(schoolId, params, teacherId);
       sendPaginated(res, result.items, result.total, result.page, result.pageSize);
     } catch (err) {
       next(err);
@@ -150,6 +158,14 @@ export const syllabusController = {
   async listSubjects(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
+      let teacherId: string | undefined;
+
+      if (req.user?.role === 'TEACHER') {
+        const teacher = await prisma.teacher.findFirst({
+          where: { schoolId, userId: req.user.sub },
+        });
+        teacherId = teacher?.id;
+      }
       
       // Get school's current session if not provided
       let academicSessionId = req.query.academicSessionId as string | undefined;
@@ -165,6 +181,7 @@ export const syllabusController = {
         schoolId,
         req.query.classId as string | undefined,
         academicSessionId,
+        teacherId,
       );
       sendSuccess(res, items);
     } catch (err) {

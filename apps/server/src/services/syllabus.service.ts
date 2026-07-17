@@ -440,24 +440,55 @@ export const syllabusService = {
   },
 
   // Subjects
-  async listSubjects(schoolId: string, classId?: string, academicSessionId?: string) {
+  async listSubjects(schoolId: string, classId?: string, academicSessionId?: string, teacherId?: string) {
     // academicSessionId is required for session isolation
     if (!academicSessionId) {
       throw new AppError('Academic session ID is required', 400);
     }
 
-    return prisma.subject.findMany({
-      where: withTenant(schoolId, {
-        ...softDeleteFilter(),
-        academicSessionId,
-        ...(classId && { classId }),
-      }),
+    console.log('[listSubjects] Called with:', { schoolId, classId, academicSessionId, teacherId });
+
+    const where: any = withTenant(schoolId, {
+      ...softDeleteFilter(),
+      academicSessionId,
+      ...(classId && { classId }),
+    });
+
+    // For teachers: filter by their assigned classes, not just teacherClasses directly on subject
+    if (teacherId) {
+      console.log('[listSubjects] Filtering for teacher:', teacherId);
+      // Get teacher's assigned class IDs
+      const teacherClasses = await prisma.teacherClass.findMany({
+        where: { teacherId, academicSessionId },
+        select: { classId: true, subjectId: true },
+      });
+      console.log('[listSubjects] Teacher classes:', teacherClasses);
+
+      const assignedClassIds = teacherClasses.map((tc) => tc.classId).filter((id): id is string => id !== null);
+      const assignedSubjectIds = teacherClasses.map((tc) => tc.subjectId).filter((id): id is string => id !== null);
+
+      console.log('[listSubjects] Assigned classIds:', assignedClassIds, 'subjectIds:', assignedSubjectIds);
+
+      // Filter subjects by: either assigned directly via subjectId OR belong to assigned classes
+      where.OR = [
+        { id: { in: assignedSubjectIds } },
+        { classId: { in: assignedClassIds } },
+      ];
+    }
+
+    console.log('[listSubjects] Final where clause:', JSON.stringify(where, null, 2));
+
+    const subjects = await prisma.subject.findMany({
+      where,
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
       include: {
         class: true,
         _count: { select: { chapters: true, teacherClasses: true } },
       },
     });
+
+    console.log('[listSubjects] Found subjects:', subjects.length);
+    return subjects;
   },
 
   async createSubject(

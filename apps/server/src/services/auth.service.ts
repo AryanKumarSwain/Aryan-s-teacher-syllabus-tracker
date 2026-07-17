@@ -1,4 +1,5 @@
 import { prisma } from '@school-syllabus/database';
+import { Prisma } from '@school-syllabus/database';
 import { UserRole } from '@school-syllabus/types';
 import { env } from '../config/env.js';
 import { COOKIE_NAMES } from '../constants/index.js';
@@ -146,19 +147,26 @@ export const authService = {
     const accessToken = signAccessToken(newPayload);
     const newRefreshToken = signRefreshToken(newPayload);
 
-    await prisma.$transaction([
-      prisma.refreshToken.update({
-        where: { id: stored.id },
-        data: { revokedAt: new Date() },
-      }),
-      prisma.refreshToken.create({
-        data: {
-          userId: user.id,
-          tokenHash: hashToken(newRefreshToken),
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        },
-      }),
-    ]);
+    try {
+      await prisma.$transaction([
+        prisma.refreshToken.update({
+          where: { id: stored.id },
+          data: { revokedAt: new Date() },
+        }),
+        prisma.refreshToken.create({
+          data: {
+            userId: user.id,
+            tokenHash: hashToken(newRefreshToken),
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          },
+        }),
+      ]);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        throw new AppError('Concurrent refresh request detected. Please try again.', 409);
+      }
+      throw error;
+    }
 
     return { accessToken, refreshToken: newRefreshToken, user: newPayload };
   },

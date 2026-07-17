@@ -5,6 +5,14 @@ import withPWA from 'next-pwa';
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@school-syllabus/types'],
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:4000/api/:path*',
+      },
+    ];
+  },
 };
 
 const pwaConfig = withPWA({

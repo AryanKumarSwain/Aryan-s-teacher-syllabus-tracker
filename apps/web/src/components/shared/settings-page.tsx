@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/auth-store';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
@@ -11,8 +11,9 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { api } from '@/services/api-client';
 import { toast } from 'sonner';
-import { CheckCircle2, Mail, KeyRound, User, Shield } from 'lucide-react';
+import { CheckCircle2, Mail, KeyRound, User, Shield, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { env } from '@/config/env';
 
 type PasswordStep = 'idle' | 'otp-sent' | 'done';
 
@@ -24,10 +25,20 @@ export function SettingsPageContent() {
   const [name, setName] = useState(user?.name ?? '');
   const [phone, setPhone] = useState(user?.phone ?? '');
   const [schoolName, setSchoolName] = useState(user?.school?.name ?? '');
+  const [logoUrl, setLogoUrl] = useState('');
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [step, setStep] = useState<PasswordStep>('idle');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  useEffect(() => {
+    if (user?.role === 'SCHOOL_ADMIN') {
+      api.get<any>('/exam-papers/template').then((template) => {
+        setLogoUrl(template?.logoUrl ?? '');
+      }).catch(() => {});
+    }
+  }, [user?.role]);
 
   const profileMutation = useMutation({
     mutationFn: (data: { name?: string; phone?: string }) =>
@@ -93,6 +104,35 @@ export function SettingsPageContent() {
     if (newPassword !== confirmPassword) return toast.error('Passwords do not match');
     if (newPassword.length < 8) return toast.error('Password must be at least 8 characters');
     verifyOtpMutation.mutate({ otp, newPassword });
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingLogo(true);
+    try {
+      const formData = new FormData();
+      formData.append('logo', file);
+      
+      const response = await fetch(`${env.apiUrl}/exam-papers/template/upload-logo`, {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+      
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setLogoUrl(data.data.logoUrl);
+        toast.success('Logo uploaded successfully');
+      } else {
+        throw new Error(data.error || 'Upload failed');
+      }
+    } catch (error) {
+      toast.error('Logo upload failed');
+    } finally {
+      setUploadingLogo(false);
+    }
   };
 
   return (
@@ -201,6 +241,44 @@ export function SettingsPageContent() {
               >
                 {schoolMutation.isPending ? 'Saving…' : 'Save School Name'}
               </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* School Logo - Admin Only */}
+        {user?.role === 'SCHOOL_ADMIN' && (
+          <Card className="border shadow-sm transition-shadow duration-300 hover:shadow-md">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <div className="rounded-lg bg-indigo-50 p-1.5">
+                  <ImageIcon className="h-4 w-4 text-indigo-600" />
+                </div>
+                School Logo
+              </CardTitle>
+              <CardDescription>Upload your school logo for exam papers and navigation</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {logoUrl && (
+                <div className="flex justify-center rounded-lg bg-gray-50 p-4">
+                  <img src={logoUrl} alt="School Logo" className="h-24 w-24 object-contain" />
+                </div>
+              )}
+              <div className="space-y-1.5">
+                <Label htmlFor="logo" className="text-xs font-semibold">
+                  Upload Logo
+                </Label>
+                <Input
+                  id="logo"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                  disabled={uploadingLogo}
+                  className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
+                />
+                {uploadingLogo && (
+                  <p className="text-muted-foreground text-xs">Uploading...</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         )}

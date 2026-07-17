@@ -9,6 +9,7 @@ import { planRoutes } from './plan.routes.js';
 import academicTermRoutes from './academic-term.routes.js';
 import academicSessionRoutes from './academic-session.routes.js';
 import progressionRoutes from './progression.routes.js';
+import { examPaperRoutes } from './exam-paper.routes.js';
 
 export const apiRouter = Router();
 
@@ -22,6 +23,7 @@ apiRouter.use('/plans', planRoutes);
 apiRouter.use('/academic-terms', academicTermRoutes);
 apiRouter.use('/academic-sessions', academicSessionRoutes);
 apiRouter.use('/progression', progressionRoutes);
+apiRouter.use('/exam-papers', examPaperRoutes);
 
 apiRouter.get('/health', (_req, res) => {
   res.json({ success: true, data: { status: 'ok', timestamp: new Date().toISOString() } });

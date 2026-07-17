@@ -81,10 +81,33 @@ async function request<T>(endpoint: string, options: RequestOptions = {}, retrie
   }
 
   if (!response.ok || !data.success) {
+    console.error('API Error:', { status: response.status, data, endpoint });
     throw new ApiError(data.error ?? 'Request failed', response.status);
   }
 
   return data.data as T;
+}
+
+function sanitizePayload<T>(val: T): T {
+  if (val === null || val === undefined) {
+    return undefined as unknown as T;
+  }
+  if (Array.isArray(val)) {
+    return val
+      .map(item => sanitizePayload(item))
+      .filter(item => item !== undefined && item !== null) as unknown as T;
+  }
+  if (typeof val === 'object') {
+    const res: any = {};
+    for (const key of Object.keys(val)) {
+      const cleaned = sanitizePayload((val as any)[key]);
+      if (cleaned !== undefined && cleaned !== null) {
+        res[key] = cleaned;
+      }
+    }
+    return res;
+  }
+  return val;
 }
 
 export const api = {
@@ -95,10 +118,10 @@ export const api = {
     request<PaginatedResponse<T>>(endpoint, { method: 'GET', params }),
 
   post: <T>(endpoint: string, body?: unknown, skipAuth?: boolean) =>
-    request<T>(endpoint, { method: 'POST', body: JSON.stringify(body), skipAuth }),
+    request<T>(endpoint, { method: 'POST', body: JSON.stringify(sanitizePayload(body)), skipAuth }),
 
   patch: <T>(endpoint: string, body?: unknown) =>
-    request<T>(endpoint, { method: 'PATCH', body: JSON.stringify(body) }),
+    request<T>(endpoint, { method: 'PATCH', body: JSON.stringify(sanitizePayload(body)) }),
 
   delete: <T>(endpoint: string) => request<T>(endpoint, { method: 'DELETE' }),
 };

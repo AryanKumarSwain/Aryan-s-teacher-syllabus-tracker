@@ -39,6 +39,7 @@ const navByRole: Record<UserRole, { href: string; label: string; icon: React.Ele
     { href: '/admin/teachers', label: 'Teachers', icon: Users },
     { href: '/admin/syllabus', label: 'Syllabus', icon: BookOpen },
     { href: '/admin/progress', label: 'Progress', icon: TrendingUp },
+    { href: '/admin/exam-papers', label: 'Exam Papers', icon: BookOpen },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ],
   [UserRole.TEACHER]: [
@@ -46,6 +47,7 @@ const navByRole: Record<UserRole, { href: string; label: string; icon: React.Ele
     { href: '/teacher/classes', label: 'Classes', icon: BookOpen },
     { href: '/teacher/progress', label: 'Progress', icon: TrendingUp },
     { href: '/teacher/academic-timeline', label: 'Academic Timeline', icon: Calendar },
+    { href: '/teacher/exam-papers', label: 'Exam Papers', icon: BookOpen },
     { href: '/teacher/settings', label: 'Settings', icon: Settings },
   ],
 };

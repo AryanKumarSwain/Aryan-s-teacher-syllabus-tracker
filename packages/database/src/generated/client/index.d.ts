@@ -84,6 +84,26 @@ export type ChapterProgress = $Result.DefaultSelection<Prisma.$ChapterProgressPa
  */
 export type TopicProgress = $Result.DefaultSelection<Prisma.$TopicProgressPayload>
 /**
+ * Model ExamPaper
+ * 
+ */
+export type ExamPaper = $Result.DefaultSelection<Prisma.$ExamPaperPayload>
+/**
+ * Model ExamSection
+ * 
+ */
+export type ExamSection = $Result.DefaultSelection<Prisma.$ExamSectionPayload>
+/**
+ * Model ExamQuestion
+ * 
+ */
+export type ExamQuestion = $Result.DefaultSelection<Prisma.$ExamQuestionPayload>
+/**
+ * Model ExamPaperTemplate
+ * 
+ */
+export type ExamPaperTemplate = $Result.DefaultSelection<Prisma.$ExamPaperTemplatePayload>
+/**
  * Model Notification
  * 
  */
@@ -140,6 +160,14 @@ export const SchoolStatus: {
 export type SchoolStatus = (typeof SchoolStatus)[keyof typeof SchoolStatus]
 
 
+export const SessionStatus: {
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED'
+};
+
+export type SessionStatus = (typeof SessionStatus)[keyof typeof SessionStatus]
+
+
 export const SubscriptionStatus: {
   ACTIVE: 'ACTIVE',
   EXPIRED: 'EXPIRED',
@@ -167,6 +195,26 @@ export const TopicStatus: {
 export type TopicStatus = (typeof TopicStatus)[keyof typeof TopicStatus]
 
 
+export const ExamPaperStatus: {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  REVIEWED: 'REVIEWED'
+};
+
+export type ExamPaperStatus = (typeof ExamPaperStatus)[keyof typeof ExamPaperStatus]
+
+
+export const QuestionType: {
+  MCQ: 'MCQ',
+  FILL_IN_THE_BLANK: 'FILL_IN_THE_BLANK',
+  SHORT_ANSWER: 'SHORT_ANSWER',
+  DESCRIPTIVE: 'DESCRIPTIVE',
+  CUSTOM: 'CUSTOM'
+};
+
+export type QuestionType = (typeof QuestionType)[keyof typeof QuestionType]
+
+
 export const NotificationType: {
   INFO: 'INFO',
   SUCCESS: 'SUCCESS',
@@ -186,14 +234,6 @@ export const AcademicTermStatus: {
 
 export type AcademicTermStatus = (typeof AcademicTermStatus)[keyof typeof AcademicTermStatus]
 
-
-export const SessionStatus: {
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED'
-};
-
-export type SessionStatus = (typeof SessionStatus)[keyof typeof SessionStatus]
-
 }
 
 export type UserRole = $Enums.UserRole
@@ -208,6 +248,10 @@ export type SchoolStatus = $Enums.SchoolStatus
 
 export const SchoolStatus: typeof $Enums.SchoolStatus
 
+export type SessionStatus = $Enums.SessionStatus
+
+export const SessionStatus: typeof $Enums.SessionStatus
+
 export type SubscriptionStatus = $Enums.SubscriptionStatus
 
 export const SubscriptionStatus: typeof $Enums.SubscriptionStatus
@@ -220,6 +264,14 @@ export type TopicStatus = $Enums.TopicStatus
 
 export const TopicStatus: typeof $Enums.TopicStatus
 
+export type ExamPaperStatus = $Enums.ExamPaperStatus
+
+export const ExamPaperStatus: typeof $Enums.ExamPaperStatus
+
+export type QuestionType = $Enums.QuestionType
+
+export const QuestionType: typeof $Enums.QuestionType
+
 export type NotificationType = $Enums.NotificationType
 
 export const NotificationType: typeof $Enums.NotificationType
@@ -228,13 +280,9 @@ export type AcademicTermStatus = $Enums.AcademicTermStatus
 
 export const AcademicTermStatus: typeof $Enums.AcademicTermStatus
 
-export type SessionStatus = $Enums.SessionStatus
-
-export const SessionStatus: typeof $Enums.SessionStatus
-
 /**
  * ##  Prisma Client ʲˢ
- *
+ * 
  * Type-safe database client for TypeScript & Node.js
  * @example
  * ```
@@ -243,19 +291,19 @@ export const SessionStatus: typeof $Enums.SessionStatus
  * const users = await prisma.user.findMany()
  * ```
  *
- *
+ * 
  * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
  */
 export class PrismaClient<
   ClientOptions extends Prisma.PrismaClientOptions = Prisma.PrismaClientOptions,
-  const U = 'log' extends keyof ClientOptions ? ClientOptions['log'] extends Array<Prisma.LogLevel | Prisma.LogDefinition> ? Prisma.GetEvents<ClientOptions['log']> : never : never,
+  U = 'log' extends keyof ClientOptions ? ClientOptions['log'] extends Array<Prisma.LogLevel | Prisma.LogDefinition> ? Prisma.GetEvents<ClientOptions['log']> : never : never,
   ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs
 > {
   [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['other'] }
 
     /**
    * ##  Prisma Client ʲˢ
-   *
+   * 
    * Type-safe database client for TypeScript & Node.js
    * @example
    * ```
@@ -264,12 +312,12 @@ export class PrismaClient<
    * const users = await prisma.user.findMany()
    * ```
    *
-   *
+   * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
    */
 
   constructor(optionsArg ?: Prisma.Subset<ClientOptions, Prisma.PrismaClientOptions>);
-  $on<V extends U>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : Prisma.LogEvent) => void): PrismaClient;
+  $on<V extends U>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : Prisma.LogEvent) => void): void;
 
   /**
    * Connect with the database
@@ -281,13 +329,20 @@ export class PrismaClient<
    */
   $disconnect(): $Utils.JsPromise<void>;
 
+  /**
+   * Add a middleware
+   * @deprecated since 4.16.0. For new code, prefer client extensions instead.
+   * @see https://pris.ly/d/extensions
+   */
+  $use(cb: Prisma.Middleware): void
+
 /**
    * Executes a prepared raw query and returns the number of affected rows.
    * @example
    * ```
    * const result = await prisma.$executeRaw`UPDATE User SET cool = ${true} WHERE email = ${'user@email.com'};`
    * ```
-   *
+   * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<number>;
@@ -299,7 +354,7 @@ export class PrismaClient<
    * ```
    * const result = await prisma.$executeRawUnsafe('UPDATE User SET cool = $1 WHERE email = $2 ;', true, 'user@email.com')
    * ```
-   *
+   * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<number>;
@@ -310,7 +365,7 @@ export class PrismaClient<
    * ```
    * const result = await prisma.$queryRaw`SELECT * FROM User WHERE id = ${1} OR email = ${'user@email.com'};`
    * ```
-   *
+   * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<T>;
@@ -322,7 +377,7 @@ export class PrismaClient<
    * ```
    * const result = await prisma.$queryRawUnsafe('SELECT * FROM User WHERE id = $1 OR email = $2;', 1, 'user@email.com')
    * ```
-   *
+   * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<T>;
@@ -346,9 +401,7 @@ export class PrismaClient<
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => $Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<R>
 
 
-  $extends: $Extensions.ExtendsHook<"extends", Prisma.TypeMapCb<ClientOptions>, ExtArgs, $Utils.Call<Prisma.TypeMapCb<ClientOptions>, {
-    extArgs: ExtArgs
-  }>>
+  $extends: $Extensions.ExtendsHook<"extends", Prisma.TypeMapCb, ExtArgs>
 
       /**
    * `prisma.user`: Exposes CRUD operations for the **User** model.
@@ -358,7 +411,7 @@ export class PrismaClient<
     * const users = await prisma.user.findMany()
     * ```
     */
-  get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
+  get user(): Prisma.UserDelegate<ExtArgs>;
 
   /**
    * `prisma.refreshToken`: Exposes CRUD operations for the **RefreshToken** model.
@@ -368,7 +421,7 @@ export class PrismaClient<
     * const refreshTokens = await prisma.refreshToken.findMany()
     * ```
     */
-  get refreshToken(): Prisma.RefreshTokenDelegate<ExtArgs, ClientOptions>;
+  get refreshToken(): Prisma.RefreshTokenDelegate<ExtArgs>;
 
   /**
    * `prisma.school`: Exposes CRUD operations for the **School** model.
@@ -378,7 +431,7 @@ export class PrismaClient<
     * const schools = await prisma.school.findMany()
     * ```
     */
-  get school(): Prisma.SchoolDelegate<ExtArgs, ClientOptions>;
+  get school(): Prisma.SchoolDelegate<ExtArgs>;
 
   /**
    * `prisma.academicSession`: Exposes CRUD operations for the **AcademicSession** model.
@@ -388,7 +441,7 @@ export class PrismaClient<
     * const academicSessions = await prisma.academicSession.findMany()
     * ```
     */
-  get academicSession(): Prisma.AcademicSessionDelegate<ExtArgs, ClientOptions>;
+  get academicSession(): Prisma.AcademicSessionDelegate<ExtArgs>;
 
   /**
    * `prisma.subscriptionPlan`: Exposes CRUD operations for the **SubscriptionPlan** model.
@@ -398,7 +451,7 @@ export class PrismaClient<
     * const subscriptionPlans = await prisma.subscriptionPlan.findMany()
     * ```
     */
-  get subscriptionPlan(): Prisma.SubscriptionPlanDelegate<ExtArgs, ClientOptions>;
+  get subscriptionPlan(): Prisma.SubscriptionPlanDelegate<ExtArgs>;
 
   /**
    * `prisma.subscription`: Exposes CRUD operations for the **Subscription** model.
@@ -408,7 +461,7 @@ export class PrismaClient<
     * const subscriptions = await prisma.subscription.findMany()
     * ```
     */
-  get subscription(): Prisma.SubscriptionDelegate<ExtArgs, ClientOptions>;
+  get subscription(): Prisma.SubscriptionDelegate<ExtArgs>;
 
   /**
    * `prisma.teacher`: Exposes CRUD operations for the **Teacher** model.
@@ -418,7 +471,7 @@ export class PrismaClient<
     * const teachers = await prisma.teacher.findMany()
     * ```
     */
-  get teacher(): Prisma.TeacherDelegate<ExtArgs, ClientOptions>;
+  get teacher(): Prisma.TeacherDelegate<ExtArgs>;
 
   /**
    * `prisma.class`: Exposes CRUD operations for the **Class** model.
@@ -428,7 +481,7 @@ export class PrismaClient<
     * const classes = await prisma.class.findMany()
     * ```
     */
-  get class(): Prisma.ClassDelegate<ExtArgs, ClientOptions>;
+  get class(): Prisma.ClassDelegate<ExtArgs>;
 
   /**
    * `prisma.subject`: Exposes CRUD operations for the **Subject** model.
@@ -438,7 +491,7 @@ export class PrismaClient<
     * const subjects = await prisma.subject.findMany()
     * ```
     */
-  get subject(): Prisma.SubjectDelegate<ExtArgs, ClientOptions>;
+  get subject(): Prisma.SubjectDelegate<ExtArgs>;
 
   /**
    * `prisma.chapter`: Exposes CRUD operations for the **Chapter** model.
@@ -448,7 +501,7 @@ export class PrismaClient<
     * const chapters = await prisma.chapter.findMany()
     * ```
     */
-  get chapter(): Prisma.ChapterDelegate<ExtArgs, ClientOptions>;
+  get chapter(): Prisma.ChapterDelegate<ExtArgs>;
 
   /**
    * `prisma.topic`: Exposes CRUD operations for the **Topic** model.
@@ -458,7 +511,7 @@ export class PrismaClient<
     * const topics = await prisma.topic.findMany()
     * ```
     */
-  get topic(): Prisma.TopicDelegate<ExtArgs, ClientOptions>;
+  get topic(): Prisma.TopicDelegate<ExtArgs>;
 
   /**
    * `prisma.teacherClass`: Exposes CRUD operations for the **TeacherClass** model.
@@ -468,7 +521,7 @@ export class PrismaClient<
     * const teacherClasses = await prisma.teacherClass.findMany()
     * ```
     */
-  get teacherClass(): Prisma.TeacherClassDelegate<ExtArgs, ClientOptions>;
+  get teacherClass(): Prisma.TeacherClassDelegate<ExtArgs>;
 
   /**
    * `prisma.chapterProgress`: Exposes CRUD operations for the **ChapterProgress** model.
@@ -478,7 +531,7 @@ export class PrismaClient<
     * const chapterProgresses = await prisma.chapterProgress.findMany()
     * ```
     */
-  get chapterProgress(): Prisma.ChapterProgressDelegate<ExtArgs, ClientOptions>;
+  get chapterProgress(): Prisma.ChapterProgressDelegate<ExtArgs>;
 
   /**
    * `prisma.topicProgress`: Exposes CRUD operations for the **TopicProgress** model.
@@ -488,7 +541,47 @@ export class PrismaClient<
     * const topicProgresses = await prisma.topicProgress.findMany()
     * ```
     */
-  get topicProgress(): Prisma.TopicProgressDelegate<ExtArgs, ClientOptions>;
+  get topicProgress(): Prisma.TopicProgressDelegate<ExtArgs>;
+
+  /**
+   * `prisma.examPaper`: Exposes CRUD operations for the **ExamPaper** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ExamPapers
+    * const examPapers = await prisma.examPaper.findMany()
+    * ```
+    */
+  get examPaper(): Prisma.ExamPaperDelegate<ExtArgs>;
+
+  /**
+   * `prisma.examSection`: Exposes CRUD operations for the **ExamSection** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ExamSections
+    * const examSections = await prisma.examSection.findMany()
+    * ```
+    */
+  get examSection(): Prisma.ExamSectionDelegate<ExtArgs>;
+
+  /**
+   * `prisma.examQuestion`: Exposes CRUD operations for the **ExamQuestion** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ExamQuestions
+    * const examQuestions = await prisma.examQuestion.findMany()
+    * ```
+    */
+  get examQuestion(): Prisma.ExamQuestionDelegate<ExtArgs>;
+
+  /**
+   * `prisma.examPaperTemplate`: Exposes CRUD operations for the **ExamPaperTemplate** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ExamPaperTemplates
+    * const examPaperTemplates = await prisma.examPaperTemplate.findMany()
+    * ```
+    */
+  get examPaperTemplate(): Prisma.ExamPaperTemplateDelegate<ExtArgs>;
 
   /**
    * `prisma.notification`: Exposes CRUD operations for the **Notification** model.
@@ -498,7 +591,7 @@ export class PrismaClient<
     * const notifications = await prisma.notification.findMany()
     * ```
     */
-  get notification(): Prisma.NotificationDelegate<ExtArgs, ClientOptions>;
+  get notification(): Prisma.NotificationDelegate<ExtArgs>;
 
   /**
    * `prisma.activityLog`: Exposes CRUD operations for the **ActivityLog** model.
@@ -508,7 +601,7 @@ export class PrismaClient<
     * const activityLogs = await prisma.activityLog.findMany()
     * ```
     */
-  get activityLog(): Prisma.ActivityLogDelegate<ExtArgs, ClientOptions>;
+  get activityLog(): Prisma.ActivityLogDelegate<ExtArgs>;
 
   /**
    * `prisma.auditLog`: Exposes CRUD operations for the **AuditLog** model.
@@ -518,7 +611,7 @@ export class PrismaClient<
     * const auditLogs = await prisma.auditLog.findMany()
     * ```
     */
-  get auditLog(): Prisma.AuditLogDelegate<ExtArgs, ClientOptions>;
+  get auditLog(): Prisma.AuditLogDelegate<ExtArgs>;
 
   /**
    * `prisma.academicTerm`: Exposes CRUD operations for the **AcademicTerm** model.
@@ -528,7 +621,7 @@ export class PrismaClient<
     * const academicTerms = await prisma.academicTerm.findMany()
     * ```
     */
-  get academicTerm(): Prisma.AcademicTermDelegate<ExtArgs, ClientOptions>;
+  get academicTerm(): Prisma.AcademicTermDelegate<ExtArgs>;
 
   /**
    * `prisma.vacationDay`: Exposes CRUD operations for the **VacationDay** model.
@@ -538,7 +631,7 @@ export class PrismaClient<
     * const vacationDays = await prisma.vacationDay.findMany()
     * ```
     */
-  get vacationDay(): Prisma.VacationDayDelegate<ExtArgs, ClientOptions>;
+  get vacationDay(): Prisma.VacationDayDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -559,6 +652,7 @@ export namespace Prisma {
   export import PrismaClientRustPanicError = runtime.PrismaClientRustPanicError
   export import PrismaClientInitializationError = runtime.PrismaClientInitializationError
   export import PrismaClientValidationError = runtime.PrismaClientValidationError
+  export import NotFoundError = runtime.NotFoundError
 
   /**
    * Re-export of sql-template-tag
@@ -579,7 +673,7 @@ export namespace Prisma {
   export type DecimalJsLike = runtime.DecimalJsLike
 
   /**
-   * Metrics
+   * Metrics 
    */
   export type Metrics = runtime.Metrics
   export type Metric<T> = runtime.Metric<T>
@@ -597,21 +691,20 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.19.3
-   * Query Engine version: c2990dca591cba766e3b7ef5d9e8a84796e47ab7
+   * Prisma Client JS version: 5.22.0
+   * Query Engine version: 605197351a3c8bdd595af2d2a9bc3025bca48ea2
    */
   export type PrismaVersion = {
     client: string
   }
 
-  export const prismaVersion: PrismaVersion
+  export const prismaVersion: PrismaVersion 
 
   /**
    * Utility Types
    */
 
 
-  export import Bytes = runtime.Bytes
   export import JsonObject = runtime.JsonObject
   export import JsonArray = runtime.JsonArray
   export import JsonValue = runtime.JsonValue
@@ -621,15 +714,15 @@ export namespace Prisma {
 
   /**
    * Types of the values used to represent different kinds of `null` values when working with JSON fields.
-   *
+   * 
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
   namespace NullTypes {
     /**
     * Type of `Prisma.DbNull`.
-    *
+    * 
     * You cannot use other instances of this class. Please use the `Prisma.DbNull` value.
-    *
+    * 
     * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
     */
     class DbNull {
@@ -639,9 +732,9 @@ export namespace Prisma {
 
     /**
     * Type of `Prisma.JsonNull`.
-    *
+    * 
     * You cannot use other instances of this class. Please use the `Prisma.JsonNull` value.
-    *
+    * 
     * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
     */
     class JsonNull {
@@ -651,9 +744,9 @@ export namespace Prisma {
 
     /**
     * Type of `Prisma.AnyNull`.
-    *
+    * 
     * You cannot use other instances of this class. Please use the `Prisma.AnyNull` value.
-    *
+    * 
     * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
     */
     class AnyNull {
@@ -664,21 +757,21 @@ export namespace Prisma {
 
   /**
    * Helper for filtering JSON entries that have `null` on the database (empty on the db)
-   *
+   * 
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
   export const DbNull: NullTypes.DbNull
 
   /**
    * Helper for filtering JSON entries that have JSON `null` values (not empty on the db)
-   *
+   * 
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
   export const JsonNull: NullTypes.JsonNull
 
   /**
    * Helper for filtering JSON entries that are `Prisma.DbNull` or `Prisma.JsonNull`
-   *
+   * 
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
   export const AnyNull: NullTypes.AnyNull
@@ -866,7 +959,7 @@ export namespace Prisma {
   type AtLeast<O extends object, K extends string> = NoExpand<
     O extends unknown
     ? | (K extends keyof O ? { [P in K]: O[P] } & O : O)
-      | {[P in keyof O as P extends K ? P : never]-?: O[P]} & O
+      | {[P in keyof O as P extends K ? K : never]-?: O[P]} & O
     : never>;
 
   type _Strict<U, _U = U> = U extends unknown ? U & OptionalFlat<_Record<Exclude<Keys<_U>, keyof U>, never>> : never;
@@ -994,6 +1087,10 @@ export namespace Prisma {
     TeacherClass: 'TeacherClass',
     ChapterProgress: 'ChapterProgress',
     TopicProgress: 'TopicProgress',
+    ExamPaper: 'ExamPaper',
+    ExamSection: 'ExamSection',
+    ExamQuestion: 'ExamQuestion',
+    ExamPaperTemplate: 'ExamPaperTemplate',
     Notification: 'Notification',
     ActivityLog: 'ActivityLog',
     AuditLog: 'AuditLog',
@@ -1008,16 +1105,13 @@ export namespace Prisma {
     db?: Datasource
   }
 
-  interface TypeMapCb<ClientOptions = {}> extends $Utils.Fn<{extArgs: $Extensions.InternalArgs }, $Utils.Record<string, any>> {
-    returns: Prisma.TypeMap<this['params']['extArgs'], ClientOptions extends { omit: infer OmitOptions } ? OmitOptions : {}>
+  interface TypeMapCb extends $Utils.Fn<{extArgs: $Extensions.InternalArgs, clientOptions: PrismaClientOptions }, $Utils.Record<string, any>> {
+    returns: Prisma.TypeMap<this['params']['extArgs'], this['params']['clientOptions']>
   }
 
-  export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> = {
-    globalOmitOptions: {
-      omit: GlobalOmitOptions
-    }
+  export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "user" | "refreshToken" | "school" | "academicSession" | "subscriptionPlan" | "subscription" | "teacher" | "class" | "subject" | "chapter" | "topic" | "teacherClass" | "chapterProgress" | "topicProgress" | "notification" | "activityLog" | "auditLog" | "academicTerm" | "vacationDay"
+      modelProps: "user" | "refreshToken" | "school" | "academicSession" | "subscriptionPlan" | "subscription" | "teacher" | "class" | "subject" | "chapter" | "topic" | "teacherClass" | "chapterProgress" | "topicProgress" | "examPaper" | "examSection" | "examQuestion" | "examPaperTemplate" | "notification" | "activityLog" | "auditLog" | "academicTerm" | "vacationDay"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1945,6 +2039,270 @@ export namespace Prisma {
           }
         }
       }
+      ExamPaper: {
+        payload: Prisma.$ExamPaperPayload<ExtArgs>
+        fields: Prisma.ExamPaperFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ExamPaperFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ExamPaperFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperPayload>
+          }
+          findFirst: {
+            args: Prisma.ExamPaperFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ExamPaperFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperPayload>
+          }
+          findMany: {
+            args: Prisma.ExamPaperFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperPayload>[]
+          }
+          create: {
+            args: Prisma.ExamPaperCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperPayload>
+          }
+          createMany: {
+            args: Prisma.ExamPaperCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.ExamPaperDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperPayload>
+          }
+          update: {
+            args: Prisma.ExamPaperUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperPayload>
+          }
+          deleteMany: {
+            args: Prisma.ExamPaperDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ExamPaperUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ExamPaperUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperPayload>
+          }
+          aggregate: {
+            args: Prisma.ExamPaperAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateExamPaper>
+          }
+          groupBy: {
+            args: Prisma.ExamPaperGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ExamPaperGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ExamPaperCountArgs<ExtArgs>
+            result: $Utils.Optional<ExamPaperCountAggregateOutputType> | number
+          }
+        }
+      }
+      ExamSection: {
+        payload: Prisma.$ExamSectionPayload<ExtArgs>
+        fields: Prisma.ExamSectionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ExamSectionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamSectionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ExamSectionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamSectionPayload>
+          }
+          findFirst: {
+            args: Prisma.ExamSectionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamSectionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ExamSectionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamSectionPayload>
+          }
+          findMany: {
+            args: Prisma.ExamSectionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamSectionPayload>[]
+          }
+          create: {
+            args: Prisma.ExamSectionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamSectionPayload>
+          }
+          createMany: {
+            args: Prisma.ExamSectionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.ExamSectionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamSectionPayload>
+          }
+          update: {
+            args: Prisma.ExamSectionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamSectionPayload>
+          }
+          deleteMany: {
+            args: Prisma.ExamSectionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ExamSectionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ExamSectionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamSectionPayload>
+          }
+          aggregate: {
+            args: Prisma.ExamSectionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateExamSection>
+          }
+          groupBy: {
+            args: Prisma.ExamSectionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ExamSectionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ExamSectionCountArgs<ExtArgs>
+            result: $Utils.Optional<ExamSectionCountAggregateOutputType> | number
+          }
+        }
+      }
+      ExamQuestion: {
+        payload: Prisma.$ExamQuestionPayload<ExtArgs>
+        fields: Prisma.ExamQuestionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ExamQuestionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamQuestionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ExamQuestionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamQuestionPayload>
+          }
+          findFirst: {
+            args: Prisma.ExamQuestionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamQuestionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ExamQuestionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamQuestionPayload>
+          }
+          findMany: {
+            args: Prisma.ExamQuestionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamQuestionPayload>[]
+          }
+          create: {
+            args: Prisma.ExamQuestionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamQuestionPayload>
+          }
+          createMany: {
+            args: Prisma.ExamQuestionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.ExamQuestionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamQuestionPayload>
+          }
+          update: {
+            args: Prisma.ExamQuestionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamQuestionPayload>
+          }
+          deleteMany: {
+            args: Prisma.ExamQuestionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ExamQuestionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ExamQuestionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamQuestionPayload>
+          }
+          aggregate: {
+            args: Prisma.ExamQuestionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateExamQuestion>
+          }
+          groupBy: {
+            args: Prisma.ExamQuestionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ExamQuestionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ExamQuestionCountArgs<ExtArgs>
+            result: $Utils.Optional<ExamQuestionCountAggregateOutputType> | number
+          }
+        }
+      }
+      ExamPaperTemplate: {
+        payload: Prisma.$ExamPaperTemplatePayload<ExtArgs>
+        fields: Prisma.ExamPaperTemplateFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ExamPaperTemplateFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperTemplatePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ExamPaperTemplateFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperTemplatePayload>
+          }
+          findFirst: {
+            args: Prisma.ExamPaperTemplateFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperTemplatePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ExamPaperTemplateFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperTemplatePayload>
+          }
+          findMany: {
+            args: Prisma.ExamPaperTemplateFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperTemplatePayload>[]
+          }
+          create: {
+            args: Prisma.ExamPaperTemplateCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperTemplatePayload>
+          }
+          createMany: {
+            args: Prisma.ExamPaperTemplateCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.ExamPaperTemplateDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperTemplatePayload>
+          }
+          update: {
+            args: Prisma.ExamPaperTemplateUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperTemplatePayload>
+          }
+          deleteMany: {
+            args: Prisma.ExamPaperTemplateDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ExamPaperTemplateUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ExamPaperTemplateUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExamPaperTemplatePayload>
+          }
+          aggregate: {
+            args: Prisma.ExamPaperTemplateAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateExamPaperTemplate>
+          }
+          groupBy: {
+            args: Prisma.ExamPaperTemplateGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ExamPaperTemplateGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ExamPaperTemplateCountArgs<ExtArgs>
+            result: $Utils.Optional<ExamPaperTemplateCountAggregateOutputType> | number
+          }
+        }
+      }
       Notification: {
         payload: Prisma.$NotificationPayload<ExtArgs>
         fields: Prisma.NotificationFieldRefs
@@ -2318,24 +2676,16 @@ export namespace Prisma {
     /**
      * @example
      * ```
-     * // Shorthand for `emit: 'stdout'`
+     * // Defaults to stdout
      * log: ['query', 'info', 'warn', 'error']
      * 
-     * // Emit as events only
+     * // Emit as events
      * log: [
-     *   { emit: 'event', level: 'query' },
-     *   { emit: 'event', level: 'info' },
-     *   { emit: 'event', level: 'warn' }
-     *   { emit: 'event', level: 'error' }
+     *   { emit: 'stdout', level: 'query' },
+     *   { emit: 'stdout', level: 'info' },
+     *   { emit: 'stdout', level: 'warn' }
+     *   { emit: 'stdout', level: 'error' }
      * ]
-     * 
-     * / Emit as events and log to stdout
-     * og: [
-     *  { emit: 'stdout', level: 'query' },
-     *  { emit: 'stdout', level: 'info' },
-     *  { emit: 'stdout', level: 'warn' }
-     *  { emit: 'stdout', level: 'error' }
-     * 
      * ```
      * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/logging#the-log-option).
      */
@@ -2350,47 +2700,8 @@ export namespace Prisma {
       timeout?: number
       isolationLevel?: Prisma.TransactionIsolationLevel
     }
-    /**
-     * Instance of a Driver Adapter, e.g., like one provided by `@prisma/adapter-planetscale`
-     */
-    adapter?: runtime.SqlDriverAdapterFactory | null
-    /**
-     * Global configuration for omitting model fields by default.
-     * 
-     * @example
-     * ```
-     * const prisma = new PrismaClient({
-     *   omit: {
-     *     user: {
-     *       password: true
-     *     }
-     *   }
-     * })
-     * ```
-     */
-    omit?: Prisma.GlobalOmitConfig
   }
-  export type GlobalOmitConfig = {
-    user?: UserOmit
-    refreshToken?: RefreshTokenOmit
-    school?: SchoolOmit
-    academicSession?: AcademicSessionOmit
-    subscriptionPlan?: SubscriptionPlanOmit
-    subscription?: SubscriptionOmit
-    teacher?: TeacherOmit
-    class?: ClassOmit
-    subject?: SubjectOmit
-    chapter?: ChapterOmit
-    topic?: TopicOmit
-    teacherClass?: TeacherClassOmit
-    chapterProgress?: ChapterProgressOmit
-    topicProgress?: TopicProgressOmit
-    notification?: NotificationOmit
-    activityLog?: ActivityLogOmit
-    auditLog?: AuditLogOmit
-    academicTerm?: AcademicTermOmit
-    vacationDay?: VacationDayOmit
-  }
+
 
   /* Types for Logging */
   export type LogLevel = 'info' | 'query' | 'warn' | 'error'
@@ -2399,15 +2710,10 @@ export namespace Prisma {
     emit: 'stdout' | 'event'
   }
 
-  export type CheckIsLogLevel<T> = T extends LogLevel ? T : never;
-
-  export type GetLogType<T> = CheckIsLogLevel<
-    T extends LogDefinition ? T['level'] : T
-  >;
-
-  export type GetEvents<T extends any[]> = T extends Array<LogLevel | LogDefinition>
-    ? GetLogType<T[number]>
-    : never;
+  export type GetLogType<T extends LogLevel | LogDefinition> = T extends LogDefinition ? T['emit'] extends 'event' ? T['level'] : never : never
+  export type GetEvents<T extends any> = T extends Array<LogLevel | LogDefinition> ?
+    GetLogType<T[0]> | GetLogType<T[1]> | GetLogType<T[2]> | GetLogType<T[3]>
+    : never
 
   export type QueryEvent = {
     timestamp: Date
@@ -2436,7 +2742,6 @@ export namespace Prisma {
     | 'createManyAndReturn'
     | 'update'
     | 'updateMany'
-    | 'updateManyAndReturn'
     | 'upsert'
     | 'delete'
     | 'deleteMany'
@@ -2447,6 +2752,25 @@ export namespace Prisma {
     | 'runCommandRaw'
     | 'findRaw'
     | 'groupBy'
+
+  /**
+   * These options are being passed into the middleware as "params"
+   */
+  export type MiddlewareParams = {
+    model?: ModelName
+    action: PrismaAction
+    args: any
+    dataPath: string[]
+    runInTransaction: boolean
+  }
+
+  /**
+   * The `T` type makes sure, that the `return proceed` is not forgotten in the middleware implementation
+   */
+  export type Middleware<T = any> = (
+    params: MiddlewareParams,
+    next: (params: MiddlewareParams) => $Utils.JsPromise<T>,
+  ) => $Utils.JsPromise<T>
 
   // tested in getLogLevel.test.ts
   export function getLogLevel(log: Array<LogLevel | LogDefinition>): LogLevel | undefined;
@@ -2558,6 +2882,8 @@ export namespace Prisma {
     teachers: number
     topics: number
     users: number
+    examPapers: number
+    examPaperTemplates: number
   }
 
   export type SchoolCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2573,6 +2899,8 @@ export namespace Prisma {
     teachers?: boolean | SchoolCountOutputTypeCountTeachersArgs
     topics?: boolean | SchoolCountOutputTypeCountTopicsArgs
     users?: boolean | SchoolCountOutputTypeCountUsersArgs
+    examPapers?: boolean | SchoolCountOutputTypeCountExamPapersArgs
+    examPaperTemplates?: boolean | SchoolCountOutputTypeCountExamPaperTemplatesArgs
   }
 
   // Custom InputTypes
@@ -2670,6 +2998,20 @@ export namespace Prisma {
     where?: UserWhereInput
   }
 
+  /**
+   * SchoolCountOutputType without action
+   */
+  export type SchoolCountOutputTypeCountExamPapersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExamPaperWhereInput
+  }
+
+  /**
+   * SchoolCountOutputType without action
+   */
+  export type SchoolCountOutputTypeCountExamPaperTemplatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExamPaperTemplateWhereInput
+  }
+
 
   /**
    * Count Type AcademicSessionCountOutputType
@@ -2685,6 +3027,7 @@ export namespace Prisma {
     teacherClasses: number
     teachers: number
     topicProgress: number
+    examPapers: number
   }
 
   export type AcademicSessionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2697,6 +3040,7 @@ export namespace Prisma {
     teacherClasses?: boolean | AcademicSessionCountOutputTypeCountTeacherClassesArgs
     teachers?: boolean | AcademicSessionCountOutputTypeCountTeachersArgs
     topicProgress?: boolean | AcademicSessionCountOutputTypeCountTopicProgressArgs
+    examPapers?: boolean | AcademicSessionCountOutputTypeCountExamPapersArgs
   }
 
   // Custom InputTypes
@@ -2773,6 +3117,13 @@ export namespace Prisma {
     where?: TopicProgressWhereInput
   }
 
+  /**
+   * AcademicSessionCountOutputType without action
+   */
+  export type AcademicSessionCountOutputTypeCountExamPapersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExamPaperWhereInput
+  }
+
 
   /**
    * Count Type SubscriptionPlanCountOutputType
@@ -2813,12 +3164,14 @@ export namespace Prisma {
     chapterProgress: number
     teacherClasses: number
     topicProgress: number
+    examPapers: number
   }
 
   export type TeacherCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     chapterProgress?: boolean | TeacherCountOutputTypeCountChapterProgressArgs
     teacherClasses?: boolean | TeacherCountOutputTypeCountTeacherClassesArgs
     topicProgress?: boolean | TeacherCountOutputTypeCountTopicProgressArgs
+    examPapers?: boolean | TeacherCountOutputTypeCountExamPapersArgs
   }
 
   // Custom InputTypes
@@ -2853,6 +3206,13 @@ export namespace Prisma {
     where?: TopicProgressWhereInput
   }
 
+  /**
+   * TeacherCountOutputType without action
+   */
+  export type TeacherCountOutputTypeCountExamPapersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExamPaperWhereInput
+  }
+
 
   /**
    * Count Type ClassCountOutputType
@@ -2862,12 +3222,14 @@ export namespace Prisma {
     chapters: number
     subjects: number
     teacherClasses: number
+    examPapers: number
   }
 
   export type ClassCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     chapters?: boolean | ClassCountOutputTypeCountChaptersArgs
     subjects?: boolean | ClassCountOutputTypeCountSubjectsArgs
     teacherClasses?: boolean | ClassCountOutputTypeCountTeacherClassesArgs
+    examPapers?: boolean | ClassCountOutputTypeCountExamPapersArgs
   }
 
   // Custom InputTypes
@@ -2902,6 +3264,13 @@ export namespace Prisma {
     where?: TeacherClassWhereInput
   }
 
+  /**
+   * ClassCountOutputType without action
+   */
+  export type ClassCountOutputTypeCountExamPapersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExamPaperWhereInput
+  }
+
 
   /**
    * Count Type SubjectCountOutputType
@@ -2910,11 +3279,13 @@ export namespace Prisma {
   export type SubjectCountOutputType = {
     chapters: number
     teacherClasses: number
+    examPapers: number
   }
 
   export type SubjectCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     chapters?: boolean | SubjectCountOutputTypeCountChaptersArgs
     teacherClasses?: boolean | SubjectCountOutputTypeCountTeacherClassesArgs
+    examPapers?: boolean | SubjectCountOutputTypeCountExamPapersArgs
   }
 
   // Custom InputTypes
@@ -2940,6 +3311,13 @@ export namespace Prisma {
    */
   export type SubjectCountOutputTypeCountTeacherClassesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TeacherClassWhereInput
+  }
+
+  /**
+   * SubjectCountOutputType without action
+   */
+  export type SubjectCountOutputTypeCountExamPapersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExamPaperWhereInput
   }
 
 
@@ -3011,6 +3389,68 @@ export namespace Prisma {
    */
   export type TopicCountOutputTypeCountTopicProgressArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TopicProgressWhereInput
+  }
+
+
+  /**
+   * Count Type ExamPaperCountOutputType
+   */
+
+  export type ExamPaperCountOutputType = {
+    sections: number
+  }
+
+  export type ExamPaperCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    sections?: boolean | ExamPaperCountOutputTypeCountSectionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ExamPaperCountOutputType without action
+   */
+  export type ExamPaperCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaperCountOutputType
+     */
+    select?: ExamPaperCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ExamPaperCountOutputType without action
+   */
+  export type ExamPaperCountOutputTypeCountSectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExamSectionWhereInput
+  }
+
+
+  /**
+   * Count Type ExamSectionCountOutputType
+   */
+
+  export type ExamSectionCountOutputType = {
+    questions: number
+  }
+
+  export type ExamSectionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    questions?: boolean | ExamSectionCountOutputTypeCountQuestionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ExamSectionCountOutputType without action
+   */
+  export type ExamSectionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamSectionCountOutputType
+     */
+    select?: ExamSectionCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ExamSectionCountOutputType without action
+   */
+  export type ExamSectionCountOutputTypeCountQuestionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExamQuestionWhereInput
   }
 
 
@@ -3289,7 +3729,6 @@ export namespace Prisma {
   }, ExtArgs["result"]["user"]>
 
 
-
   export type UserSelectScalar = {
     id?: boolean
     email?: boolean
@@ -3306,7 +3745,6 @@ export namespace Prisma {
     deletedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "passwordHash" | "name" | "role" | "schoolId" | "avatar" | "phone" | "status" | "lastLoginAt" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     activityLogs?: boolean | User$activityLogsArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
@@ -3351,12 +3789,12 @@ export namespace Prisma {
 
   type UserGetPayload<S extends boolean | null | undefined | UserDefaultArgs> = $Result.GetResult<Prisma.$UserPayload, S>
 
-  type UserCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<UserFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type UserCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<UserFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: UserCountAggregateInputType | true
     }
 
-  export interface UserDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface UserDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['User'], meta: { name: 'User' } }
     /**
      * Find zero or one User that matches the filter.
@@ -3369,10 +3807,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends UserFindUniqueArgs>(args: SelectSubset<T, UserFindUniqueArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends UserFindUniqueArgs>(args: SelectSubset<T, UserFindUniqueArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one User that matches the filter or throw an error with `error.code='P2025'`
+     * Find one User that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {UserFindUniqueOrThrowArgs} args - Arguments to find a User
      * @example
@@ -3383,7 +3821,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends UserFindUniqueOrThrowArgs>(args: SelectSubset<T, UserFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends UserFindUniqueOrThrowArgs>(args: SelectSubset<T, UserFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first User that matches the filter.
@@ -3398,7 +3836,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends UserFindFirstArgs>(args?: SelectSubset<T, UserFindFirstArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends UserFindFirstArgs>(args?: SelectSubset<T, UserFindFirstArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first User that matches the filter or
@@ -3414,7 +3852,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends UserFindFirstOrThrowArgs>(args?: SelectSubset<T, UserFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends UserFindFirstOrThrowArgs>(args?: SelectSubset<T, UserFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more Users that matches the filter.
@@ -3432,7 +3870,7 @@ export namespace Prisma {
      * const userWithIdOnly = await prisma.user.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends UserFindManyArgs>(args?: SelectSubset<T, UserFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends UserFindManyArgs>(args?: SelectSubset<T, UserFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a User.
@@ -3446,7 +3884,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends UserCreateArgs>(args: SelectSubset<T, UserCreateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends UserCreateArgs>(args: SelectSubset<T, UserCreateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many Users.
@@ -3474,7 +3912,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends UserDeleteArgs>(args: SelectSubset<T, UserDeleteArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends UserDeleteArgs>(args: SelectSubset<T, UserDeleteArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one User.
@@ -3491,7 +3929,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends UserUpdateArgs>(args: SelectSubset<T, UserUpdateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends UserUpdateArgs>(args: SelectSubset<T, UserUpdateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more Users.
@@ -3543,7 +3981,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends UserUpsertArgs>(args: SelectSubset<T, UserUpsertArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends UserUpsertArgs>(args: SelectSubset<T, UserUpsertArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -3683,16 +4121,16 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    activityLogs<T extends User$activityLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    auditLogs<T extends User$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    chapterProgress<T extends User$chapterProgressArgs<ExtArgs> = {}>(args?: Subset<T, User$chapterProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    refreshTokens<T extends User$refreshTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    teacher<T extends User$teacherArgs<ExtArgs> = {}>(args?: Subset<T, User$teacherArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    topicProgress<T extends User$topicProgressArgs<ExtArgs> = {}>(args?: Subset<T, User$topicProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    school<T extends User$schoolArgs<ExtArgs> = {}>(args?: Subset<T, User$schoolArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    activityLogs<T extends User$activityLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany"> | Null>
+    auditLogs<T extends User$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany"> | Null>
+    chapterProgress<T extends User$chapterProgressArgs<ExtArgs> = {}>(args?: Subset<T, User$chapterProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findMany"> | Null>
+    notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany"> | Null>
+    refreshTokens<T extends User$refreshTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany"> | Null>
+    teacher<T extends User$teacherArgs<ExtArgs> = {}>(args?: Subset<T, User$teacherArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    topicProgress<T extends User$topicProgressArgs<ExtArgs> = {}>(args?: Subset<T, User$topicProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findMany"> | Null>
+    school<T extends User$schoolArgs<ExtArgs> = {}>(args?: Subset<T, User$schoolArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3720,7 +4158,7 @@ export namespace Prisma {
 
   /**
    * Fields of the User model
-   */
+   */ 
   interface UserFieldRefs {
     readonly id: FieldRef<"User", 'String'>
     readonly email: FieldRef<"User", 'String'>
@@ -3748,10 +4186,6 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
@@ -3770,10 +4204,6 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
@@ -3791,10 +4221,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the User
      */
     select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -3844,10 +4270,6 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
@@ -3896,10 +4318,6 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
@@ -3943,10 +4361,6 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
@@ -3976,10 +4390,6 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
@@ -4005,10 +4415,6 @@ export namespace Prisma {
      * Filter which Users to update
      */
     where?: UserWhereInput
-    /**
-     * Limit how many Users to update.
-     */
-    limit?: number
   }
 
   /**
@@ -4019,10 +4425,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the User
      */
     select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -4050,10 +4452,6 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
@@ -4071,10 +4469,6 @@ export namespace Prisma {
      * Filter which Users to delete
      */
     where?: UserWhereInput
-    /**
-     * Limit how many Users to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -4085,10 +4479,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the ActivityLog
      */
     select?: ActivityLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ActivityLog
-     */
-    omit?: ActivityLogOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -4110,10 +4500,6 @@ export namespace Prisma {
      */
     select?: AuditLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AuditLog
-     */
-    omit?: AuditLogOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AuditLogInclude<ExtArgs> | null
@@ -4133,10 +4519,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the ChapterProgress
      */
     select?: ChapterProgressSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ChapterProgress
-     */
-    omit?: ChapterProgressOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -4158,10 +4540,6 @@ export namespace Prisma {
      */
     select?: NotificationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Notification
-     */
-    omit?: NotificationOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationInclude<ExtArgs> | null
@@ -4181,10 +4559,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the RefreshToken
      */
     select?: RefreshTokenSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RefreshToken
-     */
-    omit?: RefreshTokenOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -4206,10 +4580,6 @@ export namespace Prisma {
      */
     select?: TeacherSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Teacher
-     */
-    omit?: TeacherOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherInclude<ExtArgs> | null
@@ -4224,10 +4594,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the TopicProgress
      */
     select?: TopicProgressSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TopicProgress
-     */
-    omit?: TopicProgressOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -4249,10 +4615,6 @@ export namespace Prisma {
      */
     select?: SchoolSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the School
-     */
-    omit?: SchoolOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SchoolInclude<ExtArgs> | null
@@ -4267,10 +4629,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the User
      */
     select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -4454,7 +4812,6 @@ export namespace Prisma {
   }, ExtArgs["result"]["refreshToken"]>
 
 
-
   export type RefreshTokenSelectScalar = {
     id?: boolean
     userId?: boolean
@@ -4464,7 +4821,6 @@ export namespace Prisma {
     revokedAt?: boolean
   }
 
-  export type RefreshTokenOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "tokenHash" | "expiresAt" | "createdAt" | "revokedAt", ExtArgs["result"]["refreshToken"]>
   export type RefreshTokenInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -4487,12 +4843,12 @@ export namespace Prisma {
 
   type RefreshTokenGetPayload<S extends boolean | null | undefined | RefreshTokenDefaultArgs> = $Result.GetResult<Prisma.$RefreshTokenPayload, S>
 
-  type RefreshTokenCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<RefreshTokenFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type RefreshTokenCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<RefreshTokenFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: RefreshTokenCountAggregateInputType | true
     }
 
-  export interface RefreshTokenDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface RefreshTokenDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['RefreshToken'], meta: { name: 'RefreshToken' } }
     /**
      * Find zero or one RefreshToken that matches the filter.
@@ -4505,10 +4861,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends RefreshTokenFindUniqueArgs>(args: SelectSubset<T, RefreshTokenFindUniqueArgs<ExtArgs>>): Prisma__RefreshTokenClient<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends RefreshTokenFindUniqueArgs>(args: SelectSubset<T, RefreshTokenFindUniqueArgs<ExtArgs>>): Prisma__RefreshTokenClient<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one RefreshToken that matches the filter or throw an error with `error.code='P2025'`
+     * Find one RefreshToken that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {RefreshTokenFindUniqueOrThrowArgs} args - Arguments to find a RefreshToken
      * @example
@@ -4519,7 +4875,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends RefreshTokenFindUniqueOrThrowArgs>(args: SelectSubset<T, RefreshTokenFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RefreshTokenClient<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends RefreshTokenFindUniqueOrThrowArgs>(args: SelectSubset<T, RefreshTokenFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RefreshTokenClient<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first RefreshToken that matches the filter.
@@ -4534,7 +4890,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends RefreshTokenFindFirstArgs>(args?: SelectSubset<T, RefreshTokenFindFirstArgs<ExtArgs>>): Prisma__RefreshTokenClient<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends RefreshTokenFindFirstArgs>(args?: SelectSubset<T, RefreshTokenFindFirstArgs<ExtArgs>>): Prisma__RefreshTokenClient<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first RefreshToken that matches the filter or
@@ -4550,7 +4906,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends RefreshTokenFindFirstOrThrowArgs>(args?: SelectSubset<T, RefreshTokenFindFirstOrThrowArgs<ExtArgs>>): Prisma__RefreshTokenClient<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends RefreshTokenFindFirstOrThrowArgs>(args?: SelectSubset<T, RefreshTokenFindFirstOrThrowArgs<ExtArgs>>): Prisma__RefreshTokenClient<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more RefreshTokens that matches the filter.
@@ -4568,7 +4924,7 @@ export namespace Prisma {
      * const refreshTokenWithIdOnly = await prisma.refreshToken.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends RefreshTokenFindManyArgs>(args?: SelectSubset<T, RefreshTokenFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends RefreshTokenFindManyArgs>(args?: SelectSubset<T, RefreshTokenFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a RefreshToken.
@@ -4582,7 +4938,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends RefreshTokenCreateArgs>(args: SelectSubset<T, RefreshTokenCreateArgs<ExtArgs>>): Prisma__RefreshTokenClient<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends RefreshTokenCreateArgs>(args: SelectSubset<T, RefreshTokenCreateArgs<ExtArgs>>): Prisma__RefreshTokenClient<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many RefreshTokens.
@@ -4610,7 +4966,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends RefreshTokenDeleteArgs>(args: SelectSubset<T, RefreshTokenDeleteArgs<ExtArgs>>): Prisma__RefreshTokenClient<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends RefreshTokenDeleteArgs>(args: SelectSubset<T, RefreshTokenDeleteArgs<ExtArgs>>): Prisma__RefreshTokenClient<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one RefreshToken.
@@ -4627,7 +4983,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends RefreshTokenUpdateArgs>(args: SelectSubset<T, RefreshTokenUpdateArgs<ExtArgs>>): Prisma__RefreshTokenClient<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends RefreshTokenUpdateArgs>(args: SelectSubset<T, RefreshTokenUpdateArgs<ExtArgs>>): Prisma__RefreshTokenClient<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more RefreshTokens.
@@ -4679,7 +5035,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends RefreshTokenUpsertArgs>(args: SelectSubset<T, RefreshTokenUpsertArgs<ExtArgs>>): Prisma__RefreshTokenClient<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends RefreshTokenUpsertArgs>(args: SelectSubset<T, RefreshTokenUpsertArgs<ExtArgs>>): Prisma__RefreshTokenClient<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -4819,9 +5175,9 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__RefreshTokenClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__RefreshTokenClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4849,7 +5205,7 @@ export namespace Prisma {
 
   /**
    * Fields of the RefreshToken model
-   */
+   */ 
   interface RefreshTokenFieldRefs {
     readonly id: FieldRef<"RefreshToken", 'String'>
     readonly userId: FieldRef<"RefreshToken", 'String'>
@@ -4870,10 +5226,6 @@ export namespace Prisma {
      */
     select?: RefreshTokenSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the RefreshToken
-     */
-    omit?: RefreshTokenOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: RefreshTokenInclude<ExtArgs> | null
@@ -4892,10 +5244,6 @@ export namespace Prisma {
      */
     select?: RefreshTokenSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the RefreshToken
-     */
-    omit?: RefreshTokenOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: RefreshTokenInclude<ExtArgs> | null
@@ -4913,10 +5261,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the RefreshToken
      */
     select?: RefreshTokenSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RefreshToken
-     */
-    omit?: RefreshTokenOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -4966,10 +5310,6 @@ export namespace Prisma {
      */
     select?: RefreshTokenSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the RefreshToken
-     */
-    omit?: RefreshTokenOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: RefreshTokenInclude<ExtArgs> | null
@@ -5018,10 +5358,6 @@ export namespace Prisma {
      */
     select?: RefreshTokenSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the RefreshToken
-     */
-    omit?: RefreshTokenOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: RefreshTokenInclude<ExtArgs> | null
@@ -5065,10 +5401,6 @@ export namespace Prisma {
      */
     select?: RefreshTokenSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the RefreshToken
-     */
-    omit?: RefreshTokenOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: RefreshTokenInclude<ExtArgs> | null
@@ -5098,10 +5430,6 @@ export namespace Prisma {
      */
     select?: RefreshTokenSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the RefreshToken
-     */
-    omit?: RefreshTokenOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: RefreshTokenInclude<ExtArgs> | null
@@ -5127,10 +5455,6 @@ export namespace Prisma {
      * Filter which RefreshTokens to update
      */
     where?: RefreshTokenWhereInput
-    /**
-     * Limit how many RefreshTokens to update.
-     */
-    limit?: number
   }
 
   /**
@@ -5141,10 +5465,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the RefreshToken
      */
     select?: RefreshTokenSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RefreshToken
-     */
-    omit?: RefreshTokenOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -5172,10 +5492,6 @@ export namespace Prisma {
      */
     select?: RefreshTokenSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the RefreshToken
-     */
-    omit?: RefreshTokenOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: RefreshTokenInclude<ExtArgs> | null
@@ -5193,10 +5509,6 @@ export namespace Prisma {
      * Filter which RefreshTokens to delete
      */
     where?: RefreshTokenWhereInput
-    /**
-     * Limit how many RefreshTokens to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -5207,10 +5519,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the RefreshToken
      */
     select?: RefreshTokenSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RefreshToken
-     */
-    omit?: RefreshTokenOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -5450,9 +5758,10 @@ export namespace Prisma {
     teachers?: boolean | School$teachersArgs<ExtArgs>
     topics?: boolean | School$topicsArgs<ExtArgs>
     users?: boolean | School$usersArgs<ExtArgs>
+    examPapers?: boolean | School$examPapersArgs<ExtArgs>
+    examPaperTemplates?: boolean | School$examPaperTemplatesArgs<ExtArgs>
     _count?: boolean | SchoolCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["school"]>
-
 
 
   export type SchoolSelectScalar = {
@@ -5470,7 +5779,6 @@ export namespace Prisma {
     deletedAt?: boolean
   }
 
-  export type SchoolOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "email" | "phone" | "address" | "logo" | "status" | "currentAcademicSessionId" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["school"]>
   export type SchoolInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     academicSessions?: boolean | School$academicSessionsArgs<ExtArgs>
     academicTerms?: boolean | School$academicTermsArgs<ExtArgs>
@@ -5484,6 +5792,8 @@ export namespace Prisma {
     teachers?: boolean | School$teachersArgs<ExtArgs>
     topics?: boolean | School$topicsArgs<ExtArgs>
     users?: boolean | School$usersArgs<ExtArgs>
+    examPapers?: boolean | School$examPapersArgs<ExtArgs>
+    examPaperTemplates?: boolean | School$examPaperTemplatesArgs<ExtArgs>
     _count?: boolean | SchoolCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -5502,6 +5812,8 @@ export namespace Prisma {
       teachers: Prisma.$TeacherPayload<ExtArgs>[]
       topics: Prisma.$TopicPayload<ExtArgs>[]
       users: Prisma.$UserPayload<ExtArgs>[]
+      examPapers: Prisma.$ExamPaperPayload<ExtArgs>[]
+      examPaperTemplates: Prisma.$ExamPaperTemplatePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -5522,12 +5834,12 @@ export namespace Prisma {
 
   type SchoolGetPayload<S extends boolean | null | undefined | SchoolDefaultArgs> = $Result.GetResult<Prisma.$SchoolPayload, S>
 
-  type SchoolCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<SchoolFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type SchoolCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<SchoolFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: SchoolCountAggregateInputType | true
     }
 
-  export interface SchoolDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface SchoolDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['School'], meta: { name: 'School' } }
     /**
      * Find zero or one School that matches the filter.
@@ -5540,10 +5852,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends SchoolFindUniqueArgs>(args: SelectSubset<T, SchoolFindUniqueArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends SchoolFindUniqueArgs>(args: SelectSubset<T, SchoolFindUniqueArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one School that matches the filter or throw an error with `error.code='P2025'`
+     * Find one School that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {SchoolFindUniqueOrThrowArgs} args - Arguments to find a School
      * @example
@@ -5554,7 +5866,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends SchoolFindUniqueOrThrowArgs>(args: SelectSubset<T, SchoolFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends SchoolFindUniqueOrThrowArgs>(args: SelectSubset<T, SchoolFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first School that matches the filter.
@@ -5569,7 +5881,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends SchoolFindFirstArgs>(args?: SelectSubset<T, SchoolFindFirstArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends SchoolFindFirstArgs>(args?: SelectSubset<T, SchoolFindFirstArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first School that matches the filter or
@@ -5585,7 +5897,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends SchoolFindFirstOrThrowArgs>(args?: SelectSubset<T, SchoolFindFirstOrThrowArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends SchoolFindFirstOrThrowArgs>(args?: SelectSubset<T, SchoolFindFirstOrThrowArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more Schools that matches the filter.
@@ -5603,7 +5915,7 @@ export namespace Prisma {
      * const schoolWithIdOnly = await prisma.school.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends SchoolFindManyArgs>(args?: SelectSubset<T, SchoolFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends SchoolFindManyArgs>(args?: SelectSubset<T, SchoolFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a School.
@@ -5617,7 +5929,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends SchoolCreateArgs>(args: SelectSubset<T, SchoolCreateArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends SchoolCreateArgs>(args: SelectSubset<T, SchoolCreateArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many Schools.
@@ -5645,7 +5957,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends SchoolDeleteArgs>(args: SelectSubset<T, SchoolDeleteArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends SchoolDeleteArgs>(args: SelectSubset<T, SchoolDeleteArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one School.
@@ -5662,7 +5974,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends SchoolUpdateArgs>(args: SelectSubset<T, SchoolUpdateArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends SchoolUpdateArgs>(args: SelectSubset<T, SchoolUpdateArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more Schools.
@@ -5714,7 +6026,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends SchoolUpsertArgs>(args: SelectSubset<T, SchoolUpsertArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends SchoolUpsertArgs>(args: SelectSubset<T, SchoolUpsertArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -5854,20 +6166,22 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__SchoolClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__SchoolClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    academicSessions<T extends School$academicSessionsArgs<ExtArgs> = {}>(args?: Subset<T, School$academicSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    academicTerms<T extends School$academicTermsArgs<ExtArgs> = {}>(args?: Subset<T, School$academicTermsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    activityLogs<T extends School$activityLogsArgs<ExtArgs> = {}>(args?: Subset<T, School$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    auditLogs<T extends School$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, School$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    chapters<T extends School$chaptersArgs<ExtArgs> = {}>(args?: Subset<T, School$chaptersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    classes<T extends School$classesArgs<ExtArgs> = {}>(args?: Subset<T, School$classesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    notifications<T extends School$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, School$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    subjects<T extends School$subjectsArgs<ExtArgs> = {}>(args?: Subset<T, School$subjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    subscriptions<T extends School$subscriptionsArgs<ExtArgs> = {}>(args?: Subset<T, School$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    teachers<T extends School$teachersArgs<ExtArgs> = {}>(args?: Subset<T, School$teachersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    topics<T extends School$topicsArgs<ExtArgs> = {}>(args?: Subset<T, School$topicsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    users<T extends School$usersArgs<ExtArgs> = {}>(args?: Subset<T, School$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    academicSessions<T extends School$academicSessionsArgs<ExtArgs> = {}>(args?: Subset<T, School$academicSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findMany"> | Null>
+    academicTerms<T extends School$academicTermsArgs<ExtArgs> = {}>(args?: Subset<T, School$academicTermsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findMany"> | Null>
+    activityLogs<T extends School$activityLogsArgs<ExtArgs> = {}>(args?: Subset<T, School$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany"> | Null>
+    auditLogs<T extends School$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, School$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany"> | Null>
+    chapters<T extends School$chaptersArgs<ExtArgs> = {}>(args?: Subset<T, School$chaptersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany"> | Null>
+    classes<T extends School$classesArgs<ExtArgs> = {}>(args?: Subset<T, School$classesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findMany"> | Null>
+    notifications<T extends School$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, School$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany"> | Null>
+    subjects<T extends School$subjectsArgs<ExtArgs> = {}>(args?: Subset<T, School$subjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findMany"> | Null>
+    subscriptions<T extends School$subscriptionsArgs<ExtArgs> = {}>(args?: Subset<T, School$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany"> | Null>
+    teachers<T extends School$teachersArgs<ExtArgs> = {}>(args?: Subset<T, School$teachersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findMany"> | Null>
+    topics<T extends School$topicsArgs<ExtArgs> = {}>(args?: Subset<T, School$topicsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findMany"> | Null>
+    users<T extends School$usersArgs<ExtArgs> = {}>(args?: Subset<T, School$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany"> | Null>
+    examPapers<T extends School$examPapersArgs<ExtArgs> = {}>(args?: Subset<T, School$examPapersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamPaperPayload<ExtArgs>, T, "findMany"> | Null>
+    examPaperTemplates<T extends School$examPaperTemplatesArgs<ExtArgs> = {}>(args?: Subset<T, School$examPaperTemplatesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamPaperTemplatePayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5895,7 +6209,7 @@ export namespace Prisma {
 
   /**
    * Fields of the School model
-   */
+   */ 
   interface SchoolFieldRefs {
     readonly id: FieldRef<"School", 'String'>
     readonly name: FieldRef<"School", 'String'>
@@ -5922,10 +6236,6 @@ export namespace Prisma {
      */
     select?: SchoolSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the School
-     */
-    omit?: SchoolOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SchoolInclude<ExtArgs> | null
@@ -5944,10 +6254,6 @@ export namespace Prisma {
      */
     select?: SchoolSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the School
-     */
-    omit?: SchoolOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SchoolInclude<ExtArgs> | null
@@ -5965,10 +6271,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the School
      */
     select?: SchoolSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the School
-     */
-    omit?: SchoolOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6018,10 +6320,6 @@ export namespace Prisma {
      */
     select?: SchoolSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the School
-     */
-    omit?: SchoolOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SchoolInclude<ExtArgs> | null
@@ -6070,10 +6368,6 @@ export namespace Prisma {
      */
     select?: SchoolSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the School
-     */
-    omit?: SchoolOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SchoolInclude<ExtArgs> | null
@@ -6117,10 +6411,6 @@ export namespace Prisma {
      */
     select?: SchoolSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the School
-     */
-    omit?: SchoolOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SchoolInclude<ExtArgs> | null
@@ -6150,10 +6440,6 @@ export namespace Prisma {
      */
     select?: SchoolSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the School
-     */
-    omit?: SchoolOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SchoolInclude<ExtArgs> | null
@@ -6179,10 +6465,6 @@ export namespace Prisma {
      * Filter which Schools to update
      */
     where?: SchoolWhereInput
-    /**
-     * Limit how many Schools to update.
-     */
-    limit?: number
   }
 
   /**
@@ -6193,10 +6475,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the School
      */
     select?: SchoolSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the School
-     */
-    omit?: SchoolOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6224,10 +6502,6 @@ export namespace Prisma {
      */
     select?: SchoolSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the School
-     */
-    omit?: SchoolOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SchoolInclude<ExtArgs> | null
@@ -6245,10 +6519,6 @@ export namespace Prisma {
      * Filter which Schools to delete
      */
     where?: SchoolWhereInput
-    /**
-     * Limit how many Schools to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -6259,10 +6529,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the AcademicSession
      */
     select?: AcademicSessionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AcademicSession
-     */
-    omit?: AcademicSessionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6284,10 +6550,6 @@ export namespace Prisma {
      */
     select?: AcademicTermSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AcademicTerm
-     */
-    omit?: AcademicTermOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AcademicTermInclude<ExtArgs> | null
@@ -6307,10 +6569,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the ActivityLog
      */
     select?: ActivityLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ActivityLog
-     */
-    omit?: ActivityLogOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6332,10 +6590,6 @@ export namespace Prisma {
      */
     select?: AuditLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AuditLog
-     */
-    omit?: AuditLogOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AuditLogInclude<ExtArgs> | null
@@ -6355,10 +6609,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Chapter
      */
     select?: ChapterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6380,10 +6630,6 @@ export namespace Prisma {
      */
     select?: ClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Class
-     */
-    omit?: ClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ClassInclude<ExtArgs> | null
@@ -6403,10 +6649,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Notification
      */
     select?: NotificationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Notification
-     */
-    omit?: NotificationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6428,10 +6670,6 @@ export namespace Prisma {
      */
     select?: SubjectSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subject
-     */
-    omit?: SubjectOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubjectInclude<ExtArgs> | null
@@ -6451,10 +6689,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Subscription
      */
     select?: SubscriptionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Subscription
-     */
-    omit?: SubscriptionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6476,10 +6710,6 @@ export namespace Prisma {
      */
     select?: TeacherSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Teacher
-     */
-    omit?: TeacherOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherInclude<ExtArgs> | null
@@ -6499,10 +6729,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Topic
      */
     select?: TopicSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Topic
-     */
-    omit?: TopicOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6524,10 +6750,6 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
@@ -6540,6 +6762,46 @@ export namespace Prisma {
   }
 
   /**
+   * School.examPapers
+   */
+  export type School$examPapersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaper
+     */
+    select?: ExamPaperSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperInclude<ExtArgs> | null
+    where?: ExamPaperWhereInput
+    orderBy?: ExamPaperOrderByWithRelationInput | ExamPaperOrderByWithRelationInput[]
+    cursor?: ExamPaperWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ExamPaperScalarFieldEnum | ExamPaperScalarFieldEnum[]
+  }
+
+  /**
+   * School.examPaperTemplates
+   */
+  export type School$examPaperTemplatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaperTemplate
+     */
+    select?: ExamPaperTemplateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperTemplateInclude<ExtArgs> | null
+    where?: ExamPaperTemplateWhereInput
+    orderBy?: ExamPaperTemplateOrderByWithRelationInput | ExamPaperTemplateOrderByWithRelationInput[]
+    cursor?: ExamPaperTemplateWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ExamPaperTemplateScalarFieldEnum | ExamPaperTemplateScalarFieldEnum[]
+  }
+
+  /**
    * School without action
    */
   export type SchoolDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6547,10 +6809,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the School
      */
     select?: SchoolSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the School
-     */
-    omit?: SchoolOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6748,9 +7006,9 @@ export namespace Prisma {
     teacherClasses?: boolean | AcademicSession$teacherClassesArgs<ExtArgs>
     teachers?: boolean | AcademicSession$teachersArgs<ExtArgs>
     topicProgress?: boolean | AcademicSession$topicProgressArgs<ExtArgs>
+    examPapers?: boolean | AcademicSession$examPapersArgs<ExtArgs>
     _count?: boolean | AcademicSessionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["academicSession"]>
-
 
 
   export type AcademicSessionSelectScalar = {
@@ -6763,7 +7021,6 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type AcademicSessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "name" | "status" | "isArchived" | "createdAt" | "updatedAt", ExtArgs["result"]["academicSession"]>
   export type AcademicSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     school?: boolean | SchoolDefaultArgs<ExtArgs>
     academicTerms?: boolean | AcademicSession$academicTermsArgs<ExtArgs>
@@ -6775,6 +7032,7 @@ export namespace Prisma {
     teacherClasses?: boolean | AcademicSession$teacherClassesArgs<ExtArgs>
     teachers?: boolean | AcademicSession$teachersArgs<ExtArgs>
     topicProgress?: boolean | AcademicSession$topicProgressArgs<ExtArgs>
+    examPapers?: boolean | AcademicSession$examPapersArgs<ExtArgs>
     _count?: boolean | AcademicSessionCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -6791,6 +7049,7 @@ export namespace Prisma {
       teacherClasses: Prisma.$TeacherClassPayload<ExtArgs>[]
       teachers: Prisma.$TeacherPayload<ExtArgs>[]
       topicProgress: Prisma.$TopicProgressPayload<ExtArgs>[]
+      examPapers: Prisma.$ExamPaperPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6806,12 +7065,12 @@ export namespace Prisma {
 
   type AcademicSessionGetPayload<S extends boolean | null | undefined | AcademicSessionDefaultArgs> = $Result.GetResult<Prisma.$AcademicSessionPayload, S>
 
-  type AcademicSessionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<AcademicSessionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type AcademicSessionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AcademicSessionFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: AcademicSessionCountAggregateInputType | true
     }
 
-  export interface AcademicSessionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface AcademicSessionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AcademicSession'], meta: { name: 'AcademicSession' } }
     /**
      * Find zero or one AcademicSession that matches the filter.
@@ -6824,10 +7083,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends AcademicSessionFindUniqueArgs>(args: SelectSubset<T, AcademicSessionFindUniqueArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends AcademicSessionFindUniqueArgs>(args: SelectSubset<T, AcademicSessionFindUniqueArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one AcademicSession that matches the filter or throw an error with `error.code='P2025'`
+     * Find one AcademicSession that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {AcademicSessionFindUniqueOrThrowArgs} args - Arguments to find a AcademicSession
      * @example
@@ -6838,7 +7097,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends AcademicSessionFindUniqueOrThrowArgs>(args: SelectSubset<T, AcademicSessionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends AcademicSessionFindUniqueOrThrowArgs>(args: SelectSubset<T, AcademicSessionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first AcademicSession that matches the filter.
@@ -6853,7 +7112,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends AcademicSessionFindFirstArgs>(args?: SelectSubset<T, AcademicSessionFindFirstArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends AcademicSessionFindFirstArgs>(args?: SelectSubset<T, AcademicSessionFindFirstArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first AcademicSession that matches the filter or
@@ -6869,7 +7128,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends AcademicSessionFindFirstOrThrowArgs>(args?: SelectSubset<T, AcademicSessionFindFirstOrThrowArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends AcademicSessionFindFirstOrThrowArgs>(args?: SelectSubset<T, AcademicSessionFindFirstOrThrowArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more AcademicSessions that matches the filter.
@@ -6887,7 +7146,7 @@ export namespace Prisma {
      * const academicSessionWithIdOnly = await prisma.academicSession.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends AcademicSessionFindManyArgs>(args?: SelectSubset<T, AcademicSessionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends AcademicSessionFindManyArgs>(args?: SelectSubset<T, AcademicSessionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a AcademicSession.
@@ -6901,7 +7160,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends AcademicSessionCreateArgs>(args: SelectSubset<T, AcademicSessionCreateArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends AcademicSessionCreateArgs>(args: SelectSubset<T, AcademicSessionCreateArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many AcademicSessions.
@@ -6929,7 +7188,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends AcademicSessionDeleteArgs>(args: SelectSubset<T, AcademicSessionDeleteArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends AcademicSessionDeleteArgs>(args: SelectSubset<T, AcademicSessionDeleteArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one AcademicSession.
@@ -6946,7 +7205,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends AcademicSessionUpdateArgs>(args: SelectSubset<T, AcademicSessionUpdateArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends AcademicSessionUpdateArgs>(args: SelectSubset<T, AcademicSessionUpdateArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more AcademicSessions.
@@ -6998,7 +7257,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends AcademicSessionUpsertArgs>(args: SelectSubset<T, AcademicSessionUpsertArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends AcademicSessionUpsertArgs>(args: SelectSubset<T, AcademicSessionUpsertArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -7138,18 +7397,19 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__AcademicSessionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__AcademicSessionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    academicTerms<T extends AcademicSession$academicTermsArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$academicTermsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    chapterProgress<T extends AcademicSession$chapterProgressArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$chapterProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    classes<T extends AcademicSession$classesArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$classesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    subjects<T extends AcademicSession$subjectsArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$subjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    chapters<T extends AcademicSession$chaptersArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$chaptersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    topics<T extends AcademicSession$topicsArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$topicsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    teacherClasses<T extends AcademicSession$teacherClassesArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$teacherClassesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    teachers<T extends AcademicSession$teachersArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$teachersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    topicProgress<T extends AcademicSession$topicProgressArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$topicProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    academicTerms<T extends AcademicSession$academicTermsArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$academicTermsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findMany"> | Null>
+    chapterProgress<T extends AcademicSession$chapterProgressArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$chapterProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findMany"> | Null>
+    classes<T extends AcademicSession$classesArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$classesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findMany"> | Null>
+    subjects<T extends AcademicSession$subjectsArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$subjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findMany"> | Null>
+    chapters<T extends AcademicSession$chaptersArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$chaptersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany"> | Null>
+    topics<T extends AcademicSession$topicsArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$topicsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findMany"> | Null>
+    teacherClasses<T extends AcademicSession$teacherClassesArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$teacherClassesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany"> | Null>
+    teachers<T extends AcademicSession$teachersArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$teachersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findMany"> | Null>
+    topicProgress<T extends AcademicSession$topicProgressArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$topicProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findMany"> | Null>
+    examPapers<T extends AcademicSession$examPapersArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSession$examPapersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamPaperPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7177,7 +7437,7 @@ export namespace Prisma {
 
   /**
    * Fields of the AcademicSession model
-   */
+   */ 
   interface AcademicSessionFieldRefs {
     readonly id: FieldRef<"AcademicSession", 'String'>
     readonly schoolId: FieldRef<"AcademicSession", 'String'>
@@ -7199,10 +7459,6 @@ export namespace Prisma {
      */
     select?: AcademicSessionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AcademicSession
-     */
-    omit?: AcademicSessionOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AcademicSessionInclude<ExtArgs> | null
@@ -7221,10 +7477,6 @@ export namespace Prisma {
      */
     select?: AcademicSessionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AcademicSession
-     */
-    omit?: AcademicSessionOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AcademicSessionInclude<ExtArgs> | null
@@ -7242,10 +7494,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the AcademicSession
      */
     select?: AcademicSessionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AcademicSession
-     */
-    omit?: AcademicSessionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -7295,10 +7543,6 @@ export namespace Prisma {
      */
     select?: AcademicSessionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AcademicSession
-     */
-    omit?: AcademicSessionOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AcademicSessionInclude<ExtArgs> | null
@@ -7347,10 +7591,6 @@ export namespace Prisma {
      */
     select?: AcademicSessionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AcademicSession
-     */
-    omit?: AcademicSessionOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AcademicSessionInclude<ExtArgs> | null
@@ -7394,10 +7634,6 @@ export namespace Prisma {
      */
     select?: AcademicSessionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AcademicSession
-     */
-    omit?: AcademicSessionOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AcademicSessionInclude<ExtArgs> | null
@@ -7427,10 +7663,6 @@ export namespace Prisma {
      */
     select?: AcademicSessionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AcademicSession
-     */
-    omit?: AcademicSessionOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AcademicSessionInclude<ExtArgs> | null
@@ -7456,10 +7688,6 @@ export namespace Prisma {
      * Filter which AcademicSessions to update
      */
     where?: AcademicSessionWhereInput
-    /**
-     * Limit how many AcademicSessions to update.
-     */
-    limit?: number
   }
 
   /**
@@ -7470,10 +7698,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the AcademicSession
      */
     select?: AcademicSessionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AcademicSession
-     */
-    omit?: AcademicSessionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -7501,10 +7725,6 @@ export namespace Prisma {
      */
     select?: AcademicSessionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AcademicSession
-     */
-    omit?: AcademicSessionOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AcademicSessionInclude<ExtArgs> | null
@@ -7522,10 +7742,6 @@ export namespace Prisma {
      * Filter which AcademicSessions to delete
      */
     where?: AcademicSessionWhereInput
-    /**
-     * Limit how many AcademicSessions to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -7536,10 +7752,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the AcademicTerm
      */
     select?: AcademicTermSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AcademicTerm
-     */
-    omit?: AcademicTermOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -7561,10 +7773,6 @@ export namespace Prisma {
      */
     select?: ChapterProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ChapterProgress
-     */
-    omit?: ChapterProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChapterProgressInclude<ExtArgs> | null
@@ -7584,10 +7792,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Class
      */
     select?: ClassSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Class
-     */
-    omit?: ClassOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -7609,10 +7813,6 @@ export namespace Prisma {
      */
     select?: SubjectSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subject
-     */
-    omit?: SubjectOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubjectInclude<ExtArgs> | null
@@ -7632,10 +7832,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Chapter
      */
     select?: ChapterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -7657,10 +7853,6 @@ export namespace Prisma {
      */
     select?: TopicSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Topic
-     */
-    omit?: TopicOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicInclude<ExtArgs> | null
@@ -7680,10 +7872,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the TeacherClass
      */
     select?: TeacherClassSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TeacherClass
-     */
-    omit?: TeacherClassOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -7705,10 +7893,6 @@ export namespace Prisma {
      */
     select?: TeacherSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Teacher
-     */
-    omit?: TeacherOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherInclude<ExtArgs> | null
@@ -7729,10 +7913,6 @@ export namespace Prisma {
      */
     select?: TopicProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TopicProgress
-     */
-    omit?: TopicProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicProgressInclude<ExtArgs> | null
@@ -7745,6 +7925,26 @@ export namespace Prisma {
   }
 
   /**
+   * AcademicSession.examPapers
+   */
+  export type AcademicSession$examPapersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaper
+     */
+    select?: ExamPaperSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperInclude<ExtArgs> | null
+    where?: ExamPaperWhereInput
+    orderBy?: ExamPaperOrderByWithRelationInput | ExamPaperOrderByWithRelationInput[]
+    cursor?: ExamPaperWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ExamPaperScalarFieldEnum | ExamPaperScalarFieldEnum[]
+  }
+
+  /**
    * AcademicSession without action
    */
   export type AcademicSessionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7752,10 +7952,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the AcademicSession
      */
     select?: AcademicSessionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AcademicSession
-     */
-    omit?: AcademicSessionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -8038,7 +8234,6 @@ export namespace Prisma {
   }, ExtArgs["result"]["subscriptionPlan"]>
 
 
-
   export type SubscriptionPlanSelectScalar = {
     id?: boolean
     name?: boolean
@@ -8055,7 +8250,6 @@ export namespace Prisma {
     deletedAt?: boolean
   }
 
-  export type SubscriptionPlanOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "description" | "priceMonthly" | "priceYearly" | "teacherLimit" | "features" | "isActive" | "sortOrder" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["subscriptionPlan"]>
   export type SubscriptionPlanInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     subscriptions?: boolean | SubscriptionPlan$subscriptionsArgs<ExtArgs>
     _count?: boolean | SubscriptionPlanCountOutputTypeDefaultArgs<ExtArgs>
@@ -8086,12 +8280,12 @@ export namespace Prisma {
 
   type SubscriptionPlanGetPayload<S extends boolean | null | undefined | SubscriptionPlanDefaultArgs> = $Result.GetResult<Prisma.$SubscriptionPlanPayload, S>
 
-  type SubscriptionPlanCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<SubscriptionPlanFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type SubscriptionPlanCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<SubscriptionPlanFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: SubscriptionPlanCountAggregateInputType | true
     }
 
-  export interface SubscriptionPlanDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface SubscriptionPlanDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SubscriptionPlan'], meta: { name: 'SubscriptionPlan' } }
     /**
      * Find zero or one SubscriptionPlan that matches the filter.
@@ -8104,10 +8298,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends SubscriptionPlanFindUniqueArgs>(args: SelectSubset<T, SubscriptionPlanFindUniqueArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends SubscriptionPlanFindUniqueArgs>(args: SelectSubset<T, SubscriptionPlanFindUniqueArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one SubscriptionPlan that matches the filter or throw an error with `error.code='P2025'`
+     * Find one SubscriptionPlan that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {SubscriptionPlanFindUniqueOrThrowArgs} args - Arguments to find a SubscriptionPlan
      * @example
@@ -8118,7 +8312,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends SubscriptionPlanFindUniqueOrThrowArgs>(args: SelectSubset<T, SubscriptionPlanFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends SubscriptionPlanFindUniqueOrThrowArgs>(args: SelectSubset<T, SubscriptionPlanFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first SubscriptionPlan that matches the filter.
@@ -8133,7 +8327,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends SubscriptionPlanFindFirstArgs>(args?: SelectSubset<T, SubscriptionPlanFindFirstArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends SubscriptionPlanFindFirstArgs>(args?: SelectSubset<T, SubscriptionPlanFindFirstArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first SubscriptionPlan that matches the filter or
@@ -8149,7 +8343,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends SubscriptionPlanFindFirstOrThrowArgs>(args?: SelectSubset<T, SubscriptionPlanFindFirstOrThrowArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends SubscriptionPlanFindFirstOrThrowArgs>(args?: SelectSubset<T, SubscriptionPlanFindFirstOrThrowArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more SubscriptionPlans that matches the filter.
@@ -8167,7 +8361,7 @@ export namespace Prisma {
      * const subscriptionPlanWithIdOnly = await prisma.subscriptionPlan.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends SubscriptionPlanFindManyArgs>(args?: SelectSubset<T, SubscriptionPlanFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends SubscriptionPlanFindManyArgs>(args?: SelectSubset<T, SubscriptionPlanFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a SubscriptionPlan.
@@ -8181,7 +8375,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends SubscriptionPlanCreateArgs>(args: SelectSubset<T, SubscriptionPlanCreateArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends SubscriptionPlanCreateArgs>(args: SelectSubset<T, SubscriptionPlanCreateArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many SubscriptionPlans.
@@ -8209,7 +8403,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends SubscriptionPlanDeleteArgs>(args: SelectSubset<T, SubscriptionPlanDeleteArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends SubscriptionPlanDeleteArgs>(args: SelectSubset<T, SubscriptionPlanDeleteArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one SubscriptionPlan.
@@ -8226,7 +8420,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends SubscriptionPlanUpdateArgs>(args: SelectSubset<T, SubscriptionPlanUpdateArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends SubscriptionPlanUpdateArgs>(args: SelectSubset<T, SubscriptionPlanUpdateArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more SubscriptionPlans.
@@ -8278,7 +8472,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends SubscriptionPlanUpsertArgs>(args: SelectSubset<T, SubscriptionPlanUpsertArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends SubscriptionPlanUpsertArgs>(args: SelectSubset<T, SubscriptionPlanUpsertArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -8418,9 +8612,9 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__SubscriptionPlanClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__SubscriptionPlanClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    subscriptions<T extends SubscriptionPlan$subscriptionsArgs<ExtArgs> = {}>(args?: Subset<T, SubscriptionPlan$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    subscriptions<T extends SubscriptionPlan$subscriptionsArgs<ExtArgs> = {}>(args?: Subset<T, SubscriptionPlan$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8448,7 +8642,7 @@ export namespace Prisma {
 
   /**
    * Fields of the SubscriptionPlan model
-   */
+   */ 
   interface SubscriptionPlanFieldRefs {
     readonly id: FieldRef<"SubscriptionPlan", 'String'>
     readonly name: FieldRef<"SubscriptionPlan", 'String'>
@@ -8476,10 +8670,6 @@ export namespace Prisma {
      */
     select?: SubscriptionPlanSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the SubscriptionPlan
-     */
-    omit?: SubscriptionPlanOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionPlanInclude<ExtArgs> | null
@@ -8498,10 +8688,6 @@ export namespace Prisma {
      */
     select?: SubscriptionPlanSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the SubscriptionPlan
-     */
-    omit?: SubscriptionPlanOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionPlanInclude<ExtArgs> | null
@@ -8519,10 +8705,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the SubscriptionPlan
      */
     select?: SubscriptionPlanSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SubscriptionPlan
-     */
-    omit?: SubscriptionPlanOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -8572,10 +8754,6 @@ export namespace Prisma {
      */
     select?: SubscriptionPlanSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the SubscriptionPlan
-     */
-    omit?: SubscriptionPlanOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionPlanInclude<ExtArgs> | null
@@ -8624,10 +8802,6 @@ export namespace Prisma {
      */
     select?: SubscriptionPlanSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the SubscriptionPlan
-     */
-    omit?: SubscriptionPlanOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionPlanInclude<ExtArgs> | null
@@ -8671,10 +8845,6 @@ export namespace Prisma {
      */
     select?: SubscriptionPlanSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the SubscriptionPlan
-     */
-    omit?: SubscriptionPlanOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionPlanInclude<ExtArgs> | null
@@ -8704,10 +8874,6 @@ export namespace Prisma {
      */
     select?: SubscriptionPlanSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the SubscriptionPlan
-     */
-    omit?: SubscriptionPlanOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionPlanInclude<ExtArgs> | null
@@ -8733,10 +8899,6 @@ export namespace Prisma {
      * Filter which SubscriptionPlans to update
      */
     where?: SubscriptionPlanWhereInput
-    /**
-     * Limit how many SubscriptionPlans to update.
-     */
-    limit?: number
   }
 
   /**
@@ -8747,10 +8909,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the SubscriptionPlan
      */
     select?: SubscriptionPlanSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SubscriptionPlan
-     */
-    omit?: SubscriptionPlanOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -8778,10 +8936,6 @@ export namespace Prisma {
      */
     select?: SubscriptionPlanSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the SubscriptionPlan
-     */
-    omit?: SubscriptionPlanOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionPlanInclude<ExtArgs> | null
@@ -8799,10 +8953,6 @@ export namespace Prisma {
      * Filter which SubscriptionPlans to delete
      */
     where?: SubscriptionPlanWhereInput
-    /**
-     * Limit how many SubscriptionPlans to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -8813,10 +8963,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Subscription
      */
     select?: SubscriptionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Subscription
-     */
-    omit?: SubscriptionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -8837,10 +8983,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the SubscriptionPlan
      */
     select?: SubscriptionPlanSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SubscriptionPlan
-     */
-    omit?: SubscriptionPlanOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -9041,7 +9183,6 @@ export namespace Prisma {
   }, ExtArgs["result"]["subscription"]>
 
 
-
   export type SubscriptionSelectScalar = {
     id?: boolean
     schoolId?: boolean
@@ -9053,7 +9194,6 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type SubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "planId" | "status" | "startDate" | "endDate" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
   export type SubscriptionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     plan?: boolean | SubscriptionPlanDefaultArgs<ExtArgs>
     school?: boolean | SchoolDefaultArgs<ExtArgs>
@@ -9080,12 +9220,12 @@ export namespace Prisma {
 
   type SubscriptionGetPayload<S extends boolean | null | undefined | SubscriptionDefaultArgs> = $Result.GetResult<Prisma.$SubscriptionPayload, S>
 
-  type SubscriptionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<SubscriptionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type SubscriptionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<SubscriptionFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: SubscriptionCountAggregateInputType | true
     }
 
-  export interface SubscriptionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface SubscriptionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Subscription'], meta: { name: 'Subscription' } }
     /**
      * Find zero or one Subscription that matches the filter.
@@ -9098,10 +9238,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends SubscriptionFindUniqueArgs>(args: SelectSubset<T, SubscriptionFindUniqueArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends SubscriptionFindUniqueArgs>(args: SelectSubset<T, SubscriptionFindUniqueArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Subscription that matches the filter or throw an error with `error.code='P2025'`
+     * Find one Subscription that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {SubscriptionFindUniqueOrThrowArgs} args - Arguments to find a Subscription
      * @example
@@ -9112,7 +9252,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends SubscriptionFindUniqueOrThrowArgs>(args: SelectSubset<T, SubscriptionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends SubscriptionFindUniqueOrThrowArgs>(args: SelectSubset<T, SubscriptionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first Subscription that matches the filter.
@@ -9127,7 +9267,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends SubscriptionFindFirstArgs>(args?: SelectSubset<T, SubscriptionFindFirstArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends SubscriptionFindFirstArgs>(args?: SelectSubset<T, SubscriptionFindFirstArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first Subscription that matches the filter or
@@ -9143,7 +9283,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends SubscriptionFindFirstOrThrowArgs>(args?: SelectSubset<T, SubscriptionFindFirstOrThrowArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends SubscriptionFindFirstOrThrowArgs>(args?: SelectSubset<T, SubscriptionFindFirstOrThrowArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more Subscriptions that matches the filter.
@@ -9161,7 +9301,7 @@ export namespace Prisma {
      * const subscriptionWithIdOnly = await prisma.subscription.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends SubscriptionFindManyArgs>(args?: SelectSubset<T, SubscriptionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends SubscriptionFindManyArgs>(args?: SelectSubset<T, SubscriptionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a Subscription.
@@ -9175,7 +9315,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends SubscriptionCreateArgs>(args: SelectSubset<T, SubscriptionCreateArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends SubscriptionCreateArgs>(args: SelectSubset<T, SubscriptionCreateArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many Subscriptions.
@@ -9203,7 +9343,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends SubscriptionDeleteArgs>(args: SelectSubset<T, SubscriptionDeleteArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends SubscriptionDeleteArgs>(args: SelectSubset<T, SubscriptionDeleteArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one Subscription.
@@ -9220,7 +9360,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends SubscriptionUpdateArgs>(args: SelectSubset<T, SubscriptionUpdateArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends SubscriptionUpdateArgs>(args: SelectSubset<T, SubscriptionUpdateArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more Subscriptions.
@@ -9272,7 +9412,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends SubscriptionUpsertArgs>(args: SelectSubset<T, SubscriptionUpsertArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends SubscriptionUpsertArgs>(args: SelectSubset<T, SubscriptionUpsertArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -9412,10 +9552,10 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__SubscriptionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__SubscriptionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    plan<T extends SubscriptionPlanDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SubscriptionPlanDefaultArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    plan<T extends SubscriptionPlanDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SubscriptionPlanDefaultArgs<ExtArgs>>): Prisma__SubscriptionPlanClient<$Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9443,7 +9583,7 @@ export namespace Prisma {
 
   /**
    * Fields of the Subscription model
-   */
+   */ 
   interface SubscriptionFieldRefs {
     readonly id: FieldRef<"Subscription", 'String'>
     readonly schoolId: FieldRef<"Subscription", 'String'>
@@ -9466,10 +9606,6 @@ export namespace Prisma {
      */
     select?: SubscriptionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subscription
-     */
-    omit?: SubscriptionOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionInclude<ExtArgs> | null
@@ -9488,10 +9624,6 @@ export namespace Prisma {
      */
     select?: SubscriptionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subscription
-     */
-    omit?: SubscriptionOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionInclude<ExtArgs> | null
@@ -9509,10 +9641,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Subscription
      */
     select?: SubscriptionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Subscription
-     */
-    omit?: SubscriptionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -9562,10 +9690,6 @@ export namespace Prisma {
      */
     select?: SubscriptionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subscription
-     */
-    omit?: SubscriptionOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionInclude<ExtArgs> | null
@@ -9614,10 +9738,6 @@ export namespace Prisma {
      */
     select?: SubscriptionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subscription
-     */
-    omit?: SubscriptionOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionInclude<ExtArgs> | null
@@ -9661,10 +9781,6 @@ export namespace Prisma {
      */
     select?: SubscriptionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subscription
-     */
-    omit?: SubscriptionOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionInclude<ExtArgs> | null
@@ -9694,10 +9810,6 @@ export namespace Prisma {
      */
     select?: SubscriptionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subscription
-     */
-    omit?: SubscriptionOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionInclude<ExtArgs> | null
@@ -9723,10 +9835,6 @@ export namespace Prisma {
      * Filter which Subscriptions to update
      */
     where?: SubscriptionWhereInput
-    /**
-     * Limit how many Subscriptions to update.
-     */
-    limit?: number
   }
 
   /**
@@ -9737,10 +9845,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Subscription
      */
     select?: SubscriptionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Subscription
-     */
-    omit?: SubscriptionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -9768,10 +9872,6 @@ export namespace Prisma {
      */
     select?: SubscriptionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subscription
-     */
-    omit?: SubscriptionOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionInclude<ExtArgs> | null
@@ -9789,10 +9889,6 @@ export namespace Prisma {
      * Filter which Subscriptions to delete
      */
     where?: SubscriptionWhereInput
-    /**
-     * Limit how many Subscriptions to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -9803,10 +9899,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Subscription
      */
     select?: SubscriptionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Subscription
-     */
-    omit?: SubscriptionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -10008,9 +10100,9 @@ export namespace Prisma {
     school?: boolean | SchoolDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
     topicProgress?: boolean | Teacher$topicProgressArgs<ExtArgs>
+    examPapers?: boolean | Teacher$examPapersArgs<ExtArgs>
     _count?: boolean | TeacherCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["teacher"]>
-
 
 
   export type TeacherSelectScalar = {
@@ -10024,7 +10116,6 @@ export namespace Prisma {
     deletedAt?: boolean
   }
 
-  export type TeacherOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "academicSessionId" | "userId" | "status" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["teacher"]>
   export type TeacherInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     academicSession?: boolean | AcademicSessionDefaultArgs<ExtArgs>
     chapterProgress?: boolean | Teacher$chapterProgressArgs<ExtArgs>
@@ -10032,6 +10123,7 @@ export namespace Prisma {
     school?: boolean | SchoolDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
     topicProgress?: boolean | Teacher$topicProgressArgs<ExtArgs>
+    examPapers?: boolean | Teacher$examPapersArgs<ExtArgs>
     _count?: boolean | TeacherCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -10044,6 +10136,7 @@ export namespace Prisma {
       school: Prisma.$SchoolPayload<ExtArgs>
       user: Prisma.$UserPayload<ExtArgs>
       topicProgress: Prisma.$TopicProgressPayload<ExtArgs>[]
+      examPapers: Prisma.$ExamPaperPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -10060,12 +10153,12 @@ export namespace Prisma {
 
   type TeacherGetPayload<S extends boolean | null | undefined | TeacherDefaultArgs> = $Result.GetResult<Prisma.$TeacherPayload, S>
 
-  type TeacherCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<TeacherFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type TeacherCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<TeacherFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: TeacherCountAggregateInputType | true
     }
 
-  export interface TeacherDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface TeacherDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Teacher'], meta: { name: 'Teacher' } }
     /**
      * Find zero or one Teacher that matches the filter.
@@ -10078,10 +10171,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends TeacherFindUniqueArgs>(args: SelectSubset<T, TeacherFindUniqueArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends TeacherFindUniqueArgs>(args: SelectSubset<T, TeacherFindUniqueArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Teacher that matches the filter or throw an error with `error.code='P2025'`
+     * Find one Teacher that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {TeacherFindUniqueOrThrowArgs} args - Arguments to find a Teacher
      * @example
@@ -10092,7 +10185,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends TeacherFindUniqueOrThrowArgs>(args: SelectSubset<T, TeacherFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends TeacherFindUniqueOrThrowArgs>(args: SelectSubset<T, TeacherFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first Teacher that matches the filter.
@@ -10107,7 +10200,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends TeacherFindFirstArgs>(args?: SelectSubset<T, TeacherFindFirstArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends TeacherFindFirstArgs>(args?: SelectSubset<T, TeacherFindFirstArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first Teacher that matches the filter or
@@ -10123,7 +10216,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends TeacherFindFirstOrThrowArgs>(args?: SelectSubset<T, TeacherFindFirstOrThrowArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends TeacherFindFirstOrThrowArgs>(args?: SelectSubset<T, TeacherFindFirstOrThrowArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more Teachers that matches the filter.
@@ -10141,7 +10234,7 @@ export namespace Prisma {
      * const teacherWithIdOnly = await prisma.teacher.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends TeacherFindManyArgs>(args?: SelectSubset<T, TeacherFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends TeacherFindManyArgs>(args?: SelectSubset<T, TeacherFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a Teacher.
@@ -10155,7 +10248,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends TeacherCreateArgs>(args: SelectSubset<T, TeacherCreateArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends TeacherCreateArgs>(args: SelectSubset<T, TeacherCreateArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many Teachers.
@@ -10183,7 +10276,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends TeacherDeleteArgs>(args: SelectSubset<T, TeacherDeleteArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends TeacherDeleteArgs>(args: SelectSubset<T, TeacherDeleteArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one Teacher.
@@ -10200,7 +10293,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends TeacherUpdateArgs>(args: SelectSubset<T, TeacherUpdateArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends TeacherUpdateArgs>(args: SelectSubset<T, TeacherUpdateArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more Teachers.
@@ -10252,7 +10345,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends TeacherUpsertArgs>(args: SelectSubset<T, TeacherUpsertArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends TeacherUpsertArgs>(args: SelectSubset<T, TeacherUpsertArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -10392,14 +10485,15 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__TeacherClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__TeacherClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    chapterProgress<T extends Teacher$chapterProgressArgs<ExtArgs> = {}>(args?: Subset<T, Teacher$chapterProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    teacherClasses<T extends Teacher$teacherClassesArgs<ExtArgs> = {}>(args?: Subset<T, Teacher$teacherClassesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    topicProgress<T extends Teacher$topicProgressArgs<ExtArgs> = {}>(args?: Subset<T, Teacher$topicProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    chapterProgress<T extends Teacher$chapterProgressArgs<ExtArgs> = {}>(args?: Subset<T, Teacher$chapterProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findMany"> | Null>
+    teacherClasses<T extends Teacher$teacherClassesArgs<ExtArgs> = {}>(args?: Subset<T, Teacher$teacherClassesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany"> | Null>
+    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    topicProgress<T extends Teacher$topicProgressArgs<ExtArgs> = {}>(args?: Subset<T, Teacher$topicProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findMany"> | Null>
+    examPapers<T extends Teacher$examPapersArgs<ExtArgs> = {}>(args?: Subset<T, Teacher$examPapersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamPaperPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10427,7 +10521,7 @@ export namespace Prisma {
 
   /**
    * Fields of the Teacher model
-   */
+   */ 
   interface TeacherFieldRefs {
     readonly id: FieldRef<"Teacher", 'String'>
     readonly schoolId: FieldRef<"Teacher", 'String'>
@@ -10450,10 +10544,6 @@ export namespace Prisma {
      */
     select?: TeacherSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Teacher
-     */
-    omit?: TeacherOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherInclude<ExtArgs> | null
@@ -10472,10 +10562,6 @@ export namespace Prisma {
      */
     select?: TeacherSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Teacher
-     */
-    omit?: TeacherOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherInclude<ExtArgs> | null
@@ -10493,10 +10579,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Teacher
      */
     select?: TeacherSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Teacher
-     */
-    omit?: TeacherOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -10546,10 +10628,6 @@ export namespace Prisma {
      */
     select?: TeacherSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Teacher
-     */
-    omit?: TeacherOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherInclude<ExtArgs> | null
@@ -10598,10 +10676,6 @@ export namespace Prisma {
      */
     select?: TeacherSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Teacher
-     */
-    omit?: TeacherOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherInclude<ExtArgs> | null
@@ -10645,10 +10719,6 @@ export namespace Prisma {
      */
     select?: TeacherSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Teacher
-     */
-    omit?: TeacherOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherInclude<ExtArgs> | null
@@ -10678,10 +10748,6 @@ export namespace Prisma {
      */
     select?: TeacherSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Teacher
-     */
-    omit?: TeacherOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherInclude<ExtArgs> | null
@@ -10707,10 +10773,6 @@ export namespace Prisma {
      * Filter which Teachers to update
      */
     where?: TeacherWhereInput
-    /**
-     * Limit how many Teachers to update.
-     */
-    limit?: number
   }
 
   /**
@@ -10721,10 +10783,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Teacher
      */
     select?: TeacherSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Teacher
-     */
-    omit?: TeacherOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -10752,10 +10810,6 @@ export namespace Prisma {
      */
     select?: TeacherSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Teacher
-     */
-    omit?: TeacherOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherInclude<ExtArgs> | null
@@ -10773,10 +10827,6 @@ export namespace Prisma {
      * Filter which Teachers to delete
      */
     where?: TeacherWhereInput
-    /**
-     * Limit how many Teachers to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -10787,10 +10837,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the ChapterProgress
      */
     select?: ChapterProgressSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ChapterProgress
-     */
-    omit?: ChapterProgressOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -10812,10 +10858,6 @@ export namespace Prisma {
      */
     select?: TeacherClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TeacherClass
-     */
-    omit?: TeacherClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherClassInclude<ExtArgs> | null
@@ -10836,10 +10878,6 @@ export namespace Prisma {
      */
     select?: TopicProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TopicProgress
-     */
-    omit?: TopicProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicProgressInclude<ExtArgs> | null
@@ -10852,6 +10890,26 @@ export namespace Prisma {
   }
 
   /**
+   * Teacher.examPapers
+   */
+  export type Teacher$examPapersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaper
+     */
+    select?: ExamPaperSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperInclude<ExtArgs> | null
+    where?: ExamPaperWhereInput
+    orderBy?: ExamPaperOrderByWithRelationInput | ExamPaperOrderByWithRelationInput[]
+    cursor?: ExamPaperWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ExamPaperScalarFieldEnum | ExamPaperScalarFieldEnum[]
+  }
+
+  /**
    * Teacher without action
    */
   export type TeacherDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10859,10 +10917,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Teacher
      */
     select?: TeacherSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Teacher
-     */
-    omit?: TeacherOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -11121,9 +11175,9 @@ export namespace Prisma {
     school?: boolean | SchoolDefaultArgs<ExtArgs>
     subjects?: boolean | Class$subjectsArgs<ExtArgs>
     teacherClasses?: boolean | Class$teacherClassesArgs<ExtArgs>
+    examPapers?: boolean | Class$examPapersArgs<ExtArgs>
     _count?: boolean | ClassCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["class"]>
-
 
 
   export type ClassSelectScalar = {
@@ -11140,13 +11194,13 @@ export namespace Prisma {
     deletedAt?: boolean
   }
 
-  export type ClassOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "academicSessionId" | "name" | "grade" | "section" | "description" | "sortOrder" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["class"]>
   export type ClassInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     academicSession?: boolean | AcademicSessionDefaultArgs<ExtArgs>
     chapters?: boolean | Class$chaptersArgs<ExtArgs>
     school?: boolean | SchoolDefaultArgs<ExtArgs>
     subjects?: boolean | Class$subjectsArgs<ExtArgs>
     teacherClasses?: boolean | Class$teacherClassesArgs<ExtArgs>
+    examPapers?: boolean | Class$examPapersArgs<ExtArgs>
     _count?: boolean | ClassCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -11158,6 +11212,7 @@ export namespace Prisma {
       school: Prisma.$SchoolPayload<ExtArgs>
       subjects: Prisma.$SubjectPayload<ExtArgs>[]
       teacherClasses: Prisma.$TeacherClassPayload<ExtArgs>[]
+      examPapers: Prisma.$ExamPaperPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -11177,12 +11232,12 @@ export namespace Prisma {
 
   type ClassGetPayload<S extends boolean | null | undefined | ClassDefaultArgs> = $Result.GetResult<Prisma.$ClassPayload, S>
 
-  type ClassCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<ClassFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type ClassCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ClassFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: ClassCountAggregateInputType | true
     }
 
-  export interface ClassDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface ClassDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Class'], meta: { name: 'Class' } }
     /**
      * Find zero or one Class that matches the filter.
@@ -11195,10 +11250,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends ClassFindUniqueArgs>(args: SelectSubset<T, ClassFindUniqueArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends ClassFindUniqueArgs>(args: SelectSubset<T, ClassFindUniqueArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Class that matches the filter or throw an error with `error.code='P2025'`
+     * Find one Class that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {ClassFindUniqueOrThrowArgs} args - Arguments to find a Class
      * @example
@@ -11209,7 +11264,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ClassFindUniqueOrThrowArgs>(args: SelectSubset<T, ClassFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends ClassFindUniqueOrThrowArgs>(args: SelectSubset<T, ClassFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first Class that matches the filter.
@@ -11224,7 +11279,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends ClassFindFirstArgs>(args?: SelectSubset<T, ClassFindFirstArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends ClassFindFirstArgs>(args?: SelectSubset<T, ClassFindFirstArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first Class that matches the filter or
@@ -11240,7 +11295,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends ClassFindFirstOrThrowArgs>(args?: SelectSubset<T, ClassFindFirstOrThrowArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends ClassFindFirstOrThrowArgs>(args?: SelectSubset<T, ClassFindFirstOrThrowArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more Classes that matches the filter.
@@ -11258,7 +11313,7 @@ export namespace Prisma {
      * const classWithIdOnly = await prisma.class.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends ClassFindManyArgs>(args?: SelectSubset<T, ClassFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends ClassFindManyArgs>(args?: SelectSubset<T, ClassFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a Class.
@@ -11272,7 +11327,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends ClassCreateArgs>(args: SelectSubset<T, ClassCreateArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends ClassCreateArgs>(args: SelectSubset<T, ClassCreateArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many Classes.
@@ -11300,7 +11355,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends ClassDeleteArgs>(args: SelectSubset<T, ClassDeleteArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends ClassDeleteArgs>(args: SelectSubset<T, ClassDeleteArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one Class.
@@ -11317,7 +11372,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ClassUpdateArgs>(args: SelectSubset<T, ClassUpdateArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends ClassUpdateArgs>(args: SelectSubset<T, ClassUpdateArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more Classes.
@@ -11369,7 +11424,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends ClassUpsertArgs>(args: SelectSubset<T, ClassUpsertArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends ClassUpsertArgs>(args: SelectSubset<T, ClassUpsertArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -11509,13 +11564,14 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ClassClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ClassClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    chapters<T extends Class$chaptersArgs<ExtArgs> = {}>(args?: Subset<T, Class$chaptersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    subjects<T extends Class$subjectsArgs<ExtArgs> = {}>(args?: Subset<T, Class$subjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    teacherClasses<T extends Class$teacherClassesArgs<ExtArgs> = {}>(args?: Subset<T, Class$teacherClassesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    chapters<T extends Class$chaptersArgs<ExtArgs> = {}>(args?: Subset<T, Class$chaptersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany"> | Null>
+    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    subjects<T extends Class$subjectsArgs<ExtArgs> = {}>(args?: Subset<T, Class$subjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findMany"> | Null>
+    teacherClasses<T extends Class$teacherClassesArgs<ExtArgs> = {}>(args?: Subset<T, Class$teacherClassesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany"> | Null>
+    examPapers<T extends Class$examPapersArgs<ExtArgs> = {}>(args?: Subset<T, Class$examPapersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamPaperPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -11543,7 +11599,7 @@ export namespace Prisma {
 
   /**
    * Fields of the Class model
-   */
+   */ 
   interface ClassFieldRefs {
     readonly id: FieldRef<"Class", 'String'>
     readonly schoolId: FieldRef<"Class", 'String'>
@@ -11569,10 +11625,6 @@ export namespace Prisma {
      */
     select?: ClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Class
-     */
-    omit?: ClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ClassInclude<ExtArgs> | null
@@ -11591,10 +11643,6 @@ export namespace Prisma {
      */
     select?: ClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Class
-     */
-    omit?: ClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ClassInclude<ExtArgs> | null
@@ -11612,10 +11660,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Class
      */
     select?: ClassSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Class
-     */
-    omit?: ClassOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -11665,10 +11709,6 @@ export namespace Prisma {
      */
     select?: ClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Class
-     */
-    omit?: ClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ClassInclude<ExtArgs> | null
@@ -11717,10 +11757,6 @@ export namespace Prisma {
      */
     select?: ClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Class
-     */
-    omit?: ClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ClassInclude<ExtArgs> | null
@@ -11764,10 +11800,6 @@ export namespace Prisma {
      */
     select?: ClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Class
-     */
-    omit?: ClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ClassInclude<ExtArgs> | null
@@ -11797,10 +11829,6 @@ export namespace Prisma {
      */
     select?: ClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Class
-     */
-    omit?: ClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ClassInclude<ExtArgs> | null
@@ -11826,10 +11854,6 @@ export namespace Prisma {
      * Filter which Classes to update
      */
     where?: ClassWhereInput
-    /**
-     * Limit how many Classes to update.
-     */
-    limit?: number
   }
 
   /**
@@ -11840,10 +11864,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Class
      */
     select?: ClassSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Class
-     */
-    omit?: ClassOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -11871,10 +11891,6 @@ export namespace Prisma {
      */
     select?: ClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Class
-     */
-    omit?: ClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ClassInclude<ExtArgs> | null
@@ -11892,10 +11908,6 @@ export namespace Prisma {
      * Filter which Classes to delete
      */
     where?: ClassWhereInput
-    /**
-     * Limit how many Classes to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -11906,10 +11918,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Chapter
      */
     select?: ChapterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -11931,10 +11939,6 @@ export namespace Prisma {
      */
     select?: SubjectSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subject
-     */
-    omit?: SubjectOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubjectInclude<ExtArgs> | null
@@ -11955,10 +11959,6 @@ export namespace Prisma {
      */
     select?: TeacherClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TeacherClass
-     */
-    omit?: TeacherClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherClassInclude<ExtArgs> | null
@@ -11971,6 +11971,26 @@ export namespace Prisma {
   }
 
   /**
+   * Class.examPapers
+   */
+  export type Class$examPapersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaper
+     */
+    select?: ExamPaperSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperInclude<ExtArgs> | null
+    where?: ExamPaperWhereInput
+    orderBy?: ExamPaperOrderByWithRelationInput | ExamPaperOrderByWithRelationInput[]
+    cursor?: ExamPaperWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ExamPaperScalarFieldEnum | ExamPaperScalarFieldEnum[]
+  }
+
+  /**
    * Class without action
    */
   export type ClassDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11978,10 +11998,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Class
      */
     select?: ClassSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Class
-     */
-    omit?: ClassOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -12248,9 +12264,9 @@ export namespace Prisma {
     class?: boolean | Subject$classArgs<ExtArgs>
     school?: boolean | SchoolDefaultArgs<ExtArgs>
     teacherClasses?: boolean | Subject$teacherClassesArgs<ExtArgs>
+    examPapers?: boolean | Subject$examPapersArgs<ExtArgs>
     _count?: boolean | SubjectCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["subject"]>
-
 
 
   export type SubjectSelectScalar = {
@@ -12268,13 +12284,13 @@ export namespace Prisma {
     deletedAt?: boolean
   }
 
-  export type SubjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "academicSessionId" | "classId" | "name" | "code" | "description" | "color" | "sortOrder" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["subject"]>
   export type SubjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     academicSession?: boolean | AcademicSessionDefaultArgs<ExtArgs>
     chapters?: boolean | Subject$chaptersArgs<ExtArgs>
     class?: boolean | Subject$classArgs<ExtArgs>
     school?: boolean | SchoolDefaultArgs<ExtArgs>
     teacherClasses?: boolean | Subject$teacherClassesArgs<ExtArgs>
+    examPapers?: boolean | Subject$examPapersArgs<ExtArgs>
     _count?: boolean | SubjectCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -12286,6 +12302,7 @@ export namespace Prisma {
       class: Prisma.$ClassPayload<ExtArgs> | null
       school: Prisma.$SchoolPayload<ExtArgs>
       teacherClasses: Prisma.$TeacherClassPayload<ExtArgs>[]
+      examPapers: Prisma.$ExamPaperPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -12306,12 +12323,12 @@ export namespace Prisma {
 
   type SubjectGetPayload<S extends boolean | null | undefined | SubjectDefaultArgs> = $Result.GetResult<Prisma.$SubjectPayload, S>
 
-  type SubjectCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<SubjectFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type SubjectCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<SubjectFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: SubjectCountAggregateInputType | true
     }
 
-  export interface SubjectDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface SubjectDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Subject'], meta: { name: 'Subject' } }
     /**
      * Find zero or one Subject that matches the filter.
@@ -12324,10 +12341,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends SubjectFindUniqueArgs>(args: SelectSubset<T, SubjectFindUniqueArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends SubjectFindUniqueArgs>(args: SelectSubset<T, SubjectFindUniqueArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Subject that matches the filter or throw an error with `error.code='P2025'`
+     * Find one Subject that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {SubjectFindUniqueOrThrowArgs} args - Arguments to find a Subject
      * @example
@@ -12338,7 +12355,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends SubjectFindUniqueOrThrowArgs>(args: SelectSubset<T, SubjectFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends SubjectFindUniqueOrThrowArgs>(args: SelectSubset<T, SubjectFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first Subject that matches the filter.
@@ -12353,7 +12370,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends SubjectFindFirstArgs>(args?: SelectSubset<T, SubjectFindFirstArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends SubjectFindFirstArgs>(args?: SelectSubset<T, SubjectFindFirstArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first Subject that matches the filter or
@@ -12369,7 +12386,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends SubjectFindFirstOrThrowArgs>(args?: SelectSubset<T, SubjectFindFirstOrThrowArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends SubjectFindFirstOrThrowArgs>(args?: SelectSubset<T, SubjectFindFirstOrThrowArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more Subjects that matches the filter.
@@ -12387,7 +12404,7 @@ export namespace Prisma {
      * const subjectWithIdOnly = await prisma.subject.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends SubjectFindManyArgs>(args?: SelectSubset<T, SubjectFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends SubjectFindManyArgs>(args?: SelectSubset<T, SubjectFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a Subject.
@@ -12401,7 +12418,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends SubjectCreateArgs>(args: SelectSubset<T, SubjectCreateArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends SubjectCreateArgs>(args: SelectSubset<T, SubjectCreateArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many Subjects.
@@ -12429,7 +12446,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends SubjectDeleteArgs>(args: SelectSubset<T, SubjectDeleteArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends SubjectDeleteArgs>(args: SelectSubset<T, SubjectDeleteArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one Subject.
@@ -12446,7 +12463,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends SubjectUpdateArgs>(args: SelectSubset<T, SubjectUpdateArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends SubjectUpdateArgs>(args: SelectSubset<T, SubjectUpdateArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more Subjects.
@@ -12498,7 +12515,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends SubjectUpsertArgs>(args: SelectSubset<T, SubjectUpsertArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends SubjectUpsertArgs>(args: SelectSubset<T, SubjectUpsertArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -12638,13 +12655,14 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__SubjectClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__SubjectClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    chapters<T extends Subject$chaptersArgs<ExtArgs> = {}>(args?: Subset<T, Subject$chaptersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    class<T extends Subject$classArgs<ExtArgs> = {}>(args?: Subset<T, Subject$classArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    teacherClasses<T extends Subject$teacherClassesArgs<ExtArgs> = {}>(args?: Subset<T, Subject$teacherClassesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    chapters<T extends Subject$chaptersArgs<ExtArgs> = {}>(args?: Subset<T, Subject$chaptersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany"> | Null>
+    class<T extends Subject$classArgs<ExtArgs> = {}>(args?: Subset<T, Subject$classArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    teacherClasses<T extends Subject$teacherClassesArgs<ExtArgs> = {}>(args?: Subset<T, Subject$teacherClassesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany"> | Null>
+    examPapers<T extends Subject$examPapersArgs<ExtArgs> = {}>(args?: Subset<T, Subject$examPapersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamPaperPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -12672,7 +12690,7 @@ export namespace Prisma {
 
   /**
    * Fields of the Subject model
-   */
+   */ 
   interface SubjectFieldRefs {
     readonly id: FieldRef<"Subject", 'String'>
     readonly schoolId: FieldRef<"Subject", 'String'>
@@ -12699,10 +12717,6 @@ export namespace Prisma {
      */
     select?: SubjectSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subject
-     */
-    omit?: SubjectOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubjectInclude<ExtArgs> | null
@@ -12721,10 +12735,6 @@ export namespace Prisma {
      */
     select?: SubjectSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subject
-     */
-    omit?: SubjectOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubjectInclude<ExtArgs> | null
@@ -12742,10 +12752,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Subject
      */
     select?: SubjectSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Subject
-     */
-    omit?: SubjectOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -12795,10 +12801,6 @@ export namespace Prisma {
      */
     select?: SubjectSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subject
-     */
-    omit?: SubjectOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubjectInclude<ExtArgs> | null
@@ -12847,10 +12849,6 @@ export namespace Prisma {
      */
     select?: SubjectSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subject
-     */
-    omit?: SubjectOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubjectInclude<ExtArgs> | null
@@ -12894,10 +12892,6 @@ export namespace Prisma {
      */
     select?: SubjectSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subject
-     */
-    omit?: SubjectOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubjectInclude<ExtArgs> | null
@@ -12927,10 +12921,6 @@ export namespace Prisma {
      */
     select?: SubjectSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subject
-     */
-    omit?: SubjectOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubjectInclude<ExtArgs> | null
@@ -12956,10 +12946,6 @@ export namespace Prisma {
      * Filter which Subjects to update
      */
     where?: SubjectWhereInput
-    /**
-     * Limit how many Subjects to update.
-     */
-    limit?: number
   }
 
   /**
@@ -12970,10 +12956,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Subject
      */
     select?: SubjectSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Subject
-     */
-    omit?: SubjectOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -13001,10 +12983,6 @@ export namespace Prisma {
      */
     select?: SubjectSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Subject
-     */
-    omit?: SubjectOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: SubjectInclude<ExtArgs> | null
@@ -13022,10 +13000,6 @@ export namespace Prisma {
      * Filter which Subjects to delete
      */
     where?: SubjectWhereInput
-    /**
-     * Limit how many Subjects to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -13036,10 +13010,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Chapter
      */
     select?: ChapterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -13061,10 +13031,6 @@ export namespace Prisma {
      */
     select?: ClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Class
-     */
-    omit?: ClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ClassInclude<ExtArgs> | null
@@ -13080,10 +13046,6 @@ export namespace Prisma {
      */
     select?: TeacherClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TeacherClass
-     */
-    omit?: TeacherClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherClassInclude<ExtArgs> | null
@@ -13096,6 +13058,26 @@ export namespace Prisma {
   }
 
   /**
+   * Subject.examPapers
+   */
+  export type Subject$examPapersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaper
+     */
+    select?: ExamPaperSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperInclude<ExtArgs> | null
+    where?: ExamPaperWhereInput
+    orderBy?: ExamPaperOrderByWithRelationInput | ExamPaperOrderByWithRelationInput[]
+    cursor?: ExamPaperWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ExamPaperScalarFieldEnum | ExamPaperScalarFieldEnum[]
+  }
+
+  /**
    * Subject without action
    */
   export type SubjectDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -13103,10 +13085,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Subject
      */
     select?: SubjectSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Subject
-     */
-    omit?: SubjectOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -13410,7 +13388,6 @@ export namespace Prisma {
   }, ExtArgs["result"]["chapter"]>
 
 
-
   export type ChapterSelectScalar = {
     id?: boolean
     schoolId?: boolean
@@ -13429,7 +13406,6 @@ export namespace Prisma {
     deletedAt?: boolean
   }
 
-  export type ChapterOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "academicSessionId" | "subjectId" | "classId" | "title" | "description" | "notes" | "estimatedTeachingDays" | "chapterNo" | "termName" | "sortOrder" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["chapter"]>
   export type ChapterInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     academicSession?: boolean | AcademicSessionDefaultArgs<ExtArgs>
     chapterProgress?: boolean | Chapter$chapterProgressArgs<ExtArgs>
@@ -13472,12 +13448,12 @@ export namespace Prisma {
 
   type ChapterGetPayload<S extends boolean | null | undefined | ChapterDefaultArgs> = $Result.GetResult<Prisma.$ChapterPayload, S>
 
-  type ChapterCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<ChapterFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type ChapterCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ChapterFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: ChapterCountAggregateInputType | true
     }
 
-  export interface ChapterDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface ChapterDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Chapter'], meta: { name: 'Chapter' } }
     /**
      * Find zero or one Chapter that matches the filter.
@@ -13490,10 +13466,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends ChapterFindUniqueArgs>(args: SelectSubset<T, ChapterFindUniqueArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends ChapterFindUniqueArgs>(args: SelectSubset<T, ChapterFindUniqueArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Chapter that matches the filter or throw an error with `error.code='P2025'`
+     * Find one Chapter that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {ChapterFindUniqueOrThrowArgs} args - Arguments to find a Chapter
      * @example
@@ -13504,7 +13480,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ChapterFindUniqueOrThrowArgs>(args: SelectSubset<T, ChapterFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends ChapterFindUniqueOrThrowArgs>(args: SelectSubset<T, ChapterFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first Chapter that matches the filter.
@@ -13519,7 +13495,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends ChapterFindFirstArgs>(args?: SelectSubset<T, ChapterFindFirstArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends ChapterFindFirstArgs>(args?: SelectSubset<T, ChapterFindFirstArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first Chapter that matches the filter or
@@ -13535,7 +13511,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends ChapterFindFirstOrThrowArgs>(args?: SelectSubset<T, ChapterFindFirstOrThrowArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends ChapterFindFirstOrThrowArgs>(args?: SelectSubset<T, ChapterFindFirstOrThrowArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more Chapters that matches the filter.
@@ -13553,7 +13529,7 @@ export namespace Prisma {
      * const chapterWithIdOnly = await prisma.chapter.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends ChapterFindManyArgs>(args?: SelectSubset<T, ChapterFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends ChapterFindManyArgs>(args?: SelectSubset<T, ChapterFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a Chapter.
@@ -13567,7 +13543,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends ChapterCreateArgs>(args: SelectSubset<T, ChapterCreateArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends ChapterCreateArgs>(args: SelectSubset<T, ChapterCreateArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many Chapters.
@@ -13595,7 +13571,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends ChapterDeleteArgs>(args: SelectSubset<T, ChapterDeleteArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends ChapterDeleteArgs>(args: SelectSubset<T, ChapterDeleteArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one Chapter.
@@ -13612,7 +13588,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ChapterUpdateArgs>(args: SelectSubset<T, ChapterUpdateArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends ChapterUpdateArgs>(args: SelectSubset<T, ChapterUpdateArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more Chapters.
@@ -13664,7 +13640,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends ChapterUpsertArgs>(args: SelectSubset<T, ChapterUpsertArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends ChapterUpsertArgs>(args: SelectSubset<T, ChapterUpsertArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -13804,14 +13780,14 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ChapterClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ChapterClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    chapterProgress<T extends Chapter$chapterProgressArgs<ExtArgs> = {}>(args?: Subset<T, Chapter$chapterProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    class<T extends ClassDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClassDefaultArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    subject<T extends SubjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SubjectDefaultArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    topics<T extends Chapter$topicsArgs<ExtArgs> = {}>(args?: Subset<T, Chapter$topicsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    chapterProgress<T extends Chapter$chapterProgressArgs<ExtArgs> = {}>(args?: Subset<T, Chapter$chapterProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findMany"> | Null>
+    class<T extends ClassDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClassDefaultArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    subject<T extends SubjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SubjectDefaultArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    topics<T extends Chapter$topicsArgs<ExtArgs> = {}>(args?: Subset<T, Chapter$topicsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13839,7 +13815,7 @@ export namespace Prisma {
 
   /**
    * Fields of the Chapter model
-   */
+   */ 
   interface ChapterFieldRefs {
     readonly id: FieldRef<"Chapter", 'String'>
     readonly schoolId: FieldRef<"Chapter", 'String'>
@@ -13869,10 +13845,6 @@ export namespace Prisma {
      */
     select?: ChapterSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChapterInclude<ExtArgs> | null
@@ -13891,10 +13863,6 @@ export namespace Prisma {
      */
     select?: ChapterSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChapterInclude<ExtArgs> | null
@@ -13912,10 +13880,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Chapter
      */
     select?: ChapterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -13965,10 +13929,6 @@ export namespace Prisma {
      */
     select?: ChapterSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChapterInclude<ExtArgs> | null
@@ -14017,10 +13977,6 @@ export namespace Prisma {
      */
     select?: ChapterSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChapterInclude<ExtArgs> | null
@@ -14064,10 +14020,6 @@ export namespace Prisma {
      */
     select?: ChapterSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChapterInclude<ExtArgs> | null
@@ -14097,10 +14049,6 @@ export namespace Prisma {
      */
     select?: ChapterSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChapterInclude<ExtArgs> | null
@@ -14126,10 +14074,6 @@ export namespace Prisma {
      * Filter which Chapters to update
      */
     where?: ChapterWhereInput
-    /**
-     * Limit how many Chapters to update.
-     */
-    limit?: number
   }
 
   /**
@@ -14140,10 +14084,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Chapter
      */
     select?: ChapterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -14171,10 +14111,6 @@ export namespace Prisma {
      */
     select?: ChapterSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChapterInclude<ExtArgs> | null
@@ -14192,10 +14128,6 @@ export namespace Prisma {
      * Filter which Chapters to delete
      */
     where?: ChapterWhereInput
-    /**
-     * Limit how many Chapters to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -14206,10 +14138,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the ChapterProgress
      */
     select?: ChapterProgressSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ChapterProgress
-     */
-    omit?: ChapterProgressOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -14231,10 +14159,6 @@ export namespace Prisma {
      */
     select?: TopicSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Topic
-     */
-    omit?: TopicOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicInclude<ExtArgs> | null
@@ -14254,10 +14178,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Chapter
      */
     select?: ChapterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Chapter
-     */
-    omit?: ChapterOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -14519,7 +14439,6 @@ export namespace Prisma {
   }, ExtArgs["result"]["topic"]>
 
 
-
   export type TopicSelectScalar = {
     id?: boolean
     schoolId?: boolean
@@ -14534,7 +14453,6 @@ export namespace Prisma {
     deletedAt?: boolean
   }
 
-  export type TopicOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "academicSessionId" | "chapterId" | "title" | "description" | "notes" | "sortOrder" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["topic"]>
   export type TopicInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     academicSession?: boolean | AcademicSessionDefaultArgs<ExtArgs>
     topicProgress?: boolean | Topic$topicProgressArgs<ExtArgs>
@@ -14569,12 +14487,12 @@ export namespace Prisma {
 
   type TopicGetPayload<S extends boolean | null | undefined | TopicDefaultArgs> = $Result.GetResult<Prisma.$TopicPayload, S>
 
-  type TopicCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<TopicFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type TopicCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<TopicFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: TopicCountAggregateInputType | true
     }
 
-  export interface TopicDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface TopicDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Topic'], meta: { name: 'Topic' } }
     /**
      * Find zero or one Topic that matches the filter.
@@ -14587,10 +14505,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends TopicFindUniqueArgs>(args: SelectSubset<T, TopicFindUniqueArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends TopicFindUniqueArgs>(args: SelectSubset<T, TopicFindUniqueArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Topic that matches the filter or throw an error with `error.code='P2025'`
+     * Find one Topic that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {TopicFindUniqueOrThrowArgs} args - Arguments to find a Topic
      * @example
@@ -14601,7 +14519,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends TopicFindUniqueOrThrowArgs>(args: SelectSubset<T, TopicFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends TopicFindUniqueOrThrowArgs>(args: SelectSubset<T, TopicFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first Topic that matches the filter.
@@ -14616,7 +14534,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends TopicFindFirstArgs>(args?: SelectSubset<T, TopicFindFirstArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends TopicFindFirstArgs>(args?: SelectSubset<T, TopicFindFirstArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first Topic that matches the filter or
@@ -14632,7 +14550,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends TopicFindFirstOrThrowArgs>(args?: SelectSubset<T, TopicFindFirstOrThrowArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends TopicFindFirstOrThrowArgs>(args?: SelectSubset<T, TopicFindFirstOrThrowArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more Topics that matches the filter.
@@ -14650,7 +14568,7 @@ export namespace Prisma {
      * const topicWithIdOnly = await prisma.topic.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends TopicFindManyArgs>(args?: SelectSubset<T, TopicFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends TopicFindManyArgs>(args?: SelectSubset<T, TopicFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a Topic.
@@ -14664,7 +14582,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends TopicCreateArgs>(args: SelectSubset<T, TopicCreateArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends TopicCreateArgs>(args: SelectSubset<T, TopicCreateArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many Topics.
@@ -14692,7 +14610,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends TopicDeleteArgs>(args: SelectSubset<T, TopicDeleteArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends TopicDeleteArgs>(args: SelectSubset<T, TopicDeleteArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one Topic.
@@ -14709,7 +14627,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends TopicUpdateArgs>(args: SelectSubset<T, TopicUpdateArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends TopicUpdateArgs>(args: SelectSubset<T, TopicUpdateArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more Topics.
@@ -14761,7 +14679,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends TopicUpsertArgs>(args: SelectSubset<T, TopicUpsertArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends TopicUpsertArgs>(args: SelectSubset<T, TopicUpsertArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -14901,12 +14819,12 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__TopicClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__TopicClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    topicProgress<T extends Topic$topicProgressArgs<ExtArgs> = {}>(args?: Subset<T, Topic$topicProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    chapter<T extends ChapterDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ChapterDefaultArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    topicProgress<T extends Topic$topicProgressArgs<ExtArgs> = {}>(args?: Subset<T, Topic$topicProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findMany"> | Null>
+    chapter<T extends ChapterDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ChapterDefaultArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -14934,7 +14852,7 @@ export namespace Prisma {
 
   /**
    * Fields of the Topic model
-   */
+   */ 
   interface TopicFieldRefs {
     readonly id: FieldRef<"Topic", 'String'>
     readonly schoolId: FieldRef<"Topic", 'String'>
@@ -14960,10 +14878,6 @@ export namespace Prisma {
      */
     select?: TopicSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Topic
-     */
-    omit?: TopicOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicInclude<ExtArgs> | null
@@ -14982,10 +14896,6 @@ export namespace Prisma {
      */
     select?: TopicSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Topic
-     */
-    omit?: TopicOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicInclude<ExtArgs> | null
@@ -15003,10 +14913,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Topic
      */
     select?: TopicSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Topic
-     */
-    omit?: TopicOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -15056,10 +14962,6 @@ export namespace Prisma {
      */
     select?: TopicSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Topic
-     */
-    omit?: TopicOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicInclude<ExtArgs> | null
@@ -15108,10 +15010,6 @@ export namespace Prisma {
      */
     select?: TopicSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Topic
-     */
-    omit?: TopicOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicInclude<ExtArgs> | null
@@ -15155,10 +15053,6 @@ export namespace Prisma {
      */
     select?: TopicSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Topic
-     */
-    omit?: TopicOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicInclude<ExtArgs> | null
@@ -15188,10 +15082,6 @@ export namespace Prisma {
      */
     select?: TopicSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Topic
-     */
-    omit?: TopicOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicInclude<ExtArgs> | null
@@ -15217,10 +15107,6 @@ export namespace Prisma {
      * Filter which Topics to update
      */
     where?: TopicWhereInput
-    /**
-     * Limit how many Topics to update.
-     */
-    limit?: number
   }
 
   /**
@@ -15231,10 +15117,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Topic
      */
     select?: TopicSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Topic
-     */
-    omit?: TopicOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -15262,10 +15144,6 @@ export namespace Prisma {
      */
     select?: TopicSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Topic
-     */
-    omit?: TopicOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicInclude<ExtArgs> | null
@@ -15283,10 +15161,6 @@ export namespace Prisma {
      * Filter which Topics to delete
      */
     where?: TopicWhereInput
-    /**
-     * Limit how many Topics to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -15297,10 +15171,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the TopicProgress
      */
     select?: TopicProgressSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TopicProgress
-     */
-    omit?: TopicProgressOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -15321,10 +15191,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Topic
      */
     select?: TopicSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Topic
-     */
-    omit?: TopicOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -15519,7 +15385,6 @@ export namespace Prisma {
   }, ExtArgs["result"]["teacherClass"]>
 
 
-
   export type TeacherClassSelectScalar = {
     id?: boolean
     schoolId?: boolean
@@ -15530,7 +15395,6 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type TeacherClassOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "academicSessionId" | "teacherId" | "classId" | "subjectId" | "createdAt", ExtArgs["result"]["teacherClass"]>
   export type TeacherClassInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     academicSession?: boolean | AcademicSessionDefaultArgs<ExtArgs>
     class?: boolean | ClassDefaultArgs<ExtArgs>
@@ -15560,12 +15424,12 @@ export namespace Prisma {
 
   type TeacherClassGetPayload<S extends boolean | null | undefined | TeacherClassDefaultArgs> = $Result.GetResult<Prisma.$TeacherClassPayload, S>
 
-  type TeacherClassCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<TeacherClassFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type TeacherClassCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<TeacherClassFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: TeacherClassCountAggregateInputType | true
     }
 
-  export interface TeacherClassDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface TeacherClassDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TeacherClass'], meta: { name: 'TeacherClass' } }
     /**
      * Find zero or one TeacherClass that matches the filter.
@@ -15578,10 +15442,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends TeacherClassFindUniqueArgs>(args: SelectSubset<T, TeacherClassFindUniqueArgs<ExtArgs>>): Prisma__TeacherClassClient<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends TeacherClassFindUniqueArgs>(args: SelectSubset<T, TeacherClassFindUniqueArgs<ExtArgs>>): Prisma__TeacherClassClient<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one TeacherClass that matches the filter or throw an error with `error.code='P2025'`
+     * Find one TeacherClass that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {TeacherClassFindUniqueOrThrowArgs} args - Arguments to find a TeacherClass
      * @example
@@ -15592,7 +15456,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends TeacherClassFindUniqueOrThrowArgs>(args: SelectSubset<T, TeacherClassFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TeacherClassClient<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends TeacherClassFindUniqueOrThrowArgs>(args: SelectSubset<T, TeacherClassFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TeacherClassClient<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first TeacherClass that matches the filter.
@@ -15607,7 +15471,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends TeacherClassFindFirstArgs>(args?: SelectSubset<T, TeacherClassFindFirstArgs<ExtArgs>>): Prisma__TeacherClassClient<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends TeacherClassFindFirstArgs>(args?: SelectSubset<T, TeacherClassFindFirstArgs<ExtArgs>>): Prisma__TeacherClassClient<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first TeacherClass that matches the filter or
@@ -15623,7 +15487,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends TeacherClassFindFirstOrThrowArgs>(args?: SelectSubset<T, TeacherClassFindFirstOrThrowArgs<ExtArgs>>): Prisma__TeacherClassClient<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends TeacherClassFindFirstOrThrowArgs>(args?: SelectSubset<T, TeacherClassFindFirstOrThrowArgs<ExtArgs>>): Prisma__TeacherClassClient<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more TeacherClasses that matches the filter.
@@ -15641,7 +15505,7 @@ export namespace Prisma {
      * const teacherClassWithIdOnly = await prisma.teacherClass.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends TeacherClassFindManyArgs>(args?: SelectSubset<T, TeacherClassFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends TeacherClassFindManyArgs>(args?: SelectSubset<T, TeacherClassFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a TeacherClass.
@@ -15655,7 +15519,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends TeacherClassCreateArgs>(args: SelectSubset<T, TeacherClassCreateArgs<ExtArgs>>): Prisma__TeacherClassClient<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends TeacherClassCreateArgs>(args: SelectSubset<T, TeacherClassCreateArgs<ExtArgs>>): Prisma__TeacherClassClient<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many TeacherClasses.
@@ -15683,7 +15547,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends TeacherClassDeleteArgs>(args: SelectSubset<T, TeacherClassDeleteArgs<ExtArgs>>): Prisma__TeacherClassClient<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends TeacherClassDeleteArgs>(args: SelectSubset<T, TeacherClassDeleteArgs<ExtArgs>>): Prisma__TeacherClassClient<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one TeacherClass.
@@ -15700,7 +15564,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends TeacherClassUpdateArgs>(args: SelectSubset<T, TeacherClassUpdateArgs<ExtArgs>>): Prisma__TeacherClassClient<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends TeacherClassUpdateArgs>(args: SelectSubset<T, TeacherClassUpdateArgs<ExtArgs>>): Prisma__TeacherClassClient<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more TeacherClasses.
@@ -15752,7 +15616,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends TeacherClassUpsertArgs>(args: SelectSubset<T, TeacherClassUpsertArgs<ExtArgs>>): Prisma__TeacherClassClient<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends TeacherClassUpsertArgs>(args: SelectSubset<T, TeacherClassUpsertArgs<ExtArgs>>): Prisma__TeacherClassClient<$Result.GetResult<Prisma.$TeacherClassPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -15892,12 +15756,12 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__TeacherClassClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__TeacherClassClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    class<T extends ClassDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClassDefaultArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    subject<T extends TeacherClass$subjectArgs<ExtArgs> = {}>(args?: Subset<T, TeacherClass$subjectArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    teacher<T extends TeacherDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TeacherDefaultArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    class<T extends ClassDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClassDefaultArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    subject<T extends TeacherClass$subjectArgs<ExtArgs> = {}>(args?: Subset<T, TeacherClass$subjectArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    teacher<T extends TeacherDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TeacherDefaultArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -15925,7 +15789,7 @@ export namespace Prisma {
 
   /**
    * Fields of the TeacherClass model
-   */
+   */ 
   interface TeacherClassFieldRefs {
     readonly id: FieldRef<"TeacherClass", 'String'>
     readonly schoolId: FieldRef<"TeacherClass", 'String'>
@@ -15947,10 +15811,6 @@ export namespace Prisma {
      */
     select?: TeacherClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TeacherClass
-     */
-    omit?: TeacherClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherClassInclude<ExtArgs> | null
@@ -15969,10 +15829,6 @@ export namespace Prisma {
      */
     select?: TeacherClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TeacherClass
-     */
-    omit?: TeacherClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherClassInclude<ExtArgs> | null
@@ -15990,10 +15846,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the TeacherClass
      */
     select?: TeacherClassSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TeacherClass
-     */
-    omit?: TeacherClassOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -16043,10 +15895,6 @@ export namespace Prisma {
      */
     select?: TeacherClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TeacherClass
-     */
-    omit?: TeacherClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherClassInclude<ExtArgs> | null
@@ -16095,10 +15943,6 @@ export namespace Prisma {
      */
     select?: TeacherClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TeacherClass
-     */
-    omit?: TeacherClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherClassInclude<ExtArgs> | null
@@ -16142,10 +15986,6 @@ export namespace Prisma {
      */
     select?: TeacherClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TeacherClass
-     */
-    omit?: TeacherClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherClassInclude<ExtArgs> | null
@@ -16175,10 +16015,6 @@ export namespace Prisma {
      */
     select?: TeacherClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TeacherClass
-     */
-    omit?: TeacherClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherClassInclude<ExtArgs> | null
@@ -16204,10 +16040,6 @@ export namespace Prisma {
      * Filter which TeacherClasses to update
      */
     where?: TeacherClassWhereInput
-    /**
-     * Limit how many TeacherClasses to update.
-     */
-    limit?: number
   }
 
   /**
@@ -16218,10 +16050,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the TeacherClass
      */
     select?: TeacherClassSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TeacherClass
-     */
-    omit?: TeacherClassOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -16249,10 +16077,6 @@ export namespace Prisma {
      */
     select?: TeacherClassSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TeacherClass
-     */
-    omit?: TeacherClassOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TeacherClassInclude<ExtArgs> | null
@@ -16270,10 +16094,6 @@ export namespace Prisma {
      * Filter which TeacherClasses to delete
      */
     where?: TeacherClassWhereInput
-    /**
-     * Limit how many TeacherClasses to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -16284,10 +16104,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Subject
      */
     select?: SubjectSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Subject
-     */
-    omit?: SubjectOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -16303,10 +16119,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the TeacherClass
      */
     select?: TeacherClassSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TeacherClass
-     */
-    omit?: TeacherClassOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -16591,7 +16403,6 @@ export namespace Prisma {
   }, ExtArgs["result"]["chapterProgress"]>
 
 
-
   export type ChapterProgressSelectScalar = {
     id?: boolean
     schoolId?: boolean
@@ -16609,7 +16420,6 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ChapterProgressOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "academicSessionId" | "chapterId" | "teacherId" | "teachingCompleted" | "qaCompleted" | "copyChecked" | "chapterStatus" | "completionPercentage" | "completedAt" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["chapterProgress"]>
   export type ChapterProgressInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     academicSession?: boolean | AcademicSessionDefaultArgs<ExtArgs>
     chapter?: boolean | ChapterDefaultArgs<ExtArgs>
@@ -16646,12 +16456,12 @@ export namespace Prisma {
 
   type ChapterProgressGetPayload<S extends boolean | null | undefined | ChapterProgressDefaultArgs> = $Result.GetResult<Prisma.$ChapterProgressPayload, S>
 
-  type ChapterProgressCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<ChapterProgressFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type ChapterProgressCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ChapterProgressFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: ChapterProgressCountAggregateInputType | true
     }
 
-  export interface ChapterProgressDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface ChapterProgressDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ChapterProgress'], meta: { name: 'ChapterProgress' } }
     /**
      * Find zero or one ChapterProgress that matches the filter.
@@ -16664,10 +16474,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends ChapterProgressFindUniqueArgs>(args: SelectSubset<T, ChapterProgressFindUniqueArgs<ExtArgs>>): Prisma__ChapterProgressClient<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends ChapterProgressFindUniqueArgs>(args: SelectSubset<T, ChapterProgressFindUniqueArgs<ExtArgs>>): Prisma__ChapterProgressClient<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one ChapterProgress that matches the filter or throw an error with `error.code='P2025'`
+     * Find one ChapterProgress that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {ChapterProgressFindUniqueOrThrowArgs} args - Arguments to find a ChapterProgress
      * @example
@@ -16678,7 +16488,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ChapterProgressFindUniqueOrThrowArgs>(args: SelectSubset<T, ChapterProgressFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ChapterProgressClient<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends ChapterProgressFindUniqueOrThrowArgs>(args: SelectSubset<T, ChapterProgressFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ChapterProgressClient<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first ChapterProgress that matches the filter.
@@ -16693,7 +16503,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends ChapterProgressFindFirstArgs>(args?: SelectSubset<T, ChapterProgressFindFirstArgs<ExtArgs>>): Prisma__ChapterProgressClient<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends ChapterProgressFindFirstArgs>(args?: SelectSubset<T, ChapterProgressFindFirstArgs<ExtArgs>>): Prisma__ChapterProgressClient<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first ChapterProgress that matches the filter or
@@ -16709,7 +16519,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends ChapterProgressFindFirstOrThrowArgs>(args?: SelectSubset<T, ChapterProgressFindFirstOrThrowArgs<ExtArgs>>): Prisma__ChapterProgressClient<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends ChapterProgressFindFirstOrThrowArgs>(args?: SelectSubset<T, ChapterProgressFindFirstOrThrowArgs<ExtArgs>>): Prisma__ChapterProgressClient<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more ChapterProgresses that matches the filter.
@@ -16727,7 +16537,7 @@ export namespace Prisma {
      * const chapterProgressWithIdOnly = await prisma.chapterProgress.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends ChapterProgressFindManyArgs>(args?: SelectSubset<T, ChapterProgressFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends ChapterProgressFindManyArgs>(args?: SelectSubset<T, ChapterProgressFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a ChapterProgress.
@@ -16741,7 +16551,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends ChapterProgressCreateArgs>(args: SelectSubset<T, ChapterProgressCreateArgs<ExtArgs>>): Prisma__ChapterProgressClient<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends ChapterProgressCreateArgs>(args: SelectSubset<T, ChapterProgressCreateArgs<ExtArgs>>): Prisma__ChapterProgressClient<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many ChapterProgresses.
@@ -16769,7 +16579,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends ChapterProgressDeleteArgs>(args: SelectSubset<T, ChapterProgressDeleteArgs<ExtArgs>>): Prisma__ChapterProgressClient<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends ChapterProgressDeleteArgs>(args: SelectSubset<T, ChapterProgressDeleteArgs<ExtArgs>>): Prisma__ChapterProgressClient<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one ChapterProgress.
@@ -16786,7 +16596,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ChapterProgressUpdateArgs>(args: SelectSubset<T, ChapterProgressUpdateArgs<ExtArgs>>): Prisma__ChapterProgressClient<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends ChapterProgressUpdateArgs>(args: SelectSubset<T, ChapterProgressUpdateArgs<ExtArgs>>): Prisma__ChapterProgressClient<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more ChapterProgresses.
@@ -16838,7 +16648,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends ChapterProgressUpsertArgs>(args: SelectSubset<T, ChapterProgressUpsertArgs<ExtArgs>>): Prisma__ChapterProgressClient<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends ChapterProgressUpsertArgs>(args: SelectSubset<T, ChapterProgressUpsertArgs<ExtArgs>>): Prisma__ChapterProgressClient<$Result.GetResult<Prisma.$ChapterProgressPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -16978,12 +16788,12 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ChapterProgressClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ChapterProgressClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    chapter<T extends ChapterDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ChapterDefaultArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    teacher<T extends TeacherDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TeacherDefaultArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    updatedBy<T extends ChapterProgress$updatedByArgs<ExtArgs> = {}>(args?: Subset<T, ChapterProgress$updatedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    chapter<T extends ChapterDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ChapterDefaultArgs<ExtArgs>>): Prisma__ChapterClient<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    teacher<T extends TeacherDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TeacherDefaultArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    updatedBy<T extends ChapterProgress$updatedByArgs<ExtArgs> = {}>(args?: Subset<T, ChapterProgress$updatedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -17011,7 +16821,7 @@ export namespace Prisma {
 
   /**
    * Fields of the ChapterProgress model
-   */
+   */ 
   interface ChapterProgressFieldRefs {
     readonly id: FieldRef<"ChapterProgress", 'String'>
     readonly schoolId: FieldRef<"ChapterProgress", 'String'>
@@ -17040,10 +16850,6 @@ export namespace Prisma {
      */
     select?: ChapterProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ChapterProgress
-     */
-    omit?: ChapterProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChapterProgressInclude<ExtArgs> | null
@@ -17062,10 +16868,6 @@ export namespace Prisma {
      */
     select?: ChapterProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ChapterProgress
-     */
-    omit?: ChapterProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChapterProgressInclude<ExtArgs> | null
@@ -17083,10 +16885,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the ChapterProgress
      */
     select?: ChapterProgressSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ChapterProgress
-     */
-    omit?: ChapterProgressOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -17136,10 +16934,6 @@ export namespace Prisma {
      */
     select?: ChapterProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ChapterProgress
-     */
-    omit?: ChapterProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChapterProgressInclude<ExtArgs> | null
@@ -17188,10 +16982,6 @@ export namespace Prisma {
      */
     select?: ChapterProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ChapterProgress
-     */
-    omit?: ChapterProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChapterProgressInclude<ExtArgs> | null
@@ -17235,10 +17025,6 @@ export namespace Prisma {
      */
     select?: ChapterProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ChapterProgress
-     */
-    omit?: ChapterProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChapterProgressInclude<ExtArgs> | null
@@ -17268,10 +17054,6 @@ export namespace Prisma {
      */
     select?: ChapterProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ChapterProgress
-     */
-    omit?: ChapterProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChapterProgressInclude<ExtArgs> | null
@@ -17297,10 +17079,6 @@ export namespace Prisma {
      * Filter which ChapterProgresses to update
      */
     where?: ChapterProgressWhereInput
-    /**
-     * Limit how many ChapterProgresses to update.
-     */
-    limit?: number
   }
 
   /**
@@ -17311,10 +17089,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the ChapterProgress
      */
     select?: ChapterProgressSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ChapterProgress
-     */
-    omit?: ChapterProgressOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -17342,10 +17116,6 @@ export namespace Prisma {
      */
     select?: ChapterProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ChapterProgress
-     */
-    omit?: ChapterProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChapterProgressInclude<ExtArgs> | null
@@ -17363,10 +17133,6 @@ export namespace Prisma {
      * Filter which ChapterProgresses to delete
      */
     where?: ChapterProgressWhereInput
-    /**
-     * Limit how many ChapterProgresses to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -17377,10 +17143,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the User
      */
     select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -17396,10 +17158,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the ChapterProgress
      */
     select?: ChapterProgressSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ChapterProgress
-     */
-    omit?: ChapterProgressOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -17618,7 +17376,6 @@ export namespace Prisma {
   }, ExtArgs["result"]["topicProgress"]>
 
 
-
   export type TopicProgressSelectScalar = {
     id?: boolean
     schoolId?: boolean
@@ -17632,7 +17389,6 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type TopicProgressOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "academicSessionId" | "topicId" | "teacherId" | "status" | "completedAt" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["topicProgress"]>
   export type TopicProgressInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     academicSession?: boolean | AcademicSessionDefaultArgs<ExtArgs>
     teacher?: boolean | TeacherDefaultArgs<ExtArgs>
@@ -17665,12 +17421,12 @@ export namespace Prisma {
 
   type TopicProgressGetPayload<S extends boolean | null | undefined | TopicProgressDefaultArgs> = $Result.GetResult<Prisma.$TopicProgressPayload, S>
 
-  type TopicProgressCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<TopicProgressFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type TopicProgressCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<TopicProgressFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: TopicProgressCountAggregateInputType | true
     }
 
-  export interface TopicProgressDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface TopicProgressDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TopicProgress'], meta: { name: 'TopicProgress' } }
     /**
      * Find zero or one TopicProgress that matches the filter.
@@ -17683,10 +17439,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends TopicProgressFindUniqueArgs>(args: SelectSubset<T, TopicProgressFindUniqueArgs<ExtArgs>>): Prisma__TopicProgressClient<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends TopicProgressFindUniqueArgs>(args: SelectSubset<T, TopicProgressFindUniqueArgs<ExtArgs>>): Prisma__TopicProgressClient<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one TopicProgress that matches the filter or throw an error with `error.code='P2025'`
+     * Find one TopicProgress that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {TopicProgressFindUniqueOrThrowArgs} args - Arguments to find a TopicProgress
      * @example
@@ -17697,7 +17453,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends TopicProgressFindUniqueOrThrowArgs>(args: SelectSubset<T, TopicProgressFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TopicProgressClient<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends TopicProgressFindUniqueOrThrowArgs>(args: SelectSubset<T, TopicProgressFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TopicProgressClient<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first TopicProgress that matches the filter.
@@ -17712,7 +17468,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends TopicProgressFindFirstArgs>(args?: SelectSubset<T, TopicProgressFindFirstArgs<ExtArgs>>): Prisma__TopicProgressClient<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends TopicProgressFindFirstArgs>(args?: SelectSubset<T, TopicProgressFindFirstArgs<ExtArgs>>): Prisma__TopicProgressClient<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first TopicProgress that matches the filter or
@@ -17728,7 +17484,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends TopicProgressFindFirstOrThrowArgs>(args?: SelectSubset<T, TopicProgressFindFirstOrThrowArgs<ExtArgs>>): Prisma__TopicProgressClient<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends TopicProgressFindFirstOrThrowArgs>(args?: SelectSubset<T, TopicProgressFindFirstOrThrowArgs<ExtArgs>>): Prisma__TopicProgressClient<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more TopicProgresses that matches the filter.
@@ -17746,7 +17502,7 @@ export namespace Prisma {
      * const topicProgressWithIdOnly = await prisma.topicProgress.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends TopicProgressFindManyArgs>(args?: SelectSubset<T, TopicProgressFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends TopicProgressFindManyArgs>(args?: SelectSubset<T, TopicProgressFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a TopicProgress.
@@ -17760,7 +17516,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends TopicProgressCreateArgs>(args: SelectSubset<T, TopicProgressCreateArgs<ExtArgs>>): Prisma__TopicProgressClient<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends TopicProgressCreateArgs>(args: SelectSubset<T, TopicProgressCreateArgs<ExtArgs>>): Prisma__TopicProgressClient<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many TopicProgresses.
@@ -17788,7 +17544,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends TopicProgressDeleteArgs>(args: SelectSubset<T, TopicProgressDeleteArgs<ExtArgs>>): Prisma__TopicProgressClient<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends TopicProgressDeleteArgs>(args: SelectSubset<T, TopicProgressDeleteArgs<ExtArgs>>): Prisma__TopicProgressClient<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one TopicProgress.
@@ -17805,7 +17561,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends TopicProgressUpdateArgs>(args: SelectSubset<T, TopicProgressUpdateArgs<ExtArgs>>): Prisma__TopicProgressClient<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends TopicProgressUpdateArgs>(args: SelectSubset<T, TopicProgressUpdateArgs<ExtArgs>>): Prisma__TopicProgressClient<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more TopicProgresses.
@@ -17857,7 +17613,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends TopicProgressUpsertArgs>(args: SelectSubset<T, TopicProgressUpsertArgs<ExtArgs>>): Prisma__TopicProgressClient<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends TopicProgressUpsertArgs>(args: SelectSubset<T, TopicProgressUpsertArgs<ExtArgs>>): Prisma__TopicProgressClient<$Result.GetResult<Prisma.$TopicProgressPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -17997,12 +17753,12 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__TopicProgressClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__TopicProgressClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    teacher<T extends TeacherDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TeacherDefaultArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    topic<T extends TopicDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TopicDefaultArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    updatedBy<T extends TopicProgress$updatedByArgs<ExtArgs> = {}>(args?: Subset<T, TopicProgress$updatedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    teacher<T extends TeacherDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TeacherDefaultArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    topic<T extends TopicDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TopicDefaultArgs<ExtArgs>>): Prisma__TopicClient<$Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    updatedBy<T extends TopicProgress$updatedByArgs<ExtArgs> = {}>(args?: Subset<T, TopicProgress$updatedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -18030,7 +17786,7 @@ export namespace Prisma {
 
   /**
    * Fields of the TopicProgress model
-   */
+   */ 
   interface TopicProgressFieldRefs {
     readonly id: FieldRef<"TopicProgress", 'String'>
     readonly schoolId: FieldRef<"TopicProgress", 'String'>
@@ -18055,10 +17811,6 @@ export namespace Prisma {
      */
     select?: TopicProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TopicProgress
-     */
-    omit?: TopicProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicProgressInclude<ExtArgs> | null
@@ -18077,10 +17829,6 @@ export namespace Prisma {
      */
     select?: TopicProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TopicProgress
-     */
-    omit?: TopicProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicProgressInclude<ExtArgs> | null
@@ -18098,10 +17846,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the TopicProgress
      */
     select?: TopicProgressSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TopicProgress
-     */
-    omit?: TopicProgressOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -18151,10 +17895,6 @@ export namespace Prisma {
      */
     select?: TopicProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TopicProgress
-     */
-    omit?: TopicProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicProgressInclude<ExtArgs> | null
@@ -18203,10 +17943,6 @@ export namespace Prisma {
      */
     select?: TopicProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TopicProgress
-     */
-    omit?: TopicProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicProgressInclude<ExtArgs> | null
@@ -18250,10 +17986,6 @@ export namespace Prisma {
      */
     select?: TopicProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TopicProgress
-     */
-    omit?: TopicProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicProgressInclude<ExtArgs> | null
@@ -18283,10 +18015,6 @@ export namespace Prisma {
      */
     select?: TopicProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TopicProgress
-     */
-    omit?: TopicProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicProgressInclude<ExtArgs> | null
@@ -18312,10 +18040,6 @@ export namespace Prisma {
      * Filter which TopicProgresses to update
      */
     where?: TopicProgressWhereInput
-    /**
-     * Limit how many TopicProgresses to update.
-     */
-    limit?: number
   }
 
   /**
@@ -18326,10 +18050,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the TopicProgress
      */
     select?: TopicProgressSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TopicProgress
-     */
-    omit?: TopicProgressOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -18357,10 +18077,6 @@ export namespace Prisma {
      */
     select?: TopicProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TopicProgress
-     */
-    omit?: TopicProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicProgressInclude<ExtArgs> | null
@@ -18378,10 +18094,6 @@ export namespace Prisma {
      * Filter which TopicProgresses to delete
      */
     where?: TopicProgressWhereInput
-    /**
-     * Limit how many TopicProgresses to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -18392,10 +18104,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the User
      */
     select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -18412,13 +18120,3897 @@ export namespace Prisma {
      */
     select?: TopicProgressSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the TopicProgress
-     */
-    omit?: TopicProgressOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: TopicProgressInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ExamPaper
+   */
+
+  export type AggregateExamPaper = {
+    _count: ExamPaperCountAggregateOutputType | null
+    _avg: ExamPaperAvgAggregateOutputType | null
+    _sum: ExamPaperSumAggregateOutputType | null
+    _min: ExamPaperMinAggregateOutputType | null
+    _max: ExamPaperMaxAggregateOutputType | null
+  }
+
+  export type ExamPaperAvgAggregateOutputType = {
+    totalMarks: number | null
+    duration: number | null
+  }
+
+  export type ExamPaperSumAggregateOutputType = {
+    totalMarks: number | null
+    duration: number | null
+  }
+
+  export type ExamPaperMinAggregateOutputType = {
+    id: string | null
+    schoolId: string | null
+    academicSessionId: string | null
+    teacherId: string | null
+    classId: string | null
+    subjectId: string | null
+    examName: string | null
+    examDate: Date | null
+    totalMarks: number | null
+    duration: number | null
+    instructions: string | null
+    status: $Enums.ExamPaperStatus | null
+    styleFontFamily: string | null
+    styleFontSize: string | null
+    styleColor: string | null
+    templateType: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ExamPaperMaxAggregateOutputType = {
+    id: string | null
+    schoolId: string | null
+    academicSessionId: string | null
+    teacherId: string | null
+    classId: string | null
+    subjectId: string | null
+    examName: string | null
+    examDate: Date | null
+    totalMarks: number | null
+    duration: number | null
+    instructions: string | null
+    status: $Enums.ExamPaperStatus | null
+    styleFontFamily: string | null
+    styleFontSize: string | null
+    styleColor: string | null
+    templateType: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ExamPaperCountAggregateOutputType = {
+    id: number
+    schoolId: number
+    academicSessionId: number
+    teacherId: number
+    classId: number
+    subjectId: number
+    examName: number
+    examDate: number
+    totalMarks: number
+    duration: number
+    instructions: number
+    status: number
+    styleFontFamily: number
+    styleFontSize: number
+    styleColor: number
+    templateType: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ExamPaperAvgAggregateInputType = {
+    totalMarks?: true
+    duration?: true
+  }
+
+  export type ExamPaperSumAggregateInputType = {
+    totalMarks?: true
+    duration?: true
+  }
+
+  export type ExamPaperMinAggregateInputType = {
+    id?: true
+    schoolId?: true
+    academicSessionId?: true
+    teacherId?: true
+    classId?: true
+    subjectId?: true
+    examName?: true
+    examDate?: true
+    totalMarks?: true
+    duration?: true
+    instructions?: true
+    status?: true
+    styleFontFamily?: true
+    styleFontSize?: true
+    styleColor?: true
+    templateType?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ExamPaperMaxAggregateInputType = {
+    id?: true
+    schoolId?: true
+    academicSessionId?: true
+    teacherId?: true
+    classId?: true
+    subjectId?: true
+    examName?: true
+    examDate?: true
+    totalMarks?: true
+    duration?: true
+    instructions?: true
+    status?: true
+    styleFontFamily?: true
+    styleFontSize?: true
+    styleColor?: true
+    templateType?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ExamPaperCountAggregateInputType = {
+    id?: true
+    schoolId?: true
+    academicSessionId?: true
+    teacherId?: true
+    classId?: true
+    subjectId?: true
+    examName?: true
+    examDate?: true
+    totalMarks?: true
+    duration?: true
+    instructions?: true
+    status?: true
+    styleFontFamily?: true
+    styleFontSize?: true
+    styleColor?: true
+    templateType?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ExamPaperAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExamPaper to aggregate.
+     */
+    where?: ExamPaperWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamPapers to fetch.
+     */
+    orderBy?: ExamPaperOrderByWithRelationInput | ExamPaperOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ExamPaperWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamPapers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamPapers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ExamPapers
+    **/
+    _count?: true | ExamPaperCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ExamPaperAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ExamPaperSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ExamPaperMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ExamPaperMaxAggregateInputType
+  }
+
+  export type GetExamPaperAggregateType<T extends ExamPaperAggregateArgs> = {
+        [P in keyof T & keyof AggregateExamPaper]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateExamPaper[P]>
+      : GetScalarType<T[P], AggregateExamPaper[P]>
+  }
+
+
+
+
+  export type ExamPaperGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExamPaperWhereInput
+    orderBy?: ExamPaperOrderByWithAggregationInput | ExamPaperOrderByWithAggregationInput[]
+    by: ExamPaperScalarFieldEnum[] | ExamPaperScalarFieldEnum
+    having?: ExamPaperScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ExamPaperCountAggregateInputType | true
+    _avg?: ExamPaperAvgAggregateInputType
+    _sum?: ExamPaperSumAggregateInputType
+    _min?: ExamPaperMinAggregateInputType
+    _max?: ExamPaperMaxAggregateInputType
+  }
+
+  export type ExamPaperGroupByOutputType = {
+    id: string
+    schoolId: string
+    academicSessionId: string
+    teacherId: string
+    classId: string
+    subjectId: string
+    examName: string
+    examDate: Date
+    totalMarks: number | null
+    duration: number | null
+    instructions: string | null
+    status: $Enums.ExamPaperStatus
+    styleFontFamily: string | null
+    styleFontSize: string | null
+    styleColor: string | null
+    templateType: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ExamPaperCountAggregateOutputType | null
+    _avg: ExamPaperAvgAggregateOutputType | null
+    _sum: ExamPaperSumAggregateOutputType | null
+    _min: ExamPaperMinAggregateOutputType | null
+    _max: ExamPaperMaxAggregateOutputType | null
+  }
+
+  type GetExamPaperGroupByPayload<T extends ExamPaperGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ExamPaperGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ExamPaperGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ExamPaperGroupByOutputType[P]>
+            : GetScalarType<T[P], ExamPaperGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ExamPaperSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    schoolId?: boolean
+    academicSessionId?: boolean
+    teacherId?: boolean
+    classId?: boolean
+    subjectId?: boolean
+    examName?: boolean
+    examDate?: boolean
+    totalMarks?: boolean
+    duration?: boolean
+    instructions?: boolean
+    status?: boolean
+    styleFontFamily?: boolean
+    styleFontSize?: boolean
+    styleColor?: boolean
+    templateType?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    school?: boolean | SchoolDefaultArgs<ExtArgs>
+    academicSession?: boolean | AcademicSessionDefaultArgs<ExtArgs>
+    teacher?: boolean | TeacherDefaultArgs<ExtArgs>
+    class?: boolean | ClassDefaultArgs<ExtArgs>
+    subject?: boolean | SubjectDefaultArgs<ExtArgs>
+    sections?: boolean | ExamPaper$sectionsArgs<ExtArgs>
+    _count?: boolean | ExamPaperCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["examPaper"]>
+
+
+  export type ExamPaperSelectScalar = {
+    id?: boolean
+    schoolId?: boolean
+    academicSessionId?: boolean
+    teacherId?: boolean
+    classId?: boolean
+    subjectId?: boolean
+    examName?: boolean
+    examDate?: boolean
+    totalMarks?: boolean
+    duration?: boolean
+    instructions?: boolean
+    status?: boolean
+    styleFontFamily?: boolean
+    styleFontSize?: boolean
+    styleColor?: boolean
+    templateType?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ExamPaperInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    school?: boolean | SchoolDefaultArgs<ExtArgs>
+    academicSession?: boolean | AcademicSessionDefaultArgs<ExtArgs>
+    teacher?: boolean | TeacherDefaultArgs<ExtArgs>
+    class?: boolean | ClassDefaultArgs<ExtArgs>
+    subject?: boolean | SubjectDefaultArgs<ExtArgs>
+    sections?: boolean | ExamPaper$sectionsArgs<ExtArgs>
+    _count?: boolean | ExamPaperCountOutputTypeDefaultArgs<ExtArgs>
+  }
+
+  export type $ExamPaperPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ExamPaper"
+    objects: {
+      school: Prisma.$SchoolPayload<ExtArgs>
+      academicSession: Prisma.$AcademicSessionPayload<ExtArgs>
+      teacher: Prisma.$TeacherPayload<ExtArgs>
+      class: Prisma.$ClassPayload<ExtArgs>
+      subject: Prisma.$SubjectPayload<ExtArgs>
+      sections: Prisma.$ExamSectionPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      schoolId: string
+      academicSessionId: string
+      teacherId: string
+      classId: string
+      subjectId: string
+      examName: string
+      examDate: Date
+      totalMarks: number | null
+      duration: number | null
+      instructions: string | null
+      status: $Enums.ExamPaperStatus
+      styleFontFamily: string | null
+      styleFontSize: string | null
+      styleColor: string | null
+      templateType: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["examPaper"]>
+    composites: {}
+  }
+
+  type ExamPaperGetPayload<S extends boolean | null | undefined | ExamPaperDefaultArgs> = $Result.GetResult<Prisma.$ExamPaperPayload, S>
+
+  type ExamPaperCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ExamPaperFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ExamPaperCountAggregateInputType | true
+    }
+
+  export interface ExamPaperDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ExamPaper'], meta: { name: 'ExamPaper' } }
+    /**
+     * Find zero or one ExamPaper that matches the filter.
+     * @param {ExamPaperFindUniqueArgs} args - Arguments to find a ExamPaper
+     * @example
+     * // Get one ExamPaper
+     * const examPaper = await prisma.examPaper.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ExamPaperFindUniqueArgs>(args: SelectSubset<T, ExamPaperFindUniqueArgs<ExtArgs>>): Prisma__ExamPaperClient<$Result.GetResult<Prisma.$ExamPaperPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one ExamPaper that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {ExamPaperFindUniqueOrThrowArgs} args - Arguments to find a ExamPaper
+     * @example
+     * // Get one ExamPaper
+     * const examPaper = await prisma.examPaper.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ExamPaperFindUniqueOrThrowArgs>(args: SelectSubset<T, ExamPaperFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ExamPaperClient<$Result.GetResult<Prisma.$ExamPaperPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first ExamPaper that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamPaperFindFirstArgs} args - Arguments to find a ExamPaper
+     * @example
+     * // Get one ExamPaper
+     * const examPaper = await prisma.examPaper.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ExamPaperFindFirstArgs>(args?: SelectSubset<T, ExamPaperFindFirstArgs<ExtArgs>>): Prisma__ExamPaperClient<$Result.GetResult<Prisma.$ExamPaperPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first ExamPaper that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamPaperFindFirstOrThrowArgs} args - Arguments to find a ExamPaper
+     * @example
+     * // Get one ExamPaper
+     * const examPaper = await prisma.examPaper.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ExamPaperFindFirstOrThrowArgs>(args?: SelectSubset<T, ExamPaperFindFirstOrThrowArgs<ExtArgs>>): Prisma__ExamPaperClient<$Result.GetResult<Prisma.$ExamPaperPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more ExamPapers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamPaperFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ExamPapers
+     * const examPapers = await prisma.examPaper.findMany()
+     * 
+     * // Get first 10 ExamPapers
+     * const examPapers = await prisma.examPaper.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const examPaperWithIdOnly = await prisma.examPaper.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ExamPaperFindManyArgs>(args?: SelectSubset<T, ExamPaperFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamPaperPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a ExamPaper.
+     * @param {ExamPaperCreateArgs} args - Arguments to create a ExamPaper.
+     * @example
+     * // Create one ExamPaper
+     * const ExamPaper = await prisma.examPaper.create({
+     *   data: {
+     *     // ... data to create a ExamPaper
+     *   }
+     * })
+     * 
+     */
+    create<T extends ExamPaperCreateArgs>(args: SelectSubset<T, ExamPaperCreateArgs<ExtArgs>>): Prisma__ExamPaperClient<$Result.GetResult<Prisma.$ExamPaperPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many ExamPapers.
+     * @param {ExamPaperCreateManyArgs} args - Arguments to create many ExamPapers.
+     * @example
+     * // Create many ExamPapers
+     * const examPaper = await prisma.examPaper.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ExamPaperCreateManyArgs>(args?: SelectSubset<T, ExamPaperCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ExamPaper.
+     * @param {ExamPaperDeleteArgs} args - Arguments to delete one ExamPaper.
+     * @example
+     * // Delete one ExamPaper
+     * const ExamPaper = await prisma.examPaper.delete({
+     *   where: {
+     *     // ... filter to delete one ExamPaper
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ExamPaperDeleteArgs>(args: SelectSubset<T, ExamPaperDeleteArgs<ExtArgs>>): Prisma__ExamPaperClient<$Result.GetResult<Prisma.$ExamPaperPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one ExamPaper.
+     * @param {ExamPaperUpdateArgs} args - Arguments to update one ExamPaper.
+     * @example
+     * // Update one ExamPaper
+     * const examPaper = await prisma.examPaper.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ExamPaperUpdateArgs>(args: SelectSubset<T, ExamPaperUpdateArgs<ExtArgs>>): Prisma__ExamPaperClient<$Result.GetResult<Prisma.$ExamPaperPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more ExamPapers.
+     * @param {ExamPaperDeleteManyArgs} args - Arguments to filter ExamPapers to delete.
+     * @example
+     * // Delete a few ExamPapers
+     * const { count } = await prisma.examPaper.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ExamPaperDeleteManyArgs>(args?: SelectSubset<T, ExamPaperDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ExamPapers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamPaperUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ExamPapers
+     * const examPaper = await prisma.examPaper.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ExamPaperUpdateManyArgs>(args: SelectSubset<T, ExamPaperUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ExamPaper.
+     * @param {ExamPaperUpsertArgs} args - Arguments to update or create a ExamPaper.
+     * @example
+     * // Update or create a ExamPaper
+     * const examPaper = await prisma.examPaper.upsert({
+     *   create: {
+     *     // ... data to create a ExamPaper
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ExamPaper we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ExamPaperUpsertArgs>(args: SelectSubset<T, ExamPaperUpsertArgs<ExtArgs>>): Prisma__ExamPaperClient<$Result.GetResult<Prisma.$ExamPaperPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of ExamPapers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamPaperCountArgs} args - Arguments to filter ExamPapers to count.
+     * @example
+     * // Count the number of ExamPapers
+     * const count = await prisma.examPaper.count({
+     *   where: {
+     *     // ... the filter for the ExamPapers we want to count
+     *   }
+     * })
+    **/
+    count<T extends ExamPaperCountArgs>(
+      args?: Subset<T, ExamPaperCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ExamPaperCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ExamPaper.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamPaperAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ExamPaperAggregateArgs>(args: Subset<T, ExamPaperAggregateArgs>): Prisma.PrismaPromise<GetExamPaperAggregateType<T>>
+
+    /**
+     * Group by ExamPaper.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamPaperGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ExamPaperGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ExamPaperGroupByArgs['orderBy'] }
+        : { orderBy?: ExamPaperGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ExamPaperGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetExamPaperGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ExamPaper model
+   */
+  readonly fields: ExamPaperFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ExamPaper.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ExamPaperClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    teacher<T extends TeacherDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TeacherDefaultArgs<ExtArgs>>): Prisma__TeacherClient<$Result.GetResult<Prisma.$TeacherPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    class<T extends ClassDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClassDefaultArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    subject<T extends SubjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SubjectDefaultArgs<ExtArgs>>): Prisma__SubjectClient<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    sections<T extends ExamPaper$sectionsArgs<ExtArgs> = {}>(args?: Subset<T, ExamPaper$sectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamSectionPayload<ExtArgs>, T, "findMany"> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ExamPaper model
+   */ 
+  interface ExamPaperFieldRefs {
+    readonly id: FieldRef<"ExamPaper", 'String'>
+    readonly schoolId: FieldRef<"ExamPaper", 'String'>
+    readonly academicSessionId: FieldRef<"ExamPaper", 'String'>
+    readonly teacherId: FieldRef<"ExamPaper", 'String'>
+    readonly classId: FieldRef<"ExamPaper", 'String'>
+    readonly subjectId: FieldRef<"ExamPaper", 'String'>
+    readonly examName: FieldRef<"ExamPaper", 'String'>
+    readonly examDate: FieldRef<"ExamPaper", 'DateTime'>
+    readonly totalMarks: FieldRef<"ExamPaper", 'Int'>
+    readonly duration: FieldRef<"ExamPaper", 'Int'>
+    readonly instructions: FieldRef<"ExamPaper", 'String'>
+    readonly status: FieldRef<"ExamPaper", 'ExamPaperStatus'>
+    readonly styleFontFamily: FieldRef<"ExamPaper", 'String'>
+    readonly styleFontSize: FieldRef<"ExamPaper", 'String'>
+    readonly styleColor: FieldRef<"ExamPaper", 'String'>
+    readonly templateType: FieldRef<"ExamPaper", 'String'>
+    readonly createdAt: FieldRef<"ExamPaper", 'DateTime'>
+    readonly updatedAt: FieldRef<"ExamPaper", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ExamPaper findUnique
+   */
+  export type ExamPaperFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaper
+     */
+    select?: ExamPaperSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamPaper to fetch.
+     */
+    where: ExamPaperWhereUniqueInput
+  }
+
+  /**
+   * ExamPaper findUniqueOrThrow
+   */
+  export type ExamPaperFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaper
+     */
+    select?: ExamPaperSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamPaper to fetch.
+     */
+    where: ExamPaperWhereUniqueInput
+  }
+
+  /**
+   * ExamPaper findFirst
+   */
+  export type ExamPaperFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaper
+     */
+    select?: ExamPaperSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamPaper to fetch.
+     */
+    where?: ExamPaperWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamPapers to fetch.
+     */
+    orderBy?: ExamPaperOrderByWithRelationInput | ExamPaperOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExamPapers.
+     */
+    cursor?: ExamPaperWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamPapers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamPapers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExamPapers.
+     */
+    distinct?: ExamPaperScalarFieldEnum | ExamPaperScalarFieldEnum[]
+  }
+
+  /**
+   * ExamPaper findFirstOrThrow
+   */
+  export type ExamPaperFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaper
+     */
+    select?: ExamPaperSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamPaper to fetch.
+     */
+    where?: ExamPaperWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamPapers to fetch.
+     */
+    orderBy?: ExamPaperOrderByWithRelationInput | ExamPaperOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExamPapers.
+     */
+    cursor?: ExamPaperWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamPapers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamPapers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExamPapers.
+     */
+    distinct?: ExamPaperScalarFieldEnum | ExamPaperScalarFieldEnum[]
+  }
+
+  /**
+   * ExamPaper findMany
+   */
+  export type ExamPaperFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaper
+     */
+    select?: ExamPaperSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamPapers to fetch.
+     */
+    where?: ExamPaperWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamPapers to fetch.
+     */
+    orderBy?: ExamPaperOrderByWithRelationInput | ExamPaperOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ExamPapers.
+     */
+    cursor?: ExamPaperWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamPapers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamPapers.
+     */
+    skip?: number
+    distinct?: ExamPaperScalarFieldEnum | ExamPaperScalarFieldEnum[]
+  }
+
+  /**
+   * ExamPaper create
+   */
+  export type ExamPaperCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaper
+     */
+    select?: ExamPaperSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ExamPaper.
+     */
+    data: XOR<ExamPaperCreateInput, ExamPaperUncheckedCreateInput>
+  }
+
+  /**
+   * ExamPaper createMany
+   */
+  export type ExamPaperCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ExamPapers.
+     */
+    data: ExamPaperCreateManyInput | ExamPaperCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ExamPaper update
+   */
+  export type ExamPaperUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaper
+     */
+    select?: ExamPaperSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ExamPaper.
+     */
+    data: XOR<ExamPaperUpdateInput, ExamPaperUncheckedUpdateInput>
+    /**
+     * Choose, which ExamPaper to update.
+     */
+    where: ExamPaperWhereUniqueInput
+  }
+
+  /**
+   * ExamPaper updateMany
+   */
+  export type ExamPaperUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ExamPapers.
+     */
+    data: XOR<ExamPaperUpdateManyMutationInput, ExamPaperUncheckedUpdateManyInput>
+    /**
+     * Filter which ExamPapers to update
+     */
+    where?: ExamPaperWhereInput
+  }
+
+  /**
+   * ExamPaper upsert
+   */
+  export type ExamPaperUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaper
+     */
+    select?: ExamPaperSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ExamPaper to update in case it exists.
+     */
+    where: ExamPaperWhereUniqueInput
+    /**
+     * In case the ExamPaper found by the `where` argument doesn't exist, create a new ExamPaper with this data.
+     */
+    create: XOR<ExamPaperCreateInput, ExamPaperUncheckedCreateInput>
+    /**
+     * In case the ExamPaper was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ExamPaperUpdateInput, ExamPaperUncheckedUpdateInput>
+  }
+
+  /**
+   * ExamPaper delete
+   */
+  export type ExamPaperDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaper
+     */
+    select?: ExamPaperSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperInclude<ExtArgs> | null
+    /**
+     * Filter which ExamPaper to delete.
+     */
+    where: ExamPaperWhereUniqueInput
+  }
+
+  /**
+   * ExamPaper deleteMany
+   */
+  export type ExamPaperDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExamPapers to delete
+     */
+    where?: ExamPaperWhereInput
+  }
+
+  /**
+   * ExamPaper.sections
+   */
+  export type ExamPaper$sectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamSection
+     */
+    select?: ExamSectionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamSectionInclude<ExtArgs> | null
+    where?: ExamSectionWhereInput
+    orderBy?: ExamSectionOrderByWithRelationInput | ExamSectionOrderByWithRelationInput[]
+    cursor?: ExamSectionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ExamSectionScalarFieldEnum | ExamSectionScalarFieldEnum[]
+  }
+
+  /**
+   * ExamPaper without action
+   */
+  export type ExamPaperDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaper
+     */
+    select?: ExamPaperSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ExamSection
+   */
+
+  export type AggregateExamSection = {
+    _count: ExamSectionCountAggregateOutputType | null
+    _avg: ExamSectionAvgAggregateOutputType | null
+    _sum: ExamSectionSumAggregateOutputType | null
+    _min: ExamSectionMinAggregateOutputType | null
+    _max: ExamSectionMaxAggregateOutputType | null
+  }
+
+  export type ExamSectionAvgAggregateOutputType = {
+    marksEach: number | null
+    order: number | null
+  }
+
+  export type ExamSectionSumAggregateOutputType = {
+    marksEach: number | null
+    order: number | null
+  }
+
+  export type ExamSectionMinAggregateOutputType = {
+    id: string | null
+    examPaperId: string | null
+    label: string | null
+    type: $Enums.QuestionType | null
+    marksEach: number | null
+    order: number | null
+  }
+
+  export type ExamSectionMaxAggregateOutputType = {
+    id: string | null
+    examPaperId: string | null
+    label: string | null
+    type: $Enums.QuestionType | null
+    marksEach: number | null
+    order: number | null
+  }
+
+  export type ExamSectionCountAggregateOutputType = {
+    id: number
+    examPaperId: number
+    label: number
+    type: number
+    marksEach: number
+    order: number
+    _all: number
+  }
+
+
+  export type ExamSectionAvgAggregateInputType = {
+    marksEach?: true
+    order?: true
+  }
+
+  export type ExamSectionSumAggregateInputType = {
+    marksEach?: true
+    order?: true
+  }
+
+  export type ExamSectionMinAggregateInputType = {
+    id?: true
+    examPaperId?: true
+    label?: true
+    type?: true
+    marksEach?: true
+    order?: true
+  }
+
+  export type ExamSectionMaxAggregateInputType = {
+    id?: true
+    examPaperId?: true
+    label?: true
+    type?: true
+    marksEach?: true
+    order?: true
+  }
+
+  export type ExamSectionCountAggregateInputType = {
+    id?: true
+    examPaperId?: true
+    label?: true
+    type?: true
+    marksEach?: true
+    order?: true
+    _all?: true
+  }
+
+  export type ExamSectionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExamSection to aggregate.
+     */
+    where?: ExamSectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamSections to fetch.
+     */
+    orderBy?: ExamSectionOrderByWithRelationInput | ExamSectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ExamSectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamSections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamSections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ExamSections
+    **/
+    _count?: true | ExamSectionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ExamSectionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ExamSectionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ExamSectionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ExamSectionMaxAggregateInputType
+  }
+
+  export type GetExamSectionAggregateType<T extends ExamSectionAggregateArgs> = {
+        [P in keyof T & keyof AggregateExamSection]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateExamSection[P]>
+      : GetScalarType<T[P], AggregateExamSection[P]>
+  }
+
+
+
+
+  export type ExamSectionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExamSectionWhereInput
+    orderBy?: ExamSectionOrderByWithAggregationInput | ExamSectionOrderByWithAggregationInput[]
+    by: ExamSectionScalarFieldEnum[] | ExamSectionScalarFieldEnum
+    having?: ExamSectionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ExamSectionCountAggregateInputType | true
+    _avg?: ExamSectionAvgAggregateInputType
+    _sum?: ExamSectionSumAggregateInputType
+    _min?: ExamSectionMinAggregateInputType
+    _max?: ExamSectionMaxAggregateInputType
+  }
+
+  export type ExamSectionGroupByOutputType = {
+    id: string
+    examPaperId: string
+    label: string
+    type: $Enums.QuestionType
+    marksEach: number
+    order: number
+    _count: ExamSectionCountAggregateOutputType | null
+    _avg: ExamSectionAvgAggregateOutputType | null
+    _sum: ExamSectionSumAggregateOutputType | null
+    _min: ExamSectionMinAggregateOutputType | null
+    _max: ExamSectionMaxAggregateOutputType | null
+  }
+
+  type GetExamSectionGroupByPayload<T extends ExamSectionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ExamSectionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ExamSectionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ExamSectionGroupByOutputType[P]>
+            : GetScalarType<T[P], ExamSectionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ExamSectionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    examPaperId?: boolean
+    label?: boolean
+    type?: boolean
+    marksEach?: boolean
+    order?: boolean
+    examPaper?: boolean | ExamPaperDefaultArgs<ExtArgs>
+    questions?: boolean | ExamSection$questionsArgs<ExtArgs>
+    _count?: boolean | ExamSectionCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["examSection"]>
+
+
+  export type ExamSectionSelectScalar = {
+    id?: boolean
+    examPaperId?: boolean
+    label?: boolean
+    type?: boolean
+    marksEach?: boolean
+    order?: boolean
+  }
+
+  export type ExamSectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    examPaper?: boolean | ExamPaperDefaultArgs<ExtArgs>
+    questions?: boolean | ExamSection$questionsArgs<ExtArgs>
+    _count?: boolean | ExamSectionCountOutputTypeDefaultArgs<ExtArgs>
+  }
+
+  export type $ExamSectionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ExamSection"
+    objects: {
+      examPaper: Prisma.$ExamPaperPayload<ExtArgs>
+      questions: Prisma.$ExamQuestionPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      examPaperId: string
+      label: string
+      type: $Enums.QuestionType
+      marksEach: number
+      order: number
+    }, ExtArgs["result"]["examSection"]>
+    composites: {}
+  }
+
+  type ExamSectionGetPayload<S extends boolean | null | undefined | ExamSectionDefaultArgs> = $Result.GetResult<Prisma.$ExamSectionPayload, S>
+
+  type ExamSectionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ExamSectionFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ExamSectionCountAggregateInputType | true
+    }
+
+  export interface ExamSectionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ExamSection'], meta: { name: 'ExamSection' } }
+    /**
+     * Find zero or one ExamSection that matches the filter.
+     * @param {ExamSectionFindUniqueArgs} args - Arguments to find a ExamSection
+     * @example
+     * // Get one ExamSection
+     * const examSection = await prisma.examSection.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ExamSectionFindUniqueArgs>(args: SelectSubset<T, ExamSectionFindUniqueArgs<ExtArgs>>): Prisma__ExamSectionClient<$Result.GetResult<Prisma.$ExamSectionPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one ExamSection that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {ExamSectionFindUniqueOrThrowArgs} args - Arguments to find a ExamSection
+     * @example
+     * // Get one ExamSection
+     * const examSection = await prisma.examSection.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ExamSectionFindUniqueOrThrowArgs>(args: SelectSubset<T, ExamSectionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ExamSectionClient<$Result.GetResult<Prisma.$ExamSectionPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first ExamSection that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamSectionFindFirstArgs} args - Arguments to find a ExamSection
+     * @example
+     * // Get one ExamSection
+     * const examSection = await prisma.examSection.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ExamSectionFindFirstArgs>(args?: SelectSubset<T, ExamSectionFindFirstArgs<ExtArgs>>): Prisma__ExamSectionClient<$Result.GetResult<Prisma.$ExamSectionPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first ExamSection that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamSectionFindFirstOrThrowArgs} args - Arguments to find a ExamSection
+     * @example
+     * // Get one ExamSection
+     * const examSection = await prisma.examSection.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ExamSectionFindFirstOrThrowArgs>(args?: SelectSubset<T, ExamSectionFindFirstOrThrowArgs<ExtArgs>>): Prisma__ExamSectionClient<$Result.GetResult<Prisma.$ExamSectionPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more ExamSections that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamSectionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ExamSections
+     * const examSections = await prisma.examSection.findMany()
+     * 
+     * // Get first 10 ExamSections
+     * const examSections = await prisma.examSection.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const examSectionWithIdOnly = await prisma.examSection.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ExamSectionFindManyArgs>(args?: SelectSubset<T, ExamSectionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamSectionPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a ExamSection.
+     * @param {ExamSectionCreateArgs} args - Arguments to create a ExamSection.
+     * @example
+     * // Create one ExamSection
+     * const ExamSection = await prisma.examSection.create({
+     *   data: {
+     *     // ... data to create a ExamSection
+     *   }
+     * })
+     * 
+     */
+    create<T extends ExamSectionCreateArgs>(args: SelectSubset<T, ExamSectionCreateArgs<ExtArgs>>): Prisma__ExamSectionClient<$Result.GetResult<Prisma.$ExamSectionPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many ExamSections.
+     * @param {ExamSectionCreateManyArgs} args - Arguments to create many ExamSections.
+     * @example
+     * // Create many ExamSections
+     * const examSection = await prisma.examSection.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ExamSectionCreateManyArgs>(args?: SelectSubset<T, ExamSectionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ExamSection.
+     * @param {ExamSectionDeleteArgs} args - Arguments to delete one ExamSection.
+     * @example
+     * // Delete one ExamSection
+     * const ExamSection = await prisma.examSection.delete({
+     *   where: {
+     *     // ... filter to delete one ExamSection
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ExamSectionDeleteArgs>(args: SelectSubset<T, ExamSectionDeleteArgs<ExtArgs>>): Prisma__ExamSectionClient<$Result.GetResult<Prisma.$ExamSectionPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one ExamSection.
+     * @param {ExamSectionUpdateArgs} args - Arguments to update one ExamSection.
+     * @example
+     * // Update one ExamSection
+     * const examSection = await prisma.examSection.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ExamSectionUpdateArgs>(args: SelectSubset<T, ExamSectionUpdateArgs<ExtArgs>>): Prisma__ExamSectionClient<$Result.GetResult<Prisma.$ExamSectionPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more ExamSections.
+     * @param {ExamSectionDeleteManyArgs} args - Arguments to filter ExamSections to delete.
+     * @example
+     * // Delete a few ExamSections
+     * const { count } = await prisma.examSection.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ExamSectionDeleteManyArgs>(args?: SelectSubset<T, ExamSectionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ExamSections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamSectionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ExamSections
+     * const examSection = await prisma.examSection.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ExamSectionUpdateManyArgs>(args: SelectSubset<T, ExamSectionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ExamSection.
+     * @param {ExamSectionUpsertArgs} args - Arguments to update or create a ExamSection.
+     * @example
+     * // Update or create a ExamSection
+     * const examSection = await prisma.examSection.upsert({
+     *   create: {
+     *     // ... data to create a ExamSection
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ExamSection we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ExamSectionUpsertArgs>(args: SelectSubset<T, ExamSectionUpsertArgs<ExtArgs>>): Prisma__ExamSectionClient<$Result.GetResult<Prisma.$ExamSectionPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of ExamSections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamSectionCountArgs} args - Arguments to filter ExamSections to count.
+     * @example
+     * // Count the number of ExamSections
+     * const count = await prisma.examSection.count({
+     *   where: {
+     *     // ... the filter for the ExamSections we want to count
+     *   }
+     * })
+    **/
+    count<T extends ExamSectionCountArgs>(
+      args?: Subset<T, ExamSectionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ExamSectionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ExamSection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamSectionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ExamSectionAggregateArgs>(args: Subset<T, ExamSectionAggregateArgs>): Prisma.PrismaPromise<GetExamSectionAggregateType<T>>
+
+    /**
+     * Group by ExamSection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamSectionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ExamSectionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ExamSectionGroupByArgs['orderBy'] }
+        : { orderBy?: ExamSectionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ExamSectionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetExamSectionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ExamSection model
+   */
+  readonly fields: ExamSectionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ExamSection.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ExamSectionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    examPaper<T extends ExamPaperDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ExamPaperDefaultArgs<ExtArgs>>): Prisma__ExamPaperClient<$Result.GetResult<Prisma.$ExamPaperPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    questions<T extends ExamSection$questionsArgs<ExtArgs> = {}>(args?: Subset<T, ExamSection$questionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamQuestionPayload<ExtArgs>, T, "findMany"> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ExamSection model
+   */ 
+  interface ExamSectionFieldRefs {
+    readonly id: FieldRef<"ExamSection", 'String'>
+    readonly examPaperId: FieldRef<"ExamSection", 'String'>
+    readonly label: FieldRef<"ExamSection", 'String'>
+    readonly type: FieldRef<"ExamSection", 'QuestionType'>
+    readonly marksEach: FieldRef<"ExamSection", 'Int'>
+    readonly order: FieldRef<"ExamSection", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ExamSection findUnique
+   */
+  export type ExamSectionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamSection
+     */
+    select?: ExamSectionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamSectionInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamSection to fetch.
+     */
+    where: ExamSectionWhereUniqueInput
+  }
+
+  /**
+   * ExamSection findUniqueOrThrow
+   */
+  export type ExamSectionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamSection
+     */
+    select?: ExamSectionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamSectionInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamSection to fetch.
+     */
+    where: ExamSectionWhereUniqueInput
+  }
+
+  /**
+   * ExamSection findFirst
+   */
+  export type ExamSectionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamSection
+     */
+    select?: ExamSectionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamSectionInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamSection to fetch.
+     */
+    where?: ExamSectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamSections to fetch.
+     */
+    orderBy?: ExamSectionOrderByWithRelationInput | ExamSectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExamSections.
+     */
+    cursor?: ExamSectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamSections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamSections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExamSections.
+     */
+    distinct?: ExamSectionScalarFieldEnum | ExamSectionScalarFieldEnum[]
+  }
+
+  /**
+   * ExamSection findFirstOrThrow
+   */
+  export type ExamSectionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamSection
+     */
+    select?: ExamSectionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamSectionInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamSection to fetch.
+     */
+    where?: ExamSectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamSections to fetch.
+     */
+    orderBy?: ExamSectionOrderByWithRelationInput | ExamSectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExamSections.
+     */
+    cursor?: ExamSectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamSections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamSections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExamSections.
+     */
+    distinct?: ExamSectionScalarFieldEnum | ExamSectionScalarFieldEnum[]
+  }
+
+  /**
+   * ExamSection findMany
+   */
+  export type ExamSectionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamSection
+     */
+    select?: ExamSectionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamSectionInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamSections to fetch.
+     */
+    where?: ExamSectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamSections to fetch.
+     */
+    orderBy?: ExamSectionOrderByWithRelationInput | ExamSectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ExamSections.
+     */
+    cursor?: ExamSectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamSections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamSections.
+     */
+    skip?: number
+    distinct?: ExamSectionScalarFieldEnum | ExamSectionScalarFieldEnum[]
+  }
+
+  /**
+   * ExamSection create
+   */
+  export type ExamSectionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamSection
+     */
+    select?: ExamSectionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamSectionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ExamSection.
+     */
+    data: XOR<ExamSectionCreateInput, ExamSectionUncheckedCreateInput>
+  }
+
+  /**
+   * ExamSection createMany
+   */
+  export type ExamSectionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ExamSections.
+     */
+    data: ExamSectionCreateManyInput | ExamSectionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ExamSection update
+   */
+  export type ExamSectionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamSection
+     */
+    select?: ExamSectionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamSectionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ExamSection.
+     */
+    data: XOR<ExamSectionUpdateInput, ExamSectionUncheckedUpdateInput>
+    /**
+     * Choose, which ExamSection to update.
+     */
+    where: ExamSectionWhereUniqueInput
+  }
+
+  /**
+   * ExamSection updateMany
+   */
+  export type ExamSectionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ExamSections.
+     */
+    data: XOR<ExamSectionUpdateManyMutationInput, ExamSectionUncheckedUpdateManyInput>
+    /**
+     * Filter which ExamSections to update
+     */
+    where?: ExamSectionWhereInput
+  }
+
+  /**
+   * ExamSection upsert
+   */
+  export type ExamSectionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamSection
+     */
+    select?: ExamSectionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamSectionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ExamSection to update in case it exists.
+     */
+    where: ExamSectionWhereUniqueInput
+    /**
+     * In case the ExamSection found by the `where` argument doesn't exist, create a new ExamSection with this data.
+     */
+    create: XOR<ExamSectionCreateInput, ExamSectionUncheckedCreateInput>
+    /**
+     * In case the ExamSection was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ExamSectionUpdateInput, ExamSectionUncheckedUpdateInput>
+  }
+
+  /**
+   * ExamSection delete
+   */
+  export type ExamSectionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamSection
+     */
+    select?: ExamSectionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamSectionInclude<ExtArgs> | null
+    /**
+     * Filter which ExamSection to delete.
+     */
+    where: ExamSectionWhereUniqueInput
+  }
+
+  /**
+   * ExamSection deleteMany
+   */
+  export type ExamSectionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExamSections to delete
+     */
+    where?: ExamSectionWhereInput
+  }
+
+  /**
+   * ExamSection.questions
+   */
+  export type ExamSection$questionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamQuestion
+     */
+    select?: ExamQuestionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamQuestionInclude<ExtArgs> | null
+    where?: ExamQuestionWhereInput
+    orderBy?: ExamQuestionOrderByWithRelationInput | ExamQuestionOrderByWithRelationInput[]
+    cursor?: ExamQuestionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ExamQuestionScalarFieldEnum | ExamQuestionScalarFieldEnum[]
+  }
+
+  /**
+   * ExamSection without action
+   */
+  export type ExamSectionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamSection
+     */
+    select?: ExamSectionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamSectionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ExamQuestion
+   */
+
+  export type AggregateExamQuestion = {
+    _count: ExamQuestionCountAggregateOutputType | null
+    _avg: ExamQuestionAvgAggregateOutputType | null
+    _sum: ExamQuestionSumAggregateOutputType | null
+    _min: ExamQuestionMinAggregateOutputType | null
+    _max: ExamQuestionMaxAggregateOutputType | null
+  }
+
+  export type ExamQuestionAvgAggregateOutputType = {
+    order: number | null
+  }
+
+  export type ExamQuestionSumAggregateOutputType = {
+    order: number | null
+  }
+
+  export type ExamQuestionMinAggregateOutputType = {
+    id: string | null
+    sectionId: string | null
+    questionText: string | null
+    imageUrl: string | null
+    subject: string | null
+    order: number | null
+  }
+
+  export type ExamQuestionMaxAggregateOutputType = {
+    id: string | null
+    sectionId: string | null
+    questionText: string | null
+    imageUrl: string | null
+    subject: string | null
+    order: number | null
+  }
+
+  export type ExamQuestionCountAggregateOutputType = {
+    id: number
+    sectionId: number
+    questionText: number
+    options: number
+    imageUrl: number
+    subject: number
+    order: number
+    _all: number
+  }
+
+
+  export type ExamQuestionAvgAggregateInputType = {
+    order?: true
+  }
+
+  export type ExamQuestionSumAggregateInputType = {
+    order?: true
+  }
+
+  export type ExamQuestionMinAggregateInputType = {
+    id?: true
+    sectionId?: true
+    questionText?: true
+    imageUrl?: true
+    subject?: true
+    order?: true
+  }
+
+  export type ExamQuestionMaxAggregateInputType = {
+    id?: true
+    sectionId?: true
+    questionText?: true
+    imageUrl?: true
+    subject?: true
+    order?: true
+  }
+
+  export type ExamQuestionCountAggregateInputType = {
+    id?: true
+    sectionId?: true
+    questionText?: true
+    options?: true
+    imageUrl?: true
+    subject?: true
+    order?: true
+    _all?: true
+  }
+
+  export type ExamQuestionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExamQuestion to aggregate.
+     */
+    where?: ExamQuestionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamQuestions to fetch.
+     */
+    orderBy?: ExamQuestionOrderByWithRelationInput | ExamQuestionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ExamQuestionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamQuestions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamQuestions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ExamQuestions
+    **/
+    _count?: true | ExamQuestionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ExamQuestionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ExamQuestionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ExamQuestionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ExamQuestionMaxAggregateInputType
+  }
+
+  export type GetExamQuestionAggregateType<T extends ExamQuestionAggregateArgs> = {
+        [P in keyof T & keyof AggregateExamQuestion]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateExamQuestion[P]>
+      : GetScalarType<T[P], AggregateExamQuestion[P]>
+  }
+
+
+
+
+  export type ExamQuestionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExamQuestionWhereInput
+    orderBy?: ExamQuestionOrderByWithAggregationInput | ExamQuestionOrderByWithAggregationInput[]
+    by: ExamQuestionScalarFieldEnum[] | ExamQuestionScalarFieldEnum
+    having?: ExamQuestionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ExamQuestionCountAggregateInputType | true
+    _avg?: ExamQuestionAvgAggregateInputType
+    _sum?: ExamQuestionSumAggregateInputType
+    _min?: ExamQuestionMinAggregateInputType
+    _max?: ExamQuestionMaxAggregateInputType
+  }
+
+  export type ExamQuestionGroupByOutputType = {
+    id: string
+    sectionId: string
+    questionText: string
+    options: JsonValue | null
+    imageUrl: string | null
+    subject: string | null
+    order: number
+    _count: ExamQuestionCountAggregateOutputType | null
+    _avg: ExamQuestionAvgAggregateOutputType | null
+    _sum: ExamQuestionSumAggregateOutputType | null
+    _min: ExamQuestionMinAggregateOutputType | null
+    _max: ExamQuestionMaxAggregateOutputType | null
+  }
+
+  type GetExamQuestionGroupByPayload<T extends ExamQuestionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ExamQuestionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ExamQuestionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ExamQuestionGroupByOutputType[P]>
+            : GetScalarType<T[P], ExamQuestionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ExamQuestionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sectionId?: boolean
+    questionText?: boolean
+    options?: boolean
+    imageUrl?: boolean
+    subject?: boolean
+    order?: boolean
+    section?: boolean | ExamSectionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["examQuestion"]>
+
+
+  export type ExamQuestionSelectScalar = {
+    id?: boolean
+    sectionId?: boolean
+    questionText?: boolean
+    options?: boolean
+    imageUrl?: boolean
+    subject?: boolean
+    order?: boolean
+  }
+
+  export type ExamQuestionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    section?: boolean | ExamSectionDefaultArgs<ExtArgs>
+  }
+
+  export type $ExamQuestionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ExamQuestion"
+    objects: {
+      section: Prisma.$ExamSectionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      sectionId: string
+      questionText: string
+      options: Prisma.JsonValue | null
+      imageUrl: string | null
+      subject: string | null
+      order: number
+    }, ExtArgs["result"]["examQuestion"]>
+    composites: {}
+  }
+
+  type ExamQuestionGetPayload<S extends boolean | null | undefined | ExamQuestionDefaultArgs> = $Result.GetResult<Prisma.$ExamQuestionPayload, S>
+
+  type ExamQuestionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ExamQuestionFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ExamQuestionCountAggregateInputType | true
+    }
+
+  export interface ExamQuestionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ExamQuestion'], meta: { name: 'ExamQuestion' } }
+    /**
+     * Find zero or one ExamQuestion that matches the filter.
+     * @param {ExamQuestionFindUniqueArgs} args - Arguments to find a ExamQuestion
+     * @example
+     * // Get one ExamQuestion
+     * const examQuestion = await prisma.examQuestion.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ExamQuestionFindUniqueArgs>(args: SelectSubset<T, ExamQuestionFindUniqueArgs<ExtArgs>>): Prisma__ExamQuestionClient<$Result.GetResult<Prisma.$ExamQuestionPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one ExamQuestion that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {ExamQuestionFindUniqueOrThrowArgs} args - Arguments to find a ExamQuestion
+     * @example
+     * // Get one ExamQuestion
+     * const examQuestion = await prisma.examQuestion.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ExamQuestionFindUniqueOrThrowArgs>(args: SelectSubset<T, ExamQuestionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ExamQuestionClient<$Result.GetResult<Prisma.$ExamQuestionPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first ExamQuestion that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamQuestionFindFirstArgs} args - Arguments to find a ExamQuestion
+     * @example
+     * // Get one ExamQuestion
+     * const examQuestion = await prisma.examQuestion.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ExamQuestionFindFirstArgs>(args?: SelectSubset<T, ExamQuestionFindFirstArgs<ExtArgs>>): Prisma__ExamQuestionClient<$Result.GetResult<Prisma.$ExamQuestionPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first ExamQuestion that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamQuestionFindFirstOrThrowArgs} args - Arguments to find a ExamQuestion
+     * @example
+     * // Get one ExamQuestion
+     * const examQuestion = await prisma.examQuestion.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ExamQuestionFindFirstOrThrowArgs>(args?: SelectSubset<T, ExamQuestionFindFirstOrThrowArgs<ExtArgs>>): Prisma__ExamQuestionClient<$Result.GetResult<Prisma.$ExamQuestionPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more ExamQuestions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamQuestionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ExamQuestions
+     * const examQuestions = await prisma.examQuestion.findMany()
+     * 
+     * // Get first 10 ExamQuestions
+     * const examQuestions = await prisma.examQuestion.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const examQuestionWithIdOnly = await prisma.examQuestion.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ExamQuestionFindManyArgs>(args?: SelectSubset<T, ExamQuestionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamQuestionPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a ExamQuestion.
+     * @param {ExamQuestionCreateArgs} args - Arguments to create a ExamQuestion.
+     * @example
+     * // Create one ExamQuestion
+     * const ExamQuestion = await prisma.examQuestion.create({
+     *   data: {
+     *     // ... data to create a ExamQuestion
+     *   }
+     * })
+     * 
+     */
+    create<T extends ExamQuestionCreateArgs>(args: SelectSubset<T, ExamQuestionCreateArgs<ExtArgs>>): Prisma__ExamQuestionClient<$Result.GetResult<Prisma.$ExamQuestionPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many ExamQuestions.
+     * @param {ExamQuestionCreateManyArgs} args - Arguments to create many ExamQuestions.
+     * @example
+     * // Create many ExamQuestions
+     * const examQuestion = await prisma.examQuestion.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ExamQuestionCreateManyArgs>(args?: SelectSubset<T, ExamQuestionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ExamQuestion.
+     * @param {ExamQuestionDeleteArgs} args - Arguments to delete one ExamQuestion.
+     * @example
+     * // Delete one ExamQuestion
+     * const ExamQuestion = await prisma.examQuestion.delete({
+     *   where: {
+     *     // ... filter to delete one ExamQuestion
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ExamQuestionDeleteArgs>(args: SelectSubset<T, ExamQuestionDeleteArgs<ExtArgs>>): Prisma__ExamQuestionClient<$Result.GetResult<Prisma.$ExamQuestionPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one ExamQuestion.
+     * @param {ExamQuestionUpdateArgs} args - Arguments to update one ExamQuestion.
+     * @example
+     * // Update one ExamQuestion
+     * const examQuestion = await prisma.examQuestion.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ExamQuestionUpdateArgs>(args: SelectSubset<T, ExamQuestionUpdateArgs<ExtArgs>>): Prisma__ExamQuestionClient<$Result.GetResult<Prisma.$ExamQuestionPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more ExamQuestions.
+     * @param {ExamQuestionDeleteManyArgs} args - Arguments to filter ExamQuestions to delete.
+     * @example
+     * // Delete a few ExamQuestions
+     * const { count } = await prisma.examQuestion.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ExamQuestionDeleteManyArgs>(args?: SelectSubset<T, ExamQuestionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ExamQuestions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamQuestionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ExamQuestions
+     * const examQuestion = await prisma.examQuestion.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ExamQuestionUpdateManyArgs>(args: SelectSubset<T, ExamQuestionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ExamQuestion.
+     * @param {ExamQuestionUpsertArgs} args - Arguments to update or create a ExamQuestion.
+     * @example
+     * // Update or create a ExamQuestion
+     * const examQuestion = await prisma.examQuestion.upsert({
+     *   create: {
+     *     // ... data to create a ExamQuestion
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ExamQuestion we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ExamQuestionUpsertArgs>(args: SelectSubset<T, ExamQuestionUpsertArgs<ExtArgs>>): Prisma__ExamQuestionClient<$Result.GetResult<Prisma.$ExamQuestionPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of ExamQuestions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamQuestionCountArgs} args - Arguments to filter ExamQuestions to count.
+     * @example
+     * // Count the number of ExamQuestions
+     * const count = await prisma.examQuestion.count({
+     *   where: {
+     *     // ... the filter for the ExamQuestions we want to count
+     *   }
+     * })
+    **/
+    count<T extends ExamQuestionCountArgs>(
+      args?: Subset<T, ExamQuestionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ExamQuestionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ExamQuestion.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamQuestionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ExamQuestionAggregateArgs>(args: Subset<T, ExamQuestionAggregateArgs>): Prisma.PrismaPromise<GetExamQuestionAggregateType<T>>
+
+    /**
+     * Group by ExamQuestion.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamQuestionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ExamQuestionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ExamQuestionGroupByArgs['orderBy'] }
+        : { orderBy?: ExamQuestionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ExamQuestionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetExamQuestionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ExamQuestion model
+   */
+  readonly fields: ExamQuestionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ExamQuestion.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ExamQuestionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    section<T extends ExamSectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ExamSectionDefaultArgs<ExtArgs>>): Prisma__ExamSectionClient<$Result.GetResult<Prisma.$ExamSectionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ExamQuestion model
+   */ 
+  interface ExamQuestionFieldRefs {
+    readonly id: FieldRef<"ExamQuestion", 'String'>
+    readonly sectionId: FieldRef<"ExamQuestion", 'String'>
+    readonly questionText: FieldRef<"ExamQuestion", 'String'>
+    readonly options: FieldRef<"ExamQuestion", 'Json'>
+    readonly imageUrl: FieldRef<"ExamQuestion", 'String'>
+    readonly subject: FieldRef<"ExamQuestion", 'String'>
+    readonly order: FieldRef<"ExamQuestion", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ExamQuestion findUnique
+   */
+  export type ExamQuestionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamQuestion
+     */
+    select?: ExamQuestionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamQuestionInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamQuestion to fetch.
+     */
+    where: ExamQuestionWhereUniqueInput
+  }
+
+  /**
+   * ExamQuestion findUniqueOrThrow
+   */
+  export type ExamQuestionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamQuestion
+     */
+    select?: ExamQuestionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamQuestionInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamQuestion to fetch.
+     */
+    where: ExamQuestionWhereUniqueInput
+  }
+
+  /**
+   * ExamQuestion findFirst
+   */
+  export type ExamQuestionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamQuestion
+     */
+    select?: ExamQuestionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamQuestionInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamQuestion to fetch.
+     */
+    where?: ExamQuestionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamQuestions to fetch.
+     */
+    orderBy?: ExamQuestionOrderByWithRelationInput | ExamQuestionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExamQuestions.
+     */
+    cursor?: ExamQuestionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamQuestions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamQuestions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExamQuestions.
+     */
+    distinct?: ExamQuestionScalarFieldEnum | ExamQuestionScalarFieldEnum[]
+  }
+
+  /**
+   * ExamQuestion findFirstOrThrow
+   */
+  export type ExamQuestionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamQuestion
+     */
+    select?: ExamQuestionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamQuestionInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamQuestion to fetch.
+     */
+    where?: ExamQuestionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamQuestions to fetch.
+     */
+    orderBy?: ExamQuestionOrderByWithRelationInput | ExamQuestionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExamQuestions.
+     */
+    cursor?: ExamQuestionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamQuestions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamQuestions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExamQuestions.
+     */
+    distinct?: ExamQuestionScalarFieldEnum | ExamQuestionScalarFieldEnum[]
+  }
+
+  /**
+   * ExamQuestion findMany
+   */
+  export type ExamQuestionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamQuestion
+     */
+    select?: ExamQuestionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamQuestionInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamQuestions to fetch.
+     */
+    where?: ExamQuestionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamQuestions to fetch.
+     */
+    orderBy?: ExamQuestionOrderByWithRelationInput | ExamQuestionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ExamQuestions.
+     */
+    cursor?: ExamQuestionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamQuestions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamQuestions.
+     */
+    skip?: number
+    distinct?: ExamQuestionScalarFieldEnum | ExamQuestionScalarFieldEnum[]
+  }
+
+  /**
+   * ExamQuestion create
+   */
+  export type ExamQuestionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamQuestion
+     */
+    select?: ExamQuestionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamQuestionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ExamQuestion.
+     */
+    data: XOR<ExamQuestionCreateInput, ExamQuestionUncheckedCreateInput>
+  }
+
+  /**
+   * ExamQuestion createMany
+   */
+  export type ExamQuestionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ExamQuestions.
+     */
+    data: ExamQuestionCreateManyInput | ExamQuestionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ExamQuestion update
+   */
+  export type ExamQuestionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamQuestion
+     */
+    select?: ExamQuestionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamQuestionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ExamQuestion.
+     */
+    data: XOR<ExamQuestionUpdateInput, ExamQuestionUncheckedUpdateInput>
+    /**
+     * Choose, which ExamQuestion to update.
+     */
+    where: ExamQuestionWhereUniqueInput
+  }
+
+  /**
+   * ExamQuestion updateMany
+   */
+  export type ExamQuestionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ExamQuestions.
+     */
+    data: XOR<ExamQuestionUpdateManyMutationInput, ExamQuestionUncheckedUpdateManyInput>
+    /**
+     * Filter which ExamQuestions to update
+     */
+    where?: ExamQuestionWhereInput
+  }
+
+  /**
+   * ExamQuestion upsert
+   */
+  export type ExamQuestionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamQuestion
+     */
+    select?: ExamQuestionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamQuestionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ExamQuestion to update in case it exists.
+     */
+    where: ExamQuestionWhereUniqueInput
+    /**
+     * In case the ExamQuestion found by the `where` argument doesn't exist, create a new ExamQuestion with this data.
+     */
+    create: XOR<ExamQuestionCreateInput, ExamQuestionUncheckedCreateInput>
+    /**
+     * In case the ExamQuestion was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ExamQuestionUpdateInput, ExamQuestionUncheckedUpdateInput>
+  }
+
+  /**
+   * ExamQuestion delete
+   */
+  export type ExamQuestionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamQuestion
+     */
+    select?: ExamQuestionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamQuestionInclude<ExtArgs> | null
+    /**
+     * Filter which ExamQuestion to delete.
+     */
+    where: ExamQuestionWhereUniqueInput
+  }
+
+  /**
+   * ExamQuestion deleteMany
+   */
+  export type ExamQuestionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExamQuestions to delete
+     */
+    where?: ExamQuestionWhereInput
+  }
+
+  /**
+   * ExamQuestion without action
+   */
+  export type ExamQuestionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamQuestion
+     */
+    select?: ExamQuestionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamQuestionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ExamPaperTemplate
+   */
+
+  export type AggregateExamPaperTemplate = {
+    _count: ExamPaperTemplateCountAggregateOutputType | null
+    _min: ExamPaperTemplateMinAggregateOutputType | null
+    _max: ExamPaperTemplateMaxAggregateOutputType | null
+  }
+
+  export type ExamPaperTemplateMinAggregateOutputType = {
+    id: string | null
+    schoolId: string | null
+    headerHtml: string | null
+    footerHtml: string | null
+    instructions: string | null
+    logoUrl: string | null
+    updatedAt: Date | null
+  }
+
+  export type ExamPaperTemplateMaxAggregateOutputType = {
+    id: string | null
+    schoolId: string | null
+    headerHtml: string | null
+    footerHtml: string | null
+    instructions: string | null
+    logoUrl: string | null
+    updatedAt: Date | null
+  }
+
+  export type ExamPaperTemplateCountAggregateOutputType = {
+    id: number
+    schoolId: number
+    headerHtml: number
+    footerHtml: number
+    instructions: number
+    logoUrl: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ExamPaperTemplateMinAggregateInputType = {
+    id?: true
+    schoolId?: true
+    headerHtml?: true
+    footerHtml?: true
+    instructions?: true
+    logoUrl?: true
+    updatedAt?: true
+  }
+
+  export type ExamPaperTemplateMaxAggregateInputType = {
+    id?: true
+    schoolId?: true
+    headerHtml?: true
+    footerHtml?: true
+    instructions?: true
+    logoUrl?: true
+    updatedAt?: true
+  }
+
+  export type ExamPaperTemplateCountAggregateInputType = {
+    id?: true
+    schoolId?: true
+    headerHtml?: true
+    footerHtml?: true
+    instructions?: true
+    logoUrl?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ExamPaperTemplateAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExamPaperTemplate to aggregate.
+     */
+    where?: ExamPaperTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamPaperTemplates to fetch.
+     */
+    orderBy?: ExamPaperTemplateOrderByWithRelationInput | ExamPaperTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ExamPaperTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamPaperTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamPaperTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ExamPaperTemplates
+    **/
+    _count?: true | ExamPaperTemplateCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ExamPaperTemplateMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ExamPaperTemplateMaxAggregateInputType
+  }
+
+  export type GetExamPaperTemplateAggregateType<T extends ExamPaperTemplateAggregateArgs> = {
+        [P in keyof T & keyof AggregateExamPaperTemplate]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateExamPaperTemplate[P]>
+      : GetScalarType<T[P], AggregateExamPaperTemplate[P]>
+  }
+
+
+
+
+  export type ExamPaperTemplateGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExamPaperTemplateWhereInput
+    orderBy?: ExamPaperTemplateOrderByWithAggregationInput | ExamPaperTemplateOrderByWithAggregationInput[]
+    by: ExamPaperTemplateScalarFieldEnum[] | ExamPaperTemplateScalarFieldEnum
+    having?: ExamPaperTemplateScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ExamPaperTemplateCountAggregateInputType | true
+    _min?: ExamPaperTemplateMinAggregateInputType
+    _max?: ExamPaperTemplateMaxAggregateInputType
+  }
+
+  export type ExamPaperTemplateGroupByOutputType = {
+    id: string
+    schoolId: string
+    headerHtml: string
+    footerHtml: string | null
+    instructions: string | null
+    logoUrl: string | null
+    updatedAt: Date
+    _count: ExamPaperTemplateCountAggregateOutputType | null
+    _min: ExamPaperTemplateMinAggregateOutputType | null
+    _max: ExamPaperTemplateMaxAggregateOutputType | null
+  }
+
+  type GetExamPaperTemplateGroupByPayload<T extends ExamPaperTemplateGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ExamPaperTemplateGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ExamPaperTemplateGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ExamPaperTemplateGroupByOutputType[P]>
+            : GetScalarType<T[P], ExamPaperTemplateGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ExamPaperTemplateSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    schoolId?: boolean
+    headerHtml?: boolean
+    footerHtml?: boolean
+    instructions?: boolean
+    logoUrl?: boolean
+    updatedAt?: boolean
+    school?: boolean | SchoolDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["examPaperTemplate"]>
+
+
+  export type ExamPaperTemplateSelectScalar = {
+    id?: boolean
+    schoolId?: boolean
+    headerHtml?: boolean
+    footerHtml?: boolean
+    instructions?: boolean
+    logoUrl?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ExamPaperTemplateInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    school?: boolean | SchoolDefaultArgs<ExtArgs>
+  }
+
+  export type $ExamPaperTemplatePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ExamPaperTemplate"
+    objects: {
+      school: Prisma.$SchoolPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      schoolId: string
+      headerHtml: string
+      footerHtml: string | null
+      instructions: string | null
+      logoUrl: string | null
+      updatedAt: Date
+    }, ExtArgs["result"]["examPaperTemplate"]>
+    composites: {}
+  }
+
+  type ExamPaperTemplateGetPayload<S extends boolean | null | undefined | ExamPaperTemplateDefaultArgs> = $Result.GetResult<Prisma.$ExamPaperTemplatePayload, S>
+
+  type ExamPaperTemplateCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ExamPaperTemplateFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ExamPaperTemplateCountAggregateInputType | true
+    }
+
+  export interface ExamPaperTemplateDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ExamPaperTemplate'], meta: { name: 'ExamPaperTemplate' } }
+    /**
+     * Find zero or one ExamPaperTemplate that matches the filter.
+     * @param {ExamPaperTemplateFindUniqueArgs} args - Arguments to find a ExamPaperTemplate
+     * @example
+     * // Get one ExamPaperTemplate
+     * const examPaperTemplate = await prisma.examPaperTemplate.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ExamPaperTemplateFindUniqueArgs>(args: SelectSubset<T, ExamPaperTemplateFindUniqueArgs<ExtArgs>>): Prisma__ExamPaperTemplateClient<$Result.GetResult<Prisma.$ExamPaperTemplatePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one ExamPaperTemplate that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {ExamPaperTemplateFindUniqueOrThrowArgs} args - Arguments to find a ExamPaperTemplate
+     * @example
+     * // Get one ExamPaperTemplate
+     * const examPaperTemplate = await prisma.examPaperTemplate.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ExamPaperTemplateFindUniqueOrThrowArgs>(args: SelectSubset<T, ExamPaperTemplateFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ExamPaperTemplateClient<$Result.GetResult<Prisma.$ExamPaperTemplatePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first ExamPaperTemplate that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamPaperTemplateFindFirstArgs} args - Arguments to find a ExamPaperTemplate
+     * @example
+     * // Get one ExamPaperTemplate
+     * const examPaperTemplate = await prisma.examPaperTemplate.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ExamPaperTemplateFindFirstArgs>(args?: SelectSubset<T, ExamPaperTemplateFindFirstArgs<ExtArgs>>): Prisma__ExamPaperTemplateClient<$Result.GetResult<Prisma.$ExamPaperTemplatePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first ExamPaperTemplate that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamPaperTemplateFindFirstOrThrowArgs} args - Arguments to find a ExamPaperTemplate
+     * @example
+     * // Get one ExamPaperTemplate
+     * const examPaperTemplate = await prisma.examPaperTemplate.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ExamPaperTemplateFindFirstOrThrowArgs>(args?: SelectSubset<T, ExamPaperTemplateFindFirstOrThrowArgs<ExtArgs>>): Prisma__ExamPaperTemplateClient<$Result.GetResult<Prisma.$ExamPaperTemplatePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more ExamPaperTemplates that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamPaperTemplateFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ExamPaperTemplates
+     * const examPaperTemplates = await prisma.examPaperTemplate.findMany()
+     * 
+     * // Get first 10 ExamPaperTemplates
+     * const examPaperTemplates = await prisma.examPaperTemplate.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const examPaperTemplateWithIdOnly = await prisma.examPaperTemplate.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ExamPaperTemplateFindManyArgs>(args?: SelectSubset<T, ExamPaperTemplateFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamPaperTemplatePayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a ExamPaperTemplate.
+     * @param {ExamPaperTemplateCreateArgs} args - Arguments to create a ExamPaperTemplate.
+     * @example
+     * // Create one ExamPaperTemplate
+     * const ExamPaperTemplate = await prisma.examPaperTemplate.create({
+     *   data: {
+     *     // ... data to create a ExamPaperTemplate
+     *   }
+     * })
+     * 
+     */
+    create<T extends ExamPaperTemplateCreateArgs>(args: SelectSubset<T, ExamPaperTemplateCreateArgs<ExtArgs>>): Prisma__ExamPaperTemplateClient<$Result.GetResult<Prisma.$ExamPaperTemplatePayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many ExamPaperTemplates.
+     * @param {ExamPaperTemplateCreateManyArgs} args - Arguments to create many ExamPaperTemplates.
+     * @example
+     * // Create many ExamPaperTemplates
+     * const examPaperTemplate = await prisma.examPaperTemplate.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ExamPaperTemplateCreateManyArgs>(args?: SelectSubset<T, ExamPaperTemplateCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ExamPaperTemplate.
+     * @param {ExamPaperTemplateDeleteArgs} args - Arguments to delete one ExamPaperTemplate.
+     * @example
+     * // Delete one ExamPaperTemplate
+     * const ExamPaperTemplate = await prisma.examPaperTemplate.delete({
+     *   where: {
+     *     // ... filter to delete one ExamPaperTemplate
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ExamPaperTemplateDeleteArgs>(args: SelectSubset<T, ExamPaperTemplateDeleteArgs<ExtArgs>>): Prisma__ExamPaperTemplateClient<$Result.GetResult<Prisma.$ExamPaperTemplatePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one ExamPaperTemplate.
+     * @param {ExamPaperTemplateUpdateArgs} args - Arguments to update one ExamPaperTemplate.
+     * @example
+     * // Update one ExamPaperTemplate
+     * const examPaperTemplate = await prisma.examPaperTemplate.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ExamPaperTemplateUpdateArgs>(args: SelectSubset<T, ExamPaperTemplateUpdateArgs<ExtArgs>>): Prisma__ExamPaperTemplateClient<$Result.GetResult<Prisma.$ExamPaperTemplatePayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more ExamPaperTemplates.
+     * @param {ExamPaperTemplateDeleteManyArgs} args - Arguments to filter ExamPaperTemplates to delete.
+     * @example
+     * // Delete a few ExamPaperTemplates
+     * const { count } = await prisma.examPaperTemplate.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ExamPaperTemplateDeleteManyArgs>(args?: SelectSubset<T, ExamPaperTemplateDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ExamPaperTemplates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamPaperTemplateUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ExamPaperTemplates
+     * const examPaperTemplate = await prisma.examPaperTemplate.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ExamPaperTemplateUpdateManyArgs>(args: SelectSubset<T, ExamPaperTemplateUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ExamPaperTemplate.
+     * @param {ExamPaperTemplateUpsertArgs} args - Arguments to update or create a ExamPaperTemplate.
+     * @example
+     * // Update or create a ExamPaperTemplate
+     * const examPaperTemplate = await prisma.examPaperTemplate.upsert({
+     *   create: {
+     *     // ... data to create a ExamPaperTemplate
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ExamPaperTemplate we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ExamPaperTemplateUpsertArgs>(args: SelectSubset<T, ExamPaperTemplateUpsertArgs<ExtArgs>>): Prisma__ExamPaperTemplateClient<$Result.GetResult<Prisma.$ExamPaperTemplatePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of ExamPaperTemplates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamPaperTemplateCountArgs} args - Arguments to filter ExamPaperTemplates to count.
+     * @example
+     * // Count the number of ExamPaperTemplates
+     * const count = await prisma.examPaperTemplate.count({
+     *   where: {
+     *     // ... the filter for the ExamPaperTemplates we want to count
+     *   }
+     * })
+    **/
+    count<T extends ExamPaperTemplateCountArgs>(
+      args?: Subset<T, ExamPaperTemplateCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ExamPaperTemplateCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ExamPaperTemplate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamPaperTemplateAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ExamPaperTemplateAggregateArgs>(args: Subset<T, ExamPaperTemplateAggregateArgs>): Prisma.PrismaPromise<GetExamPaperTemplateAggregateType<T>>
+
+    /**
+     * Group by ExamPaperTemplate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExamPaperTemplateGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ExamPaperTemplateGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ExamPaperTemplateGroupByArgs['orderBy'] }
+        : { orderBy?: ExamPaperTemplateGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ExamPaperTemplateGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetExamPaperTemplateGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ExamPaperTemplate model
+   */
+  readonly fields: ExamPaperTemplateFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ExamPaperTemplate.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ExamPaperTemplateClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ExamPaperTemplate model
+   */ 
+  interface ExamPaperTemplateFieldRefs {
+    readonly id: FieldRef<"ExamPaperTemplate", 'String'>
+    readonly schoolId: FieldRef<"ExamPaperTemplate", 'String'>
+    readonly headerHtml: FieldRef<"ExamPaperTemplate", 'String'>
+    readonly footerHtml: FieldRef<"ExamPaperTemplate", 'String'>
+    readonly instructions: FieldRef<"ExamPaperTemplate", 'String'>
+    readonly logoUrl: FieldRef<"ExamPaperTemplate", 'String'>
+    readonly updatedAt: FieldRef<"ExamPaperTemplate", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ExamPaperTemplate findUnique
+   */
+  export type ExamPaperTemplateFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaperTemplate
+     */
+    select?: ExamPaperTemplateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamPaperTemplate to fetch.
+     */
+    where: ExamPaperTemplateWhereUniqueInput
+  }
+
+  /**
+   * ExamPaperTemplate findUniqueOrThrow
+   */
+  export type ExamPaperTemplateFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaperTemplate
+     */
+    select?: ExamPaperTemplateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamPaperTemplate to fetch.
+     */
+    where: ExamPaperTemplateWhereUniqueInput
+  }
+
+  /**
+   * ExamPaperTemplate findFirst
+   */
+  export type ExamPaperTemplateFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaperTemplate
+     */
+    select?: ExamPaperTemplateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamPaperTemplate to fetch.
+     */
+    where?: ExamPaperTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamPaperTemplates to fetch.
+     */
+    orderBy?: ExamPaperTemplateOrderByWithRelationInput | ExamPaperTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExamPaperTemplates.
+     */
+    cursor?: ExamPaperTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamPaperTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamPaperTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExamPaperTemplates.
+     */
+    distinct?: ExamPaperTemplateScalarFieldEnum | ExamPaperTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * ExamPaperTemplate findFirstOrThrow
+   */
+  export type ExamPaperTemplateFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaperTemplate
+     */
+    select?: ExamPaperTemplateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamPaperTemplate to fetch.
+     */
+    where?: ExamPaperTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamPaperTemplates to fetch.
+     */
+    orderBy?: ExamPaperTemplateOrderByWithRelationInput | ExamPaperTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExamPaperTemplates.
+     */
+    cursor?: ExamPaperTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamPaperTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamPaperTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExamPaperTemplates.
+     */
+    distinct?: ExamPaperTemplateScalarFieldEnum | ExamPaperTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * ExamPaperTemplate findMany
+   */
+  export type ExamPaperTemplateFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaperTemplate
+     */
+    select?: ExamPaperTemplateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which ExamPaperTemplates to fetch.
+     */
+    where?: ExamPaperTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExamPaperTemplates to fetch.
+     */
+    orderBy?: ExamPaperTemplateOrderByWithRelationInput | ExamPaperTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ExamPaperTemplates.
+     */
+    cursor?: ExamPaperTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExamPaperTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExamPaperTemplates.
+     */
+    skip?: number
+    distinct?: ExamPaperTemplateScalarFieldEnum | ExamPaperTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * ExamPaperTemplate create
+   */
+  export type ExamPaperTemplateCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaperTemplate
+     */
+    select?: ExamPaperTemplateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperTemplateInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ExamPaperTemplate.
+     */
+    data: XOR<ExamPaperTemplateCreateInput, ExamPaperTemplateUncheckedCreateInput>
+  }
+
+  /**
+   * ExamPaperTemplate createMany
+   */
+  export type ExamPaperTemplateCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ExamPaperTemplates.
+     */
+    data: ExamPaperTemplateCreateManyInput | ExamPaperTemplateCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ExamPaperTemplate update
+   */
+  export type ExamPaperTemplateUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaperTemplate
+     */
+    select?: ExamPaperTemplateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperTemplateInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ExamPaperTemplate.
+     */
+    data: XOR<ExamPaperTemplateUpdateInput, ExamPaperTemplateUncheckedUpdateInput>
+    /**
+     * Choose, which ExamPaperTemplate to update.
+     */
+    where: ExamPaperTemplateWhereUniqueInput
+  }
+
+  /**
+   * ExamPaperTemplate updateMany
+   */
+  export type ExamPaperTemplateUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ExamPaperTemplates.
+     */
+    data: XOR<ExamPaperTemplateUpdateManyMutationInput, ExamPaperTemplateUncheckedUpdateManyInput>
+    /**
+     * Filter which ExamPaperTemplates to update
+     */
+    where?: ExamPaperTemplateWhereInput
+  }
+
+  /**
+   * ExamPaperTemplate upsert
+   */
+  export type ExamPaperTemplateUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaperTemplate
+     */
+    select?: ExamPaperTemplateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperTemplateInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ExamPaperTemplate to update in case it exists.
+     */
+    where: ExamPaperTemplateWhereUniqueInput
+    /**
+     * In case the ExamPaperTemplate found by the `where` argument doesn't exist, create a new ExamPaperTemplate with this data.
+     */
+    create: XOR<ExamPaperTemplateCreateInput, ExamPaperTemplateUncheckedCreateInput>
+    /**
+     * In case the ExamPaperTemplate was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ExamPaperTemplateUpdateInput, ExamPaperTemplateUncheckedUpdateInput>
+  }
+
+  /**
+   * ExamPaperTemplate delete
+   */
+  export type ExamPaperTemplateDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaperTemplate
+     */
+    select?: ExamPaperTemplateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperTemplateInclude<ExtArgs> | null
+    /**
+     * Filter which ExamPaperTemplate to delete.
+     */
+    where: ExamPaperTemplateWhereUniqueInput
+  }
+
+  /**
+   * ExamPaperTemplate deleteMany
+   */
+  export type ExamPaperTemplateDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExamPaperTemplates to delete
+     */
+    where?: ExamPaperTemplateWhereInput
+  }
+
+  /**
+   * ExamPaperTemplate without action
+   */
+  export type ExamPaperTemplateDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExamPaperTemplate
+     */
+    select?: ExamPaperTemplateSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExamPaperTemplateInclude<ExtArgs> | null
   }
 
 
@@ -18619,7 +22211,6 @@ export namespace Prisma {
   }, ExtArgs["result"]["notification"]>
 
 
-
   export type NotificationSelectScalar = {
     id?: boolean
     schoolId?: boolean
@@ -18632,7 +22223,6 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type NotificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "userId" | "title" | "message" | "type" | "isRead" | "metadata" | "createdAt", ExtArgs["result"]["notification"]>
   export type NotificationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     school?: boolean | Notification$schoolArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -18660,12 +22250,12 @@ export namespace Prisma {
 
   type NotificationGetPayload<S extends boolean | null | undefined | NotificationDefaultArgs> = $Result.GetResult<Prisma.$NotificationPayload, S>
 
-  type NotificationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<NotificationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type NotificationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<NotificationFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: NotificationCountAggregateInputType | true
     }
 
-  export interface NotificationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface NotificationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Notification'], meta: { name: 'Notification' } }
     /**
      * Find zero or one Notification that matches the filter.
@@ -18678,10 +22268,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends NotificationFindUniqueArgs>(args: SelectSubset<T, NotificationFindUniqueArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends NotificationFindUniqueArgs>(args: SelectSubset<T, NotificationFindUniqueArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Notification that matches the filter or throw an error with `error.code='P2025'`
+     * Find one Notification that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {NotificationFindUniqueOrThrowArgs} args - Arguments to find a Notification
      * @example
@@ -18692,7 +22282,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends NotificationFindUniqueOrThrowArgs>(args: SelectSubset<T, NotificationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends NotificationFindUniqueOrThrowArgs>(args: SelectSubset<T, NotificationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first Notification that matches the filter.
@@ -18707,7 +22297,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends NotificationFindFirstArgs>(args?: SelectSubset<T, NotificationFindFirstArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends NotificationFindFirstArgs>(args?: SelectSubset<T, NotificationFindFirstArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first Notification that matches the filter or
@@ -18723,7 +22313,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends NotificationFindFirstOrThrowArgs>(args?: SelectSubset<T, NotificationFindFirstOrThrowArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends NotificationFindFirstOrThrowArgs>(args?: SelectSubset<T, NotificationFindFirstOrThrowArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more Notifications that matches the filter.
@@ -18741,7 +22331,7 @@ export namespace Prisma {
      * const notificationWithIdOnly = await prisma.notification.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends NotificationFindManyArgs>(args?: SelectSubset<T, NotificationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends NotificationFindManyArgs>(args?: SelectSubset<T, NotificationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a Notification.
@@ -18755,7 +22345,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends NotificationCreateArgs>(args: SelectSubset<T, NotificationCreateArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends NotificationCreateArgs>(args: SelectSubset<T, NotificationCreateArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many Notifications.
@@ -18783,7 +22373,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends NotificationDeleteArgs>(args: SelectSubset<T, NotificationDeleteArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends NotificationDeleteArgs>(args: SelectSubset<T, NotificationDeleteArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one Notification.
@@ -18800,7 +22390,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends NotificationUpdateArgs>(args: SelectSubset<T, NotificationUpdateArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends NotificationUpdateArgs>(args: SelectSubset<T, NotificationUpdateArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more Notifications.
@@ -18852,7 +22442,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends NotificationUpsertArgs>(args: SelectSubset<T, NotificationUpsertArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends NotificationUpsertArgs>(args: SelectSubset<T, NotificationUpsertArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -18992,10 +22582,10 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__NotificationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__NotificationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    school<T extends Notification$schoolArgs<ExtArgs> = {}>(args?: Subset<T, Notification$schoolArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    school<T extends Notification$schoolArgs<ExtArgs> = {}>(args?: Subset<T, Notification$schoolArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -19023,7 +22613,7 @@ export namespace Prisma {
 
   /**
    * Fields of the Notification model
-   */
+   */ 
   interface NotificationFieldRefs {
     readonly id: FieldRef<"Notification", 'String'>
     readonly schoolId: FieldRef<"Notification", 'String'>
@@ -19047,10 +22637,6 @@ export namespace Prisma {
      */
     select?: NotificationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Notification
-     */
-    omit?: NotificationOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationInclude<ExtArgs> | null
@@ -19069,10 +22655,6 @@ export namespace Prisma {
      */
     select?: NotificationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Notification
-     */
-    omit?: NotificationOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationInclude<ExtArgs> | null
@@ -19090,10 +22672,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Notification
      */
     select?: NotificationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Notification
-     */
-    omit?: NotificationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -19143,10 +22721,6 @@ export namespace Prisma {
      */
     select?: NotificationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Notification
-     */
-    omit?: NotificationOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationInclude<ExtArgs> | null
@@ -19195,10 +22769,6 @@ export namespace Prisma {
      */
     select?: NotificationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Notification
-     */
-    omit?: NotificationOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationInclude<ExtArgs> | null
@@ -19242,10 +22812,6 @@ export namespace Prisma {
      */
     select?: NotificationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Notification
-     */
-    omit?: NotificationOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationInclude<ExtArgs> | null
@@ -19275,10 +22841,6 @@ export namespace Prisma {
      */
     select?: NotificationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Notification
-     */
-    omit?: NotificationOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationInclude<ExtArgs> | null
@@ -19304,10 +22866,6 @@ export namespace Prisma {
      * Filter which Notifications to update
      */
     where?: NotificationWhereInput
-    /**
-     * Limit how many Notifications to update.
-     */
-    limit?: number
   }
 
   /**
@@ -19318,10 +22876,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Notification
      */
     select?: NotificationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Notification
-     */
-    omit?: NotificationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -19349,10 +22903,6 @@ export namespace Prisma {
      */
     select?: NotificationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Notification
-     */
-    omit?: NotificationOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationInclude<ExtArgs> | null
@@ -19370,10 +22920,6 @@ export namespace Prisma {
      * Filter which Notifications to delete
      */
     where?: NotificationWhereInput
-    /**
-     * Limit how many Notifications to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -19384,10 +22930,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the School
      */
     select?: SchoolSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the School
-     */
-    omit?: SchoolOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -19403,10 +22945,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the Notification
      */
     select?: NotificationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Notification
-     */
-    omit?: NotificationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -19611,7 +23149,6 @@ export namespace Prisma {
   }, ExtArgs["result"]["activityLog"]>
 
 
-
   export type ActivityLogSelectScalar = {
     id?: boolean
     schoolId?: boolean
@@ -19624,7 +23161,6 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type ActivityLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "userId" | "action" | "entityType" | "entityId" | "metadata" | "ipAddress" | "createdAt", ExtArgs["result"]["activityLog"]>
   export type ActivityLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     school?: boolean | ActivityLog$schoolArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -19652,12 +23188,12 @@ export namespace Prisma {
 
   type ActivityLogGetPayload<S extends boolean | null | undefined | ActivityLogDefaultArgs> = $Result.GetResult<Prisma.$ActivityLogPayload, S>
 
-  type ActivityLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<ActivityLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type ActivityLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ActivityLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: ActivityLogCountAggregateInputType | true
     }
 
-  export interface ActivityLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface ActivityLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ActivityLog'], meta: { name: 'ActivityLog' } }
     /**
      * Find zero or one ActivityLog that matches the filter.
@@ -19670,10 +23206,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends ActivityLogFindUniqueArgs>(args: SelectSubset<T, ActivityLogFindUniqueArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends ActivityLogFindUniqueArgs>(args: SelectSubset<T, ActivityLogFindUniqueArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one ActivityLog that matches the filter or throw an error with `error.code='P2025'`
+     * Find one ActivityLog that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {ActivityLogFindUniqueOrThrowArgs} args - Arguments to find a ActivityLog
      * @example
@@ -19684,7 +23220,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ActivityLogFindUniqueOrThrowArgs>(args: SelectSubset<T, ActivityLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends ActivityLogFindUniqueOrThrowArgs>(args: SelectSubset<T, ActivityLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first ActivityLog that matches the filter.
@@ -19699,7 +23235,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends ActivityLogFindFirstArgs>(args?: SelectSubset<T, ActivityLogFindFirstArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends ActivityLogFindFirstArgs>(args?: SelectSubset<T, ActivityLogFindFirstArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first ActivityLog that matches the filter or
@@ -19715,7 +23251,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends ActivityLogFindFirstOrThrowArgs>(args?: SelectSubset<T, ActivityLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends ActivityLogFindFirstOrThrowArgs>(args?: SelectSubset<T, ActivityLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more ActivityLogs that matches the filter.
@@ -19733,7 +23269,7 @@ export namespace Prisma {
      * const activityLogWithIdOnly = await prisma.activityLog.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends ActivityLogFindManyArgs>(args?: SelectSubset<T, ActivityLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends ActivityLogFindManyArgs>(args?: SelectSubset<T, ActivityLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a ActivityLog.
@@ -19747,7 +23283,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends ActivityLogCreateArgs>(args: SelectSubset<T, ActivityLogCreateArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends ActivityLogCreateArgs>(args: SelectSubset<T, ActivityLogCreateArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many ActivityLogs.
@@ -19775,7 +23311,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends ActivityLogDeleteArgs>(args: SelectSubset<T, ActivityLogDeleteArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends ActivityLogDeleteArgs>(args: SelectSubset<T, ActivityLogDeleteArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one ActivityLog.
@@ -19792,7 +23328,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ActivityLogUpdateArgs>(args: SelectSubset<T, ActivityLogUpdateArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends ActivityLogUpdateArgs>(args: SelectSubset<T, ActivityLogUpdateArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more ActivityLogs.
@@ -19844,7 +23380,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends ActivityLogUpsertArgs>(args: SelectSubset<T, ActivityLogUpsertArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends ActivityLogUpsertArgs>(args: SelectSubset<T, ActivityLogUpsertArgs<ExtArgs>>): Prisma__ActivityLogClient<$Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -19984,10 +23520,10 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ActivityLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ActivityLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    school<T extends ActivityLog$schoolArgs<ExtArgs> = {}>(args?: Subset<T, ActivityLog$schoolArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    school<T extends ActivityLog$schoolArgs<ExtArgs> = {}>(args?: Subset<T, ActivityLog$schoolArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -20015,7 +23551,7 @@ export namespace Prisma {
 
   /**
    * Fields of the ActivityLog model
-   */
+   */ 
   interface ActivityLogFieldRefs {
     readonly id: FieldRef<"ActivityLog", 'String'>
     readonly schoolId: FieldRef<"ActivityLog", 'String'>
@@ -20039,10 +23575,6 @@ export namespace Prisma {
      */
     select?: ActivityLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ActivityLog
-     */
-    omit?: ActivityLogOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ActivityLogInclude<ExtArgs> | null
@@ -20061,10 +23593,6 @@ export namespace Prisma {
      */
     select?: ActivityLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ActivityLog
-     */
-    omit?: ActivityLogOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ActivityLogInclude<ExtArgs> | null
@@ -20082,10 +23610,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the ActivityLog
      */
     select?: ActivityLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ActivityLog
-     */
-    omit?: ActivityLogOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -20135,10 +23659,6 @@ export namespace Prisma {
      */
     select?: ActivityLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ActivityLog
-     */
-    omit?: ActivityLogOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ActivityLogInclude<ExtArgs> | null
@@ -20187,10 +23707,6 @@ export namespace Prisma {
      */
     select?: ActivityLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ActivityLog
-     */
-    omit?: ActivityLogOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ActivityLogInclude<ExtArgs> | null
@@ -20234,10 +23750,6 @@ export namespace Prisma {
      */
     select?: ActivityLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ActivityLog
-     */
-    omit?: ActivityLogOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ActivityLogInclude<ExtArgs> | null
@@ -20267,10 +23779,6 @@ export namespace Prisma {
      */
     select?: ActivityLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ActivityLog
-     */
-    omit?: ActivityLogOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ActivityLogInclude<ExtArgs> | null
@@ -20296,10 +23804,6 @@ export namespace Prisma {
      * Filter which ActivityLogs to update
      */
     where?: ActivityLogWhereInput
-    /**
-     * Limit how many ActivityLogs to update.
-     */
-    limit?: number
   }
 
   /**
@@ -20310,10 +23814,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the ActivityLog
      */
     select?: ActivityLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ActivityLog
-     */
-    omit?: ActivityLogOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -20341,10 +23841,6 @@ export namespace Prisma {
      */
     select?: ActivityLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ActivityLog
-     */
-    omit?: ActivityLogOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ActivityLogInclude<ExtArgs> | null
@@ -20362,10 +23858,6 @@ export namespace Prisma {
      * Filter which ActivityLogs to delete
      */
     where?: ActivityLogWhereInput
-    /**
-     * Limit how many ActivityLogs to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -20376,10 +23868,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the School
      */
     select?: SchoolSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the School
-     */
-    omit?: SchoolOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -20395,10 +23883,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the ActivityLog
      */
     select?: ActivityLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ActivityLog
-     */
-    omit?: ActivityLogOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -20607,7 +24091,6 @@ export namespace Prisma {
   }, ExtArgs["result"]["auditLog"]>
 
 
-
   export type AuditLogSelectScalar = {
     id?: boolean
     schoolId?: boolean
@@ -20621,7 +24104,6 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type AuditLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "actorId" | "action" | "entityType" | "entityId" | "oldValues" | "newValues" | "ipAddress" | "createdAt", ExtArgs["result"]["auditLog"]>
   export type AuditLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     actor?: boolean | UserDefaultArgs<ExtArgs>
     school?: boolean | AuditLog$schoolArgs<ExtArgs>
@@ -20650,12 +24132,12 @@ export namespace Prisma {
 
   type AuditLogGetPayload<S extends boolean | null | undefined | AuditLogDefaultArgs> = $Result.GetResult<Prisma.$AuditLogPayload, S>
 
-  type AuditLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<AuditLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type AuditLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AuditLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: AuditLogCountAggregateInputType | true
     }
 
-  export interface AuditLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface AuditLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AuditLog'], meta: { name: 'AuditLog' } }
     /**
      * Find zero or one AuditLog that matches the filter.
@@ -20668,10 +24150,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends AuditLogFindUniqueArgs>(args: SelectSubset<T, AuditLogFindUniqueArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends AuditLogFindUniqueArgs>(args: SelectSubset<T, AuditLogFindUniqueArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one AuditLog that matches the filter or throw an error with `error.code='P2025'`
+     * Find one AuditLog that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {AuditLogFindUniqueOrThrowArgs} args - Arguments to find a AuditLog
      * @example
@@ -20682,7 +24164,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends AuditLogFindUniqueOrThrowArgs>(args: SelectSubset<T, AuditLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends AuditLogFindUniqueOrThrowArgs>(args: SelectSubset<T, AuditLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first AuditLog that matches the filter.
@@ -20697,7 +24179,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends AuditLogFindFirstArgs>(args?: SelectSubset<T, AuditLogFindFirstArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends AuditLogFindFirstArgs>(args?: SelectSubset<T, AuditLogFindFirstArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first AuditLog that matches the filter or
@@ -20713,7 +24195,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends AuditLogFindFirstOrThrowArgs>(args?: SelectSubset<T, AuditLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends AuditLogFindFirstOrThrowArgs>(args?: SelectSubset<T, AuditLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more AuditLogs that matches the filter.
@@ -20731,7 +24213,7 @@ export namespace Prisma {
      * const auditLogWithIdOnly = await prisma.auditLog.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends AuditLogFindManyArgs>(args?: SelectSubset<T, AuditLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends AuditLogFindManyArgs>(args?: SelectSubset<T, AuditLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a AuditLog.
@@ -20745,7 +24227,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends AuditLogCreateArgs>(args: SelectSubset<T, AuditLogCreateArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends AuditLogCreateArgs>(args: SelectSubset<T, AuditLogCreateArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many AuditLogs.
@@ -20773,7 +24255,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends AuditLogDeleteArgs>(args: SelectSubset<T, AuditLogDeleteArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends AuditLogDeleteArgs>(args: SelectSubset<T, AuditLogDeleteArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one AuditLog.
@@ -20790,7 +24272,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends AuditLogUpdateArgs>(args: SelectSubset<T, AuditLogUpdateArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends AuditLogUpdateArgs>(args: SelectSubset<T, AuditLogUpdateArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more AuditLogs.
@@ -20842,7 +24324,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends AuditLogUpsertArgs>(args: SelectSubset<T, AuditLogUpsertArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends AuditLogUpsertArgs>(args: SelectSubset<T, AuditLogUpsertArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -20982,10 +24464,10 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__AuditLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__AuditLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    actor<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    school<T extends AuditLog$schoolArgs<ExtArgs> = {}>(args?: Subset<T, AuditLog$schoolArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    actor<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    school<T extends AuditLog$schoolArgs<ExtArgs> = {}>(args?: Subset<T, AuditLog$schoolArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -21013,7 +24495,7 @@ export namespace Prisma {
 
   /**
    * Fields of the AuditLog model
-   */
+   */ 
   interface AuditLogFieldRefs {
     readonly id: FieldRef<"AuditLog", 'String'>
     readonly schoolId: FieldRef<"AuditLog", 'String'>
@@ -21038,10 +24520,6 @@ export namespace Prisma {
      */
     select?: AuditLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AuditLog
-     */
-    omit?: AuditLogOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AuditLogInclude<ExtArgs> | null
@@ -21060,10 +24538,6 @@ export namespace Prisma {
      */
     select?: AuditLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AuditLog
-     */
-    omit?: AuditLogOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AuditLogInclude<ExtArgs> | null
@@ -21081,10 +24555,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the AuditLog
      */
     select?: AuditLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AuditLog
-     */
-    omit?: AuditLogOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -21134,10 +24604,6 @@ export namespace Prisma {
      */
     select?: AuditLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AuditLog
-     */
-    omit?: AuditLogOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AuditLogInclude<ExtArgs> | null
@@ -21186,10 +24652,6 @@ export namespace Prisma {
      */
     select?: AuditLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AuditLog
-     */
-    omit?: AuditLogOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AuditLogInclude<ExtArgs> | null
@@ -21233,10 +24695,6 @@ export namespace Prisma {
      */
     select?: AuditLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AuditLog
-     */
-    omit?: AuditLogOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AuditLogInclude<ExtArgs> | null
@@ -21266,10 +24724,6 @@ export namespace Prisma {
      */
     select?: AuditLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AuditLog
-     */
-    omit?: AuditLogOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AuditLogInclude<ExtArgs> | null
@@ -21295,10 +24749,6 @@ export namespace Prisma {
      * Filter which AuditLogs to update
      */
     where?: AuditLogWhereInput
-    /**
-     * Limit how many AuditLogs to update.
-     */
-    limit?: number
   }
 
   /**
@@ -21309,10 +24759,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the AuditLog
      */
     select?: AuditLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AuditLog
-     */
-    omit?: AuditLogOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -21340,10 +24786,6 @@ export namespace Prisma {
      */
     select?: AuditLogSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AuditLog
-     */
-    omit?: AuditLogOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AuditLogInclude<ExtArgs> | null
@@ -21361,10 +24803,6 @@ export namespace Prisma {
      * Filter which AuditLogs to delete
      */
     where?: AuditLogWhereInput
-    /**
-     * Limit how many AuditLogs to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -21375,10 +24813,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the School
      */
     select?: SchoolSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the School
-     */
-    omit?: SchoolOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -21394,10 +24828,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the AuditLog
      */
     select?: AuditLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AuditLog
-     */
-    omit?: AuditLogOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -21678,7 +25108,6 @@ export namespace Prisma {
   }, ExtArgs["result"]["academicTerm"]>
 
 
-
   export type AcademicTermSelectScalar = {
     id?: boolean
     schoolId?: boolean
@@ -21696,7 +25125,6 @@ export namespace Prisma {
     terms?: boolean
   }
 
-  export type AcademicTermOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "academicSessionId" | "name" | "startDate" | "endDate" | "totalWorkingDays" | "actualAvailableDays" | "weeklyHolidays" | "status" | "createdAt" | "updatedAt" | "deletedAt" | "terms", ExtArgs["result"]["academicTerm"]>
   export type AcademicTermInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     academicSession?: boolean | AcademicSessionDefaultArgs<ExtArgs>
     school?: boolean | SchoolDefaultArgs<ExtArgs>
@@ -21732,12 +25160,12 @@ export namespace Prisma {
 
   type AcademicTermGetPayload<S extends boolean | null | undefined | AcademicTermDefaultArgs> = $Result.GetResult<Prisma.$AcademicTermPayload, S>
 
-  type AcademicTermCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<AcademicTermFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type AcademicTermCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AcademicTermFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: AcademicTermCountAggregateInputType | true
     }
 
-  export interface AcademicTermDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface AcademicTermDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AcademicTerm'], meta: { name: 'AcademicTerm' } }
     /**
      * Find zero or one AcademicTerm that matches the filter.
@@ -21750,10 +25178,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends AcademicTermFindUniqueArgs>(args: SelectSubset<T, AcademicTermFindUniqueArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends AcademicTermFindUniqueArgs>(args: SelectSubset<T, AcademicTermFindUniqueArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one AcademicTerm that matches the filter or throw an error with `error.code='P2025'`
+     * Find one AcademicTerm that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {AcademicTermFindUniqueOrThrowArgs} args - Arguments to find a AcademicTerm
      * @example
@@ -21764,7 +25192,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends AcademicTermFindUniqueOrThrowArgs>(args: SelectSubset<T, AcademicTermFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends AcademicTermFindUniqueOrThrowArgs>(args: SelectSubset<T, AcademicTermFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first AcademicTerm that matches the filter.
@@ -21779,7 +25207,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends AcademicTermFindFirstArgs>(args?: SelectSubset<T, AcademicTermFindFirstArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends AcademicTermFindFirstArgs>(args?: SelectSubset<T, AcademicTermFindFirstArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first AcademicTerm that matches the filter or
@@ -21795,7 +25223,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends AcademicTermFindFirstOrThrowArgs>(args?: SelectSubset<T, AcademicTermFindFirstOrThrowArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends AcademicTermFindFirstOrThrowArgs>(args?: SelectSubset<T, AcademicTermFindFirstOrThrowArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more AcademicTerms that matches the filter.
@@ -21813,7 +25241,7 @@ export namespace Prisma {
      * const academicTermWithIdOnly = await prisma.academicTerm.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends AcademicTermFindManyArgs>(args?: SelectSubset<T, AcademicTermFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends AcademicTermFindManyArgs>(args?: SelectSubset<T, AcademicTermFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a AcademicTerm.
@@ -21827,7 +25255,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends AcademicTermCreateArgs>(args: SelectSubset<T, AcademicTermCreateArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends AcademicTermCreateArgs>(args: SelectSubset<T, AcademicTermCreateArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many AcademicTerms.
@@ -21855,7 +25283,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends AcademicTermDeleteArgs>(args: SelectSubset<T, AcademicTermDeleteArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends AcademicTermDeleteArgs>(args: SelectSubset<T, AcademicTermDeleteArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one AcademicTerm.
@@ -21872,7 +25300,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends AcademicTermUpdateArgs>(args: SelectSubset<T, AcademicTermUpdateArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends AcademicTermUpdateArgs>(args: SelectSubset<T, AcademicTermUpdateArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more AcademicTerms.
@@ -21924,7 +25352,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends AcademicTermUpsertArgs>(args: SelectSubset<T, AcademicTermUpsertArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends AcademicTermUpsertArgs>(args: SelectSubset<T, AcademicTermUpsertArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -22064,11 +25492,11 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__AcademicTermClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__AcademicTermClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    vacationDays<T extends AcademicTerm$vacationDaysArgs<ExtArgs> = {}>(args?: Subset<T, AcademicTerm$vacationDaysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    academicSession<T extends AcademicSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicSessionDefaultArgs<ExtArgs>>): Prisma__AcademicSessionClient<$Result.GetResult<Prisma.$AcademicSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    vacationDays<T extends AcademicTerm$vacationDaysArgs<ExtArgs> = {}>(args?: Subset<T, AcademicTerm$vacationDaysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -22096,7 +25524,7 @@ export namespace Prisma {
 
   /**
    * Fields of the AcademicTerm model
-   */
+   */ 
   interface AcademicTermFieldRefs {
     readonly id: FieldRef<"AcademicTerm", 'String'>
     readonly schoolId: FieldRef<"AcademicTerm", 'String'>
@@ -22125,10 +25553,6 @@ export namespace Prisma {
      */
     select?: AcademicTermSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AcademicTerm
-     */
-    omit?: AcademicTermOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AcademicTermInclude<ExtArgs> | null
@@ -22147,10 +25571,6 @@ export namespace Prisma {
      */
     select?: AcademicTermSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AcademicTerm
-     */
-    omit?: AcademicTermOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AcademicTermInclude<ExtArgs> | null
@@ -22168,10 +25588,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the AcademicTerm
      */
     select?: AcademicTermSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AcademicTerm
-     */
-    omit?: AcademicTermOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -22221,10 +25637,6 @@ export namespace Prisma {
      */
     select?: AcademicTermSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AcademicTerm
-     */
-    omit?: AcademicTermOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AcademicTermInclude<ExtArgs> | null
@@ -22273,10 +25685,6 @@ export namespace Prisma {
      */
     select?: AcademicTermSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AcademicTerm
-     */
-    omit?: AcademicTermOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AcademicTermInclude<ExtArgs> | null
@@ -22320,10 +25728,6 @@ export namespace Prisma {
      */
     select?: AcademicTermSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AcademicTerm
-     */
-    omit?: AcademicTermOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AcademicTermInclude<ExtArgs> | null
@@ -22353,10 +25757,6 @@ export namespace Prisma {
      */
     select?: AcademicTermSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AcademicTerm
-     */
-    omit?: AcademicTermOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AcademicTermInclude<ExtArgs> | null
@@ -22382,10 +25782,6 @@ export namespace Prisma {
      * Filter which AcademicTerms to update
      */
     where?: AcademicTermWhereInput
-    /**
-     * Limit how many AcademicTerms to update.
-     */
-    limit?: number
   }
 
   /**
@@ -22396,10 +25792,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the AcademicTerm
      */
     select?: AcademicTermSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AcademicTerm
-     */
-    omit?: AcademicTermOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -22427,10 +25819,6 @@ export namespace Prisma {
      */
     select?: AcademicTermSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AcademicTerm
-     */
-    omit?: AcademicTermOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: AcademicTermInclude<ExtArgs> | null
@@ -22448,10 +25836,6 @@ export namespace Prisma {
      * Filter which AcademicTerms to delete
      */
     where?: AcademicTermWhereInput
-    /**
-     * Limit how many AcademicTerms to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -22462,10 +25846,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the VacationDay
      */
     select?: VacationDaySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the VacationDay
-     */
-    omit?: VacationDayOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -22486,10 +25866,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the AcademicTerm
      */
     select?: AcademicTermSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AcademicTerm
-     */
-    omit?: AcademicTermOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -22673,7 +26049,6 @@ export namespace Prisma {
   }, ExtArgs["result"]["vacationDay"]>
 
 
-
   export type VacationDaySelectScalar = {
     id?: boolean
     academicTermId?: boolean
@@ -22683,7 +26058,6 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type VacationDayOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "academicTermId" | "startDate" | "endDate" | "reason" | "createdAt", ExtArgs["result"]["vacationDay"]>
   export type VacationDayInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     academicTerm?: boolean | AcademicTermDefaultArgs<ExtArgs>
   }
@@ -22706,12 +26080,12 @@ export namespace Prisma {
 
   type VacationDayGetPayload<S extends boolean | null | undefined | VacationDayDefaultArgs> = $Result.GetResult<Prisma.$VacationDayPayload, S>
 
-  type VacationDayCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<VacationDayFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  type VacationDayCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<VacationDayFindManyArgs, 'select' | 'include' | 'distinct'> & {
       select?: VacationDayCountAggregateInputType | true
     }
 
-  export interface VacationDayDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  export interface VacationDayDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['VacationDay'], meta: { name: 'VacationDay' } }
     /**
      * Find zero or one VacationDay that matches the filter.
@@ -22724,10 +26098,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends VacationDayFindUniqueArgs>(args: SelectSubset<T, VacationDayFindUniqueArgs<ExtArgs>>): Prisma__VacationDayClient<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends VacationDayFindUniqueArgs>(args: SelectSubset<T, VacationDayFindUniqueArgs<ExtArgs>>): Prisma__VacationDayClient<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one VacationDay that matches the filter or throw an error with `error.code='P2025'`
+     * Find one VacationDay that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
      * @param {VacationDayFindUniqueOrThrowArgs} args - Arguments to find a VacationDay
      * @example
@@ -22738,7 +26112,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends VacationDayFindUniqueOrThrowArgs>(args: SelectSubset<T, VacationDayFindUniqueOrThrowArgs<ExtArgs>>): Prisma__VacationDayClient<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends VacationDayFindUniqueOrThrowArgs>(args: SelectSubset<T, VacationDayFindUniqueOrThrowArgs<ExtArgs>>): Prisma__VacationDayClient<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
      * Find the first VacationDay that matches the filter.
@@ -22753,7 +26127,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends VacationDayFindFirstArgs>(args?: SelectSubset<T, VacationDayFindFirstArgs<ExtArgs>>): Prisma__VacationDayClient<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends VacationDayFindFirstArgs>(args?: SelectSubset<T, VacationDayFindFirstArgs<ExtArgs>>): Prisma__VacationDayClient<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
      * Find the first VacationDay that matches the filter or
@@ -22769,7 +26143,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends VacationDayFindFirstOrThrowArgs>(args?: SelectSubset<T, VacationDayFindFirstOrThrowArgs<ExtArgs>>): Prisma__VacationDayClient<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends VacationDayFindFirstOrThrowArgs>(args?: SelectSubset<T, VacationDayFindFirstOrThrowArgs<ExtArgs>>): Prisma__VacationDayClient<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more VacationDays that matches the filter.
@@ -22787,7 +26161,7 @@ export namespace Prisma {
      * const vacationDayWithIdOnly = await prisma.vacationDay.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends VacationDayFindManyArgs>(args?: SelectSubset<T, VacationDayFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends VacationDayFindManyArgs>(args?: SelectSubset<T, VacationDayFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "findMany">>
 
     /**
      * Create a VacationDay.
@@ -22801,7 +26175,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends VacationDayCreateArgs>(args: SelectSubset<T, VacationDayCreateArgs<ExtArgs>>): Prisma__VacationDayClient<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends VacationDayCreateArgs>(args: SelectSubset<T, VacationDayCreateArgs<ExtArgs>>): Prisma__VacationDayClient<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many VacationDays.
@@ -22829,7 +26203,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends VacationDayDeleteArgs>(args: SelectSubset<T, VacationDayDeleteArgs<ExtArgs>>): Prisma__VacationDayClient<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends VacationDayDeleteArgs>(args: SelectSubset<T, VacationDayDeleteArgs<ExtArgs>>): Prisma__VacationDayClient<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
      * Update one VacationDay.
@@ -22846,7 +26220,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends VacationDayUpdateArgs>(args: SelectSubset<T, VacationDayUpdateArgs<ExtArgs>>): Prisma__VacationDayClient<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends VacationDayUpdateArgs>(args: SelectSubset<T, VacationDayUpdateArgs<ExtArgs>>): Prisma__VacationDayClient<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more VacationDays.
@@ -22898,7 +26272,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends VacationDayUpsertArgs>(args: SelectSubset<T, VacationDayUpsertArgs<ExtArgs>>): Prisma__VacationDayClient<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends VacationDayUpsertArgs>(args: SelectSubset<T, VacationDayUpsertArgs<ExtArgs>>): Prisma__VacationDayClient<$Result.GetResult<Prisma.$VacationDayPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
@@ -23038,9 +26412,9 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__VacationDayClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__VacationDayClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    academicTerm<T extends AcademicTermDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicTermDefaultArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    academicTerm<T extends AcademicTermDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AcademicTermDefaultArgs<ExtArgs>>): Prisma__AcademicTermClient<$Result.GetResult<Prisma.$AcademicTermPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -23068,7 +26442,7 @@ export namespace Prisma {
 
   /**
    * Fields of the VacationDay model
-   */
+   */ 
   interface VacationDayFieldRefs {
     readonly id: FieldRef<"VacationDay", 'String'>
     readonly academicTermId: FieldRef<"VacationDay", 'String'>
@@ -23089,10 +26463,6 @@ export namespace Prisma {
      */
     select?: VacationDaySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the VacationDay
-     */
-    omit?: VacationDayOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: VacationDayInclude<ExtArgs> | null
@@ -23111,10 +26481,6 @@ export namespace Prisma {
      */
     select?: VacationDaySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the VacationDay
-     */
-    omit?: VacationDayOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: VacationDayInclude<ExtArgs> | null
@@ -23132,10 +26498,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the VacationDay
      */
     select?: VacationDaySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the VacationDay
-     */
-    omit?: VacationDayOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -23185,10 +26547,6 @@ export namespace Prisma {
      */
     select?: VacationDaySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the VacationDay
-     */
-    omit?: VacationDayOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: VacationDayInclude<ExtArgs> | null
@@ -23237,10 +26595,6 @@ export namespace Prisma {
      */
     select?: VacationDaySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the VacationDay
-     */
-    omit?: VacationDayOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: VacationDayInclude<ExtArgs> | null
@@ -23284,10 +26638,6 @@ export namespace Prisma {
      */
     select?: VacationDaySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the VacationDay
-     */
-    omit?: VacationDayOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: VacationDayInclude<ExtArgs> | null
@@ -23317,10 +26667,6 @@ export namespace Prisma {
      */
     select?: VacationDaySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the VacationDay
-     */
-    omit?: VacationDayOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: VacationDayInclude<ExtArgs> | null
@@ -23346,10 +26692,6 @@ export namespace Prisma {
      * Filter which VacationDays to update
      */
     where?: VacationDayWhereInput
-    /**
-     * Limit how many VacationDays to update.
-     */
-    limit?: number
   }
 
   /**
@@ -23360,10 +26702,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the VacationDay
      */
     select?: VacationDaySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the VacationDay
-     */
-    omit?: VacationDayOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -23391,10 +26729,6 @@ export namespace Prisma {
      */
     select?: VacationDaySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the VacationDay
-     */
-    omit?: VacationDayOmit<ExtArgs> | null
-    /**
      * Choose, which related nodes to fetch as well
      */
     include?: VacationDayInclude<ExtArgs> | null
@@ -23412,10 +26746,6 @@ export namespace Prisma {
      * Filter which VacationDays to delete
      */
     where?: VacationDayWhereInput
-    /**
-     * Limit how many VacationDays to delete.
-     */
-    limit?: number
   }
 
   /**
@@ -23426,10 +26756,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the VacationDay
      */
     select?: VacationDaySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the VacationDay
-     */
-    omit?: VacationDayOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -23682,6 +27008,68 @@ export namespace Prisma {
   export type TopicProgressScalarFieldEnum = (typeof TopicProgressScalarFieldEnum)[keyof typeof TopicProgressScalarFieldEnum]
 
 
+  export const ExamPaperScalarFieldEnum: {
+    id: 'id',
+    schoolId: 'schoolId',
+    academicSessionId: 'academicSessionId',
+    teacherId: 'teacherId',
+    classId: 'classId',
+    subjectId: 'subjectId',
+    examName: 'examName',
+    examDate: 'examDate',
+    totalMarks: 'totalMarks',
+    duration: 'duration',
+    instructions: 'instructions',
+    status: 'status',
+    styleFontFamily: 'styleFontFamily',
+    styleFontSize: 'styleFontSize',
+    styleColor: 'styleColor',
+    templateType: 'templateType',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ExamPaperScalarFieldEnum = (typeof ExamPaperScalarFieldEnum)[keyof typeof ExamPaperScalarFieldEnum]
+
+
+  export const ExamSectionScalarFieldEnum: {
+    id: 'id',
+    examPaperId: 'examPaperId',
+    label: 'label',
+    type: 'type',
+    marksEach: 'marksEach',
+    order: 'order'
+  };
+
+  export type ExamSectionScalarFieldEnum = (typeof ExamSectionScalarFieldEnum)[keyof typeof ExamSectionScalarFieldEnum]
+
+
+  export const ExamQuestionScalarFieldEnum: {
+    id: 'id',
+    sectionId: 'sectionId',
+    questionText: 'questionText',
+    options: 'options',
+    imageUrl: 'imageUrl',
+    subject: 'subject',
+    order: 'order'
+  };
+
+  export type ExamQuestionScalarFieldEnum = (typeof ExamQuestionScalarFieldEnum)[keyof typeof ExamQuestionScalarFieldEnum]
+
+
+  export const ExamPaperTemplateScalarFieldEnum: {
+    id: 'id',
+    schoolId: 'schoolId',
+    headerHtml: 'headerHtml',
+    footerHtml: 'footerHtml',
+    instructions: 'instructions',
+    logoUrl: 'logoUrl',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ExamPaperTemplateScalarFieldEnum = (typeof ExamPaperTemplateScalarFieldEnum)[keyof typeof ExamPaperTemplateScalarFieldEnum]
+
+
   export const NotificationScalarFieldEnum: {
     id: 'id',
     schoolId: 'schoolId',
@@ -23791,51 +27179,6 @@ export namespace Prisma {
   export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
-  export const UserOrderByRelevanceFieldEnum: {
-    id: 'id',
-    email: 'email',
-    passwordHash: 'passwordHash',
-    name: 'name',
-    schoolId: 'schoolId',
-    avatar: 'avatar',
-    phone: 'phone'
-  };
-
-  export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
-
-
-  export const RefreshTokenOrderByRelevanceFieldEnum: {
-    id: 'id',
-    userId: 'userId',
-    tokenHash: 'tokenHash'
-  };
-
-  export type RefreshTokenOrderByRelevanceFieldEnum = (typeof RefreshTokenOrderByRelevanceFieldEnum)[keyof typeof RefreshTokenOrderByRelevanceFieldEnum]
-
-
-  export const SchoolOrderByRelevanceFieldEnum: {
-    id: 'id',
-    name: 'name',
-    slug: 'slug',
-    email: 'email',
-    phone: 'phone',
-    address: 'address',
-    logo: 'logo',
-    currentAcademicSessionId: 'currentAcademicSessionId'
-  };
-
-  export type SchoolOrderByRelevanceFieldEnum = (typeof SchoolOrderByRelevanceFieldEnum)[keyof typeof SchoolOrderByRelevanceFieldEnum]
-
-
-  export const AcademicSessionOrderByRelevanceFieldEnum: {
-    id: 'id',
-    schoolId: 'schoolId',
-    name: 'name'
-  };
-
-  export type AcademicSessionOrderByRelevanceFieldEnum = (typeof AcademicSessionOrderByRelevanceFieldEnum)[keyof typeof AcademicSessionOrderByRelevanceFieldEnum]
-
-
   export const JsonNullValueFilter: {
     DbNull: typeof DbNull,
     JsonNull: typeof JsonNull,
@@ -23845,192 +27188,8 @@ export namespace Prisma {
   export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
-  export const QueryMode: {
-    default: 'default',
-    insensitive: 'insensitive'
-  };
-
-  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
-
-
-  export const SubscriptionPlanOrderByRelevanceFieldEnum: {
-    id: 'id',
-    name: 'name',
-    slug: 'slug',
-    description: 'description'
-  };
-
-  export type SubscriptionPlanOrderByRelevanceFieldEnum = (typeof SubscriptionPlanOrderByRelevanceFieldEnum)[keyof typeof SubscriptionPlanOrderByRelevanceFieldEnum]
-
-
-  export const SubscriptionOrderByRelevanceFieldEnum: {
-    id: 'id',
-    schoolId: 'schoolId',
-    planId: 'planId'
-  };
-
-  export type SubscriptionOrderByRelevanceFieldEnum = (typeof SubscriptionOrderByRelevanceFieldEnum)[keyof typeof SubscriptionOrderByRelevanceFieldEnum]
-
-
-  export const TeacherOrderByRelevanceFieldEnum: {
-    id: 'id',
-    schoolId: 'schoolId',
-    academicSessionId: 'academicSessionId',
-    userId: 'userId'
-  };
-
-  export type TeacherOrderByRelevanceFieldEnum = (typeof TeacherOrderByRelevanceFieldEnum)[keyof typeof TeacherOrderByRelevanceFieldEnum]
-
-
-  export const ClassOrderByRelevanceFieldEnum: {
-    id: 'id',
-    schoolId: 'schoolId',
-    academicSessionId: 'academicSessionId',
-    name: 'name',
-    grade: 'grade',
-    section: 'section',
-    description: 'description'
-  };
-
-  export type ClassOrderByRelevanceFieldEnum = (typeof ClassOrderByRelevanceFieldEnum)[keyof typeof ClassOrderByRelevanceFieldEnum]
-
-
-  export const SubjectOrderByRelevanceFieldEnum: {
-    id: 'id',
-    schoolId: 'schoolId',
-    academicSessionId: 'academicSessionId',
-    classId: 'classId',
-    name: 'name',
-    code: 'code',
-    description: 'description',
-    color: 'color'
-  };
-
-  export type SubjectOrderByRelevanceFieldEnum = (typeof SubjectOrderByRelevanceFieldEnum)[keyof typeof SubjectOrderByRelevanceFieldEnum]
-
-
-  export const ChapterOrderByRelevanceFieldEnum: {
-    id: 'id',
-    schoolId: 'schoolId',
-    academicSessionId: 'academicSessionId',
-    subjectId: 'subjectId',
-    classId: 'classId',
-    title: 'title',
-    description: 'description',
-    notes: 'notes',
-    termName: 'termName'
-  };
-
-  export type ChapterOrderByRelevanceFieldEnum = (typeof ChapterOrderByRelevanceFieldEnum)[keyof typeof ChapterOrderByRelevanceFieldEnum]
-
-
-  export const TopicOrderByRelevanceFieldEnum: {
-    id: 'id',
-    schoolId: 'schoolId',
-    academicSessionId: 'academicSessionId',
-    chapterId: 'chapterId',
-    title: 'title',
-    description: 'description',
-    notes: 'notes'
-  };
-
-  export type TopicOrderByRelevanceFieldEnum = (typeof TopicOrderByRelevanceFieldEnum)[keyof typeof TopicOrderByRelevanceFieldEnum]
-
-
-  export const TeacherClassOrderByRelevanceFieldEnum: {
-    id: 'id',
-    schoolId: 'schoolId',
-    academicSessionId: 'academicSessionId',
-    teacherId: 'teacherId',
-    classId: 'classId',
-    subjectId: 'subjectId'
-  };
-
-  export type TeacherClassOrderByRelevanceFieldEnum = (typeof TeacherClassOrderByRelevanceFieldEnum)[keyof typeof TeacherClassOrderByRelevanceFieldEnum]
-
-
-  export const ChapterProgressOrderByRelevanceFieldEnum: {
-    id: 'id',
-    schoolId: 'schoolId',
-    academicSessionId: 'academicSessionId',
-    chapterId: 'chapterId',
-    teacherId: 'teacherId',
-    updatedById: 'updatedById'
-  };
-
-  export type ChapterProgressOrderByRelevanceFieldEnum = (typeof ChapterProgressOrderByRelevanceFieldEnum)[keyof typeof ChapterProgressOrderByRelevanceFieldEnum]
-
-
-  export const TopicProgressOrderByRelevanceFieldEnum: {
-    id: 'id',
-    schoolId: 'schoolId',
-    academicSessionId: 'academicSessionId',
-    topicId: 'topicId',
-    teacherId: 'teacherId',
-    updatedById: 'updatedById'
-  };
-
-  export type TopicProgressOrderByRelevanceFieldEnum = (typeof TopicProgressOrderByRelevanceFieldEnum)[keyof typeof TopicProgressOrderByRelevanceFieldEnum]
-
-
-  export const NotificationOrderByRelevanceFieldEnum: {
-    id: 'id',
-    schoolId: 'schoolId',
-    userId: 'userId',
-    title: 'title',
-    message: 'message'
-  };
-
-  export type NotificationOrderByRelevanceFieldEnum = (typeof NotificationOrderByRelevanceFieldEnum)[keyof typeof NotificationOrderByRelevanceFieldEnum]
-
-
-  export const ActivityLogOrderByRelevanceFieldEnum: {
-    id: 'id',
-    schoolId: 'schoolId',
-    userId: 'userId',
-    action: 'action',
-    entityType: 'entityType',
-    entityId: 'entityId',
-    ipAddress: 'ipAddress'
-  };
-
-  export type ActivityLogOrderByRelevanceFieldEnum = (typeof ActivityLogOrderByRelevanceFieldEnum)[keyof typeof ActivityLogOrderByRelevanceFieldEnum]
-
-
-  export const AuditLogOrderByRelevanceFieldEnum: {
-    id: 'id',
-    schoolId: 'schoolId',
-    actorId: 'actorId',
-    action: 'action',
-    entityType: 'entityType',
-    entityId: 'entityId',
-    ipAddress: 'ipAddress'
-  };
-
-  export type AuditLogOrderByRelevanceFieldEnum = (typeof AuditLogOrderByRelevanceFieldEnum)[keyof typeof AuditLogOrderByRelevanceFieldEnum]
-
-
-  export const AcademicTermOrderByRelevanceFieldEnum: {
-    id: 'id',
-    schoolId: 'schoolId',
-    academicSessionId: 'academicSessionId',
-    name: 'name'
-  };
-
-  export type AcademicTermOrderByRelevanceFieldEnum = (typeof AcademicTermOrderByRelevanceFieldEnum)[keyof typeof AcademicTermOrderByRelevanceFieldEnum]
-
-
-  export const VacationDayOrderByRelevanceFieldEnum: {
-    id: 'id',
-    academicTermId: 'academicTermId',
-    reason: 'reason'
-  };
-
-  export type VacationDayOrderByRelevanceFieldEnum = (typeof VacationDayOrderByRelevanceFieldEnum)[keyof typeof VacationDayOrderByRelevanceFieldEnum]
-
-
   /**
-   * Field references
+   * Field references 
    */
 
 
@@ -24105,13 +27264,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'QueryMode'
-   */
-  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-  /**
    * Reference to a field of type 'SubscriptionStatus'
    */
   export type EnumSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionStatus'>
@@ -24129,6 +27281,20 @@ export namespace Prisma {
    * Reference to a field of type 'TopicStatus'
    */
   export type EnumTopicStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TopicStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'ExamPaperStatus'
+   */
+  export type EnumExamPaperStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExamPaperStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'QuestionType'
+   */
+  export type EnumQuestionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QuestionType'>
     
 
 
@@ -24178,9 +27344,9 @@ export namespace Prisma {
     chapterProgress?: ChapterProgressListRelationFilter
     notifications?: NotificationListRelationFilter
     refreshTokens?: RefreshTokenListRelationFilter
-    teacher?: XOR<TeacherNullableScalarRelationFilter, TeacherWhereInput> | null
+    teacher?: XOR<TeacherNullableRelationFilter, TeacherWhereInput> | null
     topicProgress?: TopicProgressListRelationFilter
-    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
+    school?: XOR<SchoolNullableRelationFilter, SchoolWhereInput> | null
   }
 
   export type UserOrderByWithRelationInput = {
@@ -24205,7 +27371,6 @@ export namespace Prisma {
     teacher?: TeacherOrderByWithRelationInput
     topicProgress?: TopicProgressOrderByRelationAggregateInput
     school?: SchoolOrderByWithRelationInput
-    _relevance?: UserOrderByRelevanceInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -24230,9 +27395,9 @@ export namespace Prisma {
     chapterProgress?: ChapterProgressListRelationFilter
     notifications?: NotificationListRelationFilter
     refreshTokens?: RefreshTokenListRelationFilter
-    teacher?: XOR<TeacherNullableScalarRelationFilter, TeacherWhereInput> | null
+    teacher?: XOR<TeacherNullableRelationFilter, TeacherWhereInput> | null
     topicProgress?: TopicProgressListRelationFilter
-    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
+    school?: XOR<SchoolNullableRelationFilter, SchoolWhereInput> | null
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -24283,7 +27448,7 @@ export namespace Prisma {
     expiresAt?: DateTimeFilter<"RefreshToken"> | Date | string
     createdAt?: DateTimeFilter<"RefreshToken"> | Date | string
     revokedAt?: DateTimeNullableFilter<"RefreshToken"> | Date | string | null
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    user?: XOR<UserRelationFilter, UserWhereInput>
   }
 
   export type RefreshTokenOrderByWithRelationInput = {
@@ -24294,7 +27459,6 @@ export namespace Prisma {
     createdAt?: SortOrder
     revokedAt?: SortOrderInput | SortOrder
     user?: UserOrderByWithRelationInput
-    _relevance?: RefreshTokenOrderByRelevanceInput
   }
 
   export type RefreshTokenWhereUniqueInput = Prisma.AtLeast<{
@@ -24307,7 +27471,7 @@ export namespace Prisma {
     expiresAt?: DateTimeFilter<"RefreshToken"> | Date | string
     createdAt?: DateTimeFilter<"RefreshToken"> | Date | string
     revokedAt?: DateTimeNullableFilter<"RefreshToken"> | Date | string | null
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    user?: XOR<UserRelationFilter, UserWhereInput>
   }, "id" | "tokenHash">
 
   export type RefreshTokenOrderByWithAggregationInput = {
@@ -24362,6 +27526,8 @@ export namespace Prisma {
     teachers?: TeacherListRelationFilter
     topics?: TopicListRelationFilter
     users?: UserListRelationFilter
+    examPapers?: ExamPaperListRelationFilter
+    examPaperTemplates?: ExamPaperTemplateListRelationFilter
   }
 
   export type SchoolOrderByWithRelationInput = {
@@ -24389,7 +27555,8 @@ export namespace Prisma {
     teachers?: TeacherOrderByRelationAggregateInput
     topics?: TopicOrderByRelationAggregateInput
     users?: UserOrderByRelationAggregateInput
-    _relevance?: SchoolOrderByRelevanceInput
+    examPapers?: ExamPaperOrderByRelationAggregateInput
+    examPaperTemplates?: ExamPaperTemplateOrderByRelationAggregateInput
   }
 
   export type SchoolWhereUniqueInput = Prisma.AtLeast<{
@@ -24420,6 +27587,8 @@ export namespace Prisma {
     teachers?: TeacherListRelationFilter
     topics?: TopicListRelationFilter
     users?: UserListRelationFilter
+    examPapers?: ExamPaperListRelationFilter
+    examPaperTemplates?: ExamPaperTemplateListRelationFilter
   }, "id" | "slug">
 
   export type SchoolOrderByWithAggregationInput = {
@@ -24469,7 +27638,7 @@ export namespace Prisma {
     isArchived?: BoolFilter<"AcademicSession"> | boolean
     createdAt?: DateTimeFilter<"AcademicSession"> | Date | string
     updatedAt?: DateTimeFilter<"AcademicSession"> | Date | string
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
     academicTerms?: AcademicTermListRelationFilter
     chapterProgress?: ChapterProgressListRelationFilter
     classes?: ClassListRelationFilter
@@ -24479,6 +27648,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassListRelationFilter
     teachers?: TeacherListRelationFilter
     topicProgress?: TopicProgressListRelationFilter
+    examPapers?: ExamPaperListRelationFilter
   }
 
   export type AcademicSessionOrderByWithRelationInput = {
@@ -24499,7 +27669,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassOrderByRelationAggregateInput
     teachers?: TeacherOrderByRelationAggregateInput
     topicProgress?: TopicProgressOrderByRelationAggregateInput
-    _relevance?: AcademicSessionOrderByRelevanceInput
+    examPapers?: ExamPaperOrderByRelationAggregateInput
   }
 
   export type AcademicSessionWhereUniqueInput = Prisma.AtLeast<{
@@ -24514,7 +27684,7 @@ export namespace Prisma {
     isArchived?: BoolFilter<"AcademicSession"> | boolean
     createdAt?: DateTimeFilter<"AcademicSession"> | Date | string
     updatedAt?: DateTimeFilter<"AcademicSession"> | Date | string
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
     academicTerms?: AcademicTermListRelationFilter
     chapterProgress?: ChapterProgressListRelationFilter
     classes?: ClassListRelationFilter
@@ -24524,6 +27694,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassListRelationFilter
     teachers?: TeacherListRelationFilter
     topicProgress?: TopicProgressListRelationFilter
+    examPapers?: ExamPaperListRelationFilter
   }, "id" | "schoolId_name">
 
   export type AcademicSessionOrderByWithAggregationInput = {
@@ -24587,7 +27758,6 @@ export namespace Prisma {
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
     subscriptions?: SubscriptionOrderByRelationAggregateInput
-    _relevance?: SubscriptionPlanOrderByRelevanceInput
   }
 
   export type SubscriptionPlanWhereUniqueInput = Prisma.AtLeast<{
@@ -24662,8 +27832,8 @@ export namespace Prisma {
     endDate?: DateTimeFilter<"Subscription"> | Date | string
     createdAt?: DateTimeFilter<"Subscription"> | Date | string
     updatedAt?: DateTimeFilter<"Subscription"> | Date | string
-    plan?: XOR<SubscriptionPlanScalarRelationFilter, SubscriptionPlanWhereInput>
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
+    plan?: XOR<SubscriptionPlanRelationFilter, SubscriptionPlanWhereInput>
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
   }
 
   export type SubscriptionOrderByWithRelationInput = {
@@ -24677,7 +27847,6 @@ export namespace Prisma {
     updatedAt?: SortOrder
     plan?: SubscriptionPlanOrderByWithRelationInput
     school?: SchoolOrderByWithRelationInput
-    _relevance?: SubscriptionOrderByRelevanceInput
   }
 
   export type SubscriptionWhereUniqueInput = Prisma.AtLeast<{
@@ -24692,8 +27861,8 @@ export namespace Prisma {
     endDate?: DateTimeFilter<"Subscription"> | Date | string
     createdAt?: DateTimeFilter<"Subscription"> | Date | string
     updatedAt?: DateTimeFilter<"Subscription"> | Date | string
-    plan?: XOR<SubscriptionPlanScalarRelationFilter, SubscriptionPlanWhereInput>
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
+    plan?: XOR<SubscriptionPlanRelationFilter, SubscriptionPlanWhereInput>
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
   }, "id">
 
   export type SubscriptionOrderByWithAggregationInput = {
@@ -24736,12 +27905,13 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Teacher"> | Date | string
     updatedAt?: DateTimeFilter<"Teacher"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Teacher"> | Date | string | null
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
     chapterProgress?: ChapterProgressListRelationFilter
     teacherClasses?: TeacherClassListRelationFilter
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
+    user?: XOR<UserRelationFilter, UserWhereInput>
     topicProgress?: TopicProgressListRelationFilter
+    examPapers?: ExamPaperListRelationFilter
   }
 
   export type TeacherOrderByWithRelationInput = {
@@ -24759,7 +27929,7 @@ export namespace Prisma {
     school?: SchoolOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
     topicProgress?: TopicProgressOrderByRelationAggregateInput
-    _relevance?: TeacherOrderByRelevanceInput
+    examPapers?: ExamPaperOrderByRelationAggregateInput
   }
 
   export type TeacherWhereUniqueInput = Prisma.AtLeast<{
@@ -24775,12 +27945,13 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Teacher"> | Date | string
     updatedAt?: DateTimeFilter<"Teacher"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Teacher"> | Date | string | null
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
     chapterProgress?: ChapterProgressListRelationFilter
     teacherClasses?: TeacherClassListRelationFilter
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
+    user?: XOR<UserRelationFilter, UserWhereInput>
     topicProgress?: TopicProgressListRelationFilter
+    examPapers?: ExamPaperListRelationFilter
   }, "id" | "userId" | "schoolId_userId_academicSessionId">
 
   export type TeacherOrderByWithAggregationInput = {
@@ -24826,11 +27997,12 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Class"> | Date | string
     updatedAt?: DateTimeFilter<"Class"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Class"> | Date | string | null
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
     chapters?: ChapterListRelationFilter
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
     subjects?: SubjectListRelationFilter
     teacherClasses?: TeacherClassListRelationFilter
+    examPapers?: ExamPaperListRelationFilter
   }
 
   export type ClassOrderByWithRelationInput = {
@@ -24850,7 +28022,7 @@ export namespace Prisma {
     school?: SchoolOrderByWithRelationInput
     subjects?: SubjectOrderByRelationAggregateInput
     teacherClasses?: TeacherClassOrderByRelationAggregateInput
-    _relevance?: ClassOrderByRelevanceInput
+    examPapers?: ExamPaperOrderByRelationAggregateInput
   }
 
   export type ClassWhereUniqueInput = Prisma.AtLeast<{
@@ -24869,11 +28041,12 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Class"> | Date | string
     updatedAt?: DateTimeFilter<"Class"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Class"> | Date | string | null
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
     chapters?: ChapterListRelationFilter
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
     subjects?: SubjectListRelationFilter
     teacherClasses?: TeacherClassListRelationFilter
+    examPapers?: ExamPaperListRelationFilter
   }, "id" | "schoolId_academicSessionId_name_section">
 
   export type ClassOrderByWithAggregationInput = {
@@ -24928,11 +28101,12 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Subject"> | Date | string
     updatedAt?: DateTimeFilter<"Subject"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Subject"> | Date | string | null
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
     chapters?: ChapterListRelationFilter
-    class?: XOR<ClassNullableScalarRelationFilter, ClassWhereInput> | null
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
+    class?: XOR<ClassNullableRelationFilter, ClassWhereInput> | null
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
     teacherClasses?: TeacherClassListRelationFilter
+    examPapers?: ExamPaperListRelationFilter
   }
 
   export type SubjectOrderByWithRelationInput = {
@@ -24953,7 +28127,7 @@ export namespace Prisma {
     class?: ClassOrderByWithRelationInput
     school?: SchoolOrderByWithRelationInput
     teacherClasses?: TeacherClassOrderByRelationAggregateInput
-    _relevance?: SubjectOrderByRelevanceInput
+    examPapers?: ExamPaperOrderByRelationAggregateInput
   }
 
   export type SubjectWhereUniqueInput = Prisma.AtLeast<{
@@ -24973,11 +28147,12 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Subject"> | Date | string
     updatedAt?: DateTimeFilter<"Subject"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Subject"> | Date | string | null
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
     chapters?: ChapterListRelationFilter
-    class?: XOR<ClassNullableScalarRelationFilter, ClassWhereInput> | null
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
+    class?: XOR<ClassNullableRelationFilter, ClassWhereInput> | null
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
     teacherClasses?: TeacherClassListRelationFilter
+    examPapers?: ExamPaperListRelationFilter
   }, "id" | "schoolId_academicSessionId_classId_name">
 
   export type SubjectOrderByWithAggregationInput = {
@@ -25037,11 +28212,11 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Chapter"> | Date | string
     updatedAt?: DateTimeFilter<"Chapter"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Chapter"> | Date | string | null
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
     chapterProgress?: ChapterProgressListRelationFilter
-    class?: XOR<ClassScalarRelationFilter, ClassWhereInput>
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
-    subject?: XOR<SubjectScalarRelationFilter, SubjectWhereInput>
+    class?: XOR<ClassRelationFilter, ClassWhereInput>
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
+    subject?: XOR<SubjectRelationFilter, SubjectWhereInput>
     topics?: TopicListRelationFilter
   }
 
@@ -25067,7 +28242,6 @@ export namespace Prisma {
     school?: SchoolOrderByWithRelationInput
     subject?: SubjectOrderByWithRelationInput
     topics?: TopicOrderByRelationAggregateInput
-    _relevance?: ChapterOrderByRelevanceInput
   }
 
   export type ChapterWhereUniqueInput = Prisma.AtLeast<{
@@ -25089,11 +28263,11 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Chapter"> | Date | string
     updatedAt?: DateTimeFilter<"Chapter"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Chapter"> | Date | string | null
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
     chapterProgress?: ChapterProgressListRelationFilter
-    class?: XOR<ClassScalarRelationFilter, ClassWhereInput>
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
-    subject?: XOR<SubjectScalarRelationFilter, SubjectWhereInput>
+    class?: XOR<ClassRelationFilter, ClassWhereInput>
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
+    subject?: XOR<SubjectRelationFilter, SubjectWhereInput>
     topics?: TopicListRelationFilter
   }, "id">
 
@@ -25156,10 +28330,10 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Topic"> | Date | string
     updatedAt?: DateTimeFilter<"Topic"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Topic"> | Date | string | null
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
     topicProgress?: TopicProgressListRelationFilter
-    chapter?: XOR<ChapterScalarRelationFilter, ChapterWhereInput>
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
+    chapter?: XOR<ChapterRelationFilter, ChapterWhereInput>
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
   }
 
   export type TopicOrderByWithRelationInput = {
@@ -25178,7 +28352,6 @@ export namespace Prisma {
     topicProgress?: TopicProgressOrderByRelationAggregateInput
     chapter?: ChapterOrderByWithRelationInput
     school?: SchoolOrderByWithRelationInput
-    _relevance?: TopicOrderByRelevanceInput
   }
 
   export type TopicWhereUniqueInput = Prisma.AtLeast<{
@@ -25196,10 +28369,10 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Topic"> | Date | string
     updatedAt?: DateTimeFilter<"Topic"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Topic"> | Date | string | null
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
     topicProgress?: TopicProgressListRelationFilter
-    chapter?: XOR<ChapterScalarRelationFilter, ChapterWhereInput>
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
+    chapter?: XOR<ChapterRelationFilter, ChapterWhereInput>
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
   }, "id">
 
   export type TopicOrderByWithAggregationInput = {
@@ -25249,10 +28422,10 @@ export namespace Prisma {
     classId?: StringFilter<"TeacherClass"> | string
     subjectId?: StringNullableFilter<"TeacherClass"> | string | null
     createdAt?: DateTimeFilter<"TeacherClass"> | Date | string
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
-    class?: XOR<ClassScalarRelationFilter, ClassWhereInput>
-    subject?: XOR<SubjectNullableScalarRelationFilter, SubjectWhereInput> | null
-    teacher?: XOR<TeacherScalarRelationFilter, TeacherWhereInput>
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
+    class?: XOR<ClassRelationFilter, ClassWhereInput>
+    subject?: XOR<SubjectNullableRelationFilter, SubjectWhereInput> | null
+    teacher?: XOR<TeacherRelationFilter, TeacherWhereInput>
   }
 
   export type TeacherClassOrderByWithRelationInput = {
@@ -25267,7 +28440,6 @@ export namespace Prisma {
     class?: ClassOrderByWithRelationInput
     subject?: SubjectOrderByWithRelationInput
     teacher?: TeacherOrderByWithRelationInput
-    _relevance?: TeacherClassOrderByRelevanceInput
   }
 
   export type TeacherClassWhereUniqueInput = Prisma.AtLeast<{
@@ -25282,10 +28454,10 @@ export namespace Prisma {
     classId?: StringFilter<"TeacherClass"> | string
     subjectId?: StringNullableFilter<"TeacherClass"> | string | null
     createdAt?: DateTimeFilter<"TeacherClass"> | Date | string
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
-    class?: XOR<ClassScalarRelationFilter, ClassWhereInput>
-    subject?: XOR<SubjectNullableScalarRelationFilter, SubjectWhereInput> | null
-    teacher?: XOR<TeacherScalarRelationFilter, TeacherWhereInput>
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
+    class?: XOR<ClassRelationFilter, ClassWhereInput>
+    subject?: XOR<SubjectNullableRelationFilter, SubjectWhereInput> | null
+    teacher?: XOR<TeacherRelationFilter, TeacherWhereInput>
   }, "id" | "teacherId_classId_subjectId_schoolId_academicSessionId">
 
   export type TeacherClassOrderByWithAggregationInput = {
@@ -25332,10 +28504,10 @@ export namespace Prisma {
     updatedById?: StringNullableFilter<"ChapterProgress"> | string | null
     createdAt?: DateTimeFilter<"ChapterProgress"> | Date | string
     updatedAt?: DateTimeFilter<"ChapterProgress"> | Date | string
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
-    chapter?: XOR<ChapterScalarRelationFilter, ChapterWhereInput>
-    teacher?: XOR<TeacherScalarRelationFilter, TeacherWhereInput>
-    updatedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
+    chapter?: XOR<ChapterRelationFilter, ChapterWhereInput>
+    teacher?: XOR<TeacherRelationFilter, TeacherWhereInput>
+    updatedBy?: XOR<UserNullableRelationFilter, UserWhereInput> | null
   }
 
   export type ChapterProgressOrderByWithRelationInput = {
@@ -25357,7 +28529,6 @@ export namespace Prisma {
     chapter?: ChapterOrderByWithRelationInput
     teacher?: TeacherOrderByWithRelationInput
     updatedBy?: UserOrderByWithRelationInput
-    _relevance?: ChapterProgressOrderByRelevanceInput
   }
 
   export type ChapterProgressWhereUniqueInput = Prisma.AtLeast<{
@@ -25379,10 +28550,10 @@ export namespace Prisma {
     updatedById?: StringNullableFilter<"ChapterProgress"> | string | null
     createdAt?: DateTimeFilter<"ChapterProgress"> | Date | string
     updatedAt?: DateTimeFilter<"ChapterProgress"> | Date | string
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
-    chapter?: XOR<ChapterScalarRelationFilter, ChapterWhereInput>
-    teacher?: XOR<TeacherScalarRelationFilter, TeacherWhereInput>
-    updatedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
+    chapter?: XOR<ChapterRelationFilter, ChapterWhereInput>
+    teacher?: XOR<TeacherRelationFilter, TeacherWhereInput>
+    updatedBy?: XOR<UserNullableRelationFilter, UserWhereInput> | null
   }, "id" | "schoolId_chapterId_teacherId_academicSessionId">
 
   export type ChapterProgressOrderByWithAggregationInput = {
@@ -25441,10 +28612,10 @@ export namespace Prisma {
     updatedById?: StringNullableFilter<"TopicProgress"> | string | null
     createdAt?: DateTimeFilter<"TopicProgress"> | Date | string
     updatedAt?: DateTimeFilter<"TopicProgress"> | Date | string
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
-    teacher?: XOR<TeacherScalarRelationFilter, TeacherWhereInput>
-    topic?: XOR<TopicScalarRelationFilter, TopicWhereInput>
-    updatedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
+    teacher?: XOR<TeacherRelationFilter, TeacherWhereInput>
+    topic?: XOR<TopicRelationFilter, TopicWhereInput>
+    updatedBy?: XOR<UserNullableRelationFilter, UserWhereInput> | null
   }
 
   export type TopicProgressOrderByWithRelationInput = {
@@ -25462,7 +28633,6 @@ export namespace Prisma {
     teacher?: TeacherOrderByWithRelationInput
     topic?: TopicOrderByWithRelationInput
     updatedBy?: UserOrderByWithRelationInput
-    _relevance?: TopicProgressOrderByRelevanceInput
   }
 
   export type TopicProgressWhereUniqueInput = Prisma.AtLeast<{
@@ -25480,10 +28650,10 @@ export namespace Prisma {
     updatedById?: StringNullableFilter<"TopicProgress"> | string | null
     createdAt?: DateTimeFilter<"TopicProgress"> | Date | string
     updatedAt?: DateTimeFilter<"TopicProgress"> | Date | string
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
-    teacher?: XOR<TeacherScalarRelationFilter, TeacherWhereInput>
-    topic?: XOR<TopicScalarRelationFilter, TopicWhereInput>
-    updatedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
+    teacher?: XOR<TeacherRelationFilter, TeacherWhereInput>
+    topic?: XOR<TopicRelationFilter, TopicWhereInput>
+    updatedBy?: XOR<UserNullableRelationFilter, UserWhereInput> | null
   }, "id" | "schoolId_topicId_teacherId_academicSessionId">
 
   export type TopicProgressOrderByWithAggregationInput = {
@@ -25518,6 +28688,340 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"TopicProgress"> | Date | string
   }
 
+  export type ExamPaperWhereInput = {
+    AND?: ExamPaperWhereInput | ExamPaperWhereInput[]
+    OR?: ExamPaperWhereInput[]
+    NOT?: ExamPaperWhereInput | ExamPaperWhereInput[]
+    id?: StringFilter<"ExamPaper"> | string
+    schoolId?: StringFilter<"ExamPaper"> | string
+    academicSessionId?: StringFilter<"ExamPaper"> | string
+    teacherId?: StringFilter<"ExamPaper"> | string
+    classId?: StringFilter<"ExamPaper"> | string
+    subjectId?: StringFilter<"ExamPaper"> | string
+    examName?: StringFilter<"ExamPaper"> | string
+    examDate?: DateTimeFilter<"ExamPaper"> | Date | string
+    totalMarks?: IntNullableFilter<"ExamPaper"> | number | null
+    duration?: IntNullableFilter<"ExamPaper"> | number | null
+    instructions?: StringNullableFilter<"ExamPaper"> | string | null
+    status?: EnumExamPaperStatusFilter<"ExamPaper"> | $Enums.ExamPaperStatus
+    styleFontFamily?: StringNullableFilter<"ExamPaper"> | string | null
+    styleFontSize?: StringNullableFilter<"ExamPaper"> | string | null
+    styleColor?: StringNullableFilter<"ExamPaper"> | string | null
+    templateType?: StringNullableFilter<"ExamPaper"> | string | null
+    createdAt?: DateTimeFilter<"ExamPaper"> | Date | string
+    updatedAt?: DateTimeFilter<"ExamPaper"> | Date | string
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
+    teacher?: XOR<TeacherRelationFilter, TeacherWhereInput>
+    class?: XOR<ClassRelationFilter, ClassWhereInput>
+    subject?: XOR<SubjectRelationFilter, SubjectWhereInput>
+    sections?: ExamSectionListRelationFilter
+  }
+
+  export type ExamPaperOrderByWithRelationInput = {
+    id?: SortOrder
+    schoolId?: SortOrder
+    academicSessionId?: SortOrder
+    teacherId?: SortOrder
+    classId?: SortOrder
+    subjectId?: SortOrder
+    examName?: SortOrder
+    examDate?: SortOrder
+    totalMarks?: SortOrderInput | SortOrder
+    duration?: SortOrderInput | SortOrder
+    instructions?: SortOrderInput | SortOrder
+    status?: SortOrder
+    styleFontFamily?: SortOrderInput | SortOrder
+    styleFontSize?: SortOrderInput | SortOrder
+    styleColor?: SortOrderInput | SortOrder
+    templateType?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    school?: SchoolOrderByWithRelationInput
+    academicSession?: AcademicSessionOrderByWithRelationInput
+    teacher?: TeacherOrderByWithRelationInput
+    class?: ClassOrderByWithRelationInput
+    subject?: SubjectOrderByWithRelationInput
+    sections?: ExamSectionOrderByRelationAggregateInput
+  }
+
+  export type ExamPaperWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ExamPaperWhereInput | ExamPaperWhereInput[]
+    OR?: ExamPaperWhereInput[]
+    NOT?: ExamPaperWhereInput | ExamPaperWhereInput[]
+    schoolId?: StringFilter<"ExamPaper"> | string
+    academicSessionId?: StringFilter<"ExamPaper"> | string
+    teacherId?: StringFilter<"ExamPaper"> | string
+    classId?: StringFilter<"ExamPaper"> | string
+    subjectId?: StringFilter<"ExamPaper"> | string
+    examName?: StringFilter<"ExamPaper"> | string
+    examDate?: DateTimeFilter<"ExamPaper"> | Date | string
+    totalMarks?: IntNullableFilter<"ExamPaper"> | number | null
+    duration?: IntNullableFilter<"ExamPaper"> | number | null
+    instructions?: StringNullableFilter<"ExamPaper"> | string | null
+    status?: EnumExamPaperStatusFilter<"ExamPaper"> | $Enums.ExamPaperStatus
+    styleFontFamily?: StringNullableFilter<"ExamPaper"> | string | null
+    styleFontSize?: StringNullableFilter<"ExamPaper"> | string | null
+    styleColor?: StringNullableFilter<"ExamPaper"> | string | null
+    templateType?: StringNullableFilter<"ExamPaper"> | string | null
+    createdAt?: DateTimeFilter<"ExamPaper"> | Date | string
+    updatedAt?: DateTimeFilter<"ExamPaper"> | Date | string
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
+    teacher?: XOR<TeacherRelationFilter, TeacherWhereInput>
+    class?: XOR<ClassRelationFilter, ClassWhereInput>
+    subject?: XOR<SubjectRelationFilter, SubjectWhereInput>
+    sections?: ExamSectionListRelationFilter
+  }, "id">
+
+  export type ExamPaperOrderByWithAggregationInput = {
+    id?: SortOrder
+    schoolId?: SortOrder
+    academicSessionId?: SortOrder
+    teacherId?: SortOrder
+    classId?: SortOrder
+    subjectId?: SortOrder
+    examName?: SortOrder
+    examDate?: SortOrder
+    totalMarks?: SortOrderInput | SortOrder
+    duration?: SortOrderInput | SortOrder
+    instructions?: SortOrderInput | SortOrder
+    status?: SortOrder
+    styleFontFamily?: SortOrderInput | SortOrder
+    styleFontSize?: SortOrderInput | SortOrder
+    styleColor?: SortOrderInput | SortOrder
+    templateType?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ExamPaperCountOrderByAggregateInput
+    _avg?: ExamPaperAvgOrderByAggregateInput
+    _max?: ExamPaperMaxOrderByAggregateInput
+    _min?: ExamPaperMinOrderByAggregateInput
+    _sum?: ExamPaperSumOrderByAggregateInput
+  }
+
+  export type ExamPaperScalarWhereWithAggregatesInput = {
+    AND?: ExamPaperScalarWhereWithAggregatesInput | ExamPaperScalarWhereWithAggregatesInput[]
+    OR?: ExamPaperScalarWhereWithAggregatesInput[]
+    NOT?: ExamPaperScalarWhereWithAggregatesInput | ExamPaperScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ExamPaper"> | string
+    schoolId?: StringWithAggregatesFilter<"ExamPaper"> | string
+    academicSessionId?: StringWithAggregatesFilter<"ExamPaper"> | string
+    teacherId?: StringWithAggregatesFilter<"ExamPaper"> | string
+    classId?: StringWithAggregatesFilter<"ExamPaper"> | string
+    subjectId?: StringWithAggregatesFilter<"ExamPaper"> | string
+    examName?: StringWithAggregatesFilter<"ExamPaper"> | string
+    examDate?: DateTimeWithAggregatesFilter<"ExamPaper"> | Date | string
+    totalMarks?: IntNullableWithAggregatesFilter<"ExamPaper"> | number | null
+    duration?: IntNullableWithAggregatesFilter<"ExamPaper"> | number | null
+    instructions?: StringNullableWithAggregatesFilter<"ExamPaper"> | string | null
+    status?: EnumExamPaperStatusWithAggregatesFilter<"ExamPaper"> | $Enums.ExamPaperStatus
+    styleFontFamily?: StringNullableWithAggregatesFilter<"ExamPaper"> | string | null
+    styleFontSize?: StringNullableWithAggregatesFilter<"ExamPaper"> | string | null
+    styleColor?: StringNullableWithAggregatesFilter<"ExamPaper"> | string | null
+    templateType?: StringNullableWithAggregatesFilter<"ExamPaper"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ExamPaper"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ExamPaper"> | Date | string
+  }
+
+  export type ExamSectionWhereInput = {
+    AND?: ExamSectionWhereInput | ExamSectionWhereInput[]
+    OR?: ExamSectionWhereInput[]
+    NOT?: ExamSectionWhereInput | ExamSectionWhereInput[]
+    id?: StringFilter<"ExamSection"> | string
+    examPaperId?: StringFilter<"ExamSection"> | string
+    label?: StringFilter<"ExamSection"> | string
+    type?: EnumQuestionTypeFilter<"ExamSection"> | $Enums.QuestionType
+    marksEach?: IntFilter<"ExamSection"> | number
+    order?: IntFilter<"ExamSection"> | number
+    examPaper?: XOR<ExamPaperRelationFilter, ExamPaperWhereInput>
+    questions?: ExamQuestionListRelationFilter
+  }
+
+  export type ExamSectionOrderByWithRelationInput = {
+    id?: SortOrder
+    examPaperId?: SortOrder
+    label?: SortOrder
+    type?: SortOrder
+    marksEach?: SortOrder
+    order?: SortOrder
+    examPaper?: ExamPaperOrderByWithRelationInput
+    questions?: ExamQuestionOrderByRelationAggregateInput
+  }
+
+  export type ExamSectionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ExamSectionWhereInput | ExamSectionWhereInput[]
+    OR?: ExamSectionWhereInput[]
+    NOT?: ExamSectionWhereInput | ExamSectionWhereInput[]
+    examPaperId?: StringFilter<"ExamSection"> | string
+    label?: StringFilter<"ExamSection"> | string
+    type?: EnumQuestionTypeFilter<"ExamSection"> | $Enums.QuestionType
+    marksEach?: IntFilter<"ExamSection"> | number
+    order?: IntFilter<"ExamSection"> | number
+    examPaper?: XOR<ExamPaperRelationFilter, ExamPaperWhereInput>
+    questions?: ExamQuestionListRelationFilter
+  }, "id">
+
+  export type ExamSectionOrderByWithAggregationInput = {
+    id?: SortOrder
+    examPaperId?: SortOrder
+    label?: SortOrder
+    type?: SortOrder
+    marksEach?: SortOrder
+    order?: SortOrder
+    _count?: ExamSectionCountOrderByAggregateInput
+    _avg?: ExamSectionAvgOrderByAggregateInput
+    _max?: ExamSectionMaxOrderByAggregateInput
+    _min?: ExamSectionMinOrderByAggregateInput
+    _sum?: ExamSectionSumOrderByAggregateInput
+  }
+
+  export type ExamSectionScalarWhereWithAggregatesInput = {
+    AND?: ExamSectionScalarWhereWithAggregatesInput | ExamSectionScalarWhereWithAggregatesInput[]
+    OR?: ExamSectionScalarWhereWithAggregatesInput[]
+    NOT?: ExamSectionScalarWhereWithAggregatesInput | ExamSectionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ExamSection"> | string
+    examPaperId?: StringWithAggregatesFilter<"ExamSection"> | string
+    label?: StringWithAggregatesFilter<"ExamSection"> | string
+    type?: EnumQuestionTypeWithAggregatesFilter<"ExamSection"> | $Enums.QuestionType
+    marksEach?: IntWithAggregatesFilter<"ExamSection"> | number
+    order?: IntWithAggregatesFilter<"ExamSection"> | number
+  }
+
+  export type ExamQuestionWhereInput = {
+    AND?: ExamQuestionWhereInput | ExamQuestionWhereInput[]
+    OR?: ExamQuestionWhereInput[]
+    NOT?: ExamQuestionWhereInput | ExamQuestionWhereInput[]
+    id?: StringFilter<"ExamQuestion"> | string
+    sectionId?: StringFilter<"ExamQuestion"> | string
+    questionText?: StringFilter<"ExamQuestion"> | string
+    options?: JsonNullableFilter<"ExamQuestion">
+    imageUrl?: StringNullableFilter<"ExamQuestion"> | string | null
+    subject?: StringNullableFilter<"ExamQuestion"> | string | null
+    order?: IntFilter<"ExamQuestion"> | number
+    section?: XOR<ExamSectionRelationFilter, ExamSectionWhereInput>
+  }
+
+  export type ExamQuestionOrderByWithRelationInput = {
+    id?: SortOrder
+    sectionId?: SortOrder
+    questionText?: SortOrder
+    options?: SortOrderInput | SortOrder
+    imageUrl?: SortOrderInput | SortOrder
+    subject?: SortOrderInput | SortOrder
+    order?: SortOrder
+    section?: ExamSectionOrderByWithRelationInput
+  }
+
+  export type ExamQuestionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ExamQuestionWhereInput | ExamQuestionWhereInput[]
+    OR?: ExamQuestionWhereInput[]
+    NOT?: ExamQuestionWhereInput | ExamQuestionWhereInput[]
+    sectionId?: StringFilter<"ExamQuestion"> | string
+    questionText?: StringFilter<"ExamQuestion"> | string
+    options?: JsonNullableFilter<"ExamQuestion">
+    imageUrl?: StringNullableFilter<"ExamQuestion"> | string | null
+    subject?: StringNullableFilter<"ExamQuestion"> | string | null
+    order?: IntFilter<"ExamQuestion"> | number
+    section?: XOR<ExamSectionRelationFilter, ExamSectionWhereInput>
+  }, "id">
+
+  export type ExamQuestionOrderByWithAggregationInput = {
+    id?: SortOrder
+    sectionId?: SortOrder
+    questionText?: SortOrder
+    options?: SortOrderInput | SortOrder
+    imageUrl?: SortOrderInput | SortOrder
+    subject?: SortOrderInput | SortOrder
+    order?: SortOrder
+    _count?: ExamQuestionCountOrderByAggregateInput
+    _avg?: ExamQuestionAvgOrderByAggregateInput
+    _max?: ExamQuestionMaxOrderByAggregateInput
+    _min?: ExamQuestionMinOrderByAggregateInput
+    _sum?: ExamQuestionSumOrderByAggregateInput
+  }
+
+  export type ExamQuestionScalarWhereWithAggregatesInput = {
+    AND?: ExamQuestionScalarWhereWithAggregatesInput | ExamQuestionScalarWhereWithAggregatesInput[]
+    OR?: ExamQuestionScalarWhereWithAggregatesInput[]
+    NOT?: ExamQuestionScalarWhereWithAggregatesInput | ExamQuestionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ExamQuestion"> | string
+    sectionId?: StringWithAggregatesFilter<"ExamQuestion"> | string
+    questionText?: StringWithAggregatesFilter<"ExamQuestion"> | string
+    options?: JsonNullableWithAggregatesFilter<"ExamQuestion">
+    imageUrl?: StringNullableWithAggregatesFilter<"ExamQuestion"> | string | null
+    subject?: StringNullableWithAggregatesFilter<"ExamQuestion"> | string | null
+    order?: IntWithAggregatesFilter<"ExamQuestion"> | number
+  }
+
+  export type ExamPaperTemplateWhereInput = {
+    AND?: ExamPaperTemplateWhereInput | ExamPaperTemplateWhereInput[]
+    OR?: ExamPaperTemplateWhereInput[]
+    NOT?: ExamPaperTemplateWhereInput | ExamPaperTemplateWhereInput[]
+    id?: StringFilter<"ExamPaperTemplate"> | string
+    schoolId?: StringFilter<"ExamPaperTemplate"> | string
+    headerHtml?: StringFilter<"ExamPaperTemplate"> | string
+    footerHtml?: StringNullableFilter<"ExamPaperTemplate"> | string | null
+    instructions?: StringNullableFilter<"ExamPaperTemplate"> | string | null
+    logoUrl?: StringNullableFilter<"ExamPaperTemplate"> | string | null
+    updatedAt?: DateTimeFilter<"ExamPaperTemplate"> | Date | string
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
+  }
+
+  export type ExamPaperTemplateOrderByWithRelationInput = {
+    id?: SortOrder
+    schoolId?: SortOrder
+    headerHtml?: SortOrder
+    footerHtml?: SortOrderInput | SortOrder
+    instructions?: SortOrderInput | SortOrder
+    logoUrl?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    school?: SchoolOrderByWithRelationInput
+  }
+
+  export type ExamPaperTemplateWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    schoolId?: string
+    AND?: ExamPaperTemplateWhereInput | ExamPaperTemplateWhereInput[]
+    OR?: ExamPaperTemplateWhereInput[]
+    NOT?: ExamPaperTemplateWhereInput | ExamPaperTemplateWhereInput[]
+    headerHtml?: StringFilter<"ExamPaperTemplate"> | string
+    footerHtml?: StringNullableFilter<"ExamPaperTemplate"> | string | null
+    instructions?: StringNullableFilter<"ExamPaperTemplate"> | string | null
+    logoUrl?: StringNullableFilter<"ExamPaperTemplate"> | string | null
+    updatedAt?: DateTimeFilter<"ExamPaperTemplate"> | Date | string
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
+  }, "id" | "schoolId">
+
+  export type ExamPaperTemplateOrderByWithAggregationInput = {
+    id?: SortOrder
+    schoolId?: SortOrder
+    headerHtml?: SortOrder
+    footerHtml?: SortOrderInput | SortOrder
+    instructions?: SortOrderInput | SortOrder
+    logoUrl?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    _count?: ExamPaperTemplateCountOrderByAggregateInput
+    _max?: ExamPaperTemplateMaxOrderByAggregateInput
+    _min?: ExamPaperTemplateMinOrderByAggregateInput
+  }
+
+  export type ExamPaperTemplateScalarWhereWithAggregatesInput = {
+    AND?: ExamPaperTemplateScalarWhereWithAggregatesInput | ExamPaperTemplateScalarWhereWithAggregatesInput[]
+    OR?: ExamPaperTemplateScalarWhereWithAggregatesInput[]
+    NOT?: ExamPaperTemplateScalarWhereWithAggregatesInput | ExamPaperTemplateScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ExamPaperTemplate"> | string
+    schoolId?: StringWithAggregatesFilter<"ExamPaperTemplate"> | string
+    headerHtml?: StringWithAggregatesFilter<"ExamPaperTemplate"> | string
+    footerHtml?: StringNullableWithAggregatesFilter<"ExamPaperTemplate"> | string | null
+    instructions?: StringNullableWithAggregatesFilter<"ExamPaperTemplate"> | string | null
+    logoUrl?: StringNullableWithAggregatesFilter<"ExamPaperTemplate"> | string | null
+    updatedAt?: DateTimeWithAggregatesFilter<"ExamPaperTemplate"> | Date | string
+  }
+
   export type NotificationWhereInput = {
     AND?: NotificationWhereInput | NotificationWhereInput[]
     OR?: NotificationWhereInput[]
@@ -25531,8 +29035,8 @@ export namespace Prisma {
     isRead?: BoolFilter<"Notification"> | boolean
     metadata?: JsonNullableFilter<"Notification">
     createdAt?: DateTimeFilter<"Notification"> | Date | string
-    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    school?: XOR<SchoolNullableRelationFilter, SchoolWhereInput> | null
+    user?: XOR<UserRelationFilter, UserWhereInput>
   }
 
   export type NotificationOrderByWithRelationInput = {
@@ -25547,7 +29051,6 @@ export namespace Prisma {
     createdAt?: SortOrder
     school?: SchoolOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
-    _relevance?: NotificationOrderByRelevanceInput
   }
 
   export type NotificationWhereUniqueInput = Prisma.AtLeast<{
@@ -25563,8 +29066,8 @@ export namespace Prisma {
     isRead?: BoolFilter<"Notification"> | boolean
     metadata?: JsonNullableFilter<"Notification">
     createdAt?: DateTimeFilter<"Notification"> | Date | string
-    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    school?: XOR<SchoolNullableRelationFilter, SchoolWhereInput> | null
+    user?: XOR<UserRelationFilter, UserWhereInput>
   }, "id">
 
   export type NotificationOrderByWithAggregationInput = {
@@ -25610,8 +29113,8 @@ export namespace Prisma {
     metadata?: JsonNullableFilter<"ActivityLog">
     ipAddress?: StringNullableFilter<"ActivityLog"> | string | null
     createdAt?: DateTimeFilter<"ActivityLog"> | Date | string
-    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    school?: XOR<SchoolNullableRelationFilter, SchoolWhereInput> | null
+    user?: XOR<UserRelationFilter, UserWhereInput>
   }
 
   export type ActivityLogOrderByWithRelationInput = {
@@ -25626,7 +29129,6 @@ export namespace Prisma {
     createdAt?: SortOrder
     school?: SchoolOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
-    _relevance?: ActivityLogOrderByRelevanceInput
   }
 
   export type ActivityLogWhereUniqueInput = Prisma.AtLeast<{
@@ -25642,8 +29144,8 @@ export namespace Prisma {
     metadata?: JsonNullableFilter<"ActivityLog">
     ipAddress?: StringNullableFilter<"ActivityLog"> | string | null
     createdAt?: DateTimeFilter<"ActivityLog"> | Date | string
-    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    school?: XOR<SchoolNullableRelationFilter, SchoolWhereInput> | null
+    user?: XOR<UserRelationFilter, UserWhereInput>
   }, "id">
 
   export type ActivityLogOrderByWithAggregationInput = {
@@ -25690,8 +29192,8 @@ export namespace Prisma {
     newValues?: JsonNullableFilter<"AuditLog">
     ipAddress?: StringNullableFilter<"AuditLog"> | string | null
     createdAt?: DateTimeFilter<"AuditLog"> | Date | string
-    actor?: XOR<UserScalarRelationFilter, UserWhereInput>
-    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
+    actor?: XOR<UserRelationFilter, UserWhereInput>
+    school?: XOR<SchoolNullableRelationFilter, SchoolWhereInput> | null
   }
 
   export type AuditLogOrderByWithRelationInput = {
@@ -25707,7 +29209,6 @@ export namespace Prisma {
     createdAt?: SortOrder
     actor?: UserOrderByWithRelationInput
     school?: SchoolOrderByWithRelationInput
-    _relevance?: AuditLogOrderByRelevanceInput
   }
 
   export type AuditLogWhereUniqueInput = Prisma.AtLeast<{
@@ -25724,8 +29225,8 @@ export namespace Prisma {
     newValues?: JsonNullableFilter<"AuditLog">
     ipAddress?: StringNullableFilter<"AuditLog"> | string | null
     createdAt?: DateTimeFilter<"AuditLog"> | Date | string
-    actor?: XOR<UserScalarRelationFilter, UserWhereInput>
-    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
+    actor?: XOR<UserRelationFilter, UserWhereInput>
+    school?: XOR<SchoolNullableRelationFilter, SchoolWhereInput> | null
   }, "id">
 
   export type AuditLogOrderByWithAggregationInput = {
@@ -25778,8 +29279,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"AcademicTerm"> | Date | string
     deletedAt?: DateTimeNullableFilter<"AcademicTerm"> | Date | string | null
     terms?: JsonFilter<"AcademicTerm">
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
     vacationDays?: VacationDayListRelationFilter
   }
 
@@ -25801,7 +29302,6 @@ export namespace Prisma {
     academicSession?: AcademicSessionOrderByWithRelationInput
     school?: SchoolOrderByWithRelationInput
     vacationDays?: VacationDayOrderByRelationAggregateInput
-    _relevance?: AcademicTermOrderByRelevanceInput
   }
 
   export type AcademicTermWhereUniqueInput = Prisma.AtLeast<{
@@ -25823,8 +29323,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"AcademicTerm"> | Date | string
     deletedAt?: DateTimeNullableFilter<"AcademicTerm"> | Date | string | null
     terms?: JsonFilter<"AcademicTerm">
-    academicSession?: XOR<AcademicSessionScalarRelationFilter, AcademicSessionWhereInput>
-    school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
+    academicSession?: XOR<AcademicSessionRelationFilter, AcademicSessionWhereInput>
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
     vacationDays?: VacationDayListRelationFilter
   }, "id" | "schoolId_academicSessionId">
 
@@ -25880,7 +29380,7 @@ export namespace Prisma {
     endDate?: DateTimeFilter<"VacationDay"> | Date | string
     reason?: StringNullableFilter<"VacationDay"> | string | null
     createdAt?: DateTimeFilter<"VacationDay"> | Date | string
-    academicTerm?: XOR<AcademicTermScalarRelationFilter, AcademicTermWhereInput>
+    academicTerm?: XOR<AcademicTermRelationFilter, AcademicTermWhereInput>
   }
 
   export type VacationDayOrderByWithRelationInput = {
@@ -25891,7 +29391,6 @@ export namespace Prisma {
     reason?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     academicTerm?: AcademicTermOrderByWithRelationInput
-    _relevance?: VacationDayOrderByRelevanceInput
   }
 
   export type VacationDayWhereUniqueInput = Prisma.AtLeast<{
@@ -25904,7 +29403,7 @@ export namespace Prisma {
     endDate?: DateTimeFilter<"VacationDay"> | Date | string
     reason?: StringNullableFilter<"VacationDay"> | string | null
     createdAt?: DateTimeFilter<"VacationDay"> | Date | string
-    academicTerm?: XOR<AcademicTermScalarRelationFilter, AcademicTermWhereInput>
+    academicTerm?: XOR<AcademicTermRelationFilter, AcademicTermWhereInput>
   }, "id">
 
   export type VacationDayOrderByWithAggregationInput = {
@@ -26157,6 +29656,8 @@ export namespace Prisma {
     teachers?: TeacherCreateNestedManyWithoutSchoolInput
     topics?: TopicCreateNestedManyWithoutSchoolInput
     users?: UserCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateInput = {
@@ -26184,6 +29685,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
     topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
     users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUpdateInput = {
@@ -26211,6 +29714,8 @@ export namespace Prisma {
     teachers?: TeacherUpdateManyWithoutSchoolNestedInput
     topics?: TopicUpdateManyWithoutSchoolNestedInput
     users?: UserUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateInput = {
@@ -26238,6 +29743,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
     topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
     users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolCreateManyInput = {
@@ -26302,6 +29809,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionUncheckedCreateInput = {
@@ -26321,6 +29829,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionUpdateInput = {
@@ -26340,6 +29849,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type AcademicSessionUncheckedUpdateInput = {
@@ -26359,6 +29869,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type AcademicSessionCreateManyInput = {
@@ -26593,6 +30104,7 @@ export namespace Prisma {
     school: SchoolCreateNestedOneWithoutTeachersInput
     user: UserCreateNestedOneWithoutTeacherInput
     topicProgress?: TopicProgressCreateNestedManyWithoutTeacherInput
+    examPapers?: ExamPaperCreateNestedManyWithoutTeacherInput
   }
 
   export type TeacherUncheckedCreateInput = {
@@ -26607,6 +30119,7 @@ export namespace Prisma {
     chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutTeacherInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTeacherInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutTeacherInput
   }
 
   export type TeacherUpdateInput = {
@@ -26621,6 +30134,7 @@ export namespace Prisma {
     school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
     user?: UserUpdateOneRequiredWithoutTeacherNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutTeacherNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutTeacherNestedInput
   }
 
   export type TeacherUncheckedUpdateInput = {
@@ -26635,6 +30149,7 @@ export namespace Prisma {
     chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutTeacherNestedInput
   }
 
   export type TeacherCreateManyInput = {
@@ -26682,6 +30197,7 @@ export namespace Prisma {
     school: SchoolCreateNestedOneWithoutClassesInput
     subjects?: SubjectCreateNestedManyWithoutClassInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutClassInput
+    examPapers?: ExamPaperCreateNestedManyWithoutClassInput
   }
 
   export type ClassUncheckedCreateInput = {
@@ -26699,6 +30215,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutClassInput
     subjects?: SubjectUncheckedCreateNestedManyWithoutClassInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutClassInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutClassInput
   }
 
   export type ClassUpdateInput = {
@@ -26716,6 +30233,7 @@ export namespace Prisma {
     school?: SchoolUpdateOneRequiredWithoutClassesNestedInput
     subjects?: SubjectUpdateManyWithoutClassNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutClassNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutClassNestedInput
   }
 
   export type ClassUncheckedUpdateInput = {
@@ -26733,6 +30251,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutClassNestedInput
     subjects?: SubjectUncheckedUpdateManyWithoutClassNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutClassNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutClassNestedInput
   }
 
   export type ClassCreateManyInput = {
@@ -26790,6 +30309,7 @@ export namespace Prisma {
     class?: ClassCreateNestedOneWithoutSubjectsInput
     school: SchoolCreateNestedOneWithoutSubjectsInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutSubjectInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSubjectInput
   }
 
   export type SubjectUncheckedCreateInput = {
@@ -26807,6 +30327,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     chapters?: ChapterUncheckedCreateNestedManyWithoutSubjectInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutSubjectInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSubjectInput
   }
 
   export type SubjectUpdateInput = {
@@ -26824,6 +30345,7 @@ export namespace Prisma {
     class?: ClassUpdateOneWithoutSubjectsNestedInput
     school?: SchoolUpdateOneRequiredWithoutSubjectsNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutSubjectNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSubjectNestedInput
   }
 
   export type SubjectUncheckedUpdateInput = {
@@ -26841,6 +30363,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     chapters?: ChapterUncheckedUpdateManyWithoutSubjectNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutSubjectNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSubjectNestedInput
   }
 
   export type SubjectCreateManyInput = {
@@ -27382,6 +30905,356 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ExamPaperCreateInput = {
+    id?: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    school: SchoolCreateNestedOneWithoutExamPapersInput
+    academicSession: AcademicSessionCreateNestedOneWithoutExamPapersInput
+    teacher: TeacherCreateNestedOneWithoutExamPapersInput
+    class: ClassCreateNestedOneWithoutExamPapersInput
+    subject: SubjectCreateNestedOneWithoutExamPapersInput
+    sections?: ExamSectionCreateNestedManyWithoutExamPaperInput
+  }
+
+  export type ExamPaperUncheckedCreateInput = {
+    id?: string
+    schoolId: string
+    academicSessionId: string
+    teacherId: string
+    classId: string
+    subjectId: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
+  }
+
+  export type ExamPaperUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
+    academicSession?: AcademicSessionUpdateOneRequiredWithoutExamPapersNestedInput
+    teacher?: TeacherUpdateOneRequiredWithoutExamPapersNestedInput
+    class?: ClassUpdateOneRequiredWithoutExamPapersNestedInput
+    subject?: SubjectUpdateOneRequiredWithoutExamPapersNestedInput
+    sections?: ExamSectionUpdateManyWithoutExamPaperNestedInput
+  }
+
+  export type ExamPaperUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: StringFieldUpdateOperationsInput | string
+    teacherId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    subjectId?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
+  }
+
+  export type ExamPaperCreateManyInput = {
+    id?: string
+    schoolId: string
+    academicSessionId: string
+    teacherId: string
+    classId: string
+    subjectId: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ExamPaperUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExamPaperUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: StringFieldUpdateOperationsInput | string
+    teacherId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    subjectId?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExamSectionCreateInput = {
+    id?: string
+    label: string
+    type?: $Enums.QuestionType
+    marksEach: number
+    order?: number
+    examPaper: ExamPaperCreateNestedOneWithoutSectionsInput
+    questions?: ExamQuestionCreateNestedManyWithoutSectionInput
+  }
+
+  export type ExamSectionUncheckedCreateInput = {
+    id?: string
+    examPaperId: string
+    label: string
+    type?: $Enums.QuestionType
+    marksEach: number
+    order?: number
+    questions?: ExamQuestionUncheckedCreateNestedManyWithoutSectionInput
+  }
+
+  export type ExamSectionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+    marksEach?: IntFieldUpdateOperationsInput | number
+    order?: IntFieldUpdateOperationsInput | number
+    examPaper?: ExamPaperUpdateOneRequiredWithoutSectionsNestedInput
+    questions?: ExamQuestionUpdateManyWithoutSectionNestedInput
+  }
+
+  export type ExamSectionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    examPaperId?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+    marksEach?: IntFieldUpdateOperationsInput | number
+    order?: IntFieldUpdateOperationsInput | number
+    questions?: ExamQuestionUncheckedUpdateManyWithoutSectionNestedInput
+  }
+
+  export type ExamSectionCreateManyInput = {
+    id?: string
+    examPaperId: string
+    label: string
+    type?: $Enums.QuestionType
+    marksEach: number
+    order?: number
+  }
+
+  export type ExamSectionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+    marksEach?: IntFieldUpdateOperationsInput | number
+    order?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ExamSectionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    examPaperId?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+    marksEach?: IntFieldUpdateOperationsInput | number
+    order?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ExamQuestionCreateInput = {
+    id?: string
+    questionText: string
+    options?: NullableJsonNullValueInput | InputJsonValue
+    imageUrl?: string | null
+    subject?: string | null
+    order?: number
+    section: ExamSectionCreateNestedOneWithoutQuestionsInput
+  }
+
+  export type ExamQuestionUncheckedCreateInput = {
+    id?: string
+    sectionId: string
+    questionText: string
+    options?: NullableJsonNullValueInput | InputJsonValue
+    imageUrl?: string | null
+    subject?: string | null
+    order?: number
+  }
+
+  export type ExamQuestionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    questionText?: StringFieldUpdateOperationsInput | string
+    options?: NullableJsonNullValueInput | InputJsonValue
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    order?: IntFieldUpdateOperationsInput | number
+    section?: ExamSectionUpdateOneRequiredWithoutQuestionsNestedInput
+  }
+
+  export type ExamQuestionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sectionId?: StringFieldUpdateOperationsInput | string
+    questionText?: StringFieldUpdateOperationsInput | string
+    options?: NullableJsonNullValueInput | InputJsonValue
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    order?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ExamQuestionCreateManyInput = {
+    id?: string
+    sectionId: string
+    questionText: string
+    options?: NullableJsonNullValueInput | InputJsonValue
+    imageUrl?: string | null
+    subject?: string | null
+    order?: number
+  }
+
+  export type ExamQuestionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    questionText?: StringFieldUpdateOperationsInput | string
+    options?: NullableJsonNullValueInput | InputJsonValue
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    order?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ExamQuestionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sectionId?: StringFieldUpdateOperationsInput | string
+    questionText?: StringFieldUpdateOperationsInput | string
+    options?: NullableJsonNullValueInput | InputJsonValue
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    order?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ExamPaperTemplateCreateInput = {
+    id?: string
+    headerHtml: string
+    footerHtml?: string | null
+    instructions?: string | null
+    logoUrl?: string | null
+    updatedAt?: Date | string
+    school: SchoolCreateNestedOneWithoutExamPaperTemplatesInput
+  }
+
+  export type ExamPaperTemplateUncheckedCreateInput = {
+    id?: string
+    schoolId: string
+    headerHtml: string
+    footerHtml?: string | null
+    instructions?: string | null
+    logoUrl?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type ExamPaperTemplateUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    headerHtml?: StringFieldUpdateOperationsInput | string
+    footerHtml?: NullableStringFieldUpdateOperationsInput | string | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneRequiredWithoutExamPaperTemplatesNestedInput
+  }
+
+  export type ExamPaperTemplateUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    headerHtml?: StringFieldUpdateOperationsInput | string
+    footerHtml?: NullableStringFieldUpdateOperationsInput | string | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExamPaperTemplateCreateManyInput = {
+    id?: string
+    schoolId: string
+    headerHtml: string
+    footerHtml?: string | null
+    instructions?: string | null
+    logoUrl?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type ExamPaperTemplateUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    headerHtml?: StringFieldUpdateOperationsInput | string
+    footerHtml?: NullableStringFieldUpdateOperationsInput | string | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExamPaperTemplateUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    headerHtml?: StringFieldUpdateOperationsInput | string
+    footerHtml?: NullableStringFieldUpdateOperationsInput | string | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type NotificationCreateInput = {
     id?: string
     title: string
@@ -27829,7 +31702,6 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
-    search?: string
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
@@ -27851,7 +31723,6 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
-    search?: string
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
@@ -27914,7 +31785,7 @@ export namespace Prisma {
     none?: RefreshTokenWhereInput
   }
 
-  export type TeacherNullableScalarRelationFilter = {
+  export type TeacherNullableRelationFilter = {
     is?: TeacherWhereInput | null
     isNot?: TeacherWhereInput | null
   }
@@ -27925,7 +31796,7 @@ export namespace Prisma {
     none?: TopicProgressWhereInput
   }
 
-  export type SchoolNullableScalarRelationFilter = {
+  export type SchoolNullableRelationFilter = {
     is?: SchoolWhereInput | null
     isNot?: SchoolWhereInput | null
   }
@@ -27957,12 +31828,6 @@ export namespace Prisma {
 
   export type TopicProgressOrderByRelationAggregateInput = {
     _count?: SortOrder
-  }
-
-  export type UserOrderByRelevanceInput = {
-    fields: UserOrderByRelevanceFieldEnum | UserOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
   }
 
   export type UserCountOrderByAggregateInput = {
@@ -28024,7 +31889,6 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
-    search?: string
     not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
@@ -28052,7 +31916,6 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
-    search?: string
     not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
@@ -28097,15 +31960,9 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type UserScalarRelationFilter = {
+  export type UserRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
-  }
-
-  export type RefreshTokenOrderByRelevanceInput = {
-    fields: RefreshTokenOrderByRelevanceFieldEnum | RefreshTokenOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
   }
 
   export type RefreshTokenCountOrderByAggregateInput = {
@@ -28196,6 +32053,18 @@ export namespace Prisma {
     none?: UserWhereInput
   }
 
+  export type ExamPaperListRelationFilter = {
+    every?: ExamPaperWhereInput
+    some?: ExamPaperWhereInput
+    none?: ExamPaperWhereInput
+  }
+
+  export type ExamPaperTemplateListRelationFilter = {
+    every?: ExamPaperTemplateWhereInput
+    some?: ExamPaperTemplateWhereInput
+    none?: ExamPaperTemplateWhereInput
+  }
+
   export type AcademicSessionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -28232,10 +32101,12 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type SchoolOrderByRelevanceInput = {
-    fields: SchoolOrderByRelevanceFieldEnum | SchoolOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
+  export type ExamPaperOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ExamPaperTemplateOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type SchoolCountOrderByAggregateInput = {
@@ -28305,7 +32176,7 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
-  export type SchoolScalarRelationFilter = {
+  export type SchoolRelationFilter = {
     is?: SchoolWhereInput
     isNot?: SchoolWhereInput
   }
@@ -28318,12 +32189,6 @@ export namespace Prisma {
 
   export type TeacherClassOrderByRelationAggregateInput = {
     _count?: SortOrder
-  }
-
-  export type AcademicSessionOrderByRelevanceInput = {
-    fields: AcademicSessionOrderByRelevanceFieldEnum | AcademicSessionOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
   }
 
   export type AcademicSessionSchoolIdNameCompoundUniqueInput = {
@@ -28400,7 +32265,7 @@ export namespace Prisma {
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntFilter<$PrismaModel> | number
   }
-  export type JsonFilter<$PrismaModel = never> =
+  export type JsonFilter<$PrismaModel = never> = 
     | PatchUndefined<
         Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
         Required<JsonFilterBase<$PrismaModel>>
@@ -28410,24 +32275,17 @@ export namespace Prisma {
   export type JsonFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
     path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     lt?: InputJsonValue
     lte?: InputJsonValue
     gt?: InputJsonValue
     gte?: InputJsonValue
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type SubscriptionPlanOrderByRelevanceInput = {
-    fields: SubscriptionPlanOrderByRelevanceFieldEnum | SubscriptionPlanOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
   }
 
   export type SubscriptionPlanCountOrderByAggregateInput = {
@@ -28521,7 +32379,7 @@ export namespace Prisma {
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
   }
-  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+  export type JsonWithAggregatesFilter<$PrismaModel = never> = 
     | PatchUndefined<
         Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
         Required<JsonWithAggregatesFilterBase<$PrismaModel>>
@@ -28531,13 +32389,12 @@ export namespace Prisma {
   export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
     path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     lt?: InputJsonValue
     lte?: InputJsonValue
     gt?: InputJsonValue
@@ -28555,15 +32412,9 @@ export namespace Prisma {
     not?: NestedEnumSubscriptionStatusFilter<$PrismaModel> | $Enums.SubscriptionStatus
   }
 
-  export type SubscriptionPlanScalarRelationFilter = {
+  export type SubscriptionPlanRelationFilter = {
     is?: SubscriptionPlanWhereInput
     isNot?: SubscriptionPlanWhereInput
-  }
-
-  export type SubscriptionOrderByRelevanceInput = {
-    fields: SubscriptionOrderByRelevanceFieldEnum | SubscriptionOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
   }
 
   export type SubscriptionCountOrderByAggregateInput = {
@@ -28609,15 +32460,9 @@ export namespace Prisma {
     _max?: NestedEnumSubscriptionStatusFilter<$PrismaModel>
   }
 
-  export type AcademicSessionScalarRelationFilter = {
+  export type AcademicSessionRelationFilter = {
     is?: AcademicSessionWhereInput
     isNot?: AcademicSessionWhereInput
-  }
-
-  export type TeacherOrderByRelevanceInput = {
-    fields: TeacherOrderByRelevanceFieldEnum | TeacherOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
   }
 
   export type TeacherSchoolIdUserIdAcademicSessionIdCompoundUniqueInput = {
@@ -28657,12 +32502,6 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrder
-  }
-
-  export type ClassOrderByRelevanceInput = {
-    fields: ClassOrderByRelevanceFieldEnum | ClassOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
   }
 
   export type ClassSchoolIdAcademicSessionIdNameSectionCompoundUniqueInput = {
@@ -28722,15 +32561,9 @@ export namespace Prisma {
     sortOrder?: SortOrder
   }
 
-  export type ClassNullableScalarRelationFilter = {
+  export type ClassNullableRelationFilter = {
     is?: ClassWhereInput | null
     isNot?: ClassWhereInput | null
-  }
-
-  export type SubjectOrderByRelevanceInput = {
-    fields: SubjectOrderByRelevanceFieldEnum | SubjectOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
   }
 
   export type SubjectSchoolIdAcademicSessionIdClassIdNameCompoundUniqueInput = {
@@ -28804,20 +32637,14 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
-  export type ClassScalarRelationFilter = {
+  export type ClassRelationFilter = {
     is?: ClassWhereInput
     isNot?: ClassWhereInput
   }
 
-  export type SubjectScalarRelationFilter = {
+  export type SubjectRelationFilter = {
     is?: SubjectWhereInput
     isNot?: SubjectWhereInput
-  }
-
-  export type ChapterOrderByRelevanceInput = {
-    fields: ChapterOrderByRelevanceFieldEnum | ChapterOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
   }
 
   export type ChapterCountOrderByAggregateInput = {
@@ -28902,15 +32729,9 @@ export namespace Prisma {
     _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
-  export type ChapterScalarRelationFilter = {
+  export type ChapterRelationFilter = {
     is?: ChapterWhereInput
     isNot?: ChapterWhereInput
-  }
-
-  export type TopicOrderByRelevanceInput = {
-    fields: TopicOrderByRelevanceFieldEnum | TopicOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
   }
 
   export type TopicCountOrderByAggregateInput = {
@@ -28963,20 +32784,14 @@ export namespace Prisma {
     sortOrder?: SortOrder
   }
 
-  export type SubjectNullableScalarRelationFilter = {
+  export type SubjectNullableRelationFilter = {
     is?: SubjectWhereInput | null
     isNot?: SubjectWhereInput | null
   }
 
-  export type TeacherScalarRelationFilter = {
+  export type TeacherRelationFilter = {
     is?: TeacherWhereInput
     isNot?: TeacherWhereInput
-  }
-
-  export type TeacherClassOrderByRelevanceInput = {
-    fields: TeacherClassOrderByRelevanceFieldEnum | TeacherClassOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
   }
 
   export type TeacherClassTeacherIdClassIdSubjectIdSchoolIdAcademicSessionIdCompoundUniqueInput = {
@@ -29024,15 +32839,9 @@ export namespace Prisma {
     not?: NestedEnumChapterWorkflowStatusFilter<$PrismaModel> | $Enums.ChapterWorkflowStatus
   }
 
-  export type UserNullableScalarRelationFilter = {
+  export type UserNullableRelationFilter = {
     is?: UserWhereInput | null
     isNot?: UserWhereInput | null
-  }
-
-  export type ChapterProgressOrderByRelevanceInput = {
-    fields: ChapterProgressOrderByRelevanceFieldEnum | ChapterProgressOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
   }
 
   export type ChapterProgressSchoolIdChapterIdTeacherIdAcademicSessionIdCompoundUniqueInput = {
@@ -29118,15 +32927,9 @@ export namespace Prisma {
     not?: NestedEnumTopicStatusFilter<$PrismaModel> | $Enums.TopicStatus
   }
 
-  export type TopicScalarRelationFilter = {
+  export type TopicRelationFilter = {
     is?: TopicWhereInput
     isNot?: TopicWhereInput
-  }
-
-  export type TopicProgressOrderByRelevanceInput = {
-    fields: TopicProgressOrderByRelevanceFieldEnum | TopicProgressOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
   }
 
   export type TopicProgressSchoolIdTopicIdTeacherIdAcademicSessionIdCompoundUniqueInput = {
@@ -29185,13 +32988,175 @@ export namespace Prisma {
     _max?: NestedEnumTopicStatusFilter<$PrismaModel>
   }
 
-  export type EnumNotificationTypeFilter<$PrismaModel = never> = {
-    equals?: $Enums.NotificationType | EnumNotificationTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.NotificationType[]
-    notIn?: $Enums.NotificationType[]
-    not?: NestedEnumNotificationTypeFilter<$PrismaModel> | $Enums.NotificationType
+  export type EnumExamPaperStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ExamPaperStatus | EnumExamPaperStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ExamPaperStatus[]
+    notIn?: $Enums.ExamPaperStatus[]
+    not?: NestedEnumExamPaperStatusFilter<$PrismaModel> | $Enums.ExamPaperStatus
   }
-  export type JsonNullableFilter<$PrismaModel = never> =
+
+  export type ExamSectionListRelationFilter = {
+    every?: ExamSectionWhereInput
+    some?: ExamSectionWhereInput
+    none?: ExamSectionWhereInput
+  }
+
+  export type ExamSectionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ExamPaperCountOrderByAggregateInput = {
+    id?: SortOrder
+    schoolId?: SortOrder
+    academicSessionId?: SortOrder
+    teacherId?: SortOrder
+    classId?: SortOrder
+    subjectId?: SortOrder
+    examName?: SortOrder
+    examDate?: SortOrder
+    totalMarks?: SortOrder
+    duration?: SortOrder
+    instructions?: SortOrder
+    status?: SortOrder
+    styleFontFamily?: SortOrder
+    styleFontSize?: SortOrder
+    styleColor?: SortOrder
+    templateType?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ExamPaperAvgOrderByAggregateInput = {
+    totalMarks?: SortOrder
+    duration?: SortOrder
+  }
+
+  export type ExamPaperMaxOrderByAggregateInput = {
+    id?: SortOrder
+    schoolId?: SortOrder
+    academicSessionId?: SortOrder
+    teacherId?: SortOrder
+    classId?: SortOrder
+    subjectId?: SortOrder
+    examName?: SortOrder
+    examDate?: SortOrder
+    totalMarks?: SortOrder
+    duration?: SortOrder
+    instructions?: SortOrder
+    status?: SortOrder
+    styleFontFamily?: SortOrder
+    styleFontSize?: SortOrder
+    styleColor?: SortOrder
+    templateType?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ExamPaperMinOrderByAggregateInput = {
+    id?: SortOrder
+    schoolId?: SortOrder
+    academicSessionId?: SortOrder
+    teacherId?: SortOrder
+    classId?: SortOrder
+    subjectId?: SortOrder
+    examName?: SortOrder
+    examDate?: SortOrder
+    totalMarks?: SortOrder
+    duration?: SortOrder
+    instructions?: SortOrder
+    status?: SortOrder
+    styleFontFamily?: SortOrder
+    styleFontSize?: SortOrder
+    styleColor?: SortOrder
+    templateType?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ExamPaperSumOrderByAggregateInput = {
+    totalMarks?: SortOrder
+    duration?: SortOrder
+  }
+
+  export type EnumExamPaperStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ExamPaperStatus | EnumExamPaperStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ExamPaperStatus[]
+    notIn?: $Enums.ExamPaperStatus[]
+    not?: NestedEnumExamPaperStatusWithAggregatesFilter<$PrismaModel> | $Enums.ExamPaperStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumExamPaperStatusFilter<$PrismaModel>
+    _max?: NestedEnumExamPaperStatusFilter<$PrismaModel>
+  }
+
+  export type EnumQuestionTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.QuestionType | EnumQuestionTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.QuestionType[]
+    notIn?: $Enums.QuestionType[]
+    not?: NestedEnumQuestionTypeFilter<$PrismaModel> | $Enums.QuestionType
+  }
+
+  export type ExamPaperRelationFilter = {
+    is?: ExamPaperWhereInput
+    isNot?: ExamPaperWhereInput
+  }
+
+  export type ExamQuestionListRelationFilter = {
+    every?: ExamQuestionWhereInput
+    some?: ExamQuestionWhereInput
+    none?: ExamQuestionWhereInput
+  }
+
+  export type ExamQuestionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ExamSectionCountOrderByAggregateInput = {
+    id?: SortOrder
+    examPaperId?: SortOrder
+    label?: SortOrder
+    type?: SortOrder
+    marksEach?: SortOrder
+    order?: SortOrder
+  }
+
+  export type ExamSectionAvgOrderByAggregateInput = {
+    marksEach?: SortOrder
+    order?: SortOrder
+  }
+
+  export type ExamSectionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    examPaperId?: SortOrder
+    label?: SortOrder
+    type?: SortOrder
+    marksEach?: SortOrder
+    order?: SortOrder
+  }
+
+  export type ExamSectionMinOrderByAggregateInput = {
+    id?: SortOrder
+    examPaperId?: SortOrder
+    label?: SortOrder
+    type?: SortOrder
+    marksEach?: SortOrder
+    order?: SortOrder
+  }
+
+  export type ExamSectionSumOrderByAggregateInput = {
+    marksEach?: SortOrder
+    order?: SortOrder
+  }
+
+  export type EnumQuestionTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.QuestionType | EnumQuestionTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.QuestionType[]
+    notIn?: $Enums.QuestionType[]
+    not?: NestedEnumQuestionTypeWithAggregatesFilter<$PrismaModel> | $Enums.QuestionType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumQuestionTypeFilter<$PrismaModel>
+    _max?: NestedEnumQuestionTypeFilter<$PrismaModel>
+  }
+  export type JsonNullableFilter<$PrismaModel = never> = 
     | PatchUndefined<
         Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
         Required<JsonNullableFilterBase<$PrismaModel>>
@@ -29201,13 +33166,12 @@ export namespace Prisma {
   export type JsonNullableFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
     path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     lt?: InputJsonValue
     lte?: InputJsonValue
     gt?: InputJsonValue
@@ -29215,10 +33179,107 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type NotificationOrderByRelevanceInput = {
-    fields: NotificationOrderByRelevanceFieldEnum | NotificationOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
+  export type ExamSectionRelationFilter = {
+    is?: ExamSectionWhereInput
+    isNot?: ExamSectionWhereInput
+  }
+
+  export type ExamQuestionCountOrderByAggregateInput = {
+    id?: SortOrder
+    sectionId?: SortOrder
+    questionText?: SortOrder
+    options?: SortOrder
+    imageUrl?: SortOrder
+    subject?: SortOrder
+    order?: SortOrder
+  }
+
+  export type ExamQuestionAvgOrderByAggregateInput = {
+    order?: SortOrder
+  }
+
+  export type ExamQuestionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    sectionId?: SortOrder
+    questionText?: SortOrder
+    imageUrl?: SortOrder
+    subject?: SortOrder
+    order?: SortOrder
+  }
+
+  export type ExamQuestionMinOrderByAggregateInput = {
+    id?: SortOrder
+    sectionId?: SortOrder
+    questionText?: SortOrder
+    imageUrl?: SortOrder
+    subject?: SortOrder
+    order?: SortOrder
+  }
+
+  export type ExamQuestionSumOrderByAggregateInput = {
+    order?: SortOrder
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type ExamPaperTemplateCountOrderByAggregateInput = {
+    id?: SortOrder
+    schoolId?: SortOrder
+    headerHtml?: SortOrder
+    footerHtml?: SortOrder
+    instructions?: SortOrder
+    logoUrl?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ExamPaperTemplateMaxOrderByAggregateInput = {
+    id?: SortOrder
+    schoolId?: SortOrder
+    headerHtml?: SortOrder
+    footerHtml?: SortOrder
+    instructions?: SortOrder
+    logoUrl?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ExamPaperTemplateMinOrderByAggregateInput = {
+    id?: SortOrder
+    schoolId?: SortOrder
+    headerHtml?: SortOrder
+    footerHtml?: SortOrder
+    instructions?: SortOrder
+    logoUrl?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumNotificationTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.NotificationType | EnumNotificationTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.NotificationType[]
+    notIn?: $Enums.NotificationType[]
+    not?: NestedEnumNotificationTypeFilter<$PrismaModel> | $Enums.NotificationType
   }
 
   export type NotificationCountOrderByAggregateInput = {
@@ -29264,38 +33325,6 @@ export namespace Prisma {
     _min?: NestedEnumNotificationTypeFilter<$PrismaModel>
     _max?: NestedEnumNotificationTypeFilter<$PrismaModel>
   }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue
-    lte?: InputJsonValue
-    gt?: InputJsonValue
-    gte?: InputJsonValue
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
-  }
-
-  export type ActivityLogOrderByRelevanceInput = {
-    fields: ActivityLogOrderByRelevanceFieldEnum | ActivityLogOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
-  }
 
   export type ActivityLogCountOrderByAggregateInput = {
     id?: SortOrder
@@ -29329,12 +33358,6 @@ export namespace Prisma {
     entityId?: SortOrder
     ipAddress?: SortOrder
     createdAt?: SortOrder
-  }
-
-  export type AuditLogOrderByRelevanceInput = {
-    fields: AuditLogOrderByRelevanceFieldEnum | AuditLogOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
   }
 
   export type AuditLogCountOrderByAggregateInput = {
@@ -29387,12 +33410,6 @@ export namespace Prisma {
 
   export type VacationDayOrderByRelationAggregateInput = {
     _count?: SortOrder
-  }
-
-  export type AcademicTermOrderByRelevanceInput = {
-    fields: AcademicTermOrderByRelevanceFieldEnum | AcademicTermOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
   }
 
   export type AcademicTermSchoolIdAcademicSessionIdCompoundUniqueInput = {
@@ -29467,15 +33484,9 @@ export namespace Prisma {
     _max?: NestedEnumAcademicTermStatusFilter<$PrismaModel>
   }
 
-  export type AcademicTermScalarRelationFilter = {
+  export type AcademicTermRelationFilter = {
     is?: AcademicTermWhereInput
     isNot?: AcademicTermWhereInput
-  }
-
-  export type VacationDayOrderByRelevanceInput = {
-    fields: VacationDayOrderByRelevanceFieldEnum | VacationDayOrderByRelevanceFieldEnum[]
-    sort: SortOrder
-    search: string
   }
 
   export type VacationDayCountOrderByAggregateInput = {
@@ -29927,6 +33938,20 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
+  export type ExamPaperCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<ExamPaperCreateWithoutSchoolInput, ExamPaperUncheckedCreateWithoutSchoolInput> | ExamPaperCreateWithoutSchoolInput[] | ExamPaperUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutSchoolInput | ExamPaperCreateOrConnectWithoutSchoolInput[]
+    createMany?: ExamPaperCreateManySchoolInputEnvelope
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+  }
+
+  export type ExamPaperTemplateCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<ExamPaperTemplateCreateWithoutSchoolInput, ExamPaperTemplateUncheckedCreateWithoutSchoolInput> | ExamPaperTemplateCreateWithoutSchoolInput[] | ExamPaperTemplateUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: ExamPaperTemplateCreateOrConnectWithoutSchoolInput | ExamPaperTemplateCreateOrConnectWithoutSchoolInput[]
+    createMany?: ExamPaperTemplateCreateManySchoolInputEnvelope
+    connect?: ExamPaperTemplateWhereUniqueInput | ExamPaperTemplateWhereUniqueInput[]
+  }
+
   export type AcademicSessionUncheckedCreateNestedManyWithoutSchoolInput = {
     create?: XOR<AcademicSessionCreateWithoutSchoolInput, AcademicSessionUncheckedCreateWithoutSchoolInput> | AcademicSessionCreateWithoutSchoolInput[] | AcademicSessionUncheckedCreateWithoutSchoolInput[]
     connectOrCreate?: AcademicSessionCreateOrConnectWithoutSchoolInput | AcademicSessionCreateOrConnectWithoutSchoolInput[]
@@ -30009,6 +34034,20 @@ export namespace Prisma {
     connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
     createMany?: UserCreateManySchoolInputEnvelope
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+  }
+
+  export type ExamPaperUncheckedCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<ExamPaperCreateWithoutSchoolInput, ExamPaperUncheckedCreateWithoutSchoolInput> | ExamPaperCreateWithoutSchoolInput[] | ExamPaperUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutSchoolInput | ExamPaperCreateOrConnectWithoutSchoolInput[]
+    createMany?: ExamPaperCreateManySchoolInputEnvelope
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+  }
+
+  export type ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<ExamPaperTemplateCreateWithoutSchoolInput, ExamPaperTemplateUncheckedCreateWithoutSchoolInput> | ExamPaperTemplateCreateWithoutSchoolInput[] | ExamPaperTemplateUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: ExamPaperTemplateCreateOrConnectWithoutSchoolInput | ExamPaperTemplateCreateOrConnectWithoutSchoolInput[]
+    createMany?: ExamPaperTemplateCreateManySchoolInputEnvelope
+    connect?: ExamPaperTemplateWhereUniqueInput | ExamPaperTemplateWhereUniqueInput[]
   }
 
   export type EnumSchoolStatusFieldUpdateOperationsInput = {
@@ -30183,6 +34222,34 @@ export namespace Prisma {
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
+  export type ExamPaperUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<ExamPaperCreateWithoutSchoolInput, ExamPaperUncheckedCreateWithoutSchoolInput> | ExamPaperCreateWithoutSchoolInput[] | ExamPaperUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutSchoolInput | ExamPaperCreateOrConnectWithoutSchoolInput[]
+    upsert?: ExamPaperUpsertWithWhereUniqueWithoutSchoolInput | ExamPaperUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: ExamPaperCreateManySchoolInputEnvelope
+    set?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    disconnect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    delete?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    update?: ExamPaperUpdateWithWhereUniqueWithoutSchoolInput | ExamPaperUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: ExamPaperUpdateManyWithWhereWithoutSchoolInput | ExamPaperUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: ExamPaperScalarWhereInput | ExamPaperScalarWhereInput[]
+  }
+
+  export type ExamPaperTemplateUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<ExamPaperTemplateCreateWithoutSchoolInput, ExamPaperTemplateUncheckedCreateWithoutSchoolInput> | ExamPaperTemplateCreateWithoutSchoolInput[] | ExamPaperTemplateUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: ExamPaperTemplateCreateOrConnectWithoutSchoolInput | ExamPaperTemplateCreateOrConnectWithoutSchoolInput[]
+    upsert?: ExamPaperTemplateUpsertWithWhereUniqueWithoutSchoolInput | ExamPaperTemplateUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: ExamPaperTemplateCreateManySchoolInputEnvelope
+    set?: ExamPaperTemplateWhereUniqueInput | ExamPaperTemplateWhereUniqueInput[]
+    disconnect?: ExamPaperTemplateWhereUniqueInput | ExamPaperTemplateWhereUniqueInput[]
+    delete?: ExamPaperTemplateWhereUniqueInput | ExamPaperTemplateWhereUniqueInput[]
+    connect?: ExamPaperTemplateWhereUniqueInput | ExamPaperTemplateWhereUniqueInput[]
+    update?: ExamPaperTemplateUpdateWithWhereUniqueWithoutSchoolInput | ExamPaperTemplateUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: ExamPaperTemplateUpdateManyWithWhereWithoutSchoolInput | ExamPaperTemplateUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: ExamPaperTemplateScalarWhereInput | ExamPaperTemplateScalarWhereInput[]
+  }
+
   export type AcademicSessionUncheckedUpdateManyWithoutSchoolNestedInput = {
     create?: XOR<AcademicSessionCreateWithoutSchoolInput, AcademicSessionUncheckedCreateWithoutSchoolInput> | AcademicSessionCreateWithoutSchoolInput[] | AcademicSessionUncheckedCreateWithoutSchoolInput[]
     connectOrCreate?: AcademicSessionCreateOrConnectWithoutSchoolInput | AcademicSessionCreateOrConnectWithoutSchoolInput[]
@@ -30351,6 +34418,34 @@ export namespace Prisma {
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
+  export type ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<ExamPaperCreateWithoutSchoolInput, ExamPaperUncheckedCreateWithoutSchoolInput> | ExamPaperCreateWithoutSchoolInput[] | ExamPaperUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutSchoolInput | ExamPaperCreateOrConnectWithoutSchoolInput[]
+    upsert?: ExamPaperUpsertWithWhereUniqueWithoutSchoolInput | ExamPaperUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: ExamPaperCreateManySchoolInputEnvelope
+    set?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    disconnect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    delete?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    update?: ExamPaperUpdateWithWhereUniqueWithoutSchoolInput | ExamPaperUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: ExamPaperUpdateManyWithWhereWithoutSchoolInput | ExamPaperUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: ExamPaperScalarWhereInput | ExamPaperScalarWhereInput[]
+  }
+
+  export type ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<ExamPaperTemplateCreateWithoutSchoolInput, ExamPaperTemplateUncheckedCreateWithoutSchoolInput> | ExamPaperTemplateCreateWithoutSchoolInput[] | ExamPaperTemplateUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: ExamPaperTemplateCreateOrConnectWithoutSchoolInput | ExamPaperTemplateCreateOrConnectWithoutSchoolInput[]
+    upsert?: ExamPaperTemplateUpsertWithWhereUniqueWithoutSchoolInput | ExamPaperTemplateUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: ExamPaperTemplateCreateManySchoolInputEnvelope
+    set?: ExamPaperTemplateWhereUniqueInput | ExamPaperTemplateWhereUniqueInput[]
+    disconnect?: ExamPaperTemplateWhereUniqueInput | ExamPaperTemplateWhereUniqueInput[]
+    delete?: ExamPaperTemplateWhereUniqueInput | ExamPaperTemplateWhereUniqueInput[]
+    connect?: ExamPaperTemplateWhereUniqueInput | ExamPaperTemplateWhereUniqueInput[]
+    update?: ExamPaperTemplateUpdateWithWhereUniqueWithoutSchoolInput | ExamPaperTemplateUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: ExamPaperTemplateUpdateManyWithWhereWithoutSchoolInput | ExamPaperTemplateUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: ExamPaperTemplateScalarWhereInput | ExamPaperTemplateScalarWhereInput[]
+  }
+
   export type SchoolCreateNestedOneWithoutAcademicSessionsInput = {
     create?: XOR<SchoolCreateWithoutAcademicSessionsInput, SchoolUncheckedCreateWithoutAcademicSessionsInput>
     connectOrCreate?: SchoolCreateOrConnectWithoutAcademicSessionsInput
@@ -30420,6 +34515,13 @@ export namespace Prisma {
     connect?: TopicProgressWhereUniqueInput | TopicProgressWhereUniqueInput[]
   }
 
+  export type ExamPaperCreateNestedManyWithoutAcademicSessionInput = {
+    create?: XOR<ExamPaperCreateWithoutAcademicSessionInput, ExamPaperUncheckedCreateWithoutAcademicSessionInput> | ExamPaperCreateWithoutAcademicSessionInput[] | ExamPaperUncheckedCreateWithoutAcademicSessionInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutAcademicSessionInput | ExamPaperCreateOrConnectWithoutAcademicSessionInput[]
+    createMany?: ExamPaperCreateManyAcademicSessionInputEnvelope
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+  }
+
   export type AcademicTermUncheckedCreateNestedManyWithoutAcademicSessionInput = {
     create?: XOR<AcademicTermCreateWithoutAcademicSessionInput, AcademicTermUncheckedCreateWithoutAcademicSessionInput> | AcademicTermCreateWithoutAcademicSessionInput[] | AcademicTermUncheckedCreateWithoutAcademicSessionInput[]
     connectOrCreate?: AcademicTermCreateOrConnectWithoutAcademicSessionInput | AcademicTermCreateOrConnectWithoutAcademicSessionInput[]
@@ -30481,6 +34583,13 @@ export namespace Prisma {
     connectOrCreate?: TopicProgressCreateOrConnectWithoutAcademicSessionInput | TopicProgressCreateOrConnectWithoutAcademicSessionInput[]
     createMany?: TopicProgressCreateManyAcademicSessionInputEnvelope
     connect?: TopicProgressWhereUniqueInput | TopicProgressWhereUniqueInput[]
+  }
+
+  export type ExamPaperUncheckedCreateNestedManyWithoutAcademicSessionInput = {
+    create?: XOR<ExamPaperCreateWithoutAcademicSessionInput, ExamPaperUncheckedCreateWithoutAcademicSessionInput> | ExamPaperCreateWithoutAcademicSessionInput[] | ExamPaperUncheckedCreateWithoutAcademicSessionInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutAcademicSessionInput | ExamPaperCreateOrConnectWithoutAcademicSessionInput[]
+    createMany?: ExamPaperCreateManyAcademicSessionInputEnvelope
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
   }
 
   export type EnumSessionStatusFieldUpdateOperationsInput = {
@@ -30625,6 +34734,20 @@ export namespace Prisma {
     deleteMany?: TopicProgressScalarWhereInput | TopicProgressScalarWhereInput[]
   }
 
+  export type ExamPaperUpdateManyWithoutAcademicSessionNestedInput = {
+    create?: XOR<ExamPaperCreateWithoutAcademicSessionInput, ExamPaperUncheckedCreateWithoutAcademicSessionInput> | ExamPaperCreateWithoutAcademicSessionInput[] | ExamPaperUncheckedCreateWithoutAcademicSessionInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutAcademicSessionInput | ExamPaperCreateOrConnectWithoutAcademicSessionInput[]
+    upsert?: ExamPaperUpsertWithWhereUniqueWithoutAcademicSessionInput | ExamPaperUpsertWithWhereUniqueWithoutAcademicSessionInput[]
+    createMany?: ExamPaperCreateManyAcademicSessionInputEnvelope
+    set?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    disconnect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    delete?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    update?: ExamPaperUpdateWithWhereUniqueWithoutAcademicSessionInput | ExamPaperUpdateWithWhereUniqueWithoutAcademicSessionInput[]
+    updateMany?: ExamPaperUpdateManyWithWhereWithoutAcademicSessionInput | ExamPaperUpdateManyWithWhereWithoutAcademicSessionInput[]
+    deleteMany?: ExamPaperScalarWhereInput | ExamPaperScalarWhereInput[]
+  }
+
   export type AcademicTermUncheckedUpdateManyWithoutAcademicSessionNestedInput = {
     create?: XOR<AcademicTermCreateWithoutAcademicSessionInput, AcademicTermUncheckedCreateWithoutAcademicSessionInput> | AcademicTermCreateWithoutAcademicSessionInput[] | AcademicTermUncheckedCreateWithoutAcademicSessionInput[]
     connectOrCreate?: AcademicTermCreateOrConnectWithoutAcademicSessionInput | AcademicTermCreateOrConnectWithoutAcademicSessionInput[]
@@ -30749,6 +34872,20 @@ export namespace Prisma {
     update?: TopicProgressUpdateWithWhereUniqueWithoutAcademicSessionInput | TopicProgressUpdateWithWhereUniqueWithoutAcademicSessionInput[]
     updateMany?: TopicProgressUpdateManyWithWhereWithoutAcademicSessionInput | TopicProgressUpdateManyWithWhereWithoutAcademicSessionInput[]
     deleteMany?: TopicProgressScalarWhereInput | TopicProgressScalarWhereInput[]
+  }
+
+  export type ExamPaperUncheckedUpdateManyWithoutAcademicSessionNestedInput = {
+    create?: XOR<ExamPaperCreateWithoutAcademicSessionInput, ExamPaperUncheckedCreateWithoutAcademicSessionInput> | ExamPaperCreateWithoutAcademicSessionInput[] | ExamPaperUncheckedCreateWithoutAcademicSessionInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutAcademicSessionInput | ExamPaperCreateOrConnectWithoutAcademicSessionInput[]
+    upsert?: ExamPaperUpsertWithWhereUniqueWithoutAcademicSessionInput | ExamPaperUpsertWithWhereUniqueWithoutAcademicSessionInput[]
+    createMany?: ExamPaperCreateManyAcademicSessionInputEnvelope
+    set?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    disconnect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    delete?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    update?: ExamPaperUpdateWithWhereUniqueWithoutAcademicSessionInput | ExamPaperUpdateWithWhereUniqueWithoutAcademicSessionInput[]
+    updateMany?: ExamPaperUpdateManyWithWhereWithoutAcademicSessionInput | ExamPaperUpdateManyWithWhereWithoutAcademicSessionInput[]
+    deleteMany?: ExamPaperScalarWhereInput | ExamPaperScalarWhereInput[]
   }
 
   export type SubscriptionCreateNestedManyWithoutPlanInput = {
@@ -30880,6 +35017,13 @@ export namespace Prisma {
     connect?: TopicProgressWhereUniqueInput | TopicProgressWhereUniqueInput[]
   }
 
+  export type ExamPaperCreateNestedManyWithoutTeacherInput = {
+    create?: XOR<ExamPaperCreateWithoutTeacherInput, ExamPaperUncheckedCreateWithoutTeacherInput> | ExamPaperCreateWithoutTeacherInput[] | ExamPaperUncheckedCreateWithoutTeacherInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutTeacherInput | ExamPaperCreateOrConnectWithoutTeacherInput[]
+    createMany?: ExamPaperCreateManyTeacherInputEnvelope
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+  }
+
   export type ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput = {
     create?: XOR<ChapterProgressCreateWithoutTeacherInput, ChapterProgressUncheckedCreateWithoutTeacherInput> | ChapterProgressCreateWithoutTeacherInput[] | ChapterProgressUncheckedCreateWithoutTeacherInput[]
     connectOrCreate?: ChapterProgressCreateOrConnectWithoutTeacherInput | ChapterProgressCreateOrConnectWithoutTeacherInput[]
@@ -30899,6 +35043,13 @@ export namespace Prisma {
     connectOrCreate?: TopicProgressCreateOrConnectWithoutTeacherInput | TopicProgressCreateOrConnectWithoutTeacherInput[]
     createMany?: TopicProgressCreateManyTeacherInputEnvelope
     connect?: TopicProgressWhereUniqueInput | TopicProgressWhereUniqueInput[]
+  }
+
+  export type ExamPaperUncheckedCreateNestedManyWithoutTeacherInput = {
+    create?: XOR<ExamPaperCreateWithoutTeacherInput, ExamPaperUncheckedCreateWithoutTeacherInput> | ExamPaperCreateWithoutTeacherInput[] | ExamPaperUncheckedCreateWithoutTeacherInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutTeacherInput | ExamPaperCreateOrConnectWithoutTeacherInput[]
+    createMany?: ExamPaperCreateManyTeacherInputEnvelope
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
   }
 
   export type AcademicSessionUpdateOneRequiredWithoutTeachersNestedInput = {
@@ -30967,6 +35118,20 @@ export namespace Prisma {
     deleteMany?: TopicProgressScalarWhereInput | TopicProgressScalarWhereInput[]
   }
 
+  export type ExamPaperUpdateManyWithoutTeacherNestedInput = {
+    create?: XOR<ExamPaperCreateWithoutTeacherInput, ExamPaperUncheckedCreateWithoutTeacherInput> | ExamPaperCreateWithoutTeacherInput[] | ExamPaperUncheckedCreateWithoutTeacherInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutTeacherInput | ExamPaperCreateOrConnectWithoutTeacherInput[]
+    upsert?: ExamPaperUpsertWithWhereUniqueWithoutTeacherInput | ExamPaperUpsertWithWhereUniqueWithoutTeacherInput[]
+    createMany?: ExamPaperCreateManyTeacherInputEnvelope
+    set?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    disconnect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    delete?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    update?: ExamPaperUpdateWithWhereUniqueWithoutTeacherInput | ExamPaperUpdateWithWhereUniqueWithoutTeacherInput[]
+    updateMany?: ExamPaperUpdateManyWithWhereWithoutTeacherInput | ExamPaperUpdateManyWithWhereWithoutTeacherInput[]
+    deleteMany?: ExamPaperScalarWhereInput | ExamPaperScalarWhereInput[]
+  }
+
   export type ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput = {
     create?: XOR<ChapterProgressCreateWithoutTeacherInput, ChapterProgressUncheckedCreateWithoutTeacherInput> | ChapterProgressCreateWithoutTeacherInput[] | ChapterProgressUncheckedCreateWithoutTeacherInput[]
     connectOrCreate?: ChapterProgressCreateOrConnectWithoutTeacherInput | ChapterProgressCreateOrConnectWithoutTeacherInput[]
@@ -31009,6 +35174,20 @@ export namespace Prisma {
     deleteMany?: TopicProgressScalarWhereInput | TopicProgressScalarWhereInput[]
   }
 
+  export type ExamPaperUncheckedUpdateManyWithoutTeacherNestedInput = {
+    create?: XOR<ExamPaperCreateWithoutTeacherInput, ExamPaperUncheckedCreateWithoutTeacherInput> | ExamPaperCreateWithoutTeacherInput[] | ExamPaperUncheckedCreateWithoutTeacherInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutTeacherInput | ExamPaperCreateOrConnectWithoutTeacherInput[]
+    upsert?: ExamPaperUpsertWithWhereUniqueWithoutTeacherInput | ExamPaperUpsertWithWhereUniqueWithoutTeacherInput[]
+    createMany?: ExamPaperCreateManyTeacherInputEnvelope
+    set?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    disconnect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    delete?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    update?: ExamPaperUpdateWithWhereUniqueWithoutTeacherInput | ExamPaperUpdateWithWhereUniqueWithoutTeacherInput[]
+    updateMany?: ExamPaperUpdateManyWithWhereWithoutTeacherInput | ExamPaperUpdateManyWithWhereWithoutTeacherInput[]
+    deleteMany?: ExamPaperScalarWhereInput | ExamPaperScalarWhereInput[]
+  }
+
   export type AcademicSessionCreateNestedOneWithoutClassesInput = {
     create?: XOR<AcademicSessionCreateWithoutClassesInput, AcademicSessionUncheckedCreateWithoutClassesInput>
     connectOrCreate?: AcademicSessionCreateOrConnectWithoutClassesInput
@@ -31042,6 +35221,13 @@ export namespace Prisma {
     connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
   }
 
+  export type ExamPaperCreateNestedManyWithoutClassInput = {
+    create?: XOR<ExamPaperCreateWithoutClassInput, ExamPaperUncheckedCreateWithoutClassInput> | ExamPaperCreateWithoutClassInput[] | ExamPaperUncheckedCreateWithoutClassInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutClassInput | ExamPaperCreateOrConnectWithoutClassInput[]
+    createMany?: ExamPaperCreateManyClassInputEnvelope
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+  }
+
   export type ChapterUncheckedCreateNestedManyWithoutClassInput = {
     create?: XOR<ChapterCreateWithoutClassInput, ChapterUncheckedCreateWithoutClassInput> | ChapterCreateWithoutClassInput[] | ChapterUncheckedCreateWithoutClassInput[]
     connectOrCreate?: ChapterCreateOrConnectWithoutClassInput | ChapterCreateOrConnectWithoutClassInput[]
@@ -31061,6 +35247,13 @@ export namespace Prisma {
     connectOrCreate?: TeacherClassCreateOrConnectWithoutClassInput | TeacherClassCreateOrConnectWithoutClassInput[]
     createMany?: TeacherClassCreateManyClassInputEnvelope
     connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
+  }
+
+  export type ExamPaperUncheckedCreateNestedManyWithoutClassInput = {
+    create?: XOR<ExamPaperCreateWithoutClassInput, ExamPaperUncheckedCreateWithoutClassInput> | ExamPaperCreateWithoutClassInput[] | ExamPaperUncheckedCreateWithoutClassInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutClassInput | ExamPaperCreateOrConnectWithoutClassInput[]
+    createMany?: ExamPaperCreateManyClassInputEnvelope
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
   }
 
   export type AcademicSessionUpdateOneRequiredWithoutClassesNestedInput = {
@@ -31121,6 +35314,20 @@ export namespace Prisma {
     deleteMany?: TeacherClassScalarWhereInput | TeacherClassScalarWhereInput[]
   }
 
+  export type ExamPaperUpdateManyWithoutClassNestedInput = {
+    create?: XOR<ExamPaperCreateWithoutClassInput, ExamPaperUncheckedCreateWithoutClassInput> | ExamPaperCreateWithoutClassInput[] | ExamPaperUncheckedCreateWithoutClassInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutClassInput | ExamPaperCreateOrConnectWithoutClassInput[]
+    upsert?: ExamPaperUpsertWithWhereUniqueWithoutClassInput | ExamPaperUpsertWithWhereUniqueWithoutClassInput[]
+    createMany?: ExamPaperCreateManyClassInputEnvelope
+    set?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    disconnect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    delete?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    update?: ExamPaperUpdateWithWhereUniqueWithoutClassInput | ExamPaperUpdateWithWhereUniqueWithoutClassInput[]
+    updateMany?: ExamPaperUpdateManyWithWhereWithoutClassInput | ExamPaperUpdateManyWithWhereWithoutClassInput[]
+    deleteMany?: ExamPaperScalarWhereInput | ExamPaperScalarWhereInput[]
+  }
+
   export type ChapterUncheckedUpdateManyWithoutClassNestedInput = {
     create?: XOR<ChapterCreateWithoutClassInput, ChapterUncheckedCreateWithoutClassInput> | ChapterCreateWithoutClassInput[] | ChapterUncheckedCreateWithoutClassInput[]
     connectOrCreate?: ChapterCreateOrConnectWithoutClassInput | ChapterCreateOrConnectWithoutClassInput[]
@@ -31163,6 +35370,20 @@ export namespace Prisma {
     deleteMany?: TeacherClassScalarWhereInput | TeacherClassScalarWhereInput[]
   }
 
+  export type ExamPaperUncheckedUpdateManyWithoutClassNestedInput = {
+    create?: XOR<ExamPaperCreateWithoutClassInput, ExamPaperUncheckedCreateWithoutClassInput> | ExamPaperCreateWithoutClassInput[] | ExamPaperUncheckedCreateWithoutClassInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutClassInput | ExamPaperCreateOrConnectWithoutClassInput[]
+    upsert?: ExamPaperUpsertWithWhereUniqueWithoutClassInput | ExamPaperUpsertWithWhereUniqueWithoutClassInput[]
+    createMany?: ExamPaperCreateManyClassInputEnvelope
+    set?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    disconnect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    delete?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    update?: ExamPaperUpdateWithWhereUniqueWithoutClassInput | ExamPaperUpdateWithWhereUniqueWithoutClassInput[]
+    updateMany?: ExamPaperUpdateManyWithWhereWithoutClassInput | ExamPaperUpdateManyWithWhereWithoutClassInput[]
+    deleteMany?: ExamPaperScalarWhereInput | ExamPaperScalarWhereInput[]
+  }
+
   export type AcademicSessionCreateNestedOneWithoutSubjectsInput = {
     create?: XOR<AcademicSessionCreateWithoutSubjectsInput, AcademicSessionUncheckedCreateWithoutSubjectsInput>
     connectOrCreate?: AcademicSessionCreateOrConnectWithoutSubjectsInput
@@ -31195,6 +35416,13 @@ export namespace Prisma {
     connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
   }
 
+  export type ExamPaperCreateNestedManyWithoutSubjectInput = {
+    create?: XOR<ExamPaperCreateWithoutSubjectInput, ExamPaperUncheckedCreateWithoutSubjectInput> | ExamPaperCreateWithoutSubjectInput[] | ExamPaperUncheckedCreateWithoutSubjectInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutSubjectInput | ExamPaperCreateOrConnectWithoutSubjectInput[]
+    createMany?: ExamPaperCreateManySubjectInputEnvelope
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+  }
+
   export type ChapterUncheckedCreateNestedManyWithoutSubjectInput = {
     create?: XOR<ChapterCreateWithoutSubjectInput, ChapterUncheckedCreateWithoutSubjectInput> | ChapterCreateWithoutSubjectInput[] | ChapterUncheckedCreateWithoutSubjectInput[]
     connectOrCreate?: ChapterCreateOrConnectWithoutSubjectInput | ChapterCreateOrConnectWithoutSubjectInput[]
@@ -31207,6 +35435,13 @@ export namespace Prisma {
     connectOrCreate?: TeacherClassCreateOrConnectWithoutSubjectInput | TeacherClassCreateOrConnectWithoutSubjectInput[]
     createMany?: TeacherClassCreateManySubjectInputEnvelope
     connect?: TeacherClassWhereUniqueInput | TeacherClassWhereUniqueInput[]
+  }
+
+  export type ExamPaperUncheckedCreateNestedManyWithoutSubjectInput = {
+    create?: XOR<ExamPaperCreateWithoutSubjectInput, ExamPaperUncheckedCreateWithoutSubjectInput> | ExamPaperCreateWithoutSubjectInput[] | ExamPaperUncheckedCreateWithoutSubjectInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutSubjectInput | ExamPaperCreateOrConnectWithoutSubjectInput[]
+    createMany?: ExamPaperCreateManySubjectInputEnvelope
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
   }
 
   export type AcademicSessionUpdateOneRequiredWithoutSubjectsNestedInput = {
@@ -31263,6 +35498,20 @@ export namespace Prisma {
     deleteMany?: TeacherClassScalarWhereInput | TeacherClassScalarWhereInput[]
   }
 
+  export type ExamPaperUpdateManyWithoutSubjectNestedInput = {
+    create?: XOR<ExamPaperCreateWithoutSubjectInput, ExamPaperUncheckedCreateWithoutSubjectInput> | ExamPaperCreateWithoutSubjectInput[] | ExamPaperUncheckedCreateWithoutSubjectInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutSubjectInput | ExamPaperCreateOrConnectWithoutSubjectInput[]
+    upsert?: ExamPaperUpsertWithWhereUniqueWithoutSubjectInput | ExamPaperUpsertWithWhereUniqueWithoutSubjectInput[]
+    createMany?: ExamPaperCreateManySubjectInputEnvelope
+    set?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    disconnect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    delete?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    update?: ExamPaperUpdateWithWhereUniqueWithoutSubjectInput | ExamPaperUpdateWithWhereUniqueWithoutSubjectInput[]
+    updateMany?: ExamPaperUpdateManyWithWhereWithoutSubjectInput | ExamPaperUpdateManyWithWhereWithoutSubjectInput[]
+    deleteMany?: ExamPaperScalarWhereInput | ExamPaperScalarWhereInput[]
+  }
+
   export type ChapterUncheckedUpdateManyWithoutSubjectNestedInput = {
     create?: XOR<ChapterCreateWithoutSubjectInput, ChapterUncheckedCreateWithoutSubjectInput> | ChapterCreateWithoutSubjectInput[] | ChapterUncheckedCreateWithoutSubjectInput[]
     connectOrCreate?: ChapterCreateOrConnectWithoutSubjectInput | ChapterCreateOrConnectWithoutSubjectInput[]
@@ -31289,6 +35538,20 @@ export namespace Prisma {
     update?: TeacherClassUpdateWithWhereUniqueWithoutSubjectInput | TeacherClassUpdateWithWhereUniqueWithoutSubjectInput[]
     updateMany?: TeacherClassUpdateManyWithWhereWithoutSubjectInput | TeacherClassUpdateManyWithWhereWithoutSubjectInput[]
     deleteMany?: TeacherClassScalarWhereInput | TeacherClassScalarWhereInput[]
+  }
+
+  export type ExamPaperUncheckedUpdateManyWithoutSubjectNestedInput = {
+    create?: XOR<ExamPaperCreateWithoutSubjectInput, ExamPaperUncheckedCreateWithoutSubjectInput> | ExamPaperCreateWithoutSubjectInput[] | ExamPaperUncheckedCreateWithoutSubjectInput[]
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutSubjectInput | ExamPaperCreateOrConnectWithoutSubjectInput[]
+    upsert?: ExamPaperUpsertWithWhereUniqueWithoutSubjectInput | ExamPaperUpsertWithWhereUniqueWithoutSubjectInput[]
+    createMany?: ExamPaperCreateManySubjectInputEnvelope
+    set?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    disconnect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    delete?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    connect?: ExamPaperWhereUniqueInput | ExamPaperWhereUniqueInput[]
+    update?: ExamPaperUpdateWithWhereUniqueWithoutSubjectInput | ExamPaperUpdateWithWhereUniqueWithoutSubjectInput[]
+    updateMany?: ExamPaperUpdateManyWithWhereWithoutSubjectInput | ExamPaperUpdateManyWithWhereWithoutSubjectInput[]
+    deleteMany?: ExamPaperScalarWhereInput | ExamPaperScalarWhereInput[]
   }
 
   export type AcademicSessionCreateNestedOneWithoutChaptersInput = {
@@ -31705,6 +35968,210 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTopicProgressInput, UserUpdateWithoutTopicProgressInput>, UserUncheckedUpdateWithoutTopicProgressInput>
   }
 
+  export type SchoolCreateNestedOneWithoutExamPapersInput = {
+    create?: XOR<SchoolCreateWithoutExamPapersInput, SchoolUncheckedCreateWithoutExamPapersInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutExamPapersInput
+    connect?: SchoolWhereUniqueInput
+  }
+
+  export type AcademicSessionCreateNestedOneWithoutExamPapersInput = {
+    create?: XOR<AcademicSessionCreateWithoutExamPapersInput, AcademicSessionUncheckedCreateWithoutExamPapersInput>
+    connectOrCreate?: AcademicSessionCreateOrConnectWithoutExamPapersInput
+    connect?: AcademicSessionWhereUniqueInput
+  }
+
+  export type TeacherCreateNestedOneWithoutExamPapersInput = {
+    create?: XOR<TeacherCreateWithoutExamPapersInput, TeacherUncheckedCreateWithoutExamPapersInput>
+    connectOrCreate?: TeacherCreateOrConnectWithoutExamPapersInput
+    connect?: TeacherWhereUniqueInput
+  }
+
+  export type ClassCreateNestedOneWithoutExamPapersInput = {
+    create?: XOR<ClassCreateWithoutExamPapersInput, ClassUncheckedCreateWithoutExamPapersInput>
+    connectOrCreate?: ClassCreateOrConnectWithoutExamPapersInput
+    connect?: ClassWhereUniqueInput
+  }
+
+  export type SubjectCreateNestedOneWithoutExamPapersInput = {
+    create?: XOR<SubjectCreateWithoutExamPapersInput, SubjectUncheckedCreateWithoutExamPapersInput>
+    connectOrCreate?: SubjectCreateOrConnectWithoutExamPapersInput
+    connect?: SubjectWhereUniqueInput
+  }
+
+  export type ExamSectionCreateNestedManyWithoutExamPaperInput = {
+    create?: XOR<ExamSectionCreateWithoutExamPaperInput, ExamSectionUncheckedCreateWithoutExamPaperInput> | ExamSectionCreateWithoutExamPaperInput[] | ExamSectionUncheckedCreateWithoutExamPaperInput[]
+    connectOrCreate?: ExamSectionCreateOrConnectWithoutExamPaperInput | ExamSectionCreateOrConnectWithoutExamPaperInput[]
+    createMany?: ExamSectionCreateManyExamPaperInputEnvelope
+    connect?: ExamSectionWhereUniqueInput | ExamSectionWhereUniqueInput[]
+  }
+
+  export type ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput = {
+    create?: XOR<ExamSectionCreateWithoutExamPaperInput, ExamSectionUncheckedCreateWithoutExamPaperInput> | ExamSectionCreateWithoutExamPaperInput[] | ExamSectionUncheckedCreateWithoutExamPaperInput[]
+    connectOrCreate?: ExamSectionCreateOrConnectWithoutExamPaperInput | ExamSectionCreateOrConnectWithoutExamPaperInput[]
+    createMany?: ExamSectionCreateManyExamPaperInputEnvelope
+    connect?: ExamSectionWhereUniqueInput | ExamSectionWhereUniqueInput[]
+  }
+
+  export type EnumExamPaperStatusFieldUpdateOperationsInput = {
+    set?: $Enums.ExamPaperStatus
+  }
+
+  export type SchoolUpdateOneRequiredWithoutExamPapersNestedInput = {
+    create?: XOR<SchoolCreateWithoutExamPapersInput, SchoolUncheckedCreateWithoutExamPapersInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutExamPapersInput
+    upsert?: SchoolUpsertWithoutExamPapersInput
+    connect?: SchoolWhereUniqueInput
+    update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutExamPapersInput, SchoolUpdateWithoutExamPapersInput>, SchoolUncheckedUpdateWithoutExamPapersInput>
+  }
+
+  export type AcademicSessionUpdateOneRequiredWithoutExamPapersNestedInput = {
+    create?: XOR<AcademicSessionCreateWithoutExamPapersInput, AcademicSessionUncheckedCreateWithoutExamPapersInput>
+    connectOrCreate?: AcademicSessionCreateOrConnectWithoutExamPapersInput
+    upsert?: AcademicSessionUpsertWithoutExamPapersInput
+    connect?: AcademicSessionWhereUniqueInput
+    update?: XOR<XOR<AcademicSessionUpdateToOneWithWhereWithoutExamPapersInput, AcademicSessionUpdateWithoutExamPapersInput>, AcademicSessionUncheckedUpdateWithoutExamPapersInput>
+  }
+
+  export type TeacherUpdateOneRequiredWithoutExamPapersNestedInput = {
+    create?: XOR<TeacherCreateWithoutExamPapersInput, TeacherUncheckedCreateWithoutExamPapersInput>
+    connectOrCreate?: TeacherCreateOrConnectWithoutExamPapersInput
+    upsert?: TeacherUpsertWithoutExamPapersInput
+    connect?: TeacherWhereUniqueInput
+    update?: XOR<XOR<TeacherUpdateToOneWithWhereWithoutExamPapersInput, TeacherUpdateWithoutExamPapersInput>, TeacherUncheckedUpdateWithoutExamPapersInput>
+  }
+
+  export type ClassUpdateOneRequiredWithoutExamPapersNestedInput = {
+    create?: XOR<ClassCreateWithoutExamPapersInput, ClassUncheckedCreateWithoutExamPapersInput>
+    connectOrCreate?: ClassCreateOrConnectWithoutExamPapersInput
+    upsert?: ClassUpsertWithoutExamPapersInput
+    connect?: ClassWhereUniqueInput
+    update?: XOR<XOR<ClassUpdateToOneWithWhereWithoutExamPapersInput, ClassUpdateWithoutExamPapersInput>, ClassUncheckedUpdateWithoutExamPapersInput>
+  }
+
+  export type SubjectUpdateOneRequiredWithoutExamPapersNestedInput = {
+    create?: XOR<SubjectCreateWithoutExamPapersInput, SubjectUncheckedCreateWithoutExamPapersInput>
+    connectOrCreate?: SubjectCreateOrConnectWithoutExamPapersInput
+    upsert?: SubjectUpsertWithoutExamPapersInput
+    connect?: SubjectWhereUniqueInput
+    update?: XOR<XOR<SubjectUpdateToOneWithWhereWithoutExamPapersInput, SubjectUpdateWithoutExamPapersInput>, SubjectUncheckedUpdateWithoutExamPapersInput>
+  }
+
+  export type ExamSectionUpdateManyWithoutExamPaperNestedInput = {
+    create?: XOR<ExamSectionCreateWithoutExamPaperInput, ExamSectionUncheckedCreateWithoutExamPaperInput> | ExamSectionCreateWithoutExamPaperInput[] | ExamSectionUncheckedCreateWithoutExamPaperInput[]
+    connectOrCreate?: ExamSectionCreateOrConnectWithoutExamPaperInput | ExamSectionCreateOrConnectWithoutExamPaperInput[]
+    upsert?: ExamSectionUpsertWithWhereUniqueWithoutExamPaperInput | ExamSectionUpsertWithWhereUniqueWithoutExamPaperInput[]
+    createMany?: ExamSectionCreateManyExamPaperInputEnvelope
+    set?: ExamSectionWhereUniqueInput | ExamSectionWhereUniqueInput[]
+    disconnect?: ExamSectionWhereUniqueInput | ExamSectionWhereUniqueInput[]
+    delete?: ExamSectionWhereUniqueInput | ExamSectionWhereUniqueInput[]
+    connect?: ExamSectionWhereUniqueInput | ExamSectionWhereUniqueInput[]
+    update?: ExamSectionUpdateWithWhereUniqueWithoutExamPaperInput | ExamSectionUpdateWithWhereUniqueWithoutExamPaperInput[]
+    updateMany?: ExamSectionUpdateManyWithWhereWithoutExamPaperInput | ExamSectionUpdateManyWithWhereWithoutExamPaperInput[]
+    deleteMany?: ExamSectionScalarWhereInput | ExamSectionScalarWhereInput[]
+  }
+
+  export type ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput = {
+    create?: XOR<ExamSectionCreateWithoutExamPaperInput, ExamSectionUncheckedCreateWithoutExamPaperInput> | ExamSectionCreateWithoutExamPaperInput[] | ExamSectionUncheckedCreateWithoutExamPaperInput[]
+    connectOrCreate?: ExamSectionCreateOrConnectWithoutExamPaperInput | ExamSectionCreateOrConnectWithoutExamPaperInput[]
+    upsert?: ExamSectionUpsertWithWhereUniqueWithoutExamPaperInput | ExamSectionUpsertWithWhereUniqueWithoutExamPaperInput[]
+    createMany?: ExamSectionCreateManyExamPaperInputEnvelope
+    set?: ExamSectionWhereUniqueInput | ExamSectionWhereUniqueInput[]
+    disconnect?: ExamSectionWhereUniqueInput | ExamSectionWhereUniqueInput[]
+    delete?: ExamSectionWhereUniqueInput | ExamSectionWhereUniqueInput[]
+    connect?: ExamSectionWhereUniqueInput | ExamSectionWhereUniqueInput[]
+    update?: ExamSectionUpdateWithWhereUniqueWithoutExamPaperInput | ExamSectionUpdateWithWhereUniqueWithoutExamPaperInput[]
+    updateMany?: ExamSectionUpdateManyWithWhereWithoutExamPaperInput | ExamSectionUpdateManyWithWhereWithoutExamPaperInput[]
+    deleteMany?: ExamSectionScalarWhereInput | ExamSectionScalarWhereInput[]
+  }
+
+  export type ExamPaperCreateNestedOneWithoutSectionsInput = {
+    create?: XOR<ExamPaperCreateWithoutSectionsInput, ExamPaperUncheckedCreateWithoutSectionsInput>
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutSectionsInput
+    connect?: ExamPaperWhereUniqueInput
+  }
+
+  export type ExamQuestionCreateNestedManyWithoutSectionInput = {
+    create?: XOR<ExamQuestionCreateWithoutSectionInput, ExamQuestionUncheckedCreateWithoutSectionInput> | ExamQuestionCreateWithoutSectionInput[] | ExamQuestionUncheckedCreateWithoutSectionInput[]
+    connectOrCreate?: ExamQuestionCreateOrConnectWithoutSectionInput | ExamQuestionCreateOrConnectWithoutSectionInput[]
+    createMany?: ExamQuestionCreateManySectionInputEnvelope
+    connect?: ExamQuestionWhereUniqueInput | ExamQuestionWhereUniqueInput[]
+  }
+
+  export type ExamQuestionUncheckedCreateNestedManyWithoutSectionInput = {
+    create?: XOR<ExamQuestionCreateWithoutSectionInput, ExamQuestionUncheckedCreateWithoutSectionInput> | ExamQuestionCreateWithoutSectionInput[] | ExamQuestionUncheckedCreateWithoutSectionInput[]
+    connectOrCreate?: ExamQuestionCreateOrConnectWithoutSectionInput | ExamQuestionCreateOrConnectWithoutSectionInput[]
+    createMany?: ExamQuestionCreateManySectionInputEnvelope
+    connect?: ExamQuestionWhereUniqueInput | ExamQuestionWhereUniqueInput[]
+  }
+
+  export type EnumQuestionTypeFieldUpdateOperationsInput = {
+    set?: $Enums.QuestionType
+  }
+
+  export type ExamPaperUpdateOneRequiredWithoutSectionsNestedInput = {
+    create?: XOR<ExamPaperCreateWithoutSectionsInput, ExamPaperUncheckedCreateWithoutSectionsInput>
+    connectOrCreate?: ExamPaperCreateOrConnectWithoutSectionsInput
+    upsert?: ExamPaperUpsertWithoutSectionsInput
+    connect?: ExamPaperWhereUniqueInput
+    update?: XOR<XOR<ExamPaperUpdateToOneWithWhereWithoutSectionsInput, ExamPaperUpdateWithoutSectionsInput>, ExamPaperUncheckedUpdateWithoutSectionsInput>
+  }
+
+  export type ExamQuestionUpdateManyWithoutSectionNestedInput = {
+    create?: XOR<ExamQuestionCreateWithoutSectionInput, ExamQuestionUncheckedCreateWithoutSectionInput> | ExamQuestionCreateWithoutSectionInput[] | ExamQuestionUncheckedCreateWithoutSectionInput[]
+    connectOrCreate?: ExamQuestionCreateOrConnectWithoutSectionInput | ExamQuestionCreateOrConnectWithoutSectionInput[]
+    upsert?: ExamQuestionUpsertWithWhereUniqueWithoutSectionInput | ExamQuestionUpsertWithWhereUniqueWithoutSectionInput[]
+    createMany?: ExamQuestionCreateManySectionInputEnvelope
+    set?: ExamQuestionWhereUniqueInput | ExamQuestionWhereUniqueInput[]
+    disconnect?: ExamQuestionWhereUniqueInput | ExamQuestionWhereUniqueInput[]
+    delete?: ExamQuestionWhereUniqueInput | ExamQuestionWhereUniqueInput[]
+    connect?: ExamQuestionWhereUniqueInput | ExamQuestionWhereUniqueInput[]
+    update?: ExamQuestionUpdateWithWhereUniqueWithoutSectionInput | ExamQuestionUpdateWithWhereUniqueWithoutSectionInput[]
+    updateMany?: ExamQuestionUpdateManyWithWhereWithoutSectionInput | ExamQuestionUpdateManyWithWhereWithoutSectionInput[]
+    deleteMany?: ExamQuestionScalarWhereInput | ExamQuestionScalarWhereInput[]
+  }
+
+  export type ExamQuestionUncheckedUpdateManyWithoutSectionNestedInput = {
+    create?: XOR<ExamQuestionCreateWithoutSectionInput, ExamQuestionUncheckedCreateWithoutSectionInput> | ExamQuestionCreateWithoutSectionInput[] | ExamQuestionUncheckedCreateWithoutSectionInput[]
+    connectOrCreate?: ExamQuestionCreateOrConnectWithoutSectionInput | ExamQuestionCreateOrConnectWithoutSectionInput[]
+    upsert?: ExamQuestionUpsertWithWhereUniqueWithoutSectionInput | ExamQuestionUpsertWithWhereUniqueWithoutSectionInput[]
+    createMany?: ExamQuestionCreateManySectionInputEnvelope
+    set?: ExamQuestionWhereUniqueInput | ExamQuestionWhereUniqueInput[]
+    disconnect?: ExamQuestionWhereUniqueInput | ExamQuestionWhereUniqueInput[]
+    delete?: ExamQuestionWhereUniqueInput | ExamQuestionWhereUniqueInput[]
+    connect?: ExamQuestionWhereUniqueInput | ExamQuestionWhereUniqueInput[]
+    update?: ExamQuestionUpdateWithWhereUniqueWithoutSectionInput | ExamQuestionUpdateWithWhereUniqueWithoutSectionInput[]
+    updateMany?: ExamQuestionUpdateManyWithWhereWithoutSectionInput | ExamQuestionUpdateManyWithWhereWithoutSectionInput[]
+    deleteMany?: ExamQuestionScalarWhereInput | ExamQuestionScalarWhereInput[]
+  }
+
+  export type ExamSectionCreateNestedOneWithoutQuestionsInput = {
+    create?: XOR<ExamSectionCreateWithoutQuestionsInput, ExamSectionUncheckedCreateWithoutQuestionsInput>
+    connectOrCreate?: ExamSectionCreateOrConnectWithoutQuestionsInput
+    connect?: ExamSectionWhereUniqueInput
+  }
+
+  export type ExamSectionUpdateOneRequiredWithoutQuestionsNestedInput = {
+    create?: XOR<ExamSectionCreateWithoutQuestionsInput, ExamSectionUncheckedCreateWithoutQuestionsInput>
+    connectOrCreate?: ExamSectionCreateOrConnectWithoutQuestionsInput
+    upsert?: ExamSectionUpsertWithoutQuestionsInput
+    connect?: ExamSectionWhereUniqueInput
+    update?: XOR<XOR<ExamSectionUpdateToOneWithWhereWithoutQuestionsInput, ExamSectionUpdateWithoutQuestionsInput>, ExamSectionUncheckedUpdateWithoutQuestionsInput>
+  }
+
+  export type SchoolCreateNestedOneWithoutExamPaperTemplatesInput = {
+    create?: XOR<SchoolCreateWithoutExamPaperTemplatesInput, SchoolUncheckedCreateWithoutExamPaperTemplatesInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutExamPaperTemplatesInput
+    connect?: SchoolWhereUniqueInput
+  }
+
+  export type SchoolUpdateOneRequiredWithoutExamPaperTemplatesNestedInput = {
+    create?: XOR<SchoolCreateWithoutExamPaperTemplatesInput, SchoolUncheckedCreateWithoutExamPaperTemplatesInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutExamPaperTemplatesInput
+    upsert?: SchoolUpsertWithoutExamPaperTemplatesInput
+    connect?: SchoolWhereUniqueInput
+    update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutExamPaperTemplatesInput, SchoolUpdateWithoutExamPaperTemplatesInput>, SchoolUncheckedUpdateWithoutExamPaperTemplatesInput>
+  }
+
   export type SchoolCreateNestedOneWithoutNotificationsInput = {
     create?: XOR<SchoolCreateWithoutNotificationsInput, SchoolUncheckedCreateWithoutNotificationsInput>
     connectOrCreate?: SchoolCreateOrConnectWithoutNotificationsInput
@@ -31898,7 +36365,6 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
-    search?: string
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
@@ -31920,7 +36386,6 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
-    search?: string
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
@@ -31964,7 +36429,6 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
-    search?: string
     not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
@@ -32003,7 +36467,6 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
-    search?: string
     not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
@@ -32159,7 +36622,7 @@ export namespace Prisma {
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
   }
-  export type NestedJsonFilter<$PrismaModel = never> =
+  export type NestedJsonFilter<$PrismaModel = never> = 
     | PatchUndefined<
         Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
         Required<NestedJsonFilterBase<$PrismaModel>>
@@ -32169,13 +36632,12 @@ export namespace Prisma {
   export type NestedJsonFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
     path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     lt?: InputJsonValue
     lte?: InputJsonValue
     gt?: InputJsonValue
@@ -32261,6 +36723,62 @@ export namespace Prisma {
     _max?: NestedEnumTopicStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumExamPaperStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ExamPaperStatus | EnumExamPaperStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ExamPaperStatus[]
+    notIn?: $Enums.ExamPaperStatus[]
+    not?: NestedEnumExamPaperStatusFilter<$PrismaModel> | $Enums.ExamPaperStatus
+  }
+
+  export type NestedEnumExamPaperStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ExamPaperStatus | EnumExamPaperStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ExamPaperStatus[]
+    notIn?: $Enums.ExamPaperStatus[]
+    not?: NestedEnumExamPaperStatusWithAggregatesFilter<$PrismaModel> | $Enums.ExamPaperStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumExamPaperStatusFilter<$PrismaModel>
+    _max?: NestedEnumExamPaperStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumQuestionTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.QuestionType | EnumQuestionTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.QuestionType[]
+    notIn?: $Enums.QuestionType[]
+    not?: NestedEnumQuestionTypeFilter<$PrismaModel> | $Enums.QuestionType
+  }
+
+  export type NestedEnumQuestionTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.QuestionType | EnumQuestionTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.QuestionType[]
+    notIn?: $Enums.QuestionType[]
+    not?: NestedEnumQuestionTypeWithAggregatesFilter<$PrismaModel> | $Enums.QuestionType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumQuestionTypeFilter<$PrismaModel>
+    _max?: NestedEnumQuestionTypeFilter<$PrismaModel>
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
   export type NestedEnumNotificationTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.NotificationType | EnumNotificationTypeFieldRefInput<$PrismaModel>
     in?: $Enums.NotificationType[]
@@ -32276,29 +36794,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumNotificationTypeFilter<$PrismaModel>
     _max?: NestedEnumNotificationTypeFilter<$PrismaModel>
-  }
-  export type NestedJsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue
-    lte?: InputJsonValue
-    gt?: InputJsonValue
-    gte?: InputJsonValue
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedEnumAcademicTermStatusFilter<$PrismaModel = never> = {
@@ -32495,6 +36990,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
     school: SchoolCreateNestedOneWithoutTeachersInput
     topicProgress?: TopicProgressCreateNestedManyWithoutTeacherInput
+    examPapers?: ExamPaperCreateNestedManyWithoutTeacherInput
   }
 
   export type TeacherUncheckedCreateWithoutUserInput = {
@@ -32508,6 +37004,7 @@ export namespace Prisma {
     chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutTeacherInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTeacherInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutTeacherInput
   }
 
   export type TeacherCreateOrConnectWithoutUserInput = {
@@ -32573,6 +37070,8 @@ export namespace Prisma {
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     teachers?: TeacherCreateNestedManyWithoutSchoolInput
     topics?: TopicCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutUsersInput = {
@@ -32599,6 +37098,8 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
     topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutUsersInput = {
@@ -32786,6 +37287,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
     school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutTeacherNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutTeacherNestedInput
   }
 
   export type TeacherUncheckedUpdateWithoutUserInput = {
@@ -32799,6 +37301,7 @@ export namespace Prisma {
     chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutTeacherNestedInput
   }
 
   export type TopicProgressUpsertWithWhereUniqueWithoutUpdatedByInput = {
@@ -32868,6 +37371,8 @@ export namespace Prisma {
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     teachers?: TeacherUpdateManyWithoutSchoolNestedInput
     topics?: TopicUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutUsersInput = {
@@ -32894,6 +37399,8 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
     topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type UserCreateWithoutRefreshTokensInput = {
@@ -33016,6 +37523,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionUncheckedCreateWithoutSchoolInput = {
@@ -33034,6 +37542,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionCreateOrConnectWithoutSchoolInput = {
@@ -33218,6 +37727,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutClassInput
     subjects?: SubjectCreateNestedManyWithoutClassInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutClassInput
+    examPapers?: ExamPaperCreateNestedManyWithoutClassInput
   }
 
   export type ClassUncheckedCreateWithoutSchoolInput = {
@@ -33234,6 +37744,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutClassInput
     subjects?: SubjectUncheckedCreateNestedManyWithoutClassInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutClassInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutClassInput
   }
 
   export type ClassCreateOrConnectWithoutSchoolInput = {
@@ -33292,6 +37803,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutSubjectInput
     class?: ClassCreateNestedOneWithoutSubjectsInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutSubjectInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSubjectInput
   }
 
   export type SubjectUncheckedCreateWithoutSchoolInput = {
@@ -33308,6 +37820,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     chapters?: ChapterUncheckedCreateNestedManyWithoutSubjectInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutSubjectInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSubjectInput
   }
 
   export type SubjectCreateOrConnectWithoutSchoolInput = {
@@ -33361,6 +37874,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
     user: UserCreateNestedOneWithoutTeacherInput
     topicProgress?: TopicProgressCreateNestedManyWithoutTeacherInput
+    examPapers?: ExamPaperCreateNestedManyWithoutTeacherInput
   }
 
   export type TeacherUncheckedCreateWithoutSchoolInput = {
@@ -33374,6 +37888,7 @@ export namespace Prisma {
     chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutTeacherInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTeacherInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutTeacherInput
   }
 
   export type TeacherCreateOrConnectWithoutSchoolInput = {
@@ -33475,6 +37990,86 @@ export namespace Prisma {
 
   export type UserCreateManySchoolInputEnvelope = {
     data: UserCreateManySchoolInput | UserCreateManySchoolInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ExamPaperCreateWithoutSchoolInput = {
+    id?: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    academicSession: AcademicSessionCreateNestedOneWithoutExamPapersInput
+    teacher: TeacherCreateNestedOneWithoutExamPapersInput
+    class: ClassCreateNestedOneWithoutExamPapersInput
+    subject: SubjectCreateNestedOneWithoutExamPapersInput
+    sections?: ExamSectionCreateNestedManyWithoutExamPaperInput
+  }
+
+  export type ExamPaperUncheckedCreateWithoutSchoolInput = {
+    id?: string
+    academicSessionId: string
+    teacherId: string
+    classId: string
+    subjectId: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
+  }
+
+  export type ExamPaperCreateOrConnectWithoutSchoolInput = {
+    where: ExamPaperWhereUniqueInput
+    create: XOR<ExamPaperCreateWithoutSchoolInput, ExamPaperUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type ExamPaperCreateManySchoolInputEnvelope = {
+    data: ExamPaperCreateManySchoolInput | ExamPaperCreateManySchoolInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ExamPaperTemplateCreateWithoutSchoolInput = {
+    id?: string
+    headerHtml: string
+    footerHtml?: string | null
+    instructions?: string | null
+    logoUrl?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type ExamPaperTemplateUncheckedCreateWithoutSchoolInput = {
+    id?: string
+    headerHtml: string
+    footerHtml?: string | null
+    instructions?: string | null
+    logoUrl?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type ExamPaperTemplateCreateOrConnectWithoutSchoolInput = {
+    where: ExamPaperTemplateWhereUniqueInput
+    create: XOR<ExamPaperTemplateCreateWithoutSchoolInput, ExamPaperTemplateUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type ExamPaperTemplateCreateManySchoolInputEnvelope = {
+    data: ExamPaperTemplateCreateManySchoolInput | ExamPaperTemplateCreateManySchoolInput[]
     skipDuplicates?: boolean
   }
 
@@ -33823,6 +38418,75 @@ export namespace Prisma {
     deletedAt?: DateTimeNullableFilter<"User"> | Date | string | null
   }
 
+  export type ExamPaperUpsertWithWhereUniqueWithoutSchoolInput = {
+    where: ExamPaperWhereUniqueInput
+    update: XOR<ExamPaperUpdateWithoutSchoolInput, ExamPaperUncheckedUpdateWithoutSchoolInput>
+    create: XOR<ExamPaperCreateWithoutSchoolInput, ExamPaperUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type ExamPaperUpdateWithWhereUniqueWithoutSchoolInput = {
+    where: ExamPaperWhereUniqueInput
+    data: XOR<ExamPaperUpdateWithoutSchoolInput, ExamPaperUncheckedUpdateWithoutSchoolInput>
+  }
+
+  export type ExamPaperUpdateManyWithWhereWithoutSchoolInput = {
+    where: ExamPaperScalarWhereInput
+    data: XOR<ExamPaperUpdateManyMutationInput, ExamPaperUncheckedUpdateManyWithoutSchoolInput>
+  }
+
+  export type ExamPaperScalarWhereInput = {
+    AND?: ExamPaperScalarWhereInput | ExamPaperScalarWhereInput[]
+    OR?: ExamPaperScalarWhereInput[]
+    NOT?: ExamPaperScalarWhereInput | ExamPaperScalarWhereInput[]
+    id?: StringFilter<"ExamPaper"> | string
+    schoolId?: StringFilter<"ExamPaper"> | string
+    academicSessionId?: StringFilter<"ExamPaper"> | string
+    teacherId?: StringFilter<"ExamPaper"> | string
+    classId?: StringFilter<"ExamPaper"> | string
+    subjectId?: StringFilter<"ExamPaper"> | string
+    examName?: StringFilter<"ExamPaper"> | string
+    examDate?: DateTimeFilter<"ExamPaper"> | Date | string
+    totalMarks?: IntNullableFilter<"ExamPaper"> | number | null
+    duration?: IntNullableFilter<"ExamPaper"> | number | null
+    instructions?: StringNullableFilter<"ExamPaper"> | string | null
+    status?: EnumExamPaperStatusFilter<"ExamPaper"> | $Enums.ExamPaperStatus
+    styleFontFamily?: StringNullableFilter<"ExamPaper"> | string | null
+    styleFontSize?: StringNullableFilter<"ExamPaper"> | string | null
+    styleColor?: StringNullableFilter<"ExamPaper"> | string | null
+    templateType?: StringNullableFilter<"ExamPaper"> | string | null
+    createdAt?: DateTimeFilter<"ExamPaper"> | Date | string
+    updatedAt?: DateTimeFilter<"ExamPaper"> | Date | string
+  }
+
+  export type ExamPaperTemplateUpsertWithWhereUniqueWithoutSchoolInput = {
+    where: ExamPaperTemplateWhereUniqueInput
+    update: XOR<ExamPaperTemplateUpdateWithoutSchoolInput, ExamPaperTemplateUncheckedUpdateWithoutSchoolInput>
+    create: XOR<ExamPaperTemplateCreateWithoutSchoolInput, ExamPaperTemplateUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type ExamPaperTemplateUpdateWithWhereUniqueWithoutSchoolInput = {
+    where: ExamPaperTemplateWhereUniqueInput
+    data: XOR<ExamPaperTemplateUpdateWithoutSchoolInput, ExamPaperTemplateUncheckedUpdateWithoutSchoolInput>
+  }
+
+  export type ExamPaperTemplateUpdateManyWithWhereWithoutSchoolInput = {
+    where: ExamPaperTemplateScalarWhereInput
+    data: XOR<ExamPaperTemplateUpdateManyMutationInput, ExamPaperTemplateUncheckedUpdateManyWithoutSchoolInput>
+  }
+
+  export type ExamPaperTemplateScalarWhereInput = {
+    AND?: ExamPaperTemplateScalarWhereInput | ExamPaperTemplateScalarWhereInput[]
+    OR?: ExamPaperTemplateScalarWhereInput[]
+    NOT?: ExamPaperTemplateScalarWhereInput | ExamPaperTemplateScalarWhereInput[]
+    id?: StringFilter<"ExamPaperTemplate"> | string
+    schoolId?: StringFilter<"ExamPaperTemplate"> | string
+    headerHtml?: StringFilter<"ExamPaperTemplate"> | string
+    footerHtml?: StringNullableFilter<"ExamPaperTemplate"> | string | null
+    instructions?: StringNullableFilter<"ExamPaperTemplate"> | string | null
+    logoUrl?: StringNullableFilter<"ExamPaperTemplate"> | string | null
+    updatedAt?: DateTimeFilter<"ExamPaperTemplate"> | Date | string
+  }
+
   export type SchoolCreateWithoutAcademicSessionsInput = {
     id?: string
     name: string
@@ -33847,6 +38511,8 @@ export namespace Prisma {
     teachers?: TeacherCreateNestedManyWithoutSchoolInput
     topics?: TopicCreateNestedManyWithoutSchoolInput
     users?: UserCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutAcademicSessionsInput = {
@@ -33873,6 +38539,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
     topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
     users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutAcademicSessionsInput = {
@@ -33980,6 +38648,7 @@ export namespace Prisma {
     school: SchoolCreateNestedOneWithoutClassesInput
     subjects?: SubjectCreateNestedManyWithoutClassInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutClassInput
+    examPapers?: ExamPaperCreateNestedManyWithoutClassInput
   }
 
   export type ClassUncheckedCreateWithoutAcademicSessionInput = {
@@ -33996,6 +38665,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutClassInput
     subjects?: SubjectUncheckedCreateNestedManyWithoutClassInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutClassInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutClassInput
   }
 
   export type ClassCreateOrConnectWithoutAcademicSessionInput = {
@@ -34022,6 +38692,7 @@ export namespace Prisma {
     class?: ClassCreateNestedOneWithoutSubjectsInput
     school: SchoolCreateNestedOneWithoutSubjectsInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutSubjectInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSubjectInput
   }
 
   export type SubjectUncheckedCreateWithoutAcademicSessionInput = {
@@ -34038,6 +38709,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     chapters?: ChapterUncheckedCreateNestedManyWithoutSubjectInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutSubjectInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSubjectInput
   }
 
   export type SubjectCreateOrConnectWithoutAcademicSessionInput = {
@@ -34175,6 +38847,7 @@ export namespace Prisma {
     school: SchoolCreateNestedOneWithoutTeachersInput
     user: UserCreateNestedOneWithoutTeacherInput
     topicProgress?: TopicProgressCreateNestedManyWithoutTeacherInput
+    examPapers?: ExamPaperCreateNestedManyWithoutTeacherInput
   }
 
   export type TeacherUncheckedCreateWithoutAcademicSessionInput = {
@@ -34188,6 +38861,7 @@ export namespace Prisma {
     chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutTeacherInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTeacherInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutTeacherInput
   }
 
   export type TeacherCreateOrConnectWithoutAcademicSessionInput = {
@@ -34234,6 +38908,58 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ExamPaperCreateWithoutAcademicSessionInput = {
+    id?: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    school: SchoolCreateNestedOneWithoutExamPapersInput
+    teacher: TeacherCreateNestedOneWithoutExamPapersInput
+    class: ClassCreateNestedOneWithoutExamPapersInput
+    subject: SubjectCreateNestedOneWithoutExamPapersInput
+    sections?: ExamSectionCreateNestedManyWithoutExamPaperInput
+  }
+
+  export type ExamPaperUncheckedCreateWithoutAcademicSessionInput = {
+    id?: string
+    schoolId: string
+    teacherId: string
+    classId: string
+    subjectId: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
+  }
+
+  export type ExamPaperCreateOrConnectWithoutAcademicSessionInput = {
+    where: ExamPaperWhereUniqueInput
+    create: XOR<ExamPaperCreateWithoutAcademicSessionInput, ExamPaperUncheckedCreateWithoutAcademicSessionInput>
+  }
+
+  export type ExamPaperCreateManyAcademicSessionInputEnvelope = {
+    data: ExamPaperCreateManyAcademicSessionInput | ExamPaperCreateManyAcademicSessionInput[]
+    skipDuplicates?: boolean
+  }
+
   export type SchoolUpsertWithoutAcademicSessionsInput = {
     update: XOR<SchoolUpdateWithoutAcademicSessionsInput, SchoolUncheckedUpdateWithoutAcademicSessionsInput>
     create: XOR<SchoolCreateWithoutAcademicSessionsInput, SchoolUncheckedCreateWithoutAcademicSessionsInput>
@@ -34269,6 +38995,8 @@ export namespace Prisma {
     teachers?: TeacherUpdateManyWithoutSchoolNestedInput
     topics?: TopicUpdateManyWithoutSchoolNestedInput
     users?: UserUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutAcademicSessionsInput = {
@@ -34295,6 +39023,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
     topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
     users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type AcademicTermUpsertWithWhereUniqueWithoutAcademicSessionInput = {
@@ -34454,6 +39184,22 @@ export namespace Prisma {
     data: XOR<TopicProgressUpdateManyMutationInput, TopicProgressUncheckedUpdateManyWithoutAcademicSessionInput>
   }
 
+  export type ExamPaperUpsertWithWhereUniqueWithoutAcademicSessionInput = {
+    where: ExamPaperWhereUniqueInput
+    update: XOR<ExamPaperUpdateWithoutAcademicSessionInput, ExamPaperUncheckedUpdateWithoutAcademicSessionInput>
+    create: XOR<ExamPaperCreateWithoutAcademicSessionInput, ExamPaperUncheckedCreateWithoutAcademicSessionInput>
+  }
+
+  export type ExamPaperUpdateWithWhereUniqueWithoutAcademicSessionInput = {
+    where: ExamPaperWhereUniqueInput
+    data: XOR<ExamPaperUpdateWithoutAcademicSessionInput, ExamPaperUncheckedUpdateWithoutAcademicSessionInput>
+  }
+
+  export type ExamPaperUpdateManyWithWhereWithoutAcademicSessionInput = {
+    where: ExamPaperScalarWhereInput
+    data: XOR<ExamPaperUpdateManyMutationInput, ExamPaperUncheckedUpdateManyWithoutAcademicSessionInput>
+  }
+
   export type SubscriptionCreateWithoutPlanInput = {
     id?: string
     status?: $Enums.SubscriptionStatus
@@ -34561,6 +39307,8 @@ export namespace Prisma {
     teachers?: TeacherCreateNestedManyWithoutSchoolInput
     topics?: TopicCreateNestedManyWithoutSchoolInput
     users?: UserCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutSubscriptionsInput = {
@@ -34587,6 +39335,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
     topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
     users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutSubscriptionsInput = {
@@ -34672,6 +39422,8 @@ export namespace Prisma {
     teachers?: TeacherUpdateManyWithoutSchoolNestedInput
     topics?: TopicUpdateManyWithoutSchoolNestedInput
     users?: UserUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutSubscriptionsInput = {
@@ -34698,6 +39450,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
     topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
     users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type AcademicSessionCreateWithoutTeachersInput = {
@@ -34716,6 +39470,7 @@ export namespace Prisma {
     topics?: TopicCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionUncheckedCreateWithoutTeachersInput = {
@@ -34734,6 +39489,7 @@ export namespace Prisma {
     topics?: TopicUncheckedCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionCreateOrConnectWithoutTeachersInput = {
@@ -34835,6 +39591,8 @@ export namespace Prisma {
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     topics?: TopicCreateNestedManyWithoutSchoolInput
     users?: UserCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutTeachersInput = {
@@ -34861,6 +39619,8 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
     users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutTeachersInput = {
@@ -34951,6 +39711,58 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ExamPaperCreateWithoutTeacherInput = {
+    id?: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    school: SchoolCreateNestedOneWithoutExamPapersInput
+    academicSession: AcademicSessionCreateNestedOneWithoutExamPapersInput
+    class: ClassCreateNestedOneWithoutExamPapersInput
+    subject: SubjectCreateNestedOneWithoutExamPapersInput
+    sections?: ExamSectionCreateNestedManyWithoutExamPaperInput
+  }
+
+  export type ExamPaperUncheckedCreateWithoutTeacherInput = {
+    id?: string
+    schoolId: string
+    academicSessionId: string
+    classId: string
+    subjectId: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
+  }
+
+  export type ExamPaperCreateOrConnectWithoutTeacherInput = {
+    where: ExamPaperWhereUniqueInput
+    create: XOR<ExamPaperCreateWithoutTeacherInput, ExamPaperUncheckedCreateWithoutTeacherInput>
+  }
+
+  export type ExamPaperCreateManyTeacherInputEnvelope = {
+    data: ExamPaperCreateManyTeacherInput | ExamPaperCreateManyTeacherInput[]
+    skipDuplicates?: boolean
+  }
+
   export type AcademicSessionUpsertWithoutTeachersInput = {
     update: XOR<AcademicSessionUpdateWithoutTeachersInput, AcademicSessionUncheckedUpdateWithoutTeachersInput>
     create: XOR<AcademicSessionCreateWithoutTeachersInput, AcademicSessionUncheckedCreateWithoutTeachersInput>
@@ -34978,6 +39790,7 @@ export namespace Prisma {
     topics?: TopicUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type AcademicSessionUncheckedUpdateWithoutTeachersInput = {
@@ -34996,6 +39809,7 @@ export namespace Prisma {
     topics?: TopicUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type ChapterProgressUpsertWithWhereUniqueWithoutTeacherInput = {
@@ -35065,6 +39879,8 @@ export namespace Prisma {
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     topics?: TopicUpdateManyWithoutSchoolNestedInput
     users?: UserUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutTeachersInput = {
@@ -35091,6 +39907,8 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
     users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type UserUpsertWithoutTeacherInput = {
@@ -35164,6 +39982,22 @@ export namespace Prisma {
     data: XOR<TopicProgressUpdateManyMutationInput, TopicProgressUncheckedUpdateManyWithoutTeacherInput>
   }
 
+  export type ExamPaperUpsertWithWhereUniqueWithoutTeacherInput = {
+    where: ExamPaperWhereUniqueInput
+    update: XOR<ExamPaperUpdateWithoutTeacherInput, ExamPaperUncheckedUpdateWithoutTeacherInput>
+    create: XOR<ExamPaperCreateWithoutTeacherInput, ExamPaperUncheckedCreateWithoutTeacherInput>
+  }
+
+  export type ExamPaperUpdateWithWhereUniqueWithoutTeacherInput = {
+    where: ExamPaperWhereUniqueInput
+    data: XOR<ExamPaperUpdateWithoutTeacherInput, ExamPaperUncheckedUpdateWithoutTeacherInput>
+  }
+
+  export type ExamPaperUpdateManyWithWhereWithoutTeacherInput = {
+    where: ExamPaperScalarWhereInput
+    data: XOR<ExamPaperUpdateManyMutationInput, ExamPaperUncheckedUpdateManyWithoutTeacherInput>
+  }
+
   export type AcademicSessionCreateWithoutClassesInput = {
     id?: string
     name: string
@@ -35180,6 +40014,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionUncheckedCreateWithoutClassesInput = {
@@ -35198,6 +40033,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionCreateOrConnectWithoutClassesInput = {
@@ -35277,6 +40113,8 @@ export namespace Prisma {
     teachers?: TeacherCreateNestedManyWithoutSchoolInput
     topics?: TopicCreateNestedManyWithoutSchoolInput
     users?: UserCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutClassesInput = {
@@ -35303,6 +40141,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
     topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
     users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutClassesInput = {
@@ -35324,6 +40164,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutSubjectInput
     school: SchoolCreateNestedOneWithoutSubjectsInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutSubjectInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSubjectInput
   }
 
   export type SubjectUncheckedCreateWithoutClassInput = {
@@ -35340,6 +40181,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     chapters?: ChapterUncheckedCreateNestedManyWithoutSubjectInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutSubjectInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSubjectInput
   }
 
   export type SubjectCreateOrConnectWithoutClassInput = {
@@ -35380,6 +40222,58 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ExamPaperCreateWithoutClassInput = {
+    id?: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    school: SchoolCreateNestedOneWithoutExamPapersInput
+    academicSession: AcademicSessionCreateNestedOneWithoutExamPapersInput
+    teacher: TeacherCreateNestedOneWithoutExamPapersInput
+    subject: SubjectCreateNestedOneWithoutExamPapersInput
+    sections?: ExamSectionCreateNestedManyWithoutExamPaperInput
+  }
+
+  export type ExamPaperUncheckedCreateWithoutClassInput = {
+    id?: string
+    schoolId: string
+    academicSessionId: string
+    teacherId: string
+    subjectId: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
+  }
+
+  export type ExamPaperCreateOrConnectWithoutClassInput = {
+    where: ExamPaperWhereUniqueInput
+    create: XOR<ExamPaperCreateWithoutClassInput, ExamPaperUncheckedCreateWithoutClassInput>
+  }
+
+  export type ExamPaperCreateManyClassInputEnvelope = {
+    data: ExamPaperCreateManyClassInput | ExamPaperCreateManyClassInput[]
+    skipDuplicates?: boolean
+  }
+
   export type AcademicSessionUpsertWithoutClassesInput = {
     update: XOR<AcademicSessionUpdateWithoutClassesInput, AcademicSessionUncheckedUpdateWithoutClassesInput>
     create: XOR<AcademicSessionCreateWithoutClassesInput, AcademicSessionUncheckedCreateWithoutClassesInput>
@@ -35407,6 +40301,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type AcademicSessionUncheckedUpdateWithoutClassesInput = {
@@ -35425,6 +40320,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type ChapterUpsertWithWhereUniqueWithoutClassInput = {
@@ -35478,6 +40374,8 @@ export namespace Prisma {
     teachers?: TeacherUpdateManyWithoutSchoolNestedInput
     topics?: TopicUpdateManyWithoutSchoolNestedInput
     users?: UserUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutClassesInput = {
@@ -35504,6 +40402,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
     topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
     users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type SubjectUpsertWithWhereUniqueWithoutClassInput = {
@@ -35538,6 +40438,22 @@ export namespace Prisma {
     data: XOR<TeacherClassUpdateManyMutationInput, TeacherClassUncheckedUpdateManyWithoutClassInput>
   }
 
+  export type ExamPaperUpsertWithWhereUniqueWithoutClassInput = {
+    where: ExamPaperWhereUniqueInput
+    update: XOR<ExamPaperUpdateWithoutClassInput, ExamPaperUncheckedUpdateWithoutClassInput>
+    create: XOR<ExamPaperCreateWithoutClassInput, ExamPaperUncheckedCreateWithoutClassInput>
+  }
+
+  export type ExamPaperUpdateWithWhereUniqueWithoutClassInput = {
+    where: ExamPaperWhereUniqueInput
+    data: XOR<ExamPaperUpdateWithoutClassInput, ExamPaperUncheckedUpdateWithoutClassInput>
+  }
+
+  export type ExamPaperUpdateManyWithWhereWithoutClassInput = {
+    where: ExamPaperScalarWhereInput
+    data: XOR<ExamPaperUpdateManyMutationInput, ExamPaperUncheckedUpdateManyWithoutClassInput>
+  }
+
   export type AcademicSessionCreateWithoutSubjectsInput = {
     id?: string
     name: string
@@ -35554,6 +40470,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionUncheckedCreateWithoutSubjectsInput = {
@@ -35572,6 +40489,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionCreateOrConnectWithoutSubjectsInput = {
@@ -35641,6 +40559,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutClassInput
     school: SchoolCreateNestedOneWithoutClassesInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutClassInput
+    examPapers?: ExamPaperCreateNestedManyWithoutClassInput
   }
 
   export type ClassUncheckedCreateWithoutSubjectsInput = {
@@ -35657,6 +40576,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     chapters?: ChapterUncheckedCreateNestedManyWithoutClassInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutClassInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutClassInput
   }
 
   export type ClassCreateOrConnectWithoutSubjectsInput = {
@@ -35688,6 +40608,8 @@ export namespace Prisma {
     teachers?: TeacherCreateNestedManyWithoutSchoolInput
     topics?: TopicCreateNestedManyWithoutSchoolInput
     users?: UserCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutSubjectsInput = {
@@ -35714,6 +40636,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
     topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
     users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutSubjectsInput = {
@@ -35749,6 +40673,58 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ExamPaperCreateWithoutSubjectInput = {
+    id?: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    school: SchoolCreateNestedOneWithoutExamPapersInput
+    academicSession: AcademicSessionCreateNestedOneWithoutExamPapersInput
+    teacher: TeacherCreateNestedOneWithoutExamPapersInput
+    class: ClassCreateNestedOneWithoutExamPapersInput
+    sections?: ExamSectionCreateNestedManyWithoutExamPaperInput
+  }
+
+  export type ExamPaperUncheckedCreateWithoutSubjectInput = {
+    id?: string
+    schoolId: string
+    academicSessionId: string
+    teacherId: string
+    classId: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
+  }
+
+  export type ExamPaperCreateOrConnectWithoutSubjectInput = {
+    where: ExamPaperWhereUniqueInput
+    create: XOR<ExamPaperCreateWithoutSubjectInput, ExamPaperUncheckedCreateWithoutSubjectInput>
+  }
+
+  export type ExamPaperCreateManySubjectInputEnvelope = {
+    data: ExamPaperCreateManySubjectInput | ExamPaperCreateManySubjectInput[]
+    skipDuplicates?: boolean
+  }
+
   export type AcademicSessionUpsertWithoutSubjectsInput = {
     update: XOR<AcademicSessionUpdateWithoutSubjectsInput, AcademicSessionUncheckedUpdateWithoutSubjectsInput>
     create: XOR<AcademicSessionCreateWithoutSubjectsInput, AcademicSessionUncheckedCreateWithoutSubjectsInput>
@@ -35776,6 +40752,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type AcademicSessionUncheckedUpdateWithoutSubjectsInput = {
@@ -35794,6 +40771,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type ChapterUpsertWithWhereUniqueWithoutSubjectInput = {
@@ -35837,6 +40815,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutClassNestedInput
     school?: SchoolUpdateOneRequiredWithoutClassesNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutClassNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutClassNestedInput
   }
 
   export type ClassUncheckedUpdateWithoutSubjectsInput = {
@@ -35853,6 +40832,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     chapters?: ChapterUncheckedUpdateManyWithoutClassNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutClassNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutClassNestedInput
   }
 
   export type SchoolUpsertWithoutSubjectsInput = {
@@ -35890,6 +40870,8 @@ export namespace Prisma {
     teachers?: TeacherUpdateManyWithoutSchoolNestedInput
     topics?: TopicUpdateManyWithoutSchoolNestedInput
     users?: UserUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutSubjectsInput = {
@@ -35916,6 +40898,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
     topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
     users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type TeacherClassUpsertWithWhereUniqueWithoutSubjectInput = {
@@ -35934,6 +40918,22 @@ export namespace Prisma {
     data: XOR<TeacherClassUpdateManyMutationInput, TeacherClassUncheckedUpdateManyWithoutSubjectInput>
   }
 
+  export type ExamPaperUpsertWithWhereUniqueWithoutSubjectInput = {
+    where: ExamPaperWhereUniqueInput
+    update: XOR<ExamPaperUpdateWithoutSubjectInput, ExamPaperUncheckedUpdateWithoutSubjectInput>
+    create: XOR<ExamPaperCreateWithoutSubjectInput, ExamPaperUncheckedCreateWithoutSubjectInput>
+  }
+
+  export type ExamPaperUpdateWithWhereUniqueWithoutSubjectInput = {
+    where: ExamPaperWhereUniqueInput
+    data: XOR<ExamPaperUpdateWithoutSubjectInput, ExamPaperUncheckedUpdateWithoutSubjectInput>
+  }
+
+  export type ExamPaperUpdateManyWithWhereWithoutSubjectInput = {
+    where: ExamPaperScalarWhereInput
+    data: XOR<ExamPaperUpdateManyMutationInput, ExamPaperUncheckedUpdateManyWithoutSubjectInput>
+  }
+
   export type AcademicSessionCreateWithoutChaptersInput = {
     id?: string
     name: string
@@ -35950,6 +40950,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionUncheckedCreateWithoutChaptersInput = {
@@ -35968,6 +40969,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionCreateOrConnectWithoutChaptersInput = {
@@ -36031,6 +41033,7 @@ export namespace Prisma {
     school: SchoolCreateNestedOneWithoutClassesInput
     subjects?: SubjectCreateNestedManyWithoutClassInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutClassInput
+    examPapers?: ExamPaperCreateNestedManyWithoutClassInput
   }
 
   export type ClassUncheckedCreateWithoutChaptersInput = {
@@ -36047,6 +41050,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     subjects?: SubjectUncheckedCreateNestedManyWithoutClassInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutClassInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutClassInput
   }
 
   export type ClassCreateOrConnectWithoutChaptersInput = {
@@ -36078,6 +41082,8 @@ export namespace Prisma {
     teachers?: TeacherCreateNestedManyWithoutSchoolInput
     topics?: TopicCreateNestedManyWithoutSchoolInput
     users?: UserCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutChaptersInput = {
@@ -36104,6 +41110,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
     topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
     users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutChaptersInput = {
@@ -36125,6 +41133,7 @@ export namespace Prisma {
     class?: ClassCreateNestedOneWithoutSubjectsInput
     school: SchoolCreateNestedOneWithoutSubjectsInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutSubjectInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSubjectInput
   }
 
   export type SubjectUncheckedCreateWithoutChaptersInput = {
@@ -36141,6 +41150,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutSubjectInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSubjectInput
   }
 
   export type SubjectCreateOrConnectWithoutChaptersInput = {
@@ -36213,6 +41223,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type AcademicSessionUncheckedUpdateWithoutChaptersInput = {
@@ -36231,6 +41242,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type ChapterProgressUpsertWithWhereUniqueWithoutChapterInput = {
@@ -36274,6 +41286,7 @@ export namespace Prisma {
     school?: SchoolUpdateOneRequiredWithoutClassesNestedInput
     subjects?: SubjectUpdateManyWithoutClassNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutClassNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutClassNestedInput
   }
 
   export type ClassUncheckedUpdateWithoutChaptersInput = {
@@ -36290,6 +41303,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     subjects?: SubjectUncheckedUpdateManyWithoutClassNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutClassNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutClassNestedInput
   }
 
   export type SchoolUpsertWithoutChaptersInput = {
@@ -36327,6 +41341,8 @@ export namespace Prisma {
     teachers?: TeacherUpdateManyWithoutSchoolNestedInput
     topics?: TopicUpdateManyWithoutSchoolNestedInput
     users?: UserUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutChaptersInput = {
@@ -36353,6 +41369,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
     topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
     users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type SubjectUpsertWithoutChaptersInput = {
@@ -36380,6 +41398,7 @@ export namespace Prisma {
     class?: ClassUpdateOneWithoutSubjectsNestedInput
     school?: SchoolUpdateOneRequiredWithoutSubjectsNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutSubjectNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSubjectNestedInput
   }
 
   export type SubjectUncheckedUpdateWithoutChaptersInput = {
@@ -36396,6 +41415,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutSubjectNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSubjectNestedInput
   }
 
   export type TopicUpsertWithWhereUniqueWithoutChapterInput = {
@@ -36430,6 +41450,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionUncheckedCreateWithoutTopicsInput = {
@@ -36448,6 +41469,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionCreateOrConnectWithoutTopicsInput = {
@@ -36556,6 +41578,8 @@ export namespace Prisma {
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     teachers?: TeacherCreateNestedManyWithoutSchoolInput
     users?: UserCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutTopicsInput = {
@@ -36582,6 +41606,8 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
     users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutTopicsInput = {
@@ -36616,6 +41642,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type AcademicSessionUncheckedUpdateWithoutTopicsInput = {
@@ -36634,6 +41661,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type TopicProgressUpsertWithWhereUniqueWithoutTopicInput = {
@@ -36736,6 +41764,8 @@ export namespace Prisma {
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     teachers?: TeacherUpdateManyWithoutSchoolNestedInput
     users?: UserUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutTopicsInput = {
@@ -36762,6 +41792,8 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
     users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type AcademicSessionCreateWithoutTeacherClassesInput = {
@@ -36780,6 +41812,7 @@ export namespace Prisma {
     topics?: TopicCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionUncheckedCreateWithoutTeacherClassesInput = {
@@ -36798,6 +41831,7 @@ export namespace Prisma {
     topics?: TopicUncheckedCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionCreateOrConnectWithoutTeacherClassesInput = {
@@ -36819,6 +41853,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutClassInput
     school: SchoolCreateNestedOneWithoutClassesInput
     subjects?: SubjectCreateNestedManyWithoutClassInput
+    examPapers?: ExamPaperCreateNestedManyWithoutClassInput
   }
 
   export type ClassUncheckedCreateWithoutTeacherClassesInput = {
@@ -36835,6 +41870,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     chapters?: ChapterUncheckedCreateNestedManyWithoutClassInput
     subjects?: SubjectUncheckedCreateNestedManyWithoutClassInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutClassInput
   }
 
   export type ClassCreateOrConnectWithoutTeacherClassesInput = {
@@ -36856,6 +41892,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutSubjectInput
     class?: ClassCreateNestedOneWithoutSubjectsInput
     school: SchoolCreateNestedOneWithoutSubjectsInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSubjectInput
   }
 
   export type SubjectUncheckedCreateWithoutTeacherClassesInput = {
@@ -36872,6 +41909,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     chapters?: ChapterUncheckedCreateNestedManyWithoutSubjectInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSubjectInput
   }
 
   export type SubjectCreateOrConnectWithoutTeacherClassesInput = {
@@ -36890,6 +41928,7 @@ export namespace Prisma {
     school: SchoolCreateNestedOneWithoutTeachersInput
     user: UserCreateNestedOneWithoutTeacherInput
     topicProgress?: TopicProgressCreateNestedManyWithoutTeacherInput
+    examPapers?: ExamPaperCreateNestedManyWithoutTeacherInput
   }
 
   export type TeacherUncheckedCreateWithoutTeacherClassesInput = {
@@ -36903,6 +41942,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTeacherInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutTeacherInput
   }
 
   export type TeacherCreateOrConnectWithoutTeacherClassesInput = {
@@ -36937,6 +41977,7 @@ export namespace Prisma {
     topics?: TopicUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type AcademicSessionUncheckedUpdateWithoutTeacherClassesInput = {
@@ -36955,6 +41996,7 @@ export namespace Prisma {
     topics?: TopicUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type ClassUpsertWithoutTeacherClassesInput = {
@@ -36982,6 +42024,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutClassNestedInput
     school?: SchoolUpdateOneRequiredWithoutClassesNestedInput
     subjects?: SubjectUpdateManyWithoutClassNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutClassNestedInput
   }
 
   export type ClassUncheckedUpdateWithoutTeacherClassesInput = {
@@ -36998,6 +42041,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     chapters?: ChapterUncheckedUpdateManyWithoutClassNestedInput
     subjects?: SubjectUncheckedUpdateManyWithoutClassNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutClassNestedInput
   }
 
   export type SubjectUpsertWithoutTeacherClassesInput = {
@@ -37025,6 +42069,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutSubjectNestedInput
     class?: ClassUpdateOneWithoutSubjectsNestedInput
     school?: SchoolUpdateOneRequiredWithoutSubjectsNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSubjectNestedInput
   }
 
   export type SubjectUncheckedUpdateWithoutTeacherClassesInput = {
@@ -37041,6 +42086,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     chapters?: ChapterUncheckedUpdateManyWithoutSubjectNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSubjectNestedInput
   }
 
   export type TeacherUpsertWithoutTeacherClassesInput = {
@@ -37065,6 +42111,7 @@ export namespace Prisma {
     school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
     user?: UserUpdateOneRequiredWithoutTeacherNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutTeacherNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutTeacherNestedInput
   }
 
   export type TeacherUncheckedUpdateWithoutTeacherClassesInput = {
@@ -37078,6 +42125,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutTeacherNestedInput
   }
 
   export type AcademicSessionCreateWithoutChapterProgressInput = {
@@ -37096,6 +42144,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionUncheckedCreateWithoutChapterProgressInput = {
@@ -37114,6 +42163,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionCreateOrConnectWithoutChapterProgressInput = {
@@ -37175,6 +42225,7 @@ export namespace Prisma {
     school: SchoolCreateNestedOneWithoutTeachersInput
     user: UserCreateNestedOneWithoutTeacherInput
     topicProgress?: TopicProgressCreateNestedManyWithoutTeacherInput
+    examPapers?: ExamPaperCreateNestedManyWithoutTeacherInput
   }
 
   export type TeacherUncheckedCreateWithoutChapterProgressInput = {
@@ -37188,6 +42239,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutTeacherInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTeacherInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutTeacherInput
   }
 
   export type TeacherCreateOrConnectWithoutChapterProgressInput = {
@@ -37271,6 +42323,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type AcademicSessionUncheckedUpdateWithoutChapterProgressInput = {
@@ -37289,6 +42342,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type ChapterUpsertWithoutChapterProgressInput = {
@@ -37362,6 +42416,7 @@ export namespace Prisma {
     school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
     user?: UserUpdateOneRequiredWithoutTeacherNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutTeacherNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutTeacherNestedInput
   }
 
   export type TeacherUncheckedUpdateWithoutChapterProgressInput = {
@@ -37375,6 +42430,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutTeacherNestedInput
   }
 
   export type UserUpsertWithoutChapterProgressInput = {
@@ -37448,6 +42504,7 @@ export namespace Prisma {
     topics?: TopicCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionUncheckedCreateWithoutTopicProgressInput = {
@@ -37466,6 +42523,7 @@ export namespace Prisma {
     topics?: TopicUncheckedCreateNestedManyWithoutAcademicSessionInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionCreateOrConnectWithoutTopicProgressInput = {
@@ -37484,6 +42542,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
     school: SchoolCreateNestedOneWithoutTeachersInput
     user: UserCreateNestedOneWithoutTeacherInput
+    examPapers?: ExamPaperCreateNestedManyWithoutTeacherInput
   }
 
   export type TeacherUncheckedCreateWithoutTopicProgressInput = {
@@ -37497,6 +42556,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutTeacherInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutTeacherInput
   }
 
   export type TeacherCreateOrConnectWithoutTopicProgressInput = {
@@ -37613,6 +42673,7 @@ export namespace Prisma {
     topics?: TopicUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type AcademicSessionUncheckedUpdateWithoutTopicProgressInput = {
@@ -37631,6 +42692,7 @@ export namespace Prisma {
     topics?: TopicUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type TeacherUpsertWithoutTopicProgressInput = {
@@ -37655,6 +42717,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
     school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
     user?: UserUpdateOneRequiredWithoutTeacherNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutTeacherNestedInput
   }
 
   export type TeacherUncheckedUpdateWithoutTopicProgressInput = {
@@ -37668,6 +42731,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutTeacherNestedInput
   }
 
   export type TopicUpsertWithoutTopicProgressInput = {
@@ -37764,6 +42828,859 @@ export namespace Prisma {
     teacher?: TeacherUncheckedUpdateOneWithoutUserNestedInput
   }
 
+  export type SchoolCreateWithoutExamPapersInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    currentAcademicSessionId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicSessions?: AcademicSessionCreateNestedManyWithoutSchoolInput
+    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterCreateNestedManyWithoutSchoolInput
+    classes?: ClassCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherCreateNestedManyWithoutSchoolInput
+    topics?: TopicCreateNestedManyWithoutSchoolInput
+    users?: UserCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolUncheckedCreateWithoutExamPapersInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    currentAcademicSessionId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicSessions?: AcademicSessionUncheckedCreateNestedManyWithoutSchoolInput
+    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
+    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
+    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolCreateOrConnectWithoutExamPapersInput = {
+    where: SchoolWhereUniqueInput
+    create: XOR<SchoolCreateWithoutExamPapersInput, SchoolUncheckedCreateWithoutExamPapersInput>
+  }
+
+  export type AcademicSessionCreateWithoutExamPapersInput = {
+    id?: string
+    name: string
+    status?: $Enums.SessionStatus
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    school: SchoolCreateNestedOneWithoutAcademicSessionsInput
+    academicTerms?: AcademicTermCreateNestedManyWithoutAcademicSessionInput
+    chapterProgress?: ChapterProgressCreateNestedManyWithoutAcademicSessionInput
+    classes?: ClassCreateNestedManyWithoutAcademicSessionInput
+    subjects?: SubjectCreateNestedManyWithoutAcademicSessionInput
+    chapters?: ChapterCreateNestedManyWithoutAcademicSessionInput
+    topics?: TopicCreateNestedManyWithoutAcademicSessionInput
+    teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
+    topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
+  }
+
+  export type AcademicSessionUncheckedCreateWithoutExamPapersInput = {
+    id?: string
+    schoolId: string
+    name: string
+    status?: $Enums.SessionStatus
+    isArchived?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutAcademicSessionInput
+    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
+    classes?: ClassUncheckedCreateNestedManyWithoutAcademicSessionInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutAcademicSessionInput
+    chapters?: ChapterUncheckedCreateNestedManyWithoutAcademicSessionInput
+    topics?: TopicUncheckedCreateNestedManyWithoutAcademicSessionInput
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
+    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
+  }
+
+  export type AcademicSessionCreateOrConnectWithoutExamPapersInput = {
+    where: AcademicSessionWhereUniqueInput
+    create: XOR<AcademicSessionCreateWithoutExamPapersInput, AcademicSessionUncheckedCreateWithoutExamPapersInput>
+  }
+
+  export type TeacherCreateWithoutExamPapersInput = {
+    id?: string
+    status?: $Enums.UserStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicSession: AcademicSessionCreateNestedOneWithoutTeachersInput
+    chapterProgress?: ChapterProgressCreateNestedManyWithoutTeacherInput
+    teacherClasses?: TeacherClassCreateNestedManyWithoutTeacherInput
+    school: SchoolCreateNestedOneWithoutTeachersInput
+    user: UserCreateNestedOneWithoutTeacherInput
+    topicProgress?: TopicProgressCreateNestedManyWithoutTeacherInput
+  }
+
+  export type TeacherUncheckedCreateWithoutExamPapersInput = {
+    id?: string
+    schoolId: string
+    academicSessionId: string
+    userId: string
+    status?: $Enums.UserStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapterProgress?: ChapterProgressUncheckedCreateNestedManyWithoutTeacherInput
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutTeacherInput
+    topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutTeacherInput
+  }
+
+  export type TeacherCreateOrConnectWithoutExamPapersInput = {
+    where: TeacherWhereUniqueInput
+    create: XOR<TeacherCreateWithoutExamPapersInput, TeacherUncheckedCreateWithoutExamPapersInput>
+  }
+
+  export type ClassCreateWithoutExamPapersInput = {
+    id?: string
+    name: string
+    grade?: string | null
+    section?: string | null
+    description?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicSession: AcademicSessionCreateNestedOneWithoutClassesInput
+    chapters?: ChapterCreateNestedManyWithoutClassInput
+    school: SchoolCreateNestedOneWithoutClassesInput
+    subjects?: SubjectCreateNestedManyWithoutClassInput
+    teacherClasses?: TeacherClassCreateNestedManyWithoutClassInput
+  }
+
+  export type ClassUncheckedCreateWithoutExamPapersInput = {
+    id?: string
+    schoolId: string
+    academicSessionId: string
+    name: string
+    grade?: string | null
+    section?: string | null
+    description?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapters?: ChapterUncheckedCreateNestedManyWithoutClassInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutClassInput
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutClassInput
+  }
+
+  export type ClassCreateOrConnectWithoutExamPapersInput = {
+    where: ClassWhereUniqueInput
+    create: XOR<ClassCreateWithoutExamPapersInput, ClassUncheckedCreateWithoutExamPapersInput>
+  }
+
+  export type SubjectCreateWithoutExamPapersInput = {
+    id?: string
+    name: string
+    code?: string | null
+    description?: string | null
+    color?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicSession: AcademicSessionCreateNestedOneWithoutSubjectsInput
+    chapters?: ChapterCreateNestedManyWithoutSubjectInput
+    class?: ClassCreateNestedOneWithoutSubjectsInput
+    school: SchoolCreateNestedOneWithoutSubjectsInput
+    teacherClasses?: TeacherClassCreateNestedManyWithoutSubjectInput
+  }
+
+  export type SubjectUncheckedCreateWithoutExamPapersInput = {
+    id?: string
+    schoolId: string
+    academicSessionId: string
+    classId?: string | null
+    name: string
+    code?: string | null
+    description?: string | null
+    color?: string | null
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    chapters?: ChapterUncheckedCreateNestedManyWithoutSubjectInput
+    teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutSubjectInput
+  }
+
+  export type SubjectCreateOrConnectWithoutExamPapersInput = {
+    where: SubjectWhereUniqueInput
+    create: XOR<SubjectCreateWithoutExamPapersInput, SubjectUncheckedCreateWithoutExamPapersInput>
+  }
+
+  export type ExamSectionCreateWithoutExamPaperInput = {
+    id?: string
+    label: string
+    type?: $Enums.QuestionType
+    marksEach: number
+    order?: number
+    questions?: ExamQuestionCreateNestedManyWithoutSectionInput
+  }
+
+  export type ExamSectionUncheckedCreateWithoutExamPaperInput = {
+    id?: string
+    label: string
+    type?: $Enums.QuestionType
+    marksEach: number
+    order?: number
+    questions?: ExamQuestionUncheckedCreateNestedManyWithoutSectionInput
+  }
+
+  export type ExamSectionCreateOrConnectWithoutExamPaperInput = {
+    where: ExamSectionWhereUniqueInput
+    create: XOR<ExamSectionCreateWithoutExamPaperInput, ExamSectionUncheckedCreateWithoutExamPaperInput>
+  }
+
+  export type ExamSectionCreateManyExamPaperInputEnvelope = {
+    data: ExamSectionCreateManyExamPaperInput | ExamSectionCreateManyExamPaperInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SchoolUpsertWithoutExamPapersInput = {
+    update: XOR<SchoolUpdateWithoutExamPapersInput, SchoolUncheckedUpdateWithoutExamPapersInput>
+    create: XOR<SchoolCreateWithoutExamPapersInput, SchoolUncheckedCreateWithoutExamPapersInput>
+    where?: SchoolWhereInput
+  }
+
+  export type SchoolUpdateToOneWithWhereWithoutExamPapersInput = {
+    where?: SchoolWhereInput
+    data: XOR<SchoolUpdateWithoutExamPapersInput, SchoolUncheckedUpdateWithoutExamPapersInput>
+  }
+
+  export type SchoolUpdateWithoutExamPapersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    currentAcademicSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicSessions?: AcademicSessionUpdateManyWithoutSchoolNestedInput
+    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUpdateManyWithoutSchoolNestedInput
+    users?: UserUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
+  }
+
+  export type SchoolUncheckedUpdateWithoutExamPapersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    currentAcademicSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicSessions?: AcademicSessionUncheckedUpdateManyWithoutSchoolNestedInput
+    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
+  }
+
+  export type AcademicSessionUpsertWithoutExamPapersInput = {
+    update: XOR<AcademicSessionUpdateWithoutExamPapersInput, AcademicSessionUncheckedUpdateWithoutExamPapersInput>
+    create: XOR<AcademicSessionCreateWithoutExamPapersInput, AcademicSessionUncheckedCreateWithoutExamPapersInput>
+    where?: AcademicSessionWhereInput
+  }
+
+  export type AcademicSessionUpdateToOneWithWhereWithoutExamPapersInput = {
+    where?: AcademicSessionWhereInput
+    data: XOR<AcademicSessionUpdateWithoutExamPapersInput, AcademicSessionUncheckedUpdateWithoutExamPapersInput>
+  }
+
+  export type AcademicSessionUpdateWithoutExamPapersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    status?: EnumSessionStatusFieldUpdateOperationsInput | $Enums.SessionStatus
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneRequiredWithoutAcademicSessionsNestedInput
+    academicTerms?: AcademicTermUpdateManyWithoutAcademicSessionNestedInput
+    chapterProgress?: ChapterProgressUpdateManyWithoutAcademicSessionNestedInput
+    classes?: ClassUpdateManyWithoutAcademicSessionNestedInput
+    subjects?: SubjectUpdateManyWithoutAcademicSessionNestedInput
+    chapters?: ChapterUpdateManyWithoutAcademicSessionNestedInput
+    topics?: TopicUpdateManyWithoutAcademicSessionNestedInput
+    teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
+    topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
+  }
+
+  export type AcademicSessionUncheckedUpdateWithoutExamPapersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    status?: EnumSessionStatusFieldUpdateOperationsInput | $Enums.SessionStatus
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    academicTerms?: AcademicTermUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    classes?: ClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    chapters?: ChapterUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
+  }
+
+  export type TeacherUpsertWithoutExamPapersInput = {
+    update: XOR<TeacherUpdateWithoutExamPapersInput, TeacherUncheckedUpdateWithoutExamPapersInput>
+    create: XOR<TeacherCreateWithoutExamPapersInput, TeacherUncheckedCreateWithoutExamPapersInput>
+    where?: TeacherWhereInput
+  }
+
+  export type TeacherUpdateToOneWithWhereWithoutExamPapersInput = {
+    where?: TeacherWhereInput
+    data: XOR<TeacherUpdateWithoutExamPapersInput, TeacherUncheckedUpdateWithoutExamPapersInput>
+  }
+
+  export type TeacherUpdateWithoutExamPapersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicSession?: AcademicSessionUpdateOneRequiredWithoutTeachersNestedInput
+    chapterProgress?: ChapterProgressUpdateManyWithoutTeacherNestedInput
+    teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
+    school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
+    user?: UserUpdateOneRequiredWithoutTeacherNestedInput
+    topicProgress?: TopicProgressUpdateManyWithoutTeacherNestedInput
+  }
+
+  export type TeacherUncheckedUpdateWithoutExamPapersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
+    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
+    topicProgress?: TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput
+  }
+
+  export type ClassUpsertWithoutExamPapersInput = {
+    update: XOR<ClassUpdateWithoutExamPapersInput, ClassUncheckedUpdateWithoutExamPapersInput>
+    create: XOR<ClassCreateWithoutExamPapersInput, ClassUncheckedCreateWithoutExamPapersInput>
+    where?: ClassWhereInput
+  }
+
+  export type ClassUpdateToOneWithWhereWithoutExamPapersInput = {
+    where?: ClassWhereInput
+    data: XOR<ClassUpdateWithoutExamPapersInput, ClassUncheckedUpdateWithoutExamPapersInput>
+  }
+
+  export type ClassUpdateWithoutExamPapersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicSession?: AcademicSessionUpdateOneRequiredWithoutClassesNestedInput
+    chapters?: ChapterUpdateManyWithoutClassNestedInput
+    school?: SchoolUpdateOneRequiredWithoutClassesNestedInput
+    subjects?: SubjectUpdateManyWithoutClassNestedInput
+    teacherClasses?: TeacherClassUpdateManyWithoutClassNestedInput
+  }
+
+  export type ClassUncheckedUpdateWithoutExamPapersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapters?: ChapterUncheckedUpdateManyWithoutClassNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutClassNestedInput
+    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutClassNestedInput
+  }
+
+  export type SubjectUpsertWithoutExamPapersInput = {
+    update: XOR<SubjectUpdateWithoutExamPapersInput, SubjectUncheckedUpdateWithoutExamPapersInput>
+    create: XOR<SubjectCreateWithoutExamPapersInput, SubjectUncheckedCreateWithoutExamPapersInput>
+    where?: SubjectWhereInput
+  }
+
+  export type SubjectUpdateToOneWithWhereWithoutExamPapersInput = {
+    where?: SubjectWhereInput
+    data: XOR<SubjectUpdateWithoutExamPapersInput, SubjectUncheckedUpdateWithoutExamPapersInput>
+  }
+
+  export type SubjectUpdateWithoutExamPapersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicSession?: AcademicSessionUpdateOneRequiredWithoutSubjectsNestedInput
+    chapters?: ChapterUpdateManyWithoutSubjectNestedInput
+    class?: ClassUpdateOneWithoutSubjectsNestedInput
+    school?: SchoolUpdateOneRequiredWithoutSubjectsNestedInput
+    teacherClasses?: TeacherClassUpdateManyWithoutSubjectNestedInput
+  }
+
+  export type SubjectUncheckedUpdateWithoutExamPapersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: StringFieldUpdateOperationsInput | string
+    classId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    chapters?: ChapterUncheckedUpdateManyWithoutSubjectNestedInput
+    teacherClasses?: TeacherClassUncheckedUpdateManyWithoutSubjectNestedInput
+  }
+
+  export type ExamSectionUpsertWithWhereUniqueWithoutExamPaperInput = {
+    where: ExamSectionWhereUniqueInput
+    update: XOR<ExamSectionUpdateWithoutExamPaperInput, ExamSectionUncheckedUpdateWithoutExamPaperInput>
+    create: XOR<ExamSectionCreateWithoutExamPaperInput, ExamSectionUncheckedCreateWithoutExamPaperInput>
+  }
+
+  export type ExamSectionUpdateWithWhereUniqueWithoutExamPaperInput = {
+    where: ExamSectionWhereUniqueInput
+    data: XOR<ExamSectionUpdateWithoutExamPaperInput, ExamSectionUncheckedUpdateWithoutExamPaperInput>
+  }
+
+  export type ExamSectionUpdateManyWithWhereWithoutExamPaperInput = {
+    where: ExamSectionScalarWhereInput
+    data: XOR<ExamSectionUpdateManyMutationInput, ExamSectionUncheckedUpdateManyWithoutExamPaperInput>
+  }
+
+  export type ExamSectionScalarWhereInput = {
+    AND?: ExamSectionScalarWhereInput | ExamSectionScalarWhereInput[]
+    OR?: ExamSectionScalarWhereInput[]
+    NOT?: ExamSectionScalarWhereInput | ExamSectionScalarWhereInput[]
+    id?: StringFilter<"ExamSection"> | string
+    examPaperId?: StringFilter<"ExamSection"> | string
+    label?: StringFilter<"ExamSection"> | string
+    type?: EnumQuestionTypeFilter<"ExamSection"> | $Enums.QuestionType
+    marksEach?: IntFilter<"ExamSection"> | number
+    order?: IntFilter<"ExamSection"> | number
+  }
+
+  export type ExamPaperCreateWithoutSectionsInput = {
+    id?: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    school: SchoolCreateNestedOneWithoutExamPapersInput
+    academicSession: AcademicSessionCreateNestedOneWithoutExamPapersInput
+    teacher: TeacherCreateNestedOneWithoutExamPapersInput
+    class: ClassCreateNestedOneWithoutExamPapersInput
+    subject: SubjectCreateNestedOneWithoutExamPapersInput
+  }
+
+  export type ExamPaperUncheckedCreateWithoutSectionsInput = {
+    id?: string
+    schoolId: string
+    academicSessionId: string
+    teacherId: string
+    classId: string
+    subjectId: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ExamPaperCreateOrConnectWithoutSectionsInput = {
+    where: ExamPaperWhereUniqueInput
+    create: XOR<ExamPaperCreateWithoutSectionsInput, ExamPaperUncheckedCreateWithoutSectionsInput>
+  }
+
+  export type ExamQuestionCreateWithoutSectionInput = {
+    id?: string
+    questionText: string
+    options?: NullableJsonNullValueInput | InputJsonValue
+    imageUrl?: string | null
+    subject?: string | null
+    order?: number
+  }
+
+  export type ExamQuestionUncheckedCreateWithoutSectionInput = {
+    id?: string
+    questionText: string
+    options?: NullableJsonNullValueInput | InputJsonValue
+    imageUrl?: string | null
+    subject?: string | null
+    order?: number
+  }
+
+  export type ExamQuestionCreateOrConnectWithoutSectionInput = {
+    where: ExamQuestionWhereUniqueInput
+    create: XOR<ExamQuestionCreateWithoutSectionInput, ExamQuestionUncheckedCreateWithoutSectionInput>
+  }
+
+  export type ExamQuestionCreateManySectionInputEnvelope = {
+    data: ExamQuestionCreateManySectionInput | ExamQuestionCreateManySectionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ExamPaperUpsertWithoutSectionsInput = {
+    update: XOR<ExamPaperUpdateWithoutSectionsInput, ExamPaperUncheckedUpdateWithoutSectionsInput>
+    create: XOR<ExamPaperCreateWithoutSectionsInput, ExamPaperUncheckedCreateWithoutSectionsInput>
+    where?: ExamPaperWhereInput
+  }
+
+  export type ExamPaperUpdateToOneWithWhereWithoutSectionsInput = {
+    where?: ExamPaperWhereInput
+    data: XOR<ExamPaperUpdateWithoutSectionsInput, ExamPaperUncheckedUpdateWithoutSectionsInput>
+  }
+
+  export type ExamPaperUpdateWithoutSectionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
+    academicSession?: AcademicSessionUpdateOneRequiredWithoutExamPapersNestedInput
+    teacher?: TeacherUpdateOneRequiredWithoutExamPapersNestedInput
+    class?: ClassUpdateOneRequiredWithoutExamPapersNestedInput
+    subject?: SubjectUpdateOneRequiredWithoutExamPapersNestedInput
+  }
+
+  export type ExamPaperUncheckedUpdateWithoutSectionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: StringFieldUpdateOperationsInput | string
+    teacherId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    subjectId?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExamQuestionUpsertWithWhereUniqueWithoutSectionInput = {
+    where: ExamQuestionWhereUniqueInput
+    update: XOR<ExamQuestionUpdateWithoutSectionInput, ExamQuestionUncheckedUpdateWithoutSectionInput>
+    create: XOR<ExamQuestionCreateWithoutSectionInput, ExamQuestionUncheckedCreateWithoutSectionInput>
+  }
+
+  export type ExamQuestionUpdateWithWhereUniqueWithoutSectionInput = {
+    where: ExamQuestionWhereUniqueInput
+    data: XOR<ExamQuestionUpdateWithoutSectionInput, ExamQuestionUncheckedUpdateWithoutSectionInput>
+  }
+
+  export type ExamQuestionUpdateManyWithWhereWithoutSectionInput = {
+    where: ExamQuestionScalarWhereInput
+    data: XOR<ExamQuestionUpdateManyMutationInput, ExamQuestionUncheckedUpdateManyWithoutSectionInput>
+  }
+
+  export type ExamQuestionScalarWhereInput = {
+    AND?: ExamQuestionScalarWhereInput | ExamQuestionScalarWhereInput[]
+    OR?: ExamQuestionScalarWhereInput[]
+    NOT?: ExamQuestionScalarWhereInput | ExamQuestionScalarWhereInput[]
+    id?: StringFilter<"ExamQuestion"> | string
+    sectionId?: StringFilter<"ExamQuestion"> | string
+    questionText?: StringFilter<"ExamQuestion"> | string
+    options?: JsonNullableFilter<"ExamQuestion">
+    imageUrl?: StringNullableFilter<"ExamQuestion"> | string | null
+    subject?: StringNullableFilter<"ExamQuestion"> | string | null
+    order?: IntFilter<"ExamQuestion"> | number
+  }
+
+  export type ExamSectionCreateWithoutQuestionsInput = {
+    id?: string
+    label: string
+    type?: $Enums.QuestionType
+    marksEach: number
+    order?: number
+    examPaper: ExamPaperCreateNestedOneWithoutSectionsInput
+  }
+
+  export type ExamSectionUncheckedCreateWithoutQuestionsInput = {
+    id?: string
+    examPaperId: string
+    label: string
+    type?: $Enums.QuestionType
+    marksEach: number
+    order?: number
+  }
+
+  export type ExamSectionCreateOrConnectWithoutQuestionsInput = {
+    where: ExamSectionWhereUniqueInput
+    create: XOR<ExamSectionCreateWithoutQuestionsInput, ExamSectionUncheckedCreateWithoutQuestionsInput>
+  }
+
+  export type ExamSectionUpsertWithoutQuestionsInput = {
+    update: XOR<ExamSectionUpdateWithoutQuestionsInput, ExamSectionUncheckedUpdateWithoutQuestionsInput>
+    create: XOR<ExamSectionCreateWithoutQuestionsInput, ExamSectionUncheckedCreateWithoutQuestionsInput>
+    where?: ExamSectionWhereInput
+  }
+
+  export type ExamSectionUpdateToOneWithWhereWithoutQuestionsInput = {
+    where?: ExamSectionWhereInput
+    data: XOR<ExamSectionUpdateWithoutQuestionsInput, ExamSectionUncheckedUpdateWithoutQuestionsInput>
+  }
+
+  export type ExamSectionUpdateWithoutQuestionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+    marksEach?: IntFieldUpdateOperationsInput | number
+    order?: IntFieldUpdateOperationsInput | number
+    examPaper?: ExamPaperUpdateOneRequiredWithoutSectionsNestedInput
+  }
+
+  export type ExamSectionUncheckedUpdateWithoutQuestionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    examPaperId?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+    marksEach?: IntFieldUpdateOperationsInput | number
+    order?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type SchoolCreateWithoutExamPaperTemplatesInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    currentAcademicSessionId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicSessions?: AcademicSessionCreateNestedManyWithoutSchoolInput
+    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterCreateNestedManyWithoutSchoolInput
+    classes?: ClassCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherCreateNestedManyWithoutSchoolInput
+    topics?: TopicCreateNestedManyWithoutSchoolInput
+    users?: UserCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolUncheckedCreateWithoutExamPaperTemplatesInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    currentAcademicSessionId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicSessions?: AcademicSessionUncheckedCreateNestedManyWithoutSchoolInput
+    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
+    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
+    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolCreateOrConnectWithoutExamPaperTemplatesInput = {
+    where: SchoolWhereUniqueInput
+    create: XOR<SchoolCreateWithoutExamPaperTemplatesInput, SchoolUncheckedCreateWithoutExamPaperTemplatesInput>
+  }
+
+  export type SchoolUpsertWithoutExamPaperTemplatesInput = {
+    update: XOR<SchoolUpdateWithoutExamPaperTemplatesInput, SchoolUncheckedUpdateWithoutExamPaperTemplatesInput>
+    create: XOR<SchoolCreateWithoutExamPaperTemplatesInput, SchoolUncheckedCreateWithoutExamPaperTemplatesInput>
+    where?: SchoolWhereInput
+  }
+
+  export type SchoolUpdateToOneWithWhereWithoutExamPaperTemplatesInput = {
+    where?: SchoolWhereInput
+    data: XOR<SchoolUpdateWithoutExamPaperTemplatesInput, SchoolUncheckedUpdateWithoutExamPaperTemplatesInput>
+  }
+
+  export type SchoolUpdateWithoutExamPaperTemplatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    currentAcademicSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicSessions?: AcademicSessionUpdateManyWithoutSchoolNestedInput
+    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUpdateManyWithoutSchoolNestedInput
+    users?: UserUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
+  }
+
+  export type SchoolUncheckedUpdateWithoutExamPaperTemplatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    currentAcademicSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicSessions?: AcademicSessionUncheckedUpdateManyWithoutSchoolNestedInput
+    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
+  }
+
   export type SchoolCreateWithoutNotificationsInput = {
     id?: string
     name: string
@@ -37788,6 +43705,8 @@ export namespace Prisma {
     teachers?: TeacherCreateNestedManyWithoutSchoolInput
     topics?: TopicCreateNestedManyWithoutSchoolInput
     users?: UserCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutNotificationsInput = {
@@ -37814,6 +43733,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
     topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
     users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutNotificationsInput = {
@@ -37905,6 +43826,8 @@ export namespace Prisma {
     teachers?: TeacherUpdateManyWithoutSchoolNestedInput
     topics?: TopicUpdateManyWithoutSchoolNestedInput
     users?: UserUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutNotificationsInput = {
@@ -37931,6 +43854,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
     topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
     users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type UserUpsertWithoutNotificationsInput = {
@@ -38012,6 +43937,8 @@ export namespace Prisma {
     teachers?: TeacherCreateNestedManyWithoutSchoolInput
     topics?: TopicCreateNestedManyWithoutSchoolInput
     users?: UserCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutActivityLogsInput = {
@@ -38038,6 +43965,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
     topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
     users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutActivityLogsInput = {
@@ -38129,6 +44058,8 @@ export namespace Prisma {
     teachers?: TeacherUpdateManyWithoutSchoolNestedInput
     topics?: TopicUpdateManyWithoutSchoolNestedInput
     users?: UserUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutActivityLogsInput = {
@@ -38155,6 +44086,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
     topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
     users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type UserUpsertWithoutActivityLogsInput = {
@@ -38285,6 +44218,8 @@ export namespace Prisma {
     teachers?: TeacherCreateNestedManyWithoutSchoolInput
     topics?: TopicCreateNestedManyWithoutSchoolInput
     users?: UserCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutAuditLogsInput = {
@@ -38311,6 +44246,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
     topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
     users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutAuditLogsInput = {
@@ -38408,6 +44345,8 @@ export namespace Prisma {
     teachers?: TeacherUpdateManyWithoutSchoolNestedInput
     topics?: TopicUpdateManyWithoutSchoolNestedInput
     users?: UserUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutAuditLogsInput = {
@@ -38434,6 +44373,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
     topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
     users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type AcademicSessionCreateWithoutAcademicTermsInput = {
@@ -38452,6 +44393,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionUncheckedCreateWithoutAcademicTermsInput = {
@@ -38470,6 +44412,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedCreateNestedManyWithoutAcademicSessionInput
     teachers?: TeacherUncheckedCreateNestedManyWithoutAcademicSessionInput
     topicProgress?: TopicProgressUncheckedCreateNestedManyWithoutAcademicSessionInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutAcademicSessionInput
   }
 
   export type AcademicSessionCreateOrConnectWithoutAcademicTermsInput = {
@@ -38501,6 +44444,8 @@ export namespace Prisma {
     teachers?: TeacherCreateNestedManyWithoutSchoolInput
     topics?: TopicCreateNestedManyWithoutSchoolInput
     users?: UserCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutAcademicTermsInput = {
@@ -38527,6 +44472,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
     topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
     users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutAcademicTermsInput = {
@@ -38587,6 +44534,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type AcademicSessionUncheckedUpdateWithoutAcademicTermsInput = {
@@ -38605,6 +44553,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type SchoolUpsertWithoutAcademicTermsInput = {
@@ -38642,6 +44591,8 @@ export namespace Prisma {
     teachers?: TeacherUpdateManyWithoutSchoolNestedInput
     topics?: TopicUpdateManyWithoutSchoolNestedInput
     users?: UserUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutAcademicTermsInput = {
@@ -38668,6 +44619,8 @@ export namespace Prisma {
     teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
     topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
     users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type VacationDayUpsertWithWhereUniqueWithoutAcademicTermInput = {
@@ -39213,6 +45166,35 @@ export namespace Prisma {
     deletedAt?: Date | string | null
   }
 
+  export type ExamPaperCreateManySchoolInput = {
+    id?: string
+    academicSessionId: string
+    teacherId: string
+    classId: string
+    subjectId: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ExamPaperTemplateCreateManySchoolInput = {
+    id?: string
+    headerHtml: string
+    footerHtml?: string | null
+    instructions?: string | null
+    logoUrl?: string | null
+    updatedAt?: Date | string
+  }
+
   export type AcademicSessionUpdateWithoutSchoolInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -39229,6 +45211,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type AcademicSessionUncheckedUpdateWithoutSchoolInput = {
@@ -39247,6 +45230,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutAcademicSessionNestedInput
     teachers?: TeacherUncheckedUpdateManyWithoutAcademicSessionNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutAcademicSessionNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutAcademicSessionNestedInput
   }
 
   export type AcademicSessionUncheckedUpdateManyWithoutSchoolInput = {
@@ -39446,6 +45430,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutClassNestedInput
     subjects?: SubjectUpdateManyWithoutClassNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutClassNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutClassNestedInput
   }
 
   export type ClassUncheckedUpdateWithoutSchoolInput = {
@@ -39462,6 +45447,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutClassNestedInput
     subjects?: SubjectUncheckedUpdateManyWithoutClassNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutClassNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutClassNestedInput
   }
 
   export type ClassUncheckedUpdateManyWithoutSchoolInput = {
@@ -39524,6 +45510,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutSubjectNestedInput
     class?: ClassUpdateOneWithoutSubjectsNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutSubjectNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSubjectNestedInput
   }
 
   export type SubjectUncheckedUpdateWithoutSchoolInput = {
@@ -39540,6 +45527,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     chapters?: ChapterUncheckedUpdateManyWithoutSubjectNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutSubjectNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSubjectNestedInput
   }
 
   export type SubjectUncheckedUpdateManyWithoutSchoolInput = {
@@ -39597,6 +45585,7 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUpdateManyWithoutTeacherNestedInput
     user?: UserUpdateOneRequiredWithoutTeacherNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutTeacherNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutTeacherNestedInput
   }
 
   export type TeacherUncheckedUpdateWithoutSchoolInput = {
@@ -39610,6 +45599,7 @@ export namespace Prisma {
     chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutTeacherNestedInput
   }
 
   export type TeacherUncheckedUpdateManyWithoutSchoolInput = {
@@ -39720,6 +45710,95 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ExamPaperUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    academicSession?: AcademicSessionUpdateOneRequiredWithoutExamPapersNestedInput
+    teacher?: TeacherUpdateOneRequiredWithoutExamPapersNestedInput
+    class?: ClassUpdateOneRequiredWithoutExamPapersNestedInput
+    subject?: SubjectUpdateOneRequiredWithoutExamPapersNestedInput
+    sections?: ExamSectionUpdateManyWithoutExamPaperNestedInput
+  }
+
+  export type ExamPaperUncheckedUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: StringFieldUpdateOperationsInput | string
+    teacherId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    subjectId?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
+  }
+
+  export type ExamPaperUncheckedUpdateManyWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: StringFieldUpdateOperationsInput | string
+    teacherId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    subjectId?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExamPaperTemplateUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    headerHtml?: StringFieldUpdateOperationsInput | string
+    footerHtml?: NullableStringFieldUpdateOperationsInput | string | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExamPaperTemplateUncheckedUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    headerHtml?: StringFieldUpdateOperationsInput | string
+    footerHtml?: NullableStringFieldUpdateOperationsInput | string | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExamPaperTemplateUncheckedUpdateManyWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    headerHtml?: StringFieldUpdateOperationsInput | string
+    footerHtml?: NullableStringFieldUpdateOperationsInput | string | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AcademicTermCreateManyAcademicSessionInput = {
@@ -39842,6 +45921,26 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type ExamPaperCreateManyAcademicSessionInput = {
+    id?: string
+    schoolId: string
+    teacherId: string
+    classId: string
+    subjectId: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type AcademicTermUpdateWithoutAcademicSessionInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -39954,6 +46053,7 @@ export namespace Prisma {
     school?: SchoolUpdateOneRequiredWithoutClassesNestedInput
     subjects?: SubjectUpdateManyWithoutClassNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutClassNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutClassNestedInput
   }
 
   export type ClassUncheckedUpdateWithoutAcademicSessionInput = {
@@ -39970,6 +46070,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutClassNestedInput
     subjects?: SubjectUncheckedUpdateManyWithoutClassNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutClassNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutClassNestedInput
   }
 
   export type ClassUncheckedUpdateManyWithoutAcademicSessionInput = {
@@ -39999,6 +46100,7 @@ export namespace Prisma {
     class?: ClassUpdateOneWithoutSubjectsNestedInput
     school?: SchoolUpdateOneRequiredWithoutSubjectsNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutSubjectNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSubjectNestedInput
   }
 
   export type SubjectUncheckedUpdateWithoutAcademicSessionInput = {
@@ -40015,6 +46117,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     chapters?: ChapterUncheckedUpdateManyWithoutSubjectNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutSubjectNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSubjectNestedInput
   }
 
   export type SubjectUncheckedUpdateManyWithoutAcademicSessionInput = {
@@ -40165,6 +46268,7 @@ export namespace Prisma {
     school?: SchoolUpdateOneRequiredWithoutTeachersNestedInput
     user?: UserUpdateOneRequiredWithoutTeacherNestedInput
     topicProgress?: TopicProgressUpdateManyWithoutTeacherNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutTeacherNestedInput
   }
 
   export type TeacherUncheckedUpdateWithoutAcademicSessionInput = {
@@ -40178,6 +46282,7 @@ export namespace Prisma {
     chapterProgress?: ChapterProgressUncheckedUpdateManyWithoutTeacherNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutTeacherNestedInput
   }
 
   export type TeacherUncheckedUpdateManyWithoutAcademicSessionInput = {
@@ -40222,6 +46327,68 @@ export namespace Prisma {
     status?: EnumTopicStatusFieldUpdateOperationsInput | $Enums.TopicStatus
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExamPaperUpdateWithoutAcademicSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
+    teacher?: TeacherUpdateOneRequiredWithoutExamPapersNestedInput
+    class?: ClassUpdateOneRequiredWithoutExamPapersNestedInput
+    subject?: SubjectUpdateOneRequiredWithoutExamPapersNestedInput
+    sections?: ExamSectionUpdateManyWithoutExamPaperNestedInput
+  }
+
+  export type ExamPaperUncheckedUpdateWithoutAcademicSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    teacherId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    subjectId?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
+  }
+
+  export type ExamPaperUncheckedUpdateManyWithoutAcademicSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    teacherId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    subjectId?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -40299,6 +46466,26 @@ export namespace Prisma {
     status?: $Enums.TopicStatus
     completedAt?: Date | string | null
     updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ExamPaperCreateManyTeacherInput = {
+    id?: string
+    schoolId: string
+    academicSessionId: string
+    classId: string
+    subjectId: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -40414,6 +46601,68 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ExamPaperUpdateWithoutTeacherInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
+    academicSession?: AcademicSessionUpdateOneRequiredWithoutExamPapersNestedInput
+    class?: ClassUpdateOneRequiredWithoutExamPapersNestedInput
+    subject?: SubjectUpdateOneRequiredWithoutExamPapersNestedInput
+    sections?: ExamSectionUpdateManyWithoutExamPaperNestedInput
+  }
+
+  export type ExamPaperUncheckedUpdateWithoutTeacherInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    subjectId?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
+  }
+
+  export type ExamPaperUncheckedUpdateManyWithoutTeacherInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    subjectId?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ChapterCreateManyClassInput = {
     id?: string
     schoolId: string
@@ -40452,6 +46701,26 @@ export namespace Prisma {
     teacherId: string
     subjectId?: string | null
     createdAt?: Date | string
+  }
+
+  export type ExamPaperCreateManyClassInput = {
+    id?: string
+    schoolId: string
+    academicSessionId: string
+    teacherId: string
+    subjectId: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ChapterUpdateWithoutClassInput = {
@@ -40523,6 +46792,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutSubjectNestedInput
     school?: SchoolUpdateOneRequiredWithoutSubjectsNestedInput
     teacherClasses?: TeacherClassUpdateManyWithoutSubjectNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSubjectNestedInput
   }
 
   export type SubjectUncheckedUpdateWithoutClassInput = {
@@ -40539,6 +46809,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     chapters?: ChapterUncheckedUpdateManyWithoutSubjectNestedInput
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutSubjectNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSubjectNestedInput
   }
 
   export type SubjectUncheckedUpdateManyWithoutClassInput = {
@@ -40582,6 +46853,68 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ExamPaperUpdateWithoutClassInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
+    academicSession?: AcademicSessionUpdateOneRequiredWithoutExamPapersNestedInput
+    teacher?: TeacherUpdateOneRequiredWithoutExamPapersNestedInput
+    subject?: SubjectUpdateOneRequiredWithoutExamPapersNestedInput
+    sections?: ExamSectionUpdateManyWithoutExamPaperNestedInput
+  }
+
+  export type ExamPaperUncheckedUpdateWithoutClassInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: StringFieldUpdateOperationsInput | string
+    teacherId?: StringFieldUpdateOperationsInput | string
+    subjectId?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
+  }
+
+  export type ExamPaperUncheckedUpdateManyWithoutClassInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: StringFieldUpdateOperationsInput | string
+    teacherId?: StringFieldUpdateOperationsInput | string
+    subjectId?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ChapterCreateManySubjectInput = {
     id?: string
     schoolId: string
@@ -40606,6 +46939,26 @@ export namespace Prisma {
     teacherId: string
     classId: string
     createdAt?: Date | string
+  }
+
+  export type ExamPaperCreateManySubjectInput = {
+    id?: string
+    schoolId: string
+    academicSessionId: string
+    teacherId: string
+    classId: string
+    examName: string
+    examDate?: Date | string
+    totalMarks?: number | null
+    duration?: number | null
+    instructions?: string | null
+    status?: $Enums.ExamPaperStatus
+    styleFontFamily?: string | null
+    styleFontSize?: string | null
+    styleColor?: string | null
+    templateType?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ChapterUpdateWithoutSubjectInput = {
@@ -40688,6 +47041,68 @@ export namespace Prisma {
     teacherId?: StringFieldUpdateOperationsInput | string
     classId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExamPaperUpdateWithoutSubjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
+    academicSession?: AcademicSessionUpdateOneRequiredWithoutExamPapersNestedInput
+    teacher?: TeacherUpdateOneRequiredWithoutExamPapersNestedInput
+    class?: ClassUpdateOneRequiredWithoutExamPapersNestedInput
+    sections?: ExamSectionUpdateManyWithoutExamPaperNestedInput
+  }
+
+  export type ExamPaperUncheckedUpdateWithoutSubjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: StringFieldUpdateOperationsInput | string
+    teacherId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
+  }
+
+  export type ExamPaperUncheckedUpdateManyWithoutSubjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    academicSessionId?: StringFieldUpdateOperationsInput | string
+    teacherId?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    examName?: StringFieldUpdateOperationsInput | string
+    examDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalMarks?: NullableIntFieldUpdateOperationsInput | number | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    instructions?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExamPaperStatusFieldUpdateOperationsInput | $Enums.ExamPaperStatus
+    styleFontFamily?: NullableStringFieldUpdateOperationsInput | string | null
+    styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
+    styleColor?: NullableStringFieldUpdateOperationsInput | string | null
+    templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ChapterProgressCreateManyChapterInput = {
@@ -40856,6 +47271,76 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ExamSectionCreateManyExamPaperInput = {
+    id?: string
+    label: string
+    type?: $Enums.QuestionType
+    marksEach: number
+    order?: number
+  }
+
+  export type ExamSectionUpdateWithoutExamPaperInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+    marksEach?: IntFieldUpdateOperationsInput | number
+    order?: IntFieldUpdateOperationsInput | number
+    questions?: ExamQuestionUpdateManyWithoutSectionNestedInput
+  }
+
+  export type ExamSectionUncheckedUpdateWithoutExamPaperInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+    marksEach?: IntFieldUpdateOperationsInput | number
+    order?: IntFieldUpdateOperationsInput | number
+    questions?: ExamQuestionUncheckedUpdateManyWithoutSectionNestedInput
+  }
+
+  export type ExamSectionUncheckedUpdateManyWithoutExamPaperInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+    marksEach?: IntFieldUpdateOperationsInput | number
+    order?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ExamQuestionCreateManySectionInput = {
+    id?: string
+    questionText: string
+    options?: NullableJsonNullValueInput | InputJsonValue
+    imageUrl?: string | null
+    subject?: string | null
+    order?: number
+  }
+
+  export type ExamQuestionUpdateWithoutSectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    questionText?: StringFieldUpdateOperationsInput | string
+    options?: NullableJsonNullValueInput | InputJsonValue
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    order?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ExamQuestionUncheckedUpdateWithoutSectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    questionText?: StringFieldUpdateOperationsInput | string
+    options?: NullableJsonNullValueInput | InputJsonValue
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    order?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ExamQuestionUncheckedUpdateManyWithoutSectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    questionText?: StringFieldUpdateOperationsInput | string
+    options?: NullableJsonNullValueInput | InputJsonValue
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    order?: IntFieldUpdateOperationsInput | number
+  }
+
   export type VacationDayCreateManyAcademicTermInput = {
     id?: string
     startDate: Date | string
@@ -40889,6 +47374,150 @@ export namespace Prisma {
   }
 
 
+
+  /**
+   * Aliases for legacy arg types
+   */
+    /**
+     * @deprecated Use UserCountOutputTypeDefaultArgs instead
+     */
+    export type UserCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UserCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use SchoolCountOutputTypeDefaultArgs instead
+     */
+    export type SchoolCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SchoolCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AcademicSessionCountOutputTypeDefaultArgs instead
+     */
+    export type AcademicSessionCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AcademicSessionCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use SubscriptionPlanCountOutputTypeDefaultArgs instead
+     */
+    export type SubscriptionPlanCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SubscriptionPlanCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use TeacherCountOutputTypeDefaultArgs instead
+     */
+    export type TeacherCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TeacherCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ClassCountOutputTypeDefaultArgs instead
+     */
+    export type ClassCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ClassCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use SubjectCountOutputTypeDefaultArgs instead
+     */
+    export type SubjectCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SubjectCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ChapterCountOutputTypeDefaultArgs instead
+     */
+    export type ChapterCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ChapterCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use TopicCountOutputTypeDefaultArgs instead
+     */
+    export type TopicCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TopicCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ExamPaperCountOutputTypeDefaultArgs instead
+     */
+    export type ExamPaperCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ExamPaperCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ExamSectionCountOutputTypeDefaultArgs instead
+     */
+    export type ExamSectionCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ExamSectionCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AcademicTermCountOutputTypeDefaultArgs instead
+     */
+    export type AcademicTermCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AcademicTermCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use UserDefaultArgs instead
+     */
+    export type UserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UserDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use RefreshTokenDefaultArgs instead
+     */
+    export type RefreshTokenArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = RefreshTokenDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use SchoolDefaultArgs instead
+     */
+    export type SchoolArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SchoolDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AcademicSessionDefaultArgs instead
+     */
+    export type AcademicSessionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AcademicSessionDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use SubscriptionPlanDefaultArgs instead
+     */
+    export type SubscriptionPlanArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SubscriptionPlanDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use SubscriptionDefaultArgs instead
+     */
+    export type SubscriptionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SubscriptionDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use TeacherDefaultArgs instead
+     */
+    export type TeacherArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TeacherDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ClassDefaultArgs instead
+     */
+    export type ClassArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ClassDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use SubjectDefaultArgs instead
+     */
+    export type SubjectArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SubjectDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ChapterDefaultArgs instead
+     */
+    export type ChapterArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ChapterDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use TopicDefaultArgs instead
+     */
+    export type TopicArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TopicDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use TeacherClassDefaultArgs instead
+     */
+    export type TeacherClassArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TeacherClassDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ChapterProgressDefaultArgs instead
+     */
+    export type ChapterProgressArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ChapterProgressDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use TopicProgressDefaultArgs instead
+     */
+    export type TopicProgressArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TopicProgressDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ExamPaperDefaultArgs instead
+     */
+    export type ExamPaperArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ExamPaperDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ExamSectionDefaultArgs instead
+     */
+    export type ExamSectionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ExamSectionDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ExamQuestionDefaultArgs instead
+     */
+    export type ExamQuestionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ExamQuestionDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ExamPaperTemplateDefaultArgs instead
+     */
+    export type ExamPaperTemplateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ExamPaperTemplateDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use NotificationDefaultArgs instead
+     */
+    export type NotificationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NotificationDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ActivityLogDefaultArgs instead
+     */
+    export type ActivityLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ActivityLogDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AuditLogDefaultArgs instead
+     */
+    export type AuditLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AuditLogDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AcademicTermDefaultArgs instead
+     */
+    export type AcademicTermArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AcademicTermDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use VacationDayDefaultArgs instead
+     */
+    export type VacationDayArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = VacationDayDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany
