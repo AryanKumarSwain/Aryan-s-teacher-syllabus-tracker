@@ -20,6 +20,12 @@ export function SubjectAssignmentForm({ sections, onSubmit, onBack }: SubjectAss
     setDraftSections(next);
   };
 
+  const handleHintChange = (sectionIndex: number, questionIndex: number, value: string) => {
+    const next = [...draftSections];
+    next[sectionIndex].questions[questionIndex].hint = value;
+    setDraftSections(next);
+  };
+
   const handleSubmit = () => {
     onSubmit(draftSections);
   };
@@ -41,7 +47,7 @@ export function SubjectAssignmentForm({ sections, onSubmit, onBack }: SubjectAss
               <p className="text-sm text-gray-400 italic">No questions in this section.</p>
             ) : (
               section.questions.map((question: any, questionIndex: number) => (
-                <div key={questionIndex} className="grid gap-4 md:grid-cols-3 items-center p-3 rounded-lg bg-gray-50 border border-gray-100">
+                <div key={questionIndex} className="grid gap-4 md:grid-cols-4 items-start p-3 rounded-lg bg-gray-50 border border-gray-100">
                   <div className="md:col-span-2">
                     <span className="text-xs font-semibold text-gray-400 block mb-1">Question {questionIndex + 1}</span>
                     <div 
@@ -55,6 +61,15 @@ export function SubjectAssignmentForm({ sections, onSubmit, onBack }: SubjectAss
                       value={question.subject || ''}
                       placeholder="e.g. Algebra, Calculus"
                       onChange={(e) => handleSubjectChange(sectionIndex, questionIndex, e.target.value)}
+                      className="mt-1 bg-white"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Hint (Optional)</Label>
+                    <Input
+                      value={question.hint || ''}
+                      placeholder="e.g. Use formula x²"
+                      onChange={(e) => handleHintChange(sectionIndex, questionIndex, e.target.value)}
                       className="mt-1 bg-white"
                     />
                   </div>

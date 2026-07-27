@@ -53,9 +53,13 @@ async function request<T>(endpoint: string, options: RequestOptions = {}, retrie
   let token = skipAuth ? null : accessTokenGetter();
   
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     ...(init.headers as Record<string, string>),
   };
+  
+  // Only add Content-Type for JSON requests (not for file uploads)
+  if (!(init.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
   
   // Only add Authorization header if we have a real token from the store
   // The string 'cookie-session' is used as a sentinel in a few places to
@@ -119,6 +123,9 @@ export const api = {
 
   post: <T>(endpoint: string, body?: unknown, skipAuth?: boolean) =>
     request<T>(endpoint, { method: 'POST', body: JSON.stringify(sanitizePayload(body)), skipAuth }),
+
+  postFormData: <T>(endpoint: string, formData: FormData, skipAuth?: boolean) =>
+    request<T>(endpoint, { method: 'POST', body: formData, skipAuth }),
 
   patch: <T>(endpoint: string, body?: unknown) =>
     request<T>(endpoint, { method: 'PATCH', body: JSON.stringify(sanitizePayload(body)) }),

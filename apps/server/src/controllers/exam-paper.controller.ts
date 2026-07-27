@@ -19,6 +19,10 @@ export const examPaperController = {
         totalMarks: req.body.totalMarks,
         duration: req.body.duration,
         status: req.body.status,
+        templateType: req.body.templateType,
+        styleFontFamily: req.body.styleFontFamily,
+        styleFontSize: req.body.styleFontSize,
+        styleColor: req.body.styleColor,
       });
       sendSuccess(res, paper, 201);
     } catch (error) {
@@ -65,6 +69,23 @@ export const examPaperController = {
     }
   },
 
+  async uploadPdf(req: Request, res: Response, next: NextFunction) {
+    try {
+      const schoolId = getTenantId(req);
+      
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+
+      const pdfUrl = await uploadImage(req.file.buffer, 'exam-papers');
+      
+      const paper = await examPaperService.updatePaper(req.params.id, schoolId, { pdfUrl });
+      sendSuccess(res, paper);
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
@@ -95,18 +116,6 @@ export const examPaperController = {
     }
   },
 
-  async pdf(req: Request, res: Response, next: NextFunction) {
-    try {
-      const schoolId = getTenantId(req);
-      const buffer = await examPaperService.buildPdf(req.params.id, schoolId);
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="exam-paper-${req.params.id}.pdf"`);
-      res.send(buffer);
-    } catch (error) {
-      next(error);
-    }
-  },
-
   async uploadLogo(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
@@ -119,6 +128,19 @@ export const examPaperController = {
       
       const template = await examPaperService.saveTemplate(schoolId, { logoUrl });
       sendSuccess(res, template);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async uploadQuestionImage(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+
+      const imageUrl = await uploadImage(req.file.buffer, 'question-images');
+      sendSuccess(res, { imageUrl });
     } catch (error) {
       next(error);
     }

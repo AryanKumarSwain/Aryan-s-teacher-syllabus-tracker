@@ -15,27 +15,23 @@ interface InstructionsFormProps {
 
 export function InstructionsForm({ onSubmit, onBack, initialValue = '', sections = [] }: InstructionsFormProps) {
   const [instructions, setInstructions] = useState(initialValue);
-  const [isLoading, setIsLoading] = useState(!initialValue);
 
   useEffect(() => {
-    if (!initialValue) {
-      const fetchDefaultInstructions = async () => {
-        try {
-          // Fetch default instructions mapped from Admin config
-          const response = await api.get<{ instructions: string }>('/admin/default-instructions');
-          if (response?.instructions) {
-            setInstructions(response.instructions);
-          }
-        } catch (error) {
-          console.error("Failed to fetch default instructions", error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
+    if (!initialValue && sections.length > 0) {
+      // Generate dynamic default instructions based on sections
+      const sectionLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+      const sectionNames = sections.slice(0, 8).map((_, i) => sectionLabels[i]).join(', ');
       
-      fetchDefaultInstructions();
+      // Count total questions
+      const totalQuestions = sections.reduce((sum, section) => {
+        return sum + (section.questions?.length || 0);
+      }, 0);
+
+      const defaultInstructions = `1) Read all questions carefully before answering.\n2) The question paper consists of ${totalQuestions} questions divided into ${sections.length} ${sections.length === 1 ? 'Section' : 'Sections'}: ${sectionNames}.\n3) All questions are compulsory.`;
+      
+      setInstructions(defaultInstructions);
     }
-  }, [initialValue]);
+  }, [initialValue, sections]);
 
   const handleSubmit = () => {
     onSubmit(instructions);
@@ -84,15 +80,14 @@ export function InstructionsForm({ onSubmit, onBack, initialValue = '', sections
         <Textarea
           value={instructions}
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setInstructions(e.target.value)}
-          placeholder={isLoading ? "Loading default instructions..." : "Enter instructions for the exam paper (e.g., 'All questions are compulsory. Write your answers clearly.')"}
+          placeholder="Enter instructions for the exam paper (e.g., 'All questions are compulsory. Write your answers clearly.')"
           rows={6}
           className="mt-2"
-          disabled={isLoading}
         />
       </div>
       <div className="flex gap-3">
         {onBack && <Button type="button" variant="outline" onClick={onBack}>Back</Button>}
-        <Button type="button" onClick={handleSubmit} disabled={isLoading}>Save & Finish</Button>
+        <Button type="button" onClick={handleSubmit}>Save & Finish</Button>
       </div>
     </div>
   );

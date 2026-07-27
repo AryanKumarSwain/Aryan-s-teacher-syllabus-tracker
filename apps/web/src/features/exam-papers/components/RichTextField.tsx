@@ -5,6 +5,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Subscript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
+import Mathematics from '@tiptap/extension-mathematics';
 import { Button } from '@/components/ui/button';
 
 interface RichTextFieldProps {
@@ -25,6 +26,11 @@ export function RichTextField({ value, onChange, placeholder }: RichTextFieldPro
       Underline,
       Subscript,
       Superscript,
+      Mathematics.configure({
+        katexOptions: {
+          displayMode: false,
+        },
+      }),
     ],
     content: value,
     editorProps: {
@@ -70,6 +76,14 @@ export function RichTextField({ value, onChange, placeholder }: RichTextFieldPro
         </Button>
         <Button type="button" variant="outline" size="sm" onClick={() => editor?.chain().focus().toggleCode().run()}>
           Code
+        </Button>
+        <Button type="button" variant="outline" size="sm" onClick={() => {
+          const latex = prompt('Enter LaTeX equation (e.g., \\frac{a}{b}):');
+          if (latex) {
+            editor?.chain().focus().insertContent(`<span class="math-node" data-latex="${latex}">${latex}</span>`).run();
+          }
+        }}>
+          ∑ Math
         </Button>
       </div>
       <EditorContent editor={editor} />

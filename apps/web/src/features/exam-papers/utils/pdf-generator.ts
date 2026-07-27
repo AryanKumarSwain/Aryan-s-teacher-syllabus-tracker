@@ -1,6 +1,44 @@
 import { jsPDF } from 'jspdf';
 import JSZip from 'jszip';
 
+async function fetchImageAsBase64(url: string): Promise<string> {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+// Load Devanagari font for Hindi text rendering
+function loadDevanagariFont(doc: any): void {
+  if (typeof window === 'undefined') {
+    const fs = require('fs');
+    const path = require('path');
+    const fontDir = path.join(__dirname);
+    
+    const regularBase64 = fs.readFileSync(path.join(fontDir, 'noto-sans-devanagari-regular.b64'), 'utf-8');
+    const boldBase64 = fs.readFileSync(path.join(fontDir, 'noto-sans-devanagari-bold.b64'), 'utf-8');
+    
+    // @ts-ignore - jsPDF addFileToVFS and addFont methods
+    doc.addFileToVFS('NotoSansDevanagari-Regular.ttf', regularBase64);
+    // @ts-ignore
+    doc.addFont('NotoSansDevanagari-Regular.ttf', 'NotoSansDevanagari', 'normal');
+    
+    // @ts-ignore
+    doc.addFileToVFS('NotoSansDevanagari-Bold.ttf', boldBase64);
+    // @ts-ignore
+    doc.addFont('NotoSansDevanagari-Bold.ttf', 'NotoSansDevanagari', 'bold');
+  }
+}
+
+// Detect if text contains Devanagari characters
+function containsDevanagari(text: string): boolean {
+  return /[\u0900-\u097F]/.test(text);
+}
+
 interface PdfPaperData {
   schoolName: string;
   examName: string;
@@ -14,6 +52,8 @@ interface PdfPaperData {
   styleFontFamily: string;
   styleFontSize: string;
   styleColor: string;
+  logoUrl?: string;
+  teacherName?: string;
   sections: Array<{
     label: string;
     type: string;
@@ -21,35 +61,407 @@ interface PdfPaperData {
     questions: Array<{
       questionText: string;
       subject?: string;
+      hint?: string;
       options?: Array<{ text: string; isCorrect?: boolean } | string>;
+      segmentType?: string;
+      imageUrl?: string;
+      alternatives?: Array<{
+        questionText: string;
+        options?: Array<{ text: string; isCorrect?: boolean } | string>;
+        imageUrl?: string;
+        subject?: string;
+        hint?: string;
+      }>;
+    }>;
+    segments?: Array<{
+      type: string;
+      label: string;
+      questionCount: number;
+      marksEach: number;
     }>;
   }>;
 }
 
-function cleanHtmlText(html: string): string {
-  if (!html) return '';
-  let text = html;
+// ---- Spacing constants ----
+const LINE_HEIGHT = 4.0;        // height of a single wrapped text line
+const QUESTION_GAP = 0.3;       // gap left after a question before the next one
+const SECTION_GAP = 2;          // gap left after a whole section
+const SEGMENT_HEADER_GAP = 7;   // gap after a segment header line before Q1
+const SECTION_LABEL_GAP = 7;    // gap after section label before Q1
+
+const IMAGE_TEXT_GAP = 4;        // 4mm margin between text and image box
+const IMAGE_RIGHT_MARGIN = 3;    // 3mm margin between image box and column right edge
+
+interface FormattedTextSegment {
+  text: string;
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  strike: boolean;
+  sup: boolean;
+  sub: boolean;
+  code: boolean;
+  listItem: boolean;
+}
+
+interface OptionRenderData {
+  prefix: string;
+  prefixWidth: number;
+  lines: string[];
+}
+
+function parseHtmlToFormattedText(html: string): FormattedTextSegment[] {
+  if (!html) return [];
   
-  // Replace paragraph ends/line breaks with newlines
-  text = text.replace(/<\/p>/g, '\n');
-  text = text.replace(/<br\s*\/?>/g, '\n');
-  text = text.replace(/<li>/g, '• ');
-  text = text.replace(/<\/li>/g, '\n');
+  const segments: FormattedTextSegment[] = [];
+  const stack: Partial<FormattedTextSegment>[] = [];
   
-  // Strip all other HTML tags
-  text = text.replace(/<[^>]+>/g, '');
+  let text = html
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
   
-  // Decode common HTML entities
-  text = text.replace(/&nbsp;/g, ' ')
-             .replace(/&amp;/g, '&')
-             .replace(/&lt;/g, '<')
-             .replace(/&gt;/g, '>')
-             .replace(/&quot;/g, '"')
-             .replace(/&#39;/g, "'");
-             
-  // Trim duplicate blank lines
-  const lines = text.split('\n').map(line => line.trim());
-  return lines.filter((line, i) => line !== '' || (lines[i - 1] !== '' && i > 0)).join('\n');
+  const tagRegex = /<\/?([a-z]+)(?:\s[^>]*)?>/gi;
+  let lastIndex = 0;
+  let match;
+  
+  while ((match = tagRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      const plainText = text.substring(lastIndex, match.index);
+      if (plainText.trim()) {
+        segments.push({
+          text: plainText,
+          bold: stack.some(s => s.bold),
+          italic: stack.some(s => s.italic),
+          underline: stack.some(s => s.underline),
+          strike: stack.some(s => s.strike),
+          sup: stack.some(s => s.sup),
+          sub: stack.some(s => s.sub),
+          code: stack.some(s => s.code),
+          listItem: stack.some(s => s.listItem),
+        });
+      }
+    }
+    
+    const tagName = match[1]?.toLowerCase() || '';
+    const isClosing = match[0].startsWith('</');
+    
+    if (tagName === 'p' || tagName === 'br') {
+      if (isClosing || tagName === 'br') {
+        segments.push({
+          text: '', bold: false, italic: false, underline: false, strike: false,
+          sup: false, sub: false, code: false, listItem: false,
+        });
+      }
+      lastIndex = match.index + match[0].length;
+      continue;
+    }
+
+    if (tagName === 'span' && !isClosing) {
+      const classMatch = match[0].match(/class="([^"]+)"/);
+      if (classMatch && classMatch[1]?.includes('math-node')) {
+        const dataMatch = match[0].match(/data-latex="([^"]+)"/);
+        if (dataMatch) {
+          const latex = dataMatch[1] ?? '';
+          let convertedText = latex;
+          
+          // Convert basic LaTeX to Unicode
+          convertedText = convertedText.replace(/\\sqrt\{([^}]+)\}/g, '√($1)');
+          convertedText = convertedText.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1)/($2)');
+          convertedText = convertedText.replace(/\^\{([^}]+)\}/g, '^($1)');
+          convertedText = convertedText.replace(/_\{([^}]+)\}/g, '_($1)');
+          
+          segments.push({
+            text: convertedText,
+            bold: false,
+            italic: false,
+            underline: false,
+            strike: false,
+            sup: false,
+            sub: false,
+            code: false,
+            listItem: false,
+          });
+          lastIndex = match.index + match[0].length;
+          continue;
+        }
+      }
+    }
+
+    if (isClosing) {
+      const index = stack.findIndex(s => s[tagName as keyof FormattedTextSegment] === true);
+      if (index !== -1) {
+        stack.splice(index, 1);
+      }
+    } else {
+      const formatting: Partial<FormattedTextSegment> = {};
+      if (tagName === 'b' || tagName === 'strong') formatting.bold = true;
+      if (tagName === 'i' || tagName === 'em') formatting.italic = true;
+      if (tagName === 'u') formatting.underline = true;
+      if (tagName === 's' || tagName === 'strike') formatting.strike = true;
+      if (tagName === 'sup') formatting.sup = true;
+      if (tagName === 'sub') formatting.sub = true;
+      if (tagName === 'code') formatting.code = true;
+      if (tagName === 'li') formatting.listItem = true;
+      if (tagName === 'ul') formatting.listItem = true;
+      stack.push(formatting);
+    }
+    
+    lastIndex = match.index + match[0].length;
+  }
+  
+  if (lastIndex < text.length) {
+    const plainText = text.substring(lastIndex);
+    if (plainText.trim()) {
+      segments.push({
+        text: plainText,
+        bold: stack.some(s => s.bold),
+        italic: stack.some(s => s.italic),
+        underline: stack.some(s => s.underline),
+        strike: stack.some(s => s.strike),
+        sup: stack.some(s => s.sup),
+        sub: stack.some(s => s.sub),
+        code: stack.some(s => s.code),
+        listItem: stack.some(s => s.listItem),
+      });
+    }
+  }
+  
+  return segments;
+}
+
+function estimateSegmentsHeight(
+  doc: typeof jsPDF.prototype,
+  segments: FormattedTextSegment[],
+  width: number,
+  lineHeight: number
+): number {
+  let totalLines = 0;
+  let current: string[] = [];
+
+  const flush = () => {
+    const text = current.join(' ').trim();
+    if (text) {
+      totalLines += doc.splitTextToSize(text, width).length;
+    } else {
+      totalLines += 1;
+    }
+    current = [];
+  };
+
+  segments.forEach(seg => {
+    if (seg.text === '') {
+      flush();
+    } else {
+      current.push(seg.text);
+    }
+  });
+  if (current.length > 0) flush();
+
+  return totalLines * lineHeight;
+}
+
+function renderFormattedText(
+  doc: typeof jsPDF.prototype,
+  segments: FormattedTextSegment[],
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number,
+  fontFamily: string,
+  rgb: { r: number; g: number; b: number }
+): { newY: number } {
+  let currentX = x;
+  let currentY = y;
+  const rightEdge = x + maxWidth;
+
+  const applyFont = (segment: FormattedTextSegment, text: string = '') => {
+    if (segment.code) {
+      doc.setFont('Courier', 'normal');
+      return;
+    }
+    
+    // Check if text contains Devanagari characters
+    const hasDevanagari = text ? containsDevanagari(text) : false;
+    
+    const fontStyle = [];
+    if (segment.bold) fontStyle.push('bold');
+    if (segment.italic) fontStyle.push('italic');
+    const style = fontStyle.length > 0 ? fontStyle.join('') : 'normal';
+    
+    if (hasDevanagari) {
+      // Use Devanagari font for Hindi text
+      // Devanagari fonts often don't have true italic, fall back to normal
+      const devanagariStyle = style === 'italic' ? 'normal' : style;
+      doc.setFont('NotoSansDevanagari', devanagariStyle);
+    } else {
+      doc.setFont(fontFamily === 'Times New Roman' || fontFamily === 'Georgia' || fontFamily === 'Cambria' ? 'Times' : 'Helvetica', style);
+    }
+  };
+
+  const spaceWidth = doc.getTextWidth(' ');
+  let wroteAnything = false;
+
+  segments.forEach(segment => {
+    if (segment.text === '') {
+      if (wroteAnything) {
+        currentY += lineHeight;
+        currentX = x;
+        wroteAnything = false;
+      } else {
+        currentY += lineHeight;
+        currentX = x;
+      }
+      return;
+    }
+
+    let textToRender = segment.text;
+    if (segment.listItem) {
+      if (wroteAnything) {
+        currentY += lineHeight;
+        currentX = x;
+      }
+      textToRender = '• ' + textToRender;
+    }
+
+    applyFont(segment, textToRender);
+
+    const words = textToRender.split(/\s+/).filter((w: string) => w.length > 0);
+
+    words.forEach((word: string) => {
+      // Check each word for Devanagari and switch font if needed
+      const wordHasDevanagari = containsDevanagari(word);
+      if (wordHasDevanagari) {
+        const fontStyle = [];
+        if (segment.bold) fontStyle.push('bold');
+        if (segment.italic) fontStyle.push('italic');
+        const style = fontStyle.length > 0 ? fontStyle.join('') : 'normal';
+        const devanagariStyle = style === 'italic' ? 'normal' : style;
+        doc.setFont('NotoSansDevanagari', devanagariStyle);
+      } else {
+        // Switch back to Latin font for English words
+        const fontStyle = [];
+        if (segment.bold) fontStyle.push('bold');
+        if (segment.italic) fontStyle.push('italic');
+        const style = fontStyle.length > 0 ? fontStyle.join('') : 'normal';
+        doc.setFont(fontFamily === 'Times New Roman' || fontFamily === 'Georgia' || fontFamily === 'Cambria' ? 'Times' : 'Helvetica', style);
+      }
+      
+      const wordWidth = doc.getTextWidth(word);
+      if (currentX > x && currentX + wordWidth > rightEdge) {
+        currentY += lineHeight;
+        currentX = x;
+      }
+
+      const drawX = currentX;
+      if (segment.sup) {
+        const originalFontSize = doc.getFontSize();
+        doc.setFontSize(originalFontSize * 0.6);
+        doc.text(word, drawX, currentY - 1.5);
+        doc.setFontSize(originalFontSize);
+      } else if (segment.sub) {
+        const originalFontSize = doc.getFontSize();
+        doc.setFontSize(originalFontSize * 0.6);
+        doc.text(word, drawX, currentY + 1.5);
+        doc.setFontSize(originalFontSize);
+      } else {
+        doc.text(word, drawX, currentY);
+      }
+
+      if (segment.underline) {
+        doc.setDrawColor(rgb.r, rgb.g, rgb.b);
+        doc.setLineWidth(0.1);
+        doc.line(drawX, currentY + 0.5, drawX + wordWidth, currentY + 0.5);
+      }
+
+      currentX += wordWidth + spaceWidth;
+      wroteAnything = true;
+    });
+  });
+
+  if (wroteAnything) {
+    currentY += lineHeight;
+  }
+
+  doc.setFont(fontFamily === 'Times New Roman' || fontFamily === 'Georgia' || fontFamily === 'Cambria' ? 'Times' : 'Helvetica', 'normal');
+  doc.setDrawColor(rgb.r, rgb.g, rgb.b);
+
+  return { newY: currentY };
+}
+
+function buildSuffixSegments(question: { subject?: string; hint?: string }): FormattedTextSegment[] {
+  const suffixSegments: FormattedTextSegment[] = [];
+  if (question.subject) {
+    suffixSegments.push({
+      text: `[Topic: ${question.subject}]`,
+      bold: false, italic: true, underline: false, strike: false,
+      sup: false, sub: false, code: false, listItem: false,
+    });
+  }
+  if (question.hint) {
+    console.log('RAW HINT:', JSON.stringify(question.hint));
+    suffixSegments.push({
+      text: `[Hint: ${question.hint}]`,
+      bold: false, italic: true, underline: false, strike: false,
+      sup: false, sub: false, code: false, listItem: false,
+    });
+  }
+  return suffixSegments;
+}
+
+function buildOptionRenderData(
+  doc: typeof jsPDF.prototype,
+  options: Array<{ text: string; isCorrect?: boolean } | string>,
+  availableWidth: number
+): OptionRenderData[] {
+  return options.map((opt, oIndex) => {
+    const optPrefix = `${String.fromCharCode(97 + oIndex)}) `;
+    const optText = typeof opt === 'string' ? opt : (opt.text || '');
+    console.log('RAW OPTION:', JSON.stringify(optText));
+    const prefixWidth = doc.getTextWidth(optPrefix);
+    const lines = doc.splitTextToSize(optText, Math.max(availableWidth - prefixWidth, 10));
+    return { prefix: optPrefix, prefixWidth, lines };
+  });
+}
+
+function renderOptionColumn(
+  doc: typeof jsPDF.prototype,
+  options: OptionRenderData[],
+  x: number,
+  startY: number,
+  lineHeight: number
+): number {
+  let currentY = startY;
+  options.forEach((opt) => {
+    opt.lines.forEach((line, lineIdx) => {
+      if (lineIdx === 0) {
+        doc.text(opt.prefix + line, x, currentY);
+      } else {
+        doc.text(line, x + opt.prefixWidth, currentY);
+      }
+      currentY += lineHeight;
+    });
+  });
+  return currentY;
+}
+
+function insertInstructionLineBreaks(instructions: string): string {
+  return instructions.replace(/\s(?=\d+\))/g, '<br>');
+}
+
+function formatDuration(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  if (hours > 0 && mins > 0) {
+    return `${hours} hr ${mins} min`;
+  } else if (hours > 0) {
+    return `${hours} hr`;
+  } else {
+    return `${mins} min`;
+  }
 }
 
 export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: string): Promise<Blob> {
@@ -59,69 +471,95 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
     format: 'a4'
   });
 
+  // Load Devanagari font for Hindi text support
+  loadDevanagariFont(doc);
+
   const fontFamily = paper.styleFontFamily || 'Times New Roman';
   const fontColor = paper.styleColor || '#000000';
-  
-  // Hex to RGB
+
+  const PAGE_WIDTH = 210;
+  const PAGE_HEIGHT = 297;
+
   const hexToRgb = (hex: string) => {
     const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
     const fullHex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
     return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
+      r: parseInt(result[1] || '00', 16),
+      g: parseInt(result[2] || '00', 16),
+      b: parseInt(result[3] || '00', 16)
     } : { r: 0, g: 0, b: 0 };
   };
 
   const rgb = hexToRgb(fontColor);
   let currentPage = 1;
-  
-  const setupPage = (pDoc: typeof doc, pNum: number) => {
-    pDoc.saveGraphicsState();
-    try {
-      // Set opacity for watermark
-      // @ts-ignore
-      pDoc.setGState(new pDoc.GState({ opacity: 0.05 }));
-    } catch {
-      pDoc.setTextColor(240, 240, 240); // fallback for compatibility
-    }
-    pDoc.setFont('Helvetica', 'bold');
-    pDoc.setFontSize(60);
-    pDoc.setTextColor(150, 150, 150);
-    pDoc.text('CONFIDENTIAL', 105, 150, { align: 'center', angle: 45 });
-    pDoc.restoreGraphicsState();
 
-    // Standard styling
+  const pageContentStartY: Record<number, number> = { 1: 72 };
+  const CONTENT_END_Y = 283; 
+
+  const WATERMARK_SIZE = 90;
+  const WATERMARK_X = (PAGE_WIDTH - WATERMARK_SIZE) / 2;
+  const WATERMARK_Y = (PAGE_HEIGHT - WATERMARK_SIZE) / 2;
+
+  const setupPage = async (pDoc: typeof doc, pNum: number) => {
+    if (paper.logoUrl) {
+      pDoc.saveGraphicsState();
+      try {
+        // @ts-ignore
+        pDoc.setGState(new pDoc.GState({ opacity: 0.06 }));
+      } catch {
+        pDoc.setTextColor(240, 240, 240); 
+      }
+      try {
+        const logoBase64 = await fetchImageAsBase64(paper.logoUrl);
+        pDoc.addImage(logoBase64, 'PNG', WATERMARK_X, WATERMARK_Y, WATERMARK_SIZE, WATERMARK_SIZE);
+      } catch (e) {
+        console.warn('Failed to load logo watermark:', e);
+      }
+      pDoc.restoreGraphicsState();
+    }
+
     pDoc.setTextColor(rgb.r, rgb.g, rgb.b);
 
-    // Footer
     pDoc.setFont('Helvetica', 'normal');
     pDoc.setFontSize(8);
     pDoc.setTextColor(120, 120, 120);
     pDoc.text(`Page ${pNum}`, 105, 287, { align: 'center' });
-    pDoc.text('CONFIDENTIAL EXAM SHEET', 15, 287);
     pDoc.text('Syllabus Tracker', 195, 287, { align: 'right' });
     pDoc.setTextColor(rgb.r, rgb.g, rgb.b);
   };
 
-  const drawPageHeader = (pDoc: typeof doc, pRoll?: string) => {
+  const drawPageHeader = async (pDoc: typeof doc, pRoll?: string) => {
     pDoc.setLineWidth(0.3);
     pDoc.setDrawColor(180, 180, 180);
     pDoc.rect(15, 15, 180, 32);
 
+    if (paper.logoUrl) {
+      try {
+        const logoBase64 = await fetchImageAsBase64(paper.logoUrl);
+        pDoc.addImage(logoBase64, 'PNG', 18, 18, 20, 20);
+      } catch (e) {
+        console.warn('Failed to load logo:', e);
+      }
+    }
+
+    const logoOffset = paper.logoUrl ? 25 : 0;
     pDoc.setFont(fontFamily === 'Times New Roman' || fontFamily === 'Georgia' || fontFamily === 'Cambria' ? 'Times' : 'Helvetica', 'bold');
     pDoc.setFontSize(14);
-    pDoc.text(paper.schoolName || 'SCHOOL ACADEMIC PORTAL', 105, 22, { align: 'center' });
+    pDoc.text(paper.schoolName || 'SCHOOL ACADEMIC PORTAL', 105 + logoOffset / 2, 22, { align: 'center' });
 
     pDoc.setFontSize(11);
-    pDoc.text(paper.examName || 'EXAMINATION QUESTION PAPER', 105, 28, { align: 'center' });
+    pDoc.text(paper.examName || 'EXAMINATION QUESTION PAPER', 105 + logoOffset / 2, 28, { align: 'center' });
 
     pDoc.setFont(fontFamily === 'Times New Roman' || fontFamily === 'Georgia' || fontFamily === 'Cambria' ? 'Times' : 'Helvetica', 'normal');
     pDoc.setFontSize(9);
-    const dateStr = paper.examDate ? new Date(paper.examDate).toLocaleDateString() : 'N/A';
-    pDoc.text(`Grade: ${paper.className || 'N/A'}    |    Subject: ${paper.subjectName || 'N/A'}    |    Date: ${dateStr}`, 105, 35, { align: 'center' });
-    pDoc.text(`Duration: ${paper.duration || 0} Mins    |    Total Marks: ${paper.totalMarks || 0} Marks`, 105, 41, { align: 'center' });
+    const dateStr = paper.examDate ? new Date(paper.examDate).toLocaleDateString() : null;
+    const teacherNameStr = paper.teacherName ? `Teacher: ${paper.teacherName}` : '';
+    const infoParts = [`Class: ${paper.className || 'N/A'}`, `Subject: ${paper.subjectName || 'N/A'}`];
+    if (dateStr) infoParts.push(`Date: ${dateStr}`);
+    if (teacherNameStr) infoParts.push(teacherNameStr);
+    pDoc.text(infoParts.join('    |    '), 105 + logoOffset / 2, 35, { align: 'center' });
+    pDoc.text(`Duration: ${formatDuration(paper.duration || 0)}    |    Total Marks: ${paper.totalMarks || 0} Marks`, 105 + logoOffset / 2, 41, { align: 'center' });
 
     pDoc.rect(15, 52, 180, 12);
     pDoc.setFont(fontFamily === 'Times New Roman' || fontFamily === 'Georgia' || fontFamily === 'Cambria' ? 'Times' : 'Helvetica', 'bold');
@@ -130,29 +568,26 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
     pDoc.text(`Roll Number: ${pRoll || '__________________'}`, 132, 60);
   };
 
-  setupPage(doc, currentPage);
-  drawPageHeader(doc, rollNumber);
+  await setupPage(doc, currentPage);
+  await drawPageHeader(doc, rollNumber);
 
   let colWidth = paper.templateType === 'SPLIT' ? 85 : 180;
-  let leftMargin = 15;
-  let topMargin = 72;
   let bottomMargin = 20;
-  let currentColumn = 0; // 0 = Left, 1 = Right (for split template)
-  let y = topMargin;
+  let currentColumn = 0; 
+  let y = 72;
 
   const fontName = fontFamily === 'Times New Roman' || fontFamily === 'Georgia' || fontFamily === 'Cambria' ? 'Times' : 'Helvetica';
 
-  const advanceCursor = (requiredHeight: number) => {
+  const advanceCursor = async (requiredHeight: number) => {
     if (y + requiredHeight > 297 - bottomMargin) {
       if (paper.templateType === 'SPLIT' && currentColumn === 0) {
         currentColumn = 1;
-        y = 72; // Start from top of Right Column
+        y = pageContentStartY[currentPage] ?? 16; 
       } else {
         doc.addPage();
         currentPage++;
-        setupPage(doc, currentPage);
+        await setupPage(doc, currentPage);
 
-        // Header on subsequent pages
         doc.setFont(fontName, 'italic');
         doc.setFontSize(8);
         doc.text(`${paper.examName} - ${paper.subjectName}`, 15, 12);
@@ -162,7 +597,8 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
         doc.line(15, 14, 195, 14);
 
         currentColumn = 0;
-        y = 20; // reset y to smaller margin for next pages
+        y = 16; 
+        pageContentStartY[currentPage] = 16;
       }
     }
   };
@@ -174,101 +610,499 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
     return 15;
   };
 
-  // Render instructions
+  const getCenterX = () => {
+    if (paper.templateType === 'SPLIT') {
+      return currentColumn === 0 ? 57.5 : 152.5;
+    }
+    return 105;
+  };
+
   if (paper.instructions) {
+    const instructionsWithBreaks = insertInstructionLineBreaks(paper.instructions);
+    const formattedInstructions = parseHtmlToFormattedText(instructionsWithBreaks);
+    const instHeight = estimateSegmentsHeight(doc, formattedInstructions, colWidth, LINE_HEIGHT);
+
+    await advanceCursor(5 + instHeight);
+
     doc.setFont(fontName, 'bold');
     doc.setFontSize(10);
-    advanceCursor(12);
     doc.text('General Instructions:', getX(), y);
     y += 5;
 
     doc.setFont(fontName, 'normal');
     doc.setFontSize(9);
-    const instLines = doc.splitTextToSize(paper.instructions, colWidth);
-    
-    instLines.forEach((line: string) => {
-      advanceCursor(4.5);
-      doc.text(line, getX(), y);
-      y += 4.5;
-    });
+
+    const { newY: afterInstructionsY } = renderFormattedText(
+      doc,
+      formattedInstructions,
+      getX(),
+      y,
+      colWidth,
+      LINE_HEIGHT,
+      fontFamily,
+      rgb
+    );
+    y = afterInstructionsY;
     y += 3;
   }
 
-  const drawMiddleSplitLine = () => {
-    if (paper.templateType === 'SPLIT') {
-      const current_page = doc.getCurrentPageInfo().pageNumber;
-      doc.setPage(current_page);
-      doc.setLineWidth(0.2);
-      doc.setDrawColor(200, 200, 200);
-      doc.line(105, 72, 105, 280);
-      doc.setDrawColor(rgb.r, rgb.g, rgb.b); // restore color
-    }
+  const drawMiddleSplitLineForPage = (pageNum: number) => {
+    if (paper.templateType !== 'SPLIT') return;
+    const startY = pageContentStartY[pageNum] ?? 16;
+    doc.setPage(pageNum);
+    doc.setLineWidth(0.2);
+    doc.setDrawColor(200, 200, 200);
+    doc.line(105, startY, 105, CONTENT_END_Y);
+    doc.setDrawColor(rgb.r, rgb.g, rgb.b); 
   };
 
-  // Render sections
   for (let sIndex = 0; sIndex < paper.sections.length; sIndex++) {
     const section = paper.sections[sIndex];
-    advanceCursor(12);
-    
+    if (!section) continue;
+
+    await advanceCursor(12);
+
     doc.setFont(fontName, 'bold');
     doc.setFontSize(10.5);
-    const secHeader = `${section.label} - (${section.marksEach} Mark${section.marksEach > 1 ? 's' : ''} Each)`;
-    doc.text(secHeader, getX(), y);
-    y += 5;
+    doc.text(section.label, getCenterX(), y, { align: 'center' });
+    y += (section.segments && section.segments.length > 0) ? 5 : SECTION_LABEL_GAP;
 
-    for (let qIndex = 0; qIndex < section.questions.length; qIndex++) {
-      const question = section.questions[qIndex];
-      const qPrefix = `Q${qIndex + 1}. `;
-      const subjectSuffix = question.subject ? `  [Topic: ${question.subject}]` : '';
-      
-      const qTextClean = cleanHtmlText(question.questionText);
-      const fullText = qPrefix + qTextClean + subjectSuffix;
-      const qLines = doc.splitTextToSize(fullText, colWidth);
-      
-      let optionsLinesList: string[][] = [];
-      let totalOptionsHeight = 0;
-      const isMCQ = section.type === 'MCQ';
-      
-      if (isMCQ && question.options && question.options.length > 0) {
-        question.options.forEach((opt: any, oIndex: number) => {
-          const optPrefix = `   ${String.fromCharCode(97 + oIndex)}) `;
-          const optText = typeof opt === 'string' ? opt : (opt.text || '');
-          const optLines = doc.splitTextToSize(optPrefix + optText, colWidth);
-          optionsLinesList.push(optLines);
-          totalOptionsHeight += optLines.length * 4.5;
-        });
+    if (section.segments && section.segments.length > 0) {
+      for (const segment of section.segments) {
+        // Find questions belonging to this segment
+        const segmentQuestions = section.questions.filter((q: any) => q.segmentType === segment.type);
+
+        // SKIP EMPTY SEGMENTS (Fixes overlapping segment headers)
+        if (segmentQuestions.length === 0) continue;
+
+        await advanceCursor(8);
+        doc.setFont(fontName, 'bold');
+        doc.setFontSize(9);
+        const segmentLabel = `${segment.label} (${segment.questionCount} questions × ${segment.marksEach} marks = ${segment.questionCount * segment.marksEach} marks)`;
+        doc.text(segmentLabel, getX() + 5, y);
+        y += SEGMENT_HEADER_GAP;
+
+        for (let qIndex = 0; qIndex < segmentQuestions.length; qIndex++) {
+          const question = segmentQuestions[qIndex];
+          if (!question) continue;
+
+          const qPrefix = `Q${qIndex + 1}. `;
+
+          doc.setFont(fontName, 'normal');
+          doc.setFontSize(9.5);
+          const qPrefixWidth = doc.getTextWidth(qPrefix);
+
+          // Handle MATCHING questions
+          if (segment.type === 'MATCHING' || question.segmentType === 'MATCHING') {
+            const matchingPairs = question.matchingPairs || [];
+            const pairCount = matchingPairs.length;
+            
+            // Estimate height for matching pairs (2 columns)
+            const pairHeight = LINE_HEIGHT * 1.2;
+            const totalMatchingHeight = pairCount * pairHeight + 10;
+            
+            await advanceCursor(totalMatchingHeight);
+            
+            doc.text(qPrefix, getX(), y);
+            y += LINE_HEIGHT;
+            
+            // Render column headers
+            doc.setFont(fontName, 'bold');
+            doc.setFontSize(8.5);
+            const headerY = y;
+            doc.text('Column A', getX() + qPrefixWidth + 5, headerY);
+            doc.text('Column B', getX() + qPrefixWidth + colWidth / 2 + 5, headerY);
+            y += LINE_HEIGHT * 1.5;
+            
+            // Render matching pairs in 2 columns
+            doc.setFont(fontName, 'normal');
+            doc.setFontSize(9);
+            
+            for (let i = 0; i < pairCount; i++) {
+              const pair = matchingPairs[i];
+              const leftLabel = `${String.fromCharCode(65 + i)}.`;
+              const rightLabel = `${i + 1}.`;
+              
+              // Column A
+              doc.text(`${leftLabel} ${pair.left || ''}`, getX() + qPrefixWidth + 5, y);
+              
+              // Column B
+              doc.text(`${rightLabel} ${pair.right || ''}`, getX() + qPrefixWidth + colWidth / 2 + 5, y);
+              
+              y += pairHeight;
+            }
+            
+            y += QUESTION_GAP;
+            continue;
+          }
+
+          const hasImage = !!question.imageUrl;
+          const maxBoxWidth = paper.templateType === 'SPLIT' ? 35 : 45;
+          const maxBoxHeight = paper.templateType === 'SPLIT' ? 30 : 35;
+
+          const textAreaWidth = colWidth - qPrefixWidth - (hasImage ? (maxBoxWidth + IMAGE_TEXT_GAP + IMAGE_RIGHT_MARGIN) : 0);
+
+          let imgBase64: string | null = null;
+          let scaledWidth = 0;
+          let scaledHeight = 0;
+
+          if (hasImage) {
+            try {
+              imgBase64 = await fetchImageAsBase64(question.imageUrl!);
+              const imgProps = doc.getImageProperties(imgBase64);
+              const naturalWidth = imgProps.width;
+              const naturalHeight = imgProps.height;
+              const scale = Math.min(maxBoxWidth / naturalWidth, maxBoxHeight / naturalHeight);
+              scaledWidth = naturalWidth * scale;
+              scaledHeight = naturalHeight * scale;
+            } catch (e) {
+              console.warn('Failed to load question image:', e);
+            }
+          }
+
+          const formattedSegments = parseHtmlToFormattedText(question.questionText)
+            .concat(buildSuffixSegments(question));
+
+          const totalHeight = estimateSegmentsHeight(doc, formattedSegments, textAreaWidth, LINE_HEIGHT);
+
+          let optionsData: OptionRenderData[] = [];
+          let totalOptionsHeight = 0;
+          const isMCQ = segment.type === 'MCQ' || question.segmentType === 'MCQ';
+
+          if (isMCQ && question.options && question.options.length > 0) {
+            optionsData = buildOptionRenderData(doc, question.options, colWidth / 2 - 5);
+            // Calculate height as max height of side-by-side columns
+            const leftLines = (optionsData[0]?.lines.length || 0) + (optionsData[1]?.lines.length || 0);
+            const rightLines = (optionsData[2]?.lines.length || 0) + (optionsData[3]?.lines.length || 0);
+            totalOptionsHeight = Math.max(leftLines, rightLines) * LINE_HEIGHT;
+          }
+
+          const textAndImageHeight = Math.max(totalHeight, (hasImage && scaledHeight > 0) ? scaledHeight - 3 : 0);
+          const requiredHeight = textAndImageHeight + totalOptionsHeight + QUESTION_GAP;
+
+          await advanceCursor(requiredHeight);
+
+          const questionStartY = y;
+
+          doc.setFont(fontName, 'normal');
+          doc.setFontSize(9.5);
+          doc.text(qPrefix, getX(), y);
+
+          const { newY: afterQuestionY } = renderFormattedText(
+            doc,
+            formattedSegments,
+            getX() + qPrefixWidth,
+            y,
+            textAreaWidth,
+            LINE_HEIGHT,
+            fontFamily,
+            rgb
+          );
+          y = afterQuestionY;
+
+          // Render image on right side if present
+          if (hasImage && imgBase64 && scaledWidth > 0 && scaledHeight > 0) {
+            try {
+              const imgX = getX() + colWidth - IMAGE_RIGHT_MARGIN - scaledWidth; // Position on right side
+              doc.addImage(imgBase64, 'PNG', imgX, questionStartY - 3, scaledWidth, scaledHeight);
+              // Make sure the cursor clears the image too, not just the text.
+              y = Math.max(y, questionStartY - 3 + scaledHeight);
+            } catch (e) {
+              console.warn('Failed to render question image:', e);
+            }
+          }
+
+          if (isMCQ && optionsData.length > 0) {
+            const halfColWidth = colWidth / 2;
+            const startY = y;
+
+            const leftY = renderOptionColumn(doc, optionsData.slice(0, 2), getX(), startY, LINE_HEIGHT);
+            const rightY = renderOptionColumn(doc, optionsData.slice(2, 4), getX() + halfColWidth, startY, LINE_HEIGHT);
+
+            y = Math.max(leftY, rightY);
+          }
+
+          y += QUESTION_GAP;
+
+          // Render alternative questions (internal choice)
+          const alternatives = question.alternatives || [];
+          for (const alt of alternatives) {
+            if (!alt.questionText) continue;
+
+            // Render OR separator
+            doc.setFont(fontName, 'bold');
+            doc.setFontSize(9.5);
+            doc.text('OR', getX(), y);
+            y += LINE_HEIGHT;
+
+            const altFormattedSegments = parseHtmlToFormattedText(alt.questionText);
+
+            const altTotalHeight = estimateSegmentsHeight(doc, altFormattedSegments, textAreaWidth, LINE_HEIGHT);
+
+            let altOptionsData: OptionRenderData[] = [];
+            let altTotalOptionsHeight = 0;
+            const altIsMCQ = segment.type === 'MCQ' || question.segmentType === 'MCQ';
+
+            if (altIsMCQ && alt.options && alt.options.length > 0) {
+              altOptionsData = buildOptionRenderData(doc, alt.options, colWidth / 2 - 5);
+              const altLeftLines = (altOptionsData[0]?.lines.length || 0) + (altOptionsData[1]?.lines.length || 0);
+              const altRightLines = (altOptionsData[2]?.lines.length || 0) + (altOptionsData[3]?.lines.length || 0);
+              altTotalOptionsHeight = Math.max(altLeftLines, altRightLines) * LINE_HEIGHT;
+            }
+
+            const altHasImage = !!alt.imageUrl;
+            let altImgBase64: string | null = null;
+            let altScaledWidth = 0;
+            let altScaledHeight = 0;
+
+            if (altHasImage) {
+              try {
+                altImgBase64 = await fetchImageAsBase64(alt.imageUrl!);
+                const imgProps = doc.getImageProperties(altImgBase64);
+                const naturalWidth = imgProps.width;
+                const naturalHeight = imgProps.height;
+                const scale = Math.min(maxBoxWidth / naturalWidth, maxBoxHeight / naturalHeight);
+                altScaledWidth = naturalWidth * scale;
+                altScaledHeight = naturalHeight * scale;
+              } catch (e) {
+                console.warn('Failed to load alternative question image:', e);
+              }
+            }
+
+            const altTextAndImageHeight = Math.max(altTotalHeight, (altHasImage && altScaledHeight > 0) ? altScaledHeight - 3 : 0);
+            const altRequiredHeight = altTextAndImageHeight + altTotalOptionsHeight + QUESTION_GAP;
+
+            await advanceCursor(altRequiredHeight);
+
+            const altQuestionStartY = y;
+
+            const { newY: afterAltQuestionY } = renderFormattedText(
+              doc,
+              altFormattedSegments,
+              getX() + qPrefixWidth,
+              y,
+              textAreaWidth,
+              LINE_HEIGHT,
+              fontFamily,
+              rgb
+            );
+            y = afterAltQuestionY;
+
+            if (altHasImage && altImgBase64 && altScaledWidth > 0 && altScaledHeight > 0) {
+              try {
+                const imgX = getX() + colWidth - IMAGE_RIGHT_MARGIN - altScaledWidth;
+                doc.addImage(altImgBase64, 'PNG', imgX, altQuestionStartY - 3, altScaledWidth, altScaledHeight);
+                y = Math.max(y, altQuestionStartY - 3 + altScaledHeight);
+              } catch (e) {
+                console.warn('Failed to render alternative question image:', e);
+              }
+            }
+
+            if (altIsMCQ && altOptionsData.length > 0) {
+              const halfColWidth = colWidth / 2;
+              const startY = y;
+
+              const leftY = renderOptionColumn(doc, altOptionsData.slice(0, 2), getX(), startY, LINE_HEIGHT);
+              const rightY = renderOptionColumn(doc, altOptionsData.slice(2, 4), getX() + halfColWidth, startY, LINE_HEIGHT);
+
+              y = Math.max(leftY, rightY);
+            }
+
+            y += QUESTION_GAP;
+          } 
+        }
       }
+    } else {
+      for (let qIndex = 0; qIndex < section.questions.length; qIndex++) {
+        const question = section.questions[qIndex];
+        if (!question) continue;
 
-      const qHeight = (qLines.length * 4.5) + totalOptionsHeight + 6;
-      advanceCursor(qHeight);
+        const qPrefix = `Q${qIndex + 1}. `;
 
-      doc.setFont(fontName, 'normal');
-      doc.setFontSize(9.5);
-      
-      qLines.forEach((line: string) => {
-        doc.text(line, getX(), y);
-        y += 4.5;
-      });
+        doc.setFont(fontName, 'normal');
+        doc.setFontSize(9.5);
+        const qPrefixWidth = doc.getTextWidth(qPrefix);
 
-      if (isMCQ && optionsLinesList.length > 0) {
-        optionsLinesList.forEach((optLines) => {
-          optLines.forEach((line) => {
-            doc.text(line, getX(), y);
-            y += 4.5;
-          });
-        });
+        const hasImage = !!question.imageUrl;
+        const maxBoxWidth = paper.templateType === 'SPLIT' ? 35 : 45;
+        const maxBoxHeight = paper.templateType === 'SPLIT' ? 30 : 35;
+
+        const textAreaWidth = colWidth - qPrefixWidth - (hasImage ? (maxBoxWidth + IMAGE_TEXT_GAP + IMAGE_RIGHT_MARGIN) : 0);
+
+        let imgBase64: string | null = null;
+        let scaledWidth = 0;
+        let scaledHeight = 0;
+
+        if (hasImage) {
+          try {
+            imgBase64 = await fetchImageAsBase64(question.imageUrl!);
+            const imgProps = doc.getImageProperties(imgBase64);
+            const naturalWidth = imgProps.width;
+            const naturalHeight = imgProps.height;
+            const scale = Math.min(maxBoxWidth / naturalWidth, maxBoxHeight / naturalHeight);
+            scaledWidth = naturalWidth * scale;
+            scaledHeight = naturalHeight * scale;
+          } catch (e) {
+            console.warn('Failed to load question image:', e);
+          }
+        }
+
+        const formattedSegments = parseHtmlToFormattedText(question.questionText)
+          .concat(buildSuffixSegments(question));
+
+        const totalHeight = estimateSegmentsHeight(doc, formattedSegments, textAreaWidth, LINE_HEIGHT);
+
+        let optionsData: OptionRenderData[] = [];
+        let totalOptionsHeight = 0;
+        const isMCQ = section.type === 'MCQ' || question.segmentType === 'MCQ';
+
+        if (isMCQ && question.options && question.options.length > 0) {
+          optionsData = buildOptionRenderData(doc, question.options, colWidth / 2 - 5);
+          const leftLines = (optionsData[0]?.lines.length || 0) + (optionsData[1]?.lines.length || 0);
+          const rightLines = (optionsData[2]?.lines.length || 0) + (optionsData[3]?.lines.length || 0);
+          totalOptionsHeight = Math.max(leftLines, rightLines) * LINE_HEIGHT;
+        }
+
+        const textAndImageHeight = Math.max(totalHeight, (hasImage && scaledHeight > 0) ? scaledHeight - 3 : 0);
+        const requiredHeight = textAndImageHeight + totalOptionsHeight + QUESTION_GAP;
+
+        await advanceCursor(requiredHeight);
+
+        const questionStartY = y;
+
+        doc.setFont(fontName, 'normal');
+        doc.setFontSize(9.5);
+        doc.text(qPrefix, getX(), y);
+
+        const { newY: afterQuestionY } = renderFormattedText(
+          doc,
+          formattedSegments,
+          getX() + qPrefixWidth,
+          y,
+          textAreaWidth,
+          LINE_HEIGHT,
+          fontFamily,
+          rgb
+        );
+        y = afterQuestionY;
+
+        // Render image on right side if present
+        if (hasImage && imgBase64 && scaledWidth > 0 && scaledHeight > 0) {
+          try {
+            const imgX = getX() + colWidth - IMAGE_RIGHT_MARGIN - scaledWidth; // Position on right side
+            doc.addImage(imgBase64, 'PNG', imgX, questionStartY - 3, scaledWidth, scaledHeight);
+            y = Math.max(y, questionStartY - 3 + scaledHeight);
+          } catch (e) {
+            console.warn('Failed to render question image:', e);
+          }
+        }
+
+        if (isMCQ && optionsData.length > 0) {
+          const halfColWidth = colWidth / 2;
+          const startY = y;
+
+          const leftY = renderOptionColumn(doc, optionsData.slice(0, 2), getX(), startY, LINE_HEIGHT);
+          const rightY = renderOptionColumn(doc, optionsData.slice(2, 4), getX() + halfColWidth, startY, LINE_HEIGHT);
+
+          y = Math.max(leftY, rightY);
+        }
+
+        y += QUESTION_GAP;
+
+        // Render alternative questions (internal choice)
+        const alternatives = question.alternatives || [];
+        for (const alt of alternatives) {
+          if (!alt.questionText) continue;
+
+          // Render OR separator
+          doc.setFont(fontName, 'bold');
+          doc.setFontSize(9.5);
+          doc.text('OR', getX(), y);
+          y += LINE_HEIGHT;
+
+          const altFormattedSegments = parseHtmlToFormattedText(alt.questionText);
+
+          const altTotalHeight = estimateSegmentsHeight(doc, altFormattedSegments, textAreaWidth, LINE_HEIGHT);
+
+          let altOptionsData: OptionRenderData[] = [];
+          let altTotalOptionsHeight = 0;
+          const altIsMCQ = section.type === 'MCQ' || question.segmentType === 'MCQ';
+
+          if (altIsMCQ && alt.options && alt.options.length > 0) {
+            altOptionsData = buildOptionRenderData(doc, alt.options, colWidth / 2 - 5);
+            const altLeftLines = (altOptionsData[0]?.lines.length || 0) + (altOptionsData[1]?.lines.length || 0);
+            const altRightLines = (altOptionsData[2]?.lines.length || 0) + (altOptionsData[3]?.lines.length || 0);
+            altTotalOptionsHeight = Math.max(altLeftLines, altRightLines) * LINE_HEIGHT;
+          }
+
+          const altHasImage = !!alt.imageUrl;
+          let altImgBase64: string | null = null;
+          let altScaledWidth = 0;
+          let altScaledHeight = 0;
+
+          if (altHasImage) {
+            try {
+              altImgBase64 = await fetchImageAsBase64(alt.imageUrl!);
+              const imgProps = doc.getImageProperties(altImgBase64);
+              const naturalWidth = imgProps.width;
+              const naturalHeight = imgProps.height;
+              const scale = Math.min(maxBoxWidth / naturalWidth, maxBoxHeight / naturalHeight);
+              altScaledWidth = naturalWidth * scale;
+              altScaledHeight = naturalHeight * scale;
+            } catch (e) {
+              console.warn('Failed to load alternative question image:', e);
+            }
+          }
+
+          const altTextAndImageHeight = Math.max(altTotalHeight, (altHasImage && altScaledHeight > 0) ? altScaledHeight - 3 : 0);
+          const altRequiredHeight = altTextAndImageHeight + altTotalOptionsHeight + QUESTION_GAP;
+
+          await advanceCursor(altRequiredHeight);
+
+          const altQuestionStartY = y;
+
+          const { newY: afterAltQuestionY } = renderFormattedText(
+            doc,
+            altFormattedSegments,
+            getX() + qPrefixWidth,
+            y,
+            textAreaWidth,
+            LINE_HEIGHT,
+            fontFamily,
+            rgb
+          );
+          y = afterAltQuestionY;
+
+          if (altHasImage && altImgBase64 && altScaledWidth > 0 && altScaledHeight > 0) {
+            try {
+              const imgX = getX() + colWidth - IMAGE_RIGHT_MARGIN - altScaledWidth;
+              doc.addImage(altImgBase64, 'PNG', imgX, altQuestionStartY - 3, altScaledWidth, altScaledHeight);
+              y = Math.max(y, altQuestionStartY - 3 + altScaledHeight);
+            } catch (e) {
+              console.warn('Failed to render alternative question image:', e);
+            }
+          }
+
+          if (altIsMCQ && altOptionsData.length > 0) {
+            const halfColWidth = colWidth / 2;
+            const startY = y;
+
+            const leftY = renderOptionColumn(doc, altOptionsData.slice(0, 2), getX(), startY, LINE_HEIGHT);
+            const rightY = renderOptionColumn(doc, altOptionsData.slice(2, 4), getX() + halfColWidth, startY, LINE_HEIGHT);
+
+            y = Math.max(leftY, rightY);
+          }
+
+          y += QUESTION_GAP;
+        } 
       }
-
-      y += 2.5; // spacing
     }
-    y += 3;
+    y += SECTION_GAP;
   }
 
-  // Draw vertical split lines across all pages
   const totalPages = doc.getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
-    doc.setPage(i);
-    drawMiddleSplitLine();
+    drawMiddleSplitLineForPage(i);
   }
 
   return doc.output('blob');

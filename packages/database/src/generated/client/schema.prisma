@@ -373,6 +373,7 @@ model ExamPaper {
   styleFontSize     String?         @map("style_font_size") @db.VarChar(50)
   styleColor        String?         @map("style_color") @db.VarChar(50)
   templateType      String?         @default("SINGLE") @map("template_type") @db.VarChar(50)
+  pdfUrl            String?         @map("pdf_url") @db.VarChar(500)
   createdAt         DateTime        @default(now()) @map("created_at")
   updatedAt         DateTime        @updatedAt @map("updated_at")
   school            School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
@@ -396,8 +397,9 @@ model ExamSection {
   examPaperId String         @map("exam_paper_id") @db.VarChar(50)
   label       String         @db.VarChar(191)
   type        QuestionType   @default(CUSTOM)
-  marksEach   Int            @map("marks_each")
+  marksEach   Decimal        @map("marks_each") @db.Decimal(5, 2)
   order       Int            @default(0)
+  segments    Json?          @db.Json
   examPaper   ExamPaper      @relation(fields: [examPaperId], references: [id], onDelete: Cascade)
   questions   ExamQuestion[]
 
@@ -411,8 +413,10 @@ model ExamQuestion {
   sectionId    String      @map("section_id") @db.VarChar(50)
   questionText String      @map("question_text") @db.Text
   options      Json?       @db.Json
-  imageUrl     String?     @map("image_url") @db.VarChar(500)
+  imageUrl     String?     @map("image_url") @db.Text
   subject      String?     @map("subject") @db.VarChar(191)
+  hint         String?     @map("hint") @db.VarChar(500)
+  segmentType  String?     @map("segment_type") @db.VarChar(50)
   order        Int         @default(0)
   section      ExamSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 
@@ -596,5 +600,7 @@ enum QuestionType {
   FILL_IN_THE_BLANK
   SHORT_ANSWER
   DESCRIPTIVE
+  TRUE_FALSE
+  MATCHING
   CUSTOM
 }

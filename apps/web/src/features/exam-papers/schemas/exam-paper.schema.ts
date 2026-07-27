@@ -12,7 +12,7 @@ export const examQuestionSchema = z.object({
 export const examSectionSchema = z.object({
   id: z.string().optional(),
   label: z.string().min(1),
-  type: z.enum(['MCQ', 'FILL_IN_THE_BLANK', 'SHORT_ANSWER', 'DESCRIPTIVE', 'CUSTOM']),
+  type: z.enum(['MCQ', 'FILL_IN_THE_BLANK', 'SHORT_ANSWER', 'DESCRIPTIVE', 'TRUE_FALSE', 'MATCHING', 'CUSTOM']),
   marksEach: z.number().int().min(0).default(1),
   order: z.number().int().optional(),
   questions: z.array(examQuestionSchema).default([]),
@@ -24,7 +24,8 @@ export const examPaperSetupSchema = z.object({
   examName: z.string().min(1, 'Exam name is required'),
   examDate: z.string().min(1),
   totalMarks: z.coerce.number().int().min(1).optional(),
-  duration: z.coerce.number().int().min(1).optional(),
+  durationHours: z.coerce.number().int().min(0).default(0),
+  durationMinutes: z.coerce.number().int().min(0).max(59).default(0),
   templateType: z.string().default('SINGLE'),
 });
 

@@ -13,11 +13,34 @@ export const examPaperRepository = {
         ...(academicSessionId && { academicSessionId }),
         ...(teacherId && { teacherId }),
       }),
-      include: {
+      select: {
+        id: true,
+        examName: true,
+        examDate: true,
+        totalMarks: true,
+        duration: true,
+        instructions: true,
+        status: true,
+        createdAt: true,
+        styleFontFamily: true,
+        styleFontSize: true,
+        styleColor: true,
+        templateType: true,
+        pdfUrl: true,
+        school: { 
+          select: { 
+            id: true, 
+            name: true,
+            examPaperTemplates: {
+              select: { id: true, logoUrl: true },
+              take: 1
+            }
+          } 
+        },
         class: { select: { id: true, name: true, grade: true, section: true } },
         subject: { select: { id: true, name: true } },
         teacher: { select: { id: true, user: { select: { id: true, name: true } } } },
-        sections: { include: { questions: true }, orderBy: { order: 'asc' } },
+        sections: { include: { questions: { orderBy: { order: 'asc' } } }, orderBy: { order: 'asc' } },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -26,11 +49,33 @@ export const examPaperRepository = {
   async findById(id: string, schoolId: string) {
     return prisma.examPaper.findFirst({
       where: withTenant(schoolId, { id }),
-      include: {
+      select: {
+        id: true,
+        examName: true,
+        examDate: true,
+        totalMarks: true,
+        duration: true,
+        instructions: true,
+        status: true,
+        styleFontFamily: true,
+        styleFontSize: true,
+        styleColor: true,
+        templateType: true,
+        pdfUrl: true,
+        school: { 
+          select: { 
+            id: true, 
+            name: true,
+            examPaperTemplates: {
+              select: { id: true, logoUrl: true },
+              take: 1
+            }
+          } 
+        },
         class: { select: { id: true, name: true, grade: true, section: true } },
         subject: { select: { id: true, name: true } },
         teacher: { select: { id: true, user: { select: { id: true, name: true } } } },
-        sections: { include: { questions: true }, orderBy: { order: 'asc' } },
+        sections: { include: { questions: { orderBy: { order: 'asc' } } }, orderBy: { order: 'asc' } },
       },
     });
   },

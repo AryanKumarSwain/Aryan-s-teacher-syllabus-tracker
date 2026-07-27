@@ -6,15 +6,27 @@ export const examQuestionSchema = z.object({
   options: z.array(z.object({ text: z.string(), isCorrect: z.boolean().optional() })).optional(),
   imageUrl: z.string().optional(),
   subject: z.string().optional(),
+  hint: z.string().optional(),
+  segmentType: z.string().optional(),
   order: z.number().int().nonnegative().optional(),
 });
 
 export const examSectionSchema = z.object({
   id: z.string().optional(),
   label: z.string().min(1),
-  type: z.enum(['MCQ', 'FILL_IN_THE_BLANK', 'SHORT_ANSWER', 'DESCRIPTIVE', 'CUSTOM']),
-  marksEach: z.number().int().min(0).optional(),
+  type: z.enum(['MCQ', 'FILL_IN_THE_BLANK', 'SHORT_ANSWER', 'DESCRIPTIVE', 'TRUE_FALSE', 'MATCHING', 'CUSTOM']),
+  marksEach: z.number().min(0).optional(),
   order: z.number().int().nonnegative().optional(),
+  segments: z.array(z.object({
+    type: z.string(),
+    label: z.string(),
+    questionCount: z.number().int().nonnegative(),
+    marksEach: z.number().nonnegative(),
+    matchingPairs: z.array(z.object({
+      left: z.string(),
+      right: z.string(),
+    })).optional(),
+  })).optional(),
   questions: z.array(examQuestionSchema).default([]),
 });
 

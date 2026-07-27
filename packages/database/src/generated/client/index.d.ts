@@ -209,6 +209,8 @@ export const QuestionType: {
   FILL_IN_THE_BLANK: 'FILL_IN_THE_BLANK',
   SHORT_ANSWER: 'SHORT_ANSWER',
   DESCRIPTIVE: 'DESCRIPTIVE',
+  TRUE_FALSE: 'TRUE_FALSE',
+  MATCHING: 'MATCHING',
   CUSTOM: 'CUSTOM'
 };
 
@@ -18165,6 +18167,7 @@ export namespace Prisma {
     styleFontSize: string | null
     styleColor: string | null
     templateType: string | null
+    pdfUrl: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -18186,6 +18189,7 @@ export namespace Prisma {
     styleFontSize: string | null
     styleColor: string | null
     templateType: string | null
+    pdfUrl: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -18207,6 +18211,7 @@ export namespace Prisma {
     styleFontSize: number
     styleColor: number
     templateType: number
+    pdfUrl: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -18240,6 +18245,7 @@ export namespace Prisma {
     styleFontSize?: true
     styleColor?: true
     templateType?: true
+    pdfUrl?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -18261,6 +18267,7 @@ export namespace Prisma {
     styleFontSize?: true
     styleColor?: true
     templateType?: true
+    pdfUrl?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -18282,6 +18289,7 @@ export namespace Prisma {
     styleFontSize?: true
     styleColor?: true
     templateType?: true
+    pdfUrl?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -18390,6 +18398,7 @@ export namespace Prisma {
     styleFontSize: string | null
     styleColor: string | null
     templateType: string | null
+    pdfUrl: string | null
     createdAt: Date
     updatedAt: Date
     _count: ExamPaperCountAggregateOutputType | null
@@ -18430,6 +18439,7 @@ export namespace Prisma {
     styleFontSize?: boolean
     styleColor?: boolean
     templateType?: boolean
+    pdfUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     school?: boolean | SchoolDefaultArgs<ExtArgs>
@@ -18459,6 +18469,7 @@ export namespace Prisma {
     styleFontSize?: boolean
     styleColor?: boolean
     templateType?: boolean
+    pdfUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
@@ -18500,6 +18511,7 @@ export namespace Prisma {
       styleFontSize: string | null
       styleColor: string | null
       templateType: string | null
+      pdfUrl: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["examPaper"]>
@@ -18893,6 +18905,7 @@ export namespace Prisma {
     readonly styleFontSize: FieldRef<"ExamPaper", 'String'>
     readonly styleColor: FieldRef<"ExamPaper", 'String'>
     readonly templateType: FieldRef<"ExamPaper", 'String'>
+    readonly pdfUrl: FieldRef<"ExamPaper", 'String'>
     readonly createdAt: FieldRef<"ExamPaper", 'DateTime'>
     readonly updatedAt: FieldRef<"ExamPaper", 'DateTime'>
   }
@@ -19241,12 +19254,12 @@ export namespace Prisma {
   }
 
   export type ExamSectionAvgAggregateOutputType = {
-    marksEach: number | null
+    marksEach: Decimal | null
     order: number | null
   }
 
   export type ExamSectionSumAggregateOutputType = {
-    marksEach: number | null
+    marksEach: Decimal | null
     order: number | null
   }
 
@@ -19255,7 +19268,7 @@ export namespace Prisma {
     examPaperId: string | null
     label: string | null
     type: $Enums.QuestionType | null
-    marksEach: number | null
+    marksEach: Decimal | null
     order: number | null
   }
 
@@ -19264,7 +19277,7 @@ export namespace Prisma {
     examPaperId: string | null
     label: string | null
     type: $Enums.QuestionType | null
-    marksEach: number | null
+    marksEach: Decimal | null
     order: number | null
   }
 
@@ -19275,6 +19288,7 @@ export namespace Prisma {
     type: number
     marksEach: number
     order: number
+    segments: number
     _all: number
   }
 
@@ -19314,6 +19328,7 @@ export namespace Prisma {
     type?: true
     marksEach?: true
     order?: true
+    segments?: true
     _all?: true
   }
 
@@ -19408,8 +19423,9 @@ export namespace Prisma {
     examPaperId: string
     label: string
     type: $Enums.QuestionType
-    marksEach: number
+    marksEach: Decimal
     order: number
+    segments: JsonValue | null
     _count: ExamSectionCountAggregateOutputType | null
     _avg: ExamSectionAvgAggregateOutputType | null
     _sum: ExamSectionSumAggregateOutputType | null
@@ -19438,6 +19454,7 @@ export namespace Prisma {
     type?: boolean
     marksEach?: boolean
     order?: boolean
+    segments?: boolean
     examPaper?: boolean | ExamPaperDefaultArgs<ExtArgs>
     questions?: boolean | ExamSection$questionsArgs<ExtArgs>
     _count?: boolean | ExamSectionCountOutputTypeDefaultArgs<ExtArgs>
@@ -19451,6 +19468,7 @@ export namespace Prisma {
     type?: boolean
     marksEach?: boolean
     order?: boolean
+    segments?: boolean
   }
 
   export type ExamSectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -19470,8 +19488,9 @@ export namespace Prisma {
       examPaperId: string
       label: string
       type: $Enums.QuestionType
-      marksEach: number
+      marksEach: Prisma.Decimal
       order: number
+      segments: Prisma.JsonValue | null
     }, ExtArgs["result"]["examSection"]>
     composites: {}
   }
@@ -19847,8 +19866,9 @@ export namespace Prisma {
     readonly examPaperId: FieldRef<"ExamSection", 'String'>
     readonly label: FieldRef<"ExamSection", 'String'>
     readonly type: FieldRef<"ExamSection", 'QuestionType'>
-    readonly marksEach: FieldRef<"ExamSection", 'Int'>
+    readonly marksEach: FieldRef<"ExamSection", 'Decimal'>
     readonly order: FieldRef<"ExamSection", 'Int'>
+    readonly segments: FieldRef<"ExamSection", 'Json'>
   }
     
 
@@ -20208,6 +20228,8 @@ export namespace Prisma {
     questionText: string | null
     imageUrl: string | null
     subject: string | null
+    hint: string | null
+    segmentType: string | null
     order: number | null
   }
 
@@ -20217,6 +20239,8 @@ export namespace Prisma {
     questionText: string | null
     imageUrl: string | null
     subject: string | null
+    hint: string | null
+    segmentType: string | null
     order: number | null
   }
 
@@ -20227,6 +20251,8 @@ export namespace Prisma {
     options: number
     imageUrl: number
     subject: number
+    hint: number
+    segmentType: number
     order: number
     _all: number
   }
@@ -20246,6 +20272,8 @@ export namespace Prisma {
     questionText?: true
     imageUrl?: true
     subject?: true
+    hint?: true
+    segmentType?: true
     order?: true
   }
 
@@ -20255,6 +20283,8 @@ export namespace Prisma {
     questionText?: true
     imageUrl?: true
     subject?: true
+    hint?: true
+    segmentType?: true
     order?: true
   }
 
@@ -20265,6 +20295,8 @@ export namespace Prisma {
     options?: true
     imageUrl?: true
     subject?: true
+    hint?: true
+    segmentType?: true
     order?: true
     _all?: true
   }
@@ -20362,6 +20394,8 @@ export namespace Prisma {
     options: JsonValue | null
     imageUrl: string | null
     subject: string | null
+    hint: string | null
+    segmentType: string | null
     order: number
     _count: ExamQuestionCountAggregateOutputType | null
     _avg: ExamQuestionAvgAggregateOutputType | null
@@ -20391,6 +20425,8 @@ export namespace Prisma {
     options?: boolean
     imageUrl?: boolean
     subject?: boolean
+    hint?: boolean
+    segmentType?: boolean
     order?: boolean
     section?: boolean | ExamSectionDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["examQuestion"]>
@@ -20403,6 +20439,8 @@ export namespace Prisma {
     options?: boolean
     imageUrl?: boolean
     subject?: boolean
+    hint?: boolean
+    segmentType?: boolean
     order?: boolean
   }
 
@@ -20422,6 +20460,8 @@ export namespace Prisma {
       options: Prisma.JsonValue | null
       imageUrl: string | null
       subject: string | null
+      hint: string | null
+      segmentType: string | null
       order: number
     }, ExtArgs["result"]["examQuestion"]>
     composites: {}
@@ -20799,6 +20839,8 @@ export namespace Prisma {
     readonly options: FieldRef<"ExamQuestion", 'Json'>
     readonly imageUrl: FieldRef<"ExamQuestion", 'String'>
     readonly subject: FieldRef<"ExamQuestion", 'String'>
+    readonly hint: FieldRef<"ExamQuestion", 'String'>
+    readonly segmentType: FieldRef<"ExamQuestion", 'String'>
     readonly order: FieldRef<"ExamQuestion", 'Int'>
   }
     
@@ -27025,6 +27067,7 @@ export namespace Prisma {
     styleFontSize: 'styleFontSize',
     styleColor: 'styleColor',
     templateType: 'templateType',
+    pdfUrl: 'pdfUrl',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -27038,7 +27081,8 @@ export namespace Prisma {
     label: 'label',
     type: 'type',
     marksEach: 'marksEach',
-    order: 'order'
+    order: 'order',
+    segments: 'segments'
   };
 
   export type ExamSectionScalarFieldEnum = (typeof ExamSectionScalarFieldEnum)[keyof typeof ExamSectionScalarFieldEnum]
@@ -27051,6 +27095,8 @@ export namespace Prisma {
     options: 'options',
     imageUrl: 'imageUrl',
     subject: 'subject',
+    hint: 'hint',
+    segmentType: 'segmentType',
     order: 'order'
   };
 
@@ -28708,6 +28754,7 @@ export namespace Prisma {
     styleFontSize?: StringNullableFilter<"ExamPaper"> | string | null
     styleColor?: StringNullableFilter<"ExamPaper"> | string | null
     templateType?: StringNullableFilter<"ExamPaper"> | string | null
+    pdfUrl?: StringNullableFilter<"ExamPaper"> | string | null
     createdAt?: DateTimeFilter<"ExamPaper"> | Date | string
     updatedAt?: DateTimeFilter<"ExamPaper"> | Date | string
     school?: XOR<SchoolRelationFilter, SchoolWhereInput>
@@ -28735,6 +28782,7 @@ export namespace Prisma {
     styleFontSize?: SortOrderInput | SortOrder
     styleColor?: SortOrderInput | SortOrder
     templateType?: SortOrderInput | SortOrder
+    pdfUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     school?: SchoolOrderByWithRelationInput
@@ -28765,6 +28813,7 @@ export namespace Prisma {
     styleFontSize?: StringNullableFilter<"ExamPaper"> | string | null
     styleColor?: StringNullableFilter<"ExamPaper"> | string | null
     templateType?: StringNullableFilter<"ExamPaper"> | string | null
+    pdfUrl?: StringNullableFilter<"ExamPaper"> | string | null
     createdAt?: DateTimeFilter<"ExamPaper"> | Date | string
     updatedAt?: DateTimeFilter<"ExamPaper"> | Date | string
     school?: XOR<SchoolRelationFilter, SchoolWhereInput>
@@ -28792,6 +28841,7 @@ export namespace Prisma {
     styleFontSize?: SortOrderInput | SortOrder
     styleColor?: SortOrderInput | SortOrder
     templateType?: SortOrderInput | SortOrder
+    pdfUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ExamPaperCountOrderByAggregateInput
@@ -28821,6 +28871,7 @@ export namespace Prisma {
     styleFontSize?: StringNullableWithAggregatesFilter<"ExamPaper"> | string | null
     styleColor?: StringNullableWithAggregatesFilter<"ExamPaper"> | string | null
     templateType?: StringNullableWithAggregatesFilter<"ExamPaper"> | string | null
+    pdfUrl?: StringNullableWithAggregatesFilter<"ExamPaper"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"ExamPaper"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"ExamPaper"> | Date | string
   }
@@ -28833,8 +28884,9 @@ export namespace Prisma {
     examPaperId?: StringFilter<"ExamSection"> | string
     label?: StringFilter<"ExamSection"> | string
     type?: EnumQuestionTypeFilter<"ExamSection"> | $Enums.QuestionType
-    marksEach?: IntFilter<"ExamSection"> | number
+    marksEach?: DecimalFilter<"ExamSection"> | Decimal | DecimalJsLike | number | string
     order?: IntFilter<"ExamSection"> | number
+    segments?: JsonNullableFilter<"ExamSection">
     examPaper?: XOR<ExamPaperRelationFilter, ExamPaperWhereInput>
     questions?: ExamQuestionListRelationFilter
   }
@@ -28846,6 +28898,7 @@ export namespace Prisma {
     type?: SortOrder
     marksEach?: SortOrder
     order?: SortOrder
+    segments?: SortOrderInput | SortOrder
     examPaper?: ExamPaperOrderByWithRelationInput
     questions?: ExamQuestionOrderByRelationAggregateInput
   }
@@ -28858,8 +28911,9 @@ export namespace Prisma {
     examPaperId?: StringFilter<"ExamSection"> | string
     label?: StringFilter<"ExamSection"> | string
     type?: EnumQuestionTypeFilter<"ExamSection"> | $Enums.QuestionType
-    marksEach?: IntFilter<"ExamSection"> | number
+    marksEach?: DecimalFilter<"ExamSection"> | Decimal | DecimalJsLike | number | string
     order?: IntFilter<"ExamSection"> | number
+    segments?: JsonNullableFilter<"ExamSection">
     examPaper?: XOR<ExamPaperRelationFilter, ExamPaperWhereInput>
     questions?: ExamQuestionListRelationFilter
   }, "id">
@@ -28871,6 +28925,7 @@ export namespace Prisma {
     type?: SortOrder
     marksEach?: SortOrder
     order?: SortOrder
+    segments?: SortOrderInput | SortOrder
     _count?: ExamSectionCountOrderByAggregateInput
     _avg?: ExamSectionAvgOrderByAggregateInput
     _max?: ExamSectionMaxOrderByAggregateInput
@@ -28886,8 +28941,9 @@ export namespace Prisma {
     examPaperId?: StringWithAggregatesFilter<"ExamSection"> | string
     label?: StringWithAggregatesFilter<"ExamSection"> | string
     type?: EnumQuestionTypeWithAggregatesFilter<"ExamSection"> | $Enums.QuestionType
-    marksEach?: IntWithAggregatesFilter<"ExamSection"> | number
+    marksEach?: DecimalWithAggregatesFilter<"ExamSection"> | Decimal | DecimalJsLike | number | string
     order?: IntWithAggregatesFilter<"ExamSection"> | number
+    segments?: JsonNullableWithAggregatesFilter<"ExamSection">
   }
 
   export type ExamQuestionWhereInput = {
@@ -28900,6 +28956,8 @@ export namespace Prisma {
     options?: JsonNullableFilter<"ExamQuestion">
     imageUrl?: StringNullableFilter<"ExamQuestion"> | string | null
     subject?: StringNullableFilter<"ExamQuestion"> | string | null
+    hint?: StringNullableFilter<"ExamQuestion"> | string | null
+    segmentType?: StringNullableFilter<"ExamQuestion"> | string | null
     order?: IntFilter<"ExamQuestion"> | number
     section?: XOR<ExamSectionRelationFilter, ExamSectionWhereInput>
   }
@@ -28911,6 +28969,8 @@ export namespace Prisma {
     options?: SortOrderInput | SortOrder
     imageUrl?: SortOrderInput | SortOrder
     subject?: SortOrderInput | SortOrder
+    hint?: SortOrderInput | SortOrder
+    segmentType?: SortOrderInput | SortOrder
     order?: SortOrder
     section?: ExamSectionOrderByWithRelationInput
   }
@@ -28925,6 +28985,8 @@ export namespace Prisma {
     options?: JsonNullableFilter<"ExamQuestion">
     imageUrl?: StringNullableFilter<"ExamQuestion"> | string | null
     subject?: StringNullableFilter<"ExamQuestion"> | string | null
+    hint?: StringNullableFilter<"ExamQuestion"> | string | null
+    segmentType?: StringNullableFilter<"ExamQuestion"> | string | null
     order?: IntFilter<"ExamQuestion"> | number
     section?: XOR<ExamSectionRelationFilter, ExamSectionWhereInput>
   }, "id">
@@ -28936,6 +28998,8 @@ export namespace Prisma {
     options?: SortOrderInput | SortOrder
     imageUrl?: SortOrderInput | SortOrder
     subject?: SortOrderInput | SortOrder
+    hint?: SortOrderInput | SortOrder
+    segmentType?: SortOrderInput | SortOrder
     order?: SortOrder
     _count?: ExamQuestionCountOrderByAggregateInput
     _avg?: ExamQuestionAvgOrderByAggregateInput
@@ -28954,6 +29018,8 @@ export namespace Prisma {
     options?: JsonNullableWithAggregatesFilter<"ExamQuestion">
     imageUrl?: StringNullableWithAggregatesFilter<"ExamQuestion"> | string | null
     subject?: StringNullableWithAggregatesFilter<"ExamQuestion"> | string | null
+    hint?: StringNullableWithAggregatesFilter<"ExamQuestion"> | string | null
+    segmentType?: StringNullableWithAggregatesFilter<"ExamQuestion"> | string | null
     order?: IntWithAggregatesFilter<"ExamQuestion"> | number
   }
 
@@ -30917,6 +30983,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     school: SchoolCreateNestedOneWithoutExamPapersInput
@@ -30944,6 +31011,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
@@ -30961,6 +31029,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
@@ -30988,6 +31057,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
@@ -31010,6 +31080,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -31026,6 +31097,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -31047,6 +31119,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -31055,8 +31128,9 @@ export namespace Prisma {
     id?: string
     label: string
     type?: $Enums.QuestionType
-    marksEach: number
+    marksEach: Decimal | DecimalJsLike | number | string
     order?: number
+    segments?: NullableJsonNullValueInput | InputJsonValue
     examPaper: ExamPaperCreateNestedOneWithoutSectionsInput
     questions?: ExamQuestionCreateNestedManyWithoutSectionInput
   }
@@ -31066,8 +31140,9 @@ export namespace Prisma {
     examPaperId: string
     label: string
     type?: $Enums.QuestionType
-    marksEach: number
+    marksEach: Decimal | DecimalJsLike | number | string
     order?: number
+    segments?: NullableJsonNullValueInput | InputJsonValue
     questions?: ExamQuestionUncheckedCreateNestedManyWithoutSectionInput
   }
 
@@ -31075,8 +31150,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
-    marksEach?: IntFieldUpdateOperationsInput | number
+    marksEach?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     order?: IntFieldUpdateOperationsInput | number
+    segments?: NullableJsonNullValueInput | InputJsonValue
     examPaper?: ExamPaperUpdateOneRequiredWithoutSectionsNestedInput
     questions?: ExamQuestionUpdateManyWithoutSectionNestedInput
   }
@@ -31086,8 +31162,9 @@ export namespace Prisma {
     examPaperId?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
-    marksEach?: IntFieldUpdateOperationsInput | number
+    marksEach?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     order?: IntFieldUpdateOperationsInput | number
+    segments?: NullableJsonNullValueInput | InputJsonValue
     questions?: ExamQuestionUncheckedUpdateManyWithoutSectionNestedInput
   }
 
@@ -31096,16 +31173,18 @@ export namespace Prisma {
     examPaperId: string
     label: string
     type?: $Enums.QuestionType
-    marksEach: number
+    marksEach: Decimal | DecimalJsLike | number | string
     order?: number
+    segments?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ExamSectionUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
-    marksEach?: IntFieldUpdateOperationsInput | number
+    marksEach?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     order?: IntFieldUpdateOperationsInput | number
+    segments?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ExamSectionUncheckedUpdateManyInput = {
@@ -31113,8 +31192,9 @@ export namespace Prisma {
     examPaperId?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
-    marksEach?: IntFieldUpdateOperationsInput | number
+    marksEach?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     order?: IntFieldUpdateOperationsInput | number
+    segments?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ExamQuestionCreateInput = {
@@ -31123,6 +31203,8 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: string | null
     subject?: string | null
+    hint?: string | null
+    segmentType?: string | null
     order?: number
     section: ExamSectionCreateNestedOneWithoutQuestionsInput
   }
@@ -31134,6 +31216,8 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: string | null
     subject?: string | null
+    hint?: string | null
+    segmentType?: string | null
     order?: number
   }
 
@@ -31143,6 +31227,8 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
+    hint?: NullableStringFieldUpdateOperationsInput | string | null
+    segmentType?: NullableStringFieldUpdateOperationsInput | string | null
     order?: IntFieldUpdateOperationsInput | number
     section?: ExamSectionUpdateOneRequiredWithoutQuestionsNestedInput
   }
@@ -31154,6 +31240,8 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
+    hint?: NullableStringFieldUpdateOperationsInput | string | null
+    segmentType?: NullableStringFieldUpdateOperationsInput | string | null
     order?: IntFieldUpdateOperationsInput | number
   }
 
@@ -31164,6 +31252,8 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: string | null
     subject?: string | null
+    hint?: string | null
+    segmentType?: string | null
     order?: number
   }
 
@@ -31173,6 +31263,8 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
+    hint?: NullableStringFieldUpdateOperationsInput | string | null
+    segmentType?: NullableStringFieldUpdateOperationsInput | string | null
     order?: IntFieldUpdateOperationsInput | number
   }
 
@@ -31183,6 +31275,8 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
+    hint?: NullableStringFieldUpdateOperationsInput | string | null
+    segmentType?: NullableStringFieldUpdateOperationsInput | string | null
     order?: IntFieldUpdateOperationsInput | number
   }
 
@@ -33022,6 +33116,7 @@ export namespace Prisma {
     styleFontSize?: SortOrder
     styleColor?: SortOrder
     templateType?: SortOrder
+    pdfUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -33048,6 +33143,7 @@ export namespace Prisma {
     styleFontSize?: SortOrder
     styleColor?: SortOrder
     templateType?: SortOrder
+    pdfUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -33069,6 +33165,7 @@ export namespace Prisma {
     styleFontSize?: SortOrder
     styleColor?: SortOrder
     templateType?: SortOrder
+    pdfUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -33094,6 +33191,28 @@ export namespace Prisma {
     notIn?: $Enums.QuestionType[]
     not?: NestedEnumQuestionTypeFilter<$PrismaModel> | $Enums.QuestionType
   }
+  export type JsonNullableFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type ExamPaperRelationFilter = {
     is?: ExamPaperWhereInput
@@ -33117,6 +33236,7 @@ export namespace Prisma {
     type?: SortOrder
     marksEach?: SortOrder
     order?: SortOrder
+    segments?: SortOrder
   }
 
   export type ExamSectionAvgOrderByAggregateInput = {
@@ -33156,69 +33276,6 @@ export namespace Prisma {
     _min?: NestedEnumQuestionTypeFilter<$PrismaModel>
     _max?: NestedEnumQuestionTypeFilter<$PrismaModel>
   }
-  export type JsonNullableFilter<$PrismaModel = never> = 
-    | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue
-    lte?: InputJsonValue
-    gt?: InputJsonValue
-    gte?: InputJsonValue
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type ExamSectionRelationFilter = {
-    is?: ExamSectionWhereInput
-    isNot?: ExamSectionWhereInput
-  }
-
-  export type ExamQuestionCountOrderByAggregateInput = {
-    id?: SortOrder
-    sectionId?: SortOrder
-    questionText?: SortOrder
-    options?: SortOrder
-    imageUrl?: SortOrder
-    subject?: SortOrder
-    order?: SortOrder
-  }
-
-  export type ExamQuestionAvgOrderByAggregateInput = {
-    order?: SortOrder
-  }
-
-  export type ExamQuestionMaxOrderByAggregateInput = {
-    id?: SortOrder
-    sectionId?: SortOrder
-    questionText?: SortOrder
-    imageUrl?: SortOrder
-    subject?: SortOrder
-    order?: SortOrder
-  }
-
-  export type ExamQuestionMinOrderByAggregateInput = {
-    id?: SortOrder
-    sectionId?: SortOrder
-    questionText?: SortOrder
-    imageUrl?: SortOrder
-    subject?: SortOrder
-    order?: SortOrder
-  }
-
-  export type ExamQuestionSumOrderByAggregateInput = {
-    order?: SortOrder
-  }
   export type JsonNullableWithAggregatesFilter<$PrismaModel = never> = 
     | PatchUndefined<
         Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
@@ -33243,6 +33300,53 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedJsonNullableFilter<$PrismaModel>
     _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type ExamSectionRelationFilter = {
+    is?: ExamSectionWhereInput
+    isNot?: ExamSectionWhereInput
+  }
+
+  export type ExamQuestionCountOrderByAggregateInput = {
+    id?: SortOrder
+    sectionId?: SortOrder
+    questionText?: SortOrder
+    options?: SortOrder
+    imageUrl?: SortOrder
+    subject?: SortOrder
+    hint?: SortOrder
+    segmentType?: SortOrder
+    order?: SortOrder
+  }
+
+  export type ExamQuestionAvgOrderByAggregateInput = {
+    order?: SortOrder
+  }
+
+  export type ExamQuestionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    sectionId?: SortOrder
+    questionText?: SortOrder
+    imageUrl?: SortOrder
+    subject?: SortOrder
+    hint?: SortOrder
+    segmentType?: SortOrder
+    order?: SortOrder
+  }
+
+  export type ExamQuestionMinOrderByAggregateInput = {
+    id?: SortOrder
+    sectionId?: SortOrder
+    questionText?: SortOrder
+    imageUrl?: SortOrder
+    subject?: SortOrder
+    hint?: SortOrder
+    segmentType?: SortOrder
+    order?: SortOrder
+  }
+
+  export type ExamQuestionSumOrderByAggregateInput = {
+    order?: SortOrder
   }
 
   export type ExamPaperTemplateCountOrderByAggregateInput = {
@@ -38005,6 +38109,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     academicSession: AcademicSessionCreateNestedOneWithoutExamPapersInput
@@ -38030,6 +38135,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
@@ -38454,6 +38560,7 @@ export namespace Prisma {
     styleFontSize?: StringNullableFilter<"ExamPaper"> | string | null
     styleColor?: StringNullableFilter<"ExamPaper"> | string | null
     templateType?: StringNullableFilter<"ExamPaper"> | string | null
+    pdfUrl?: StringNullableFilter<"ExamPaper"> | string | null
     createdAt?: DateTimeFilter<"ExamPaper"> | Date | string
     updatedAt?: DateTimeFilter<"ExamPaper"> | Date | string
   }
@@ -38920,6 +39027,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     school: SchoolCreateNestedOneWithoutExamPapersInput
@@ -38945,6 +39053,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
@@ -39723,6 +39832,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     school: SchoolCreateNestedOneWithoutExamPapersInput
@@ -39748,6 +39858,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
@@ -40234,6 +40345,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     school: SchoolCreateNestedOneWithoutExamPapersInput
@@ -40259,6 +40371,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
@@ -40685,6 +40798,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     school: SchoolCreateNestedOneWithoutExamPapersInput
@@ -40710,6 +40824,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
@@ -43047,8 +43162,9 @@ export namespace Prisma {
     id?: string
     label: string
     type?: $Enums.QuestionType
-    marksEach: number
+    marksEach: Decimal | DecimalJsLike | number | string
     order?: number
+    segments?: NullableJsonNullValueInput | InputJsonValue
     questions?: ExamQuestionCreateNestedManyWithoutSectionInput
   }
 
@@ -43056,8 +43172,9 @@ export namespace Prisma {
     id?: string
     label: string
     type?: $Enums.QuestionType
-    marksEach: number
+    marksEach: Decimal | DecimalJsLike | number | string
     order?: number
+    segments?: NullableJsonNullValueInput | InputJsonValue
     questions?: ExamQuestionUncheckedCreateNestedManyWithoutSectionInput
   }
 
@@ -43340,8 +43457,9 @@ export namespace Prisma {
     examPaperId?: StringFilter<"ExamSection"> | string
     label?: StringFilter<"ExamSection"> | string
     type?: EnumQuestionTypeFilter<"ExamSection"> | $Enums.QuestionType
-    marksEach?: IntFilter<"ExamSection"> | number
+    marksEach?: DecimalFilter<"ExamSection"> | Decimal | DecimalJsLike | number | string
     order?: IntFilter<"ExamSection"> | number
+    segments?: JsonNullableFilter<"ExamSection">
   }
 
   export type ExamPaperCreateWithoutSectionsInput = {
@@ -43356,6 +43474,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     school: SchoolCreateNestedOneWithoutExamPapersInput
@@ -43382,6 +43501,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -43397,6 +43517,8 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: string | null
     subject?: string | null
+    hint?: string | null
+    segmentType?: string | null
     order?: number
   }
 
@@ -43406,6 +43528,8 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: string | null
     subject?: string | null
+    hint?: string | null
+    segmentType?: string | null
     order?: number
   }
 
@@ -43442,6 +43566,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
@@ -43468,6 +43593,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -43498,6 +43624,8 @@ export namespace Prisma {
     options?: JsonNullableFilter<"ExamQuestion">
     imageUrl?: StringNullableFilter<"ExamQuestion"> | string | null
     subject?: StringNullableFilter<"ExamQuestion"> | string | null
+    hint?: StringNullableFilter<"ExamQuestion"> | string | null
+    segmentType?: StringNullableFilter<"ExamQuestion"> | string | null
     order?: IntFilter<"ExamQuestion"> | number
   }
 
@@ -43505,8 +43633,9 @@ export namespace Prisma {
     id?: string
     label: string
     type?: $Enums.QuestionType
-    marksEach: number
+    marksEach: Decimal | DecimalJsLike | number | string
     order?: number
+    segments?: NullableJsonNullValueInput | InputJsonValue
     examPaper: ExamPaperCreateNestedOneWithoutSectionsInput
   }
 
@@ -43515,8 +43644,9 @@ export namespace Prisma {
     examPaperId: string
     label: string
     type?: $Enums.QuestionType
-    marksEach: number
+    marksEach: Decimal | DecimalJsLike | number | string
     order?: number
+    segments?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ExamSectionCreateOrConnectWithoutQuestionsInput = {
@@ -43539,8 +43669,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
-    marksEach?: IntFieldUpdateOperationsInput | number
+    marksEach?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     order?: IntFieldUpdateOperationsInput | number
+    segments?: NullableJsonNullValueInput | InputJsonValue
     examPaper?: ExamPaperUpdateOneRequiredWithoutSectionsNestedInput
   }
 
@@ -43549,8 +43680,9 @@ export namespace Prisma {
     examPaperId?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
-    marksEach?: IntFieldUpdateOperationsInput | number
+    marksEach?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     order?: IntFieldUpdateOperationsInput | number
+    segments?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type SchoolCreateWithoutExamPaperTemplatesInput = {
@@ -45182,6 +45314,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -45724,6 +45857,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     academicSession?: AcademicSessionUpdateOneRequiredWithoutExamPapersNestedInput
@@ -45749,6 +45883,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
@@ -45770,6 +45905,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -45937,6 +46073,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -46343,6 +46480,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
@@ -46368,6 +46506,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
@@ -46389,6 +46528,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -46486,6 +46626,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -46613,6 +46754,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
@@ -46638,6 +46780,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
@@ -46659,6 +46802,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -46719,6 +46863,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -46865,6 +47010,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
@@ -46890,6 +47036,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
@@ -46911,6 +47058,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -46957,6 +47105,7 @@ export namespace Prisma {
     styleFontSize?: string | null
     styleColor?: string | null
     templateType?: string | null
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -47055,6 +47204,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
@@ -47080,6 +47230,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
@@ -47101,6 +47252,7 @@ export namespace Prisma {
     styleFontSize?: NullableStringFieldUpdateOperationsInput | string | null
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -47275,16 +47427,18 @@ export namespace Prisma {
     id?: string
     label: string
     type?: $Enums.QuestionType
-    marksEach: number
+    marksEach: Decimal | DecimalJsLike | number | string
     order?: number
+    segments?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ExamSectionUpdateWithoutExamPaperInput = {
     id?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
-    marksEach?: IntFieldUpdateOperationsInput | number
+    marksEach?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     order?: IntFieldUpdateOperationsInput | number
+    segments?: NullableJsonNullValueInput | InputJsonValue
     questions?: ExamQuestionUpdateManyWithoutSectionNestedInput
   }
 
@@ -47292,8 +47446,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
-    marksEach?: IntFieldUpdateOperationsInput | number
+    marksEach?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     order?: IntFieldUpdateOperationsInput | number
+    segments?: NullableJsonNullValueInput | InputJsonValue
     questions?: ExamQuestionUncheckedUpdateManyWithoutSectionNestedInput
   }
 
@@ -47301,8 +47456,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
-    marksEach?: IntFieldUpdateOperationsInput | number
+    marksEach?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     order?: IntFieldUpdateOperationsInput | number
+    segments?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ExamQuestionCreateManySectionInput = {
@@ -47311,6 +47467,8 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: string | null
     subject?: string | null
+    hint?: string | null
+    segmentType?: string | null
     order?: number
   }
 
@@ -47320,6 +47478,8 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
+    hint?: NullableStringFieldUpdateOperationsInput | string | null
+    segmentType?: NullableStringFieldUpdateOperationsInput | string | null
     order?: IntFieldUpdateOperationsInput | number
   }
 
@@ -47329,6 +47489,8 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
+    hint?: NullableStringFieldUpdateOperationsInput | string | null
+    segmentType?: NullableStringFieldUpdateOperationsInput | string | null
     order?: IntFieldUpdateOperationsInput | number
   }
 
@@ -47338,6 +47500,8 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
+    hint?: NullableStringFieldUpdateOperationsInput | string | null
+    segmentType?: NullableStringFieldUpdateOperationsInput | string | null
     order?: IntFieldUpdateOperationsInput | number
   }
 

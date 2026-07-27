@@ -7,10 +7,21 @@ import { Button } from '@/components/ui/button';
 import { PaperSetupForm } from '@/features/exam-papers/components/PaperSetupForm';
 import { SectionSegmentForm } from '@/features/exam-papers/components/SectionSegmentForm';
 import { QuestionEditor } from '@/features/exam-papers/components/QuestionEditor';
-import { SubjectAssignmentForm } from '@/features/exam-papers/components/SubjectAssignmentForm';
 import { InstructionsForm } from '@/features/exam-papers/components/InstructionsForm';
 import { api } from '@/services/api-client';
 import { generateExamPaperPdf, generateBulkExamPapersZip } from '@/features/exam-papers/utils/pdf-generator';
+
+function formatDuration(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  if (hours > 0 && mins > 0) {
+    return `${hours} hr ${mins} min`;
+  } else if (hours > 0) {
+    return `${hours} hr`;
+  } else {
+    return `${mins} min`;
+  }
+}
 
 export default function CreateExamPaperPage() {
   const router = useRouter();
@@ -32,7 +43,9 @@ export default function CreateExamPaperPage() {
     className: '',
     subjectName: '',
     examName: '',
-    examDate: ''
+    examDate: '',
+    logoUrl: '',
+    teacherName: ''
   });
 
   const handleSetupSuccess = async (id: string, details: { duration: number; totalMarks: number; templateType: string }) => {
@@ -50,7 +63,9 @@ export default function CreateExamPaperPage() {
         className: fullPaper.class?.name || '',
         subjectName: fullPaper.subject?.name || '',
         examName: fullPaper.examName || '',
-        examDate: fullPaper.examDate || ''
+        examDate: fullPaper.examDate || '',
+        logoUrl: fullPaper.school?.examPaperTemplates?.[0]?.logoUrl || '',
+        teacherName: fullPaper.teacher?.user?.name || ''
       });
     } catch {
       setPaperDetails(prev => ({
@@ -94,16 +109,6 @@ export default function CreateExamPaperPage() {
     setStep(4);
   };
 
-  const handleSubjectsReady = async (nextSections: any[]) => {
-    setSections(nextSections);
-    if (paperId) {
-      await api.patch(`/exam-papers/${paperId}`, {
-        sections: nextSections,
-        status: 'DRAFT'
-      });
-    }
-    setStep(5);
-  };
 
   const handleInstructionsReady = async (nextInstructions: string) => {
     setInstructions(nextInstructions);
@@ -113,7 +118,7 @@ export default function CreateExamPaperPage() {
         status: 'DRAFT'
       });
     }
-    setStep(6);
+    setStep(5);
   };
 
   const handleSaveDraft = async (nextSections: any[], styling: { fontFamily: string; fontSize: string; color: string }) => {
@@ -137,6 +142,37 @@ export default function CreateExamPaperPage() {
   const handleSubmit = async () => {
     if (!paperId) return;
     try {
+      // Generate PDF
+      const pdfData = {
+        schoolName: paperDetails.schoolName,
+        examName: paperDetails.examName,
+        className: paperDetails.className,
+        subjectName: paperDetails.subjectName,
+        examDate: paperDetails.examDate,
+        totalMarks: paperDetails.totalMarks,
+        duration: paperDetails.duration,
+        instructions: instructions,
+        templateType: paperDetails.templateType as 'SINGLE' | 'SPLIT',
+        styleFontFamily: paperDetails.styleFontFamily,
+        styleFontSize: paperDetails.styleFontSize,
+        styleColor: paperDetails.styleColor,
+        logoUrl: paperDetails.logoUrl,
+        teacherName: paperDetails.teacherName, // Teacher name from API
+        sections: sections
+      };
+      
+      const blob = await generateExamPaperPdf(pdfData);
+      
+      // Upload PDF to server
+      const formData = new FormData();
+      formData.append('pdf', blob, `${paperDetails.examName.replace(/\s+/g, '_')}_Paper.pdf`);
+      
+      await fetch(`/api/exam-papers/${paperId}/pdf`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      // Submit paper
       await api.patch(`/exam-papers/${paperId}`, { sections, instructions, status: 'SUBMITTED' });
       router.push('/teacher/exam-papers');
     } catch (error) {
@@ -160,6 +196,8 @@ export default function CreateExamPaperPage() {
         styleFontFamily: paperDetails.styleFontFamily,
         styleFontSize: paperDetails.styleFontSize,
         styleColor: paperDetails.styleColor,
+        logoUrl: paperDetails.logoUrl,
+        teacherName: paperDetails.teacherName, // Teacher name from API
         sections: sections
       };
       
@@ -191,6 +229,8 @@ export default function CreateExamPaperPage() {
         styleFontFamily: paperDetails.styleFontFamily,
         styleFontSize: paperDetails.styleFontSize,
         styleColor: paperDetails.styleColor,
+        logoUrl: paperDetails.logoUrl,
+        teacherName: paperDetails.teacherName, // Teacher name from API
         sections: sections
       };
 
@@ -211,7 +251,7 @@ export default function CreateExamPaperPage() {
     if (step > 1) setStep(step - 1);
   };
 
-  const totalSteps = 6;
+  const totalSteps = 5;
 
   return (
     <DashboardShell title="Create Exam Paper">
@@ -223,7 +263,7 @@ export default function CreateExamPaperPage() {
           </div>
           {step > 1 && (
             <div className="text-sm font-medium text-gray-700 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
-              Duration: {paperDetails.duration} mins | Total Marks: {paperDetails.totalMarks}
+              Duration: {formatDuration(paperDetails.duration)} | Total Marks: {paperDetails.totalMarks}
             </div>
           )}
         </div>
@@ -253,14 +293,6 @@ export default function CreateExamPaperPage() {
         ) : null}
 
         {step === 4 ? (
-          <SubjectAssignmentForm
-            sections={sections}
-            onSubmit={handleSubjectsReady}
-            onBack={handleBack}
-          />
-        ) : null}
-        
-        {step === 5 ? (
           <InstructionsForm 
             onSubmit={handleInstructionsReady} 
             onBack={handleBack} 
@@ -269,7 +301,7 @@ export default function CreateExamPaperPage() {
           />
         ) : null}
         
-        {step === 6 ? (
+        {step === 5 ? (
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-6">
             <div>
               <h3 className="text-lg font-semibold text-gray-800">Review & Generate Exam Sheets</h3>
@@ -289,7 +321,7 @@ export default function CreateExamPaperPage() {
                 </div>
                 <div>
                   <span className="text-xs text-gray-400 block">Total Marks / Duration</span>
-                  <span className="font-medium text-gray-800">{paperDetails.totalMarks} Marks / {paperDetails.duration} mins</span>
+                  <span className="font-medium text-gray-800">{paperDetails.totalMarks} Marks / {formatDuration(paperDetails.duration)}</span>
                 </div>
                 <div>
                   <span className="text-xs text-gray-400 block">Template Type</span>

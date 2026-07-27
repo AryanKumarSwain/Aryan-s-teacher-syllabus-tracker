@@ -6,6 +6,19 @@ import { Button } from '@/components/ui/button';
 import { QuestionEditor } from '@/features/exam-papers/components/QuestionEditor';
 import { api } from '@/services/api-client';
 import { useParams } from 'next/navigation';
+import { generateExamPaperPdf, generateBulkExamPapersZip } from '@/features/exam-papers/utils/pdf-generator';
+
+function formatDuration(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  if (hours > 0 && mins > 0) {
+    return `${hours} hr ${mins} min`;
+  } else if (hours > 0) {
+    return `${hours} hr`;
+  } else {
+    return `${mins} min`;
+  }
+}
 
 export default function AdminExamPaperReviewPage() {
   const params = useParams<{ id: string }>();
@@ -30,7 +43,31 @@ export default function AdminExamPaperReviewPage() {
 
   const handleDownloadSinglePdf = async () => {
     try {
-      window.open(`/api/exam-papers/${paper.id}/pdf`, '_blank');
+      const pdfData = {
+        schoolName: paper.school?.name || '',
+        examName: paper.examName || '',
+        className: paper.class?.name || '',
+        subjectName: paper.subject?.name || '',
+        examDate: paper.examDate || '',
+        totalMarks: paper.totalMarks || 0,
+        duration: paper.duration || 0,
+        instructions: paper.instructions || '',
+        templateType: paper.templateType as 'SINGLE' | 'SPLIT',
+        styleFontFamily: paper.styleFontFamily || 'Times New Roman',
+        styleFontSize: paper.styleFontSize || '11pt',
+        styleColor: paper.styleColor || '#000000',
+        logoUrl: paper.school?.examPaperTemplates?.[0]?.logoUrl || '',
+        teacherName: paper.teacher?.user?.name || '',
+        sections: paper.sections || []
+      };
+      
+      const blob = await generateExamPaperPdf(pdfData);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${paper.examName.replace(/\s+/g, '_')}_Paper.pdf`;
+      link.click();
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Failed to download PDF:', error);
       alert('Failed to download PDF. Please try again.');
@@ -39,7 +76,31 @@ export default function AdminExamPaperReviewPage() {
 
   const handleBulkDownload = async () => {
     try {
-      window.open(`/api/exam-papers/${paper.id}/bulk-zip?count=${studentCount}`, '_blank');
+      const pdfData = {
+        schoolName: paper.school?.name || '',
+        examName: paper.examName || '',
+        className: paper.class?.name || '',
+        subjectName: paper.subject?.name || '',
+        examDate: paper.examDate || '',
+        totalMarks: paper.totalMarks || 0,
+        duration: paper.duration || 0,
+        instructions: paper.instructions || '',
+        templateType: paper.templateType as 'SINGLE' | 'SPLIT',
+        styleFontFamily: paper.styleFontFamily || 'Times New Roman',
+        styleFontSize: paper.styleFontSize || '11pt',
+        styleColor: paper.styleColor || '#000000',
+        logoUrl: paper.school?.examPaperTemplates?.[0]?.logoUrl || '',
+        teacherName: paper.teacher?.user?.name || '',
+        sections: paper.sections || []
+      };
+
+      const zipBlob = await generateBulkExamPapersZip(pdfData, studentCount);
+      const url = window.URL.createObjectURL(zipBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${paper.examName.replace(/\s+/g, '_')}_Bulk_Roll_Sheets.zip`;
+      link.click();
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Failed to download bulk ZIP:', error);
       alert('Failed to download bulk ZIP. Please try again.');
@@ -101,8 +162,12 @@ export default function AdminExamPaperReviewPage() {
                 <span className="font-medium text-gray-800">{paper.subject?.name} ({paper.class?.name})</span>
               </div>
               <div>
+                <span className="text-xs text-gray-400 block">Teacher</span>
+                <span className="font-medium text-gray-800">{paper.teacher?.user?.name || 'N/A'}</span>
+              </div>
+              <div>
                 <span className="text-xs text-gray-400 block">Total Marks / Duration</span>
-                <span className="font-medium text-gray-800">{paper.totalMarks} Marks / {paper.duration} mins</span>
+                <span className="font-medium text-gray-800">{paper.totalMarks} Marks / {formatDuration(paper.duration)}</span>
               </div>
               <div>
                 <span className="text-xs text-gray-400 block">Template Type</span>

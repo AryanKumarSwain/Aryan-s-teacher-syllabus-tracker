@@ -18,7 +18,8 @@ examPaperRoutes.post('/', ...teacherOrAdmin, validateBody(createExamPaperSchema)
 examPaperRoutes.get('/template', ...teacherOrAdmin, examPaperController.getTemplate);
 examPaperRoutes.post('/template', ...adminOnly, validateBody(templateSchema), examPaperController.saveTemplate);
 examPaperRoutes.post('/template/upload-logo', ...adminOnly, upload.single('logo'), examPaperController.uploadLogo);
+examPaperRoutes.post('/upload-question-image', ...teacherOrAdmin, upload.single('image'), examPaperController.uploadQuestionImage);
 examPaperRoutes.get('/:id', ...teacherOrAdmin, validateParams(examPaperIdParamSchema), examPaperController.getById);
 examPaperRoutes.patch('/:id', ...teacherOrAdmin, validateParams(examPaperIdParamSchema), validateBody(updateExamPaperSchema), examPaperController.update);
+examPaperRoutes.post('/:id/pdf', ...teacherOrAdmin, upload.single('pdf'), examPaperController.uploadPdf);
 examPaperRoutes.delete('/:id', ...teacherOrAdmin, validateParams(examPaperIdParamSchema), examPaperController.delete);
-examPaperRoutes.get('/:id/pdf', ...teacherOrAdmin, validateParams(examPaperIdParamSchema), examPaperController.pdf);

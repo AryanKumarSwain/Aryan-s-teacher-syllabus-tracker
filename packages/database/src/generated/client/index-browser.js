@@ -328,6 +328,7 @@ exports.Prisma.ExamPaperScalarFieldEnum = {
   styleFontSize: 'styleFontSize',
   styleColor: 'styleColor',
   templateType: 'templateType',
+  pdfUrl: 'pdfUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -338,7 +339,8 @@ exports.Prisma.ExamSectionScalarFieldEnum = {
   label: 'label',
   type: 'type',
   marksEach: 'marksEach',
-  order: 'order'
+  order: 'order',
+  segments: 'segments'
 };
 
 exports.Prisma.ExamQuestionScalarFieldEnum = {
@@ -348,6 +350,8 @@ exports.Prisma.ExamQuestionScalarFieldEnum = {
   options: 'options',
   imageUrl: 'imageUrl',
   subject: 'subject',
+  hint: 'hint',
+  segmentType: 'segmentType',
   order: 'order'
 };
 
@@ -500,6 +504,8 @@ exports.QuestionType = exports.$Enums.QuestionType = {
   FILL_IN_THE_BLANK: 'FILL_IN_THE_BLANK',
   SHORT_ANSWER: 'SHORT_ANSWER',
   DESCRIPTIVE: 'DESCRIPTIVE',
+  TRUE_FALSE: 'TRUE_FALSE',
+  MATCHING: 'MATCHING',
   CUSTOM: 'CUSTOM'
 };
 

@@ -26,7 +26,7 @@ export const useAcademicSessions = () => {
     queryKey: ['academic-sessions', schoolId],
     queryFn: async () => {
       const response = await api.get<AcademicSession[]>('/academic-sessions/by-school', {
-        schoolId,
+        schoolId: schoolId!,
       });
       return response;
     },

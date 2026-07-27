@@ -1,15 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
+interface MatchingPair {
+  left: string;
+  right: string;
+}
 
 interface Segment {
   type: string;
   label: string;
   questionCount: number;
   marksEach: number;
+  customLabel?: string;
+  matchingPairs?: MatchingPair[];
 }
 
 interface Section {
@@ -21,6 +28,7 @@ interface SectionSegmentFormProps {
   onSubmit: (sections: any[]) => void;
   onBack: () => void;
   targetTotalMarks: number;
+  initialSections?: any[];
 }
 
 const segmentTypes = [
@@ -35,11 +43,18 @@ const segmentTypes = [
 
 const sectionLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
-export function SectionSegmentForm({ onSubmit, onBack, targetTotalMarks }: SectionSegmentFormProps) {
+export function SectionSegmentForm({ onSubmit, onBack, targetTotalMarks, initialSections }: SectionSegmentFormProps) {
   const [sectionCount, setSectionCount] = useState(1);
   const [sections, setSections] = useState<Section[]>([
     { label: 'Section A', segments: [] }
   ]);
+
+  useEffect(() => {
+    if (initialSections && initialSections.length > 0) {
+      setSections(initialSections);
+      setSectionCount(initialSections.length);
+    }
+  }, [initialSections]);
 
   const updateSectionCount = (count: number) => {
     const newCount = Math.max(1, Math.min(8, count));
@@ -47,8 +62,9 @@ export function SectionSegmentForm({ onSubmit, onBack, targetTotalMarks }: Secti
     
     const newSections: Section[] = [];
     for (let i = 0; i < newCount; i++) {
-      if (sections[i]) {
-        newSections.push(sections[i]);
+      const section = sections[i];
+      if (section) {
+        newSections.push(section);
       } else {
         newSections.push({ label: `Section ${sectionLabels[i]}`, segments: [] });
       }
@@ -58,26 +74,33 @@ export function SectionSegmentForm({ onSubmit, onBack, targetTotalMarks }: Secti
 
   const addSegment = (sectionIndex: number) => {
     const newSections = [...sections];
+    if (!newSections[sectionIndex]) return;
     newSections[sectionIndex].segments.push({
       type: 'MCQ',
       label: 'MCQ',
       questionCount: 5,
       marksEach: 1,
+      customLabel: '',
     });
     setSections(newSections);
   };
 
   const updateSegment = (sectionIndex: number, segmentIndex: number, field: string, value: any) => {
     const newSections = [...sections];
+    if (!newSections[sectionIndex]) return;
+    if (!newSections[sectionIndex].segments[segmentIndex]) return;
+    // Convert numeric fields to numbers
+    const processedValue = (field === 'questionCount' || field === 'marksEach') ? Number(value) : value;
     newSections[sectionIndex].segments[segmentIndex] = {
       ...newSections[sectionIndex].segments[segmentIndex],
-      [field]: value,
+      [field]: processedValue,
     };
     setSections(newSections);
   };
 
   const removeSegment = (sectionIndex: number, segmentIndex: number) => {
     const newSections = [...sections];
+    if (!newSections[sectionIndex]) return;
     newSections[sectionIndex].segments = newSections[sectionIndex].segments.filter(
       (_, i) => i !== segmentIndex
     );
@@ -96,14 +119,22 @@ export function SectionSegmentForm({ onSubmit, onBack, targetTotalMarks }: Secti
   const isTotalMatching = currentTotal === targetTotalMarks;
 
   const handleSubmit = () => {
-    // Convert to the format expected by QuestionEditor
-    const formattedSections = sections.map((section, sectionIndex) => ({
-      label: section.label,
-      type: 'CUSTOM',
-      marksEach: 0,
-      questions: [],
-      segments: section.segments,
-    }));
+    // Convert to the format expected by QuestionEditor and PDF generator
+    const formattedSections = sections.map((section, sectionIndex) => {
+      // For simplicity, if section has only one segment type, use that as the section type
+      // Otherwise, use the first segment's type and marks
+      const firstSegment = section.segments[0];
+      const hasUniformType = firstSegment ? section.segments.every(seg => seg.type === firstSegment.type) : false;
+      const hasUniformMarks = firstSegment ? section.segments.every(seg => seg.marksEach === firstSegment.marksEach) : false;
+      
+      return {
+        label: section.label,
+        type: hasUniformType && firstSegment ? firstSegment.type : 'CUSTOM',
+        marksEach: hasUniformMarks && firstSegment ? firstSegment.marksEach : 0,
+        questions: [],
+        segments: section.segments,
+      };
+    });
     onSubmit(formattedSections);
   };
 
@@ -165,58 +196,110 @@ export function SectionSegmentForm({ onSubmit, onBack, targetTotalMarks }: Secti
             ) : (
               <div className="space-y-3">
                 {section.segments.map((segment, segmentIndex) => (
-                  <div key={segmentIndex} className="grid gap-3 md:grid-cols-5 items-end p-3 rounded-lg bg-gray-50 border border-gray-100">
-                    <div>
-                      <Label className="text-xs">Question Type</Label>
-                      <select
-                        value={segment.type}
-                        onChange={(e) => {
-                          const selectedType = segmentTypes.find(t => t.value === e.target.value);
-                          updateSegment(sectionIndex, segmentIndex, 'type', e.target.value);
-                          updateSegment(sectionIndex, segmentIndex, 'label', selectedType?.label || e.target.value);
-                        }}
-                        className="mt-1 w-full border border-gray-300 rounded px-2 py-1.5 text-sm bg-white"
-                      >
-                        {segmentTypes.map((type) => (
-                          <option key={type.value} value={type.value}>{type.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <Label className="text-xs">Questions</Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={segment.questionCount}
-                        onChange={(e) => updateSegment(sectionIndex, segmentIndex, 'questionCount', Number(e.target.value))}
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs">Marks Each</Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={segment.marksEach}
-                        onChange={(e) => updateSegment(sectionIndex, segmentIndex, 'marksEach', Number(e.target.value))}
-                        className="mt-1"
-                      />
-                    </div>
-                    <div className="pb-2">
-                      <span className="text-xs font-medium text-gray-700 block">
-                        Total: {segment.questionCount * segment.marksEach}
-                      </span>
-                    </div>
-                    <div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => removeSegment(sectionIndex, segmentIndex)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        Remove
-                      </Button>
+                  <div key={segmentIndex} className="rounded-lg bg-gray-50 border border-gray-100 overflow-hidden">
+                    {/* Segment Header */}
+                    <div className="grid gap-3 md:grid-cols-6 items-end p-3 border-b border-gray-200">
+                      <div>
+                        <Label className="text-xs">Question Type</Label>
+                        <select
+                          value={segment.type}
+                          onChange={(e) => {
+                            const selectedType = segmentTypes.find(t => t.value === e.target.value);
+                            updateSegment(sectionIndex, segmentIndex, 'type', e.target.value);
+                            updateSegment(sectionIndex, segmentIndex, 'label', selectedType?.label || e.target.value);
+                          }}
+                          className="mt-1 w-full border border-gray-300 rounded px-2 py-1.5 text-sm bg-white"
+                        >
+                          {segmentTypes.map((type) => (
+                            <option key={type.value} value={type.value}>{type.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      {segment.type === 'CUSTOM' && (
+                        <div>
+                          <Label className="text-xs">Custom Label</Label>
+                          <Input
+                            type="text"
+                            placeholder="e.g., Very Short Q/A"
+                            value={segment.customLabel || ''}
+                            onChange={(e) => {
+                              updateSegment(sectionIndex, segmentIndex, 'customLabel', e.target.value);
+                              updateSegment(sectionIndex, segmentIndex, 'label', e.target.value || 'Custom');
+                            }}
+                            className="mt-1"
+                          />
+                        </div>
+                      )}
+                      {segment.type !== 'MATCHING' && (
+                        <>
+                          <div>
+                            <Label className="text-xs">Questions</Label>
+                            <Input
+                              type="number"
+                              min="1"
+                              value={segment.questionCount}
+                              onChange={(e) => updateSegment(sectionIndex, segmentIndex, 'questionCount', Number(e.target.value))}
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Marks Each</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.5"
+                              value={segment.marksEach}
+                              onChange={(e) => updateSegment(sectionIndex, segmentIndex, 'marksEach', Number(e.target.value))}
+                              className="mt-1"
+                            />
+                          </div>
+                        </>
+                      )}
+                      {segment.type === 'MATCHING' && (
+                        <>
+                          <div>
+                            <Label className="text-xs">Number of Pairs</Label>
+                            <Input
+                              type="number"
+                              min="1"
+                              max="20"
+                              value={segment.questionCount}
+                              onChange={(e) => updateSegment(sectionIndex, segmentIndex, 'questionCount', Number(e.target.value))}
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Marks Each</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.5"
+                              value={segment.marksEach}
+                              onChange={(e) => updateSegment(sectionIndex, segmentIndex, 'marksEach', Number(e.target.value))}
+                              className="mt-1"
+                            />
+                          </div>
+                        </>
+                      )}
+                      <div className="pb-2">
+                        <span className="text-xs font-medium text-gray-700 block">
+                          {segment.type === 'MATCHING' 
+                            ? `Total: ${segment.questionCount * segment.marksEach} (1 question with ${segment.questionCount} pairs)`
+                            : `Total: ${segment.questionCount * segment.marksEach}`
+                          }
+                        </span>
+                      </div>
+                      <div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => removeSegment(sectionIndex, segmentIndex)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          Remove
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}

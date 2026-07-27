@@ -6,6 +6,7 @@ import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { api } from '@/services/api-client';
+import { generateExamPaperPdf, generateBulkExamPapersZip } from '@/features/exam-papers/utils/pdf-generator';
 
 interface AdminPaperItem {
   id: string;
@@ -14,6 +15,20 @@ interface AdminPaperItem {
   teacher: { user: { name: string } };
   class: { name: string };
   subject: { name: string };
+  school?: { 
+    name: string;
+    examPaperTemplates?: Array<{ logoUrl?: string }>;
+  };
+  totalMarks?: number;
+  duration?: number;
+  examDate?: string;
+  instructions?: string;
+  styleFontFamily?: string;
+  styleFontSize?: string;
+  styleColor?: string;
+  templateType?: string;
+  pdfUrl?: string;
+  sections?: any[];
 }
 
 export default function AdminExamPapersPage() {
@@ -52,7 +67,34 @@ export default function AdminExamPapersPage() {
       return;
     }
     try {
-      window.open(`/api/exam-papers/${paperId}/pdf?rollNumber=${encodeURIComponent(rollNumber)}`, '_blank');
+      const paper = await api.get<AdminPaperItem>(`/exam-papers/${paperId}`);
+      
+      // Always regenerate PDF from latest data
+      const pdfData = {
+        schoolName: paper.school?.name || '',
+        examName: paper.examName || '',
+        className: paper.class?.name || '',
+        subjectName: paper.subject?.name || '',
+        examDate: paper.examDate || '',
+        totalMarks: paper.totalMarks || 0,
+        duration: paper.duration || 0,
+        instructions: paper.instructions || '',
+        templateType: (paper.templateType as 'SINGLE' | 'SPLIT') || 'SINGLE',
+        styleFontFamily: paper.styleFontFamily || 'Times New Roman',
+        styleFontSize: paper.styleFontSize || '11pt',
+        styleColor: paper.styleColor || '#000000',
+        logoUrl: paper.school?.examPaperTemplates?.[0]?.logoUrl || '',
+        teacherName: paper.teacher?.user?.name || '',
+        sections: paper.sections || []
+      };
+      
+      const blob = await generateExamPaperPdf(pdfData, rollNumber);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${paper.examName.replace(/\s+/g, '_')}_${rollNumber}.pdf`;
+      link.click();
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Failed to download PDF:', error);
       alert('Failed to download PDF. Please try again.');
@@ -61,10 +103,73 @@ export default function AdminExamPapersPage() {
 
   const handleDownloadBulk = async (paperId: string) => {
     try {
-      window.open(`/api/exam-papers/${paperId}/bulk-zip?count=${studentCount}`, '_blank');
+      const paper = await api.get<AdminPaperItem>(`/exam-papers/${paperId}`);
+      
+      // Always regenerate PDF from latest data
+      const pdfData = {
+        schoolName: paper.school?.name || '',
+        examName: paper.examName || '',
+        className: paper.class?.name || '',
+        subjectName: paper.subject?.name || '',
+        examDate: paper.examDate || '',
+        totalMarks: paper.totalMarks || 0,
+        duration: paper.duration || 0,
+        instructions: paper.instructions || '',
+        templateType: (paper.templateType as 'SINGLE' | 'SPLIT') || 'SINGLE',
+        styleFontFamily: paper.styleFontFamily || 'Times New Roman',
+        styleFontSize: paper.styleFontSize || '11pt',
+        styleColor: paper.styleColor || '#000000',
+        logoUrl: paper.school?.examPaperTemplates?.[0]?.logoUrl || '',
+        teacherName: paper.teacher?.user?.name || '',
+        sections: paper.sections || []
+      };
+
+      const zipBlob = await generateBulkExamPapersZip(pdfData, studentCount);
+      const url = window.URL.createObjectURL(zipBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${paper.examName.replace(/\s+/g, '_')}_Bulk_Roll_Sheets.zip`;
+      link.click();
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Failed to download bulk ZIP:', error);
       alert('Failed to download bulk ZIP. Please try again.');
+    }
+  };
+
+  const handleDownloadBlank = async (paperId: string) => {
+    try {
+      const paper = await api.get<AdminPaperItem>(`/exam-papers/${paperId}`);
+      
+      // Always regenerate PDF from latest data
+      const pdfData = {
+        schoolName: paper.school?.name || '',
+        examName: paper.examName || '',
+        className: paper.class?.name || '',
+        subjectName: paper.subject?.name || '',
+        examDate: paper.examDate || '',
+        totalMarks: paper.totalMarks || 0,
+        duration: paper.duration || 0,
+        instructions: paper.instructions || '',
+        templateType: (paper.templateType as 'SINGLE' | 'SPLIT') || 'SINGLE',
+        styleFontFamily: paper.styleFontFamily || 'Times New Roman',
+        styleFontSize: paper.styleFontSize || '11pt',
+        styleColor: paper.styleColor || '#000000',
+        logoUrl: paper.school?.examPaperTemplates?.[0]?.logoUrl || '',
+        teacherName: paper.teacher?.user?.name || '',
+        sections: paper.sections || []
+      };
+      
+      const blob = await generateExamPaperPdf(pdfData, '');
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${paper.examName.replace(/\s+/g, '_')}_Paper.pdf`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download PDF:', error);
+      alert('Failed to download PDF. Please try again.');
     }
   };
 
@@ -97,9 +202,6 @@ export default function AdminExamPapersPage() {
                       paper.status === 'REVIEWED' ? 'bg-blue-100 text-blue-700' :
                       'bg-gray-100 text-gray-700'
                     }`}>{paper.status}</span>
-                    {paper.status === 'DRAFT' && (
-                      <Button onClick={() => handleSubmit(paper.id)}>Submit</Button>
-                    )}
                     {paper.status === 'SUBMITTED' && (
                       <Button variant="outline" onClick={() => handleMarkReviewed(paper.id)}>Mark Reviewed</Button>
                     )}
@@ -153,7 +255,7 @@ export default function AdminExamPapersPage() {
                     <div className="border border-gray-200 rounded-xl p-4 bg-white">
                       <h5 className="font-medium text-sm text-gray-900 mb-3">Single PDF (All Students)</h5>
                       <p className="text-xs text-gray-500 mb-3">Download a single PDF that can be used for all students (blank roll number field).</p>
-                      <Button variant="outline" onClick={() => window.open(`/api/exam-papers/${paper.id}/pdf`, '_blank')}>
+                      <Button variant="outline" onClick={() => handleDownloadBlank(paper.id)}>
                         Download PDF
                       </Button>
                     </div>
