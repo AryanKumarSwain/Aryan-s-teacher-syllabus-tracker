@@ -65,6 +65,11 @@ interface PdfPaperData {
       options?: Array<{ text: string; isCorrect?: boolean } | string>;
       segmentType?: string;
       imageUrl?: string;
+      matchingPairs?: Array<{ left: string; right: string }>;
+      passageText?: string;
+      subQuestions?: Array<{ text: string }>;
+      assertion?: string;
+      reason?: string;
       alternatives?: Array<{
         questionText: string;
         options?: Array<{ text: string; isCorrect?: boolean } | string>;
@@ -682,6 +687,49 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
         doc.text(segmentLabel, getX() + 5, y);
         y += SEGMENT_HEADER_GAP;
 
+// Render instruction block for ASSERTION_REASONING segments
+        if (segment.type === 'ASSERTION_REASONING' && segmentQuestions.length > 0) {
+          const availableWidth = colWidth - 5;
+          const instructionText = 'For each question, consider the Assertion (A) and the Reason (R). Then, choose the correct option from the following key:';
+          const options = [
+            'A) Both (A) and (R) are true, and (R) is the correct explanation of (A).',
+            'B) Both (A) and (R) are true, but (R) is not the correct explanation of (A).',
+            'C) (A) is true, but (R) is false.',
+            'D) (A) is false, but (R) is true.',
+            'E) Both (A) and (R) are false.'
+          ];
+
+          doc.setFont(fontName, 'bold');
+          doc.setFontSize(8.5);
+          const instructionLines: string[] = doc.splitTextToSize(instructionText, availableWidth);
+
+          doc.setFont(fontName, 'normal');
+          doc.setFontSize(8);
+          const optionLinesArr: string[][] = options.map((option) => doc.splitTextToSize(option, availableWidth));
+          const totalOptionLines = optionLinesArr.reduce((sum, lines) => sum + lines.length, 0);
+
+          const blockHeight = (instructionLines.length + totalOptionLines) * LINE_HEIGHT + LINE_HEIGHT * 2;
+          await advanceCursor(blockHeight);
+
+          doc.setFont(fontName, 'bold');
+          doc.setFontSize(8.5);
+          instructionLines.forEach((line: string) => {
+            doc.text(line, getX() + 5, y);
+            y += LINE_HEIGHT;
+          });
+          y += LINE_HEIGHT * 0.5;
+
+          doc.setFont(fontName, 'normal');
+          doc.setFontSize(8);
+          optionLinesArr.forEach((lines: string[]) => {
+            lines.forEach((line: string) => {
+              doc.text(line, getX() + 5, y);
+              y += LINE_HEIGHT;
+            });
+          });
+          y += LINE_HEIGHT;
+        }
+
         for (let qIndex = 0; qIndex < segmentQuestions.length; qIndex++) {
           const question = segmentQuestions[qIndex];
           if (!question) continue;
@@ -691,6 +739,12 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
           doc.setFont(fontName, 'normal');
           doc.setFontSize(9.5);
           const qPrefixWidth = doc.getTextWidth(qPrefix);
+
+          const hasImage = !!question.imageUrl;
+          const maxBoxWidth = paper.templateType === 'SPLIT' ? 35 : 45;
+          const maxBoxHeight = paper.templateType === 'SPLIT' ? 30 : 35;
+
+          const textAreaWidth = colWidth - qPrefixWidth - (hasImage ? (maxBoxWidth + IMAGE_TEXT_GAP + IMAGE_RIGHT_MARGIN) : 0);
 
           // Handle MATCHING questions
           if (segment.type === 'MATCHING' || question.segmentType === 'MATCHING') {
@@ -720,6 +774,7 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
             
             for (let i = 0; i < pairCount; i++) {
               const pair = matchingPairs[i];
+              if (!pair) continue;
               const leftLabel = `${String.fromCharCode(65 + i)}.`;
               const rightLabel = `${i + 1}.`;
               
@@ -736,11 +791,138 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
             continue;
           }
 
-          const hasImage = !!question.imageUrl;
-          const maxBoxWidth = paper.templateType === 'SPLIT' ? 35 : 45;
-          const maxBoxHeight = paper.templateType === 'SPLIT' ? 30 : 35;
+          // Handle PASSAGE questions
+          if (segment.type === 'PASSAGE' || question.segmentType === 'PASSAGE') {
+            const passageText = question.passageText || '';
+            const subQuestions = question.subQuestions || [];
+            
+            const formattedPassage = parseHtmlToFormattedText(passageText);
+            const passageHeight = estimateSegmentsHeight(doc, formattedPassage, textAreaWidth, LINE_HEIGHT);
+            
+            // Calculate height for instruction line and sub-questions
+            const instructionHeight = LINE_HEIGHT * 1.5;
+            let subQuestionsHeight = 0;
+            subQuestions.forEach((sq: any) => {
+              const formattedSQ = parseHtmlToFormattedText(sq.text || '');
+              subQuestionsHeight += estimateSegmentsHeight(doc, formattedSQ, textAreaWidth, LINE_HEIGHT) + LINE_HEIGHT;
+            });
+            
+            const totalPassageHeight = passageHeight + instructionHeight + subQuestionsHeight + 20;
+            
+            await advanceCursor(totalPassageHeight);
+            
+            doc.text(qPrefix, getX(), y);
+            y += LINE_HEIGHT;
+            
+            // Render passage text
+            doc.setFont(fontName, 'italic');
+            doc.setFontSize(9);
+            
+            const { newY: afterPassageY } = renderFormattedText(
+              doc,
+              formattedPassage,
+              getX() + qPrefixWidth,
+              y,
+              textAreaWidth,
+              LINE_HEIGHT,
+              fontFamily,
+              rgb
+            );
+            y = afterPassageY + LINE_HEIGHT;
+            
+            // Render instruction line
+            doc.setFont(fontName, 'bold');
+            doc.setFontSize(8.5);
+            doc.text('Answer the following questions based on the above passage:', getX() + qPrefixWidth, y);
+            y += LINE_HEIGHT * 1.5;
+            
+            // Render sub-questions with lettered format
+            doc.setFont(fontName, 'normal');
+            doc.setFontSize(9);
+            
+            subQuestions.forEach((sq: any, index: number) => {
+              const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't'];
+              const sqPrefix = `${letters[index]})`;
+              const sqPrefixWidth = doc.getTextWidth(sqPrefix);
+              const formattedSQ = parseHtmlToFormattedText(sq.text || '');
+              
+              doc.text(sqPrefix, getX() + qPrefixWidth, y);
+              
+              const { newY: afterSQY } = renderFormattedText(
+                doc,
+                formattedSQ,
+                getX() + qPrefixWidth + sqPrefixWidth,
+                y,
+                textAreaWidth - sqPrefixWidth,
+                LINE_HEIGHT,
+                fontFamily,
+                rgb
+              );
+              y = afterSQY + LINE_HEIGHT;
+            });
+            
+            y += QUESTION_GAP;
+            continue;
+          }
 
-          const textAreaWidth = colWidth - qPrefixWidth - (hasImage ? (maxBoxWidth + IMAGE_TEXT_GAP + IMAGE_RIGHT_MARGIN) : 0);
+          // Handle ASSERTION_REASONING questions
+          if (segment.type === 'ASSERTION_REASONING' || question.segmentType === 'ASSERTION_REASONING') {
+            const assertion = question.assertion || '';
+            const reason = question.reason || '';
+            
+            const formattedAssertion = parseHtmlToFormattedText(assertion);
+            const formattedReason = parseHtmlToFormattedText(reason);
+            
+            const assertionHeight = estimateSegmentsHeight(doc, formattedAssertion, textAreaWidth, LINE_HEIGHT);
+            const reasonHeight = estimateSegmentsHeight(doc, formattedReason, textAreaWidth, LINE_HEIGHT);
+            const totalARHeight = assertionHeight + reasonHeight + LINE_HEIGHT * 3 + 10;
+            
+            await advanceCursor(totalARHeight);
+            
+            doc.text(qPrefix, getX(), y);
+            y += LINE_HEIGHT;
+            
+            // Render Assertion (A)
+            doc.setFont(fontName, 'bold');
+            doc.setFontSize(9);
+            doc.text('Assertion (A):', getX() + qPrefixWidth, y);
+            y += LINE_HEIGHT;
+            
+            doc.setFont(fontName, 'normal');
+            const { newY: afterAssertionY } = renderFormattedText(
+              doc,
+              formattedAssertion,
+              getX() + qPrefixWidth,
+              y,
+              textAreaWidth,
+              LINE_HEIGHT,
+              fontFamily,
+              rgb
+            );
+            y = afterAssertionY + LINE_HEIGHT;
+            
+            // Render Reason (R)
+            doc.setFont(fontName, 'bold');
+            doc.setFontSize(9);
+            doc.text('Reason (R):', getX() + qPrefixWidth, y);
+            y += LINE_HEIGHT;
+            
+            doc.setFont(fontName, 'normal');
+            const { newY: afterReasonY } = renderFormattedText(
+              doc,
+              formattedReason,
+              getX() + qPrefixWidth,
+              y,
+              textAreaWidth,
+              LINE_HEIGHT,
+              fontFamily,
+              rgb
+            );
+            y = afterReasonY;
+            
+            y += QUESTION_GAP;
+            continue;
+          }
 
           let imgBase64: string | null = null;
           let scaledWidth = 0;

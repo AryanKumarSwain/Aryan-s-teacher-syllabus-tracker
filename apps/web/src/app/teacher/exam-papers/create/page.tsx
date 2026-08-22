@@ -275,6 +275,7 @@ export default function CreateExamPaperPage() {
             targetTotalMarks={paperDetails.totalMarks} 
             onSubmit={handleSegmentsReady} 
             onBack={handleBack} 
+            initialSections={sections}
           />
         ) : null}
         

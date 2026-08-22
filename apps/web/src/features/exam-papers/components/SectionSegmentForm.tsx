@@ -38,6 +38,8 @@ const segmentTypes = [
   { value: 'DESCRIPTIVE', label: 'Descriptive' },
   { value: 'TRUE_FALSE', label: 'True/False' },
   { value: 'MATCHING', label: 'Matching' },
+  { value: 'PASSAGE', label: 'Passage' },
+  { value: 'ASSERTION_REASONING', label: 'Assertion & Reasoning' },
   { value: 'CUSTOM', label: 'Custom' },
 ];
 
@@ -230,7 +232,7 @@ export function SectionSegmentForm({ onSubmit, onBack, targetTotalMarks, initial
                           />
                         </div>
                       )}
-                      {segment.type !== 'MATCHING' && (
+                      {segment.type !== 'MATCHING' && segment.type !== 'PASSAGE' && (
                         <>
                           <div>
                             <Label className="text-xs">Questions</Label>
@@ -281,10 +283,38 @@ export function SectionSegmentForm({ onSubmit, onBack, targetTotalMarks, initial
                           </div>
                         </>
                       )}
+                      {segment.type === 'PASSAGE' && (
+                        <>
+                          <div>
+                            <Label className="text-xs">Number of Questions</Label>
+                            <Input
+                              type="number"
+                              min="1"
+                              max="20"
+                              value={segment.questionCount}
+                              onChange={(e) => updateSegment(sectionIndex, segmentIndex, 'questionCount', Number(e.target.value))}
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Marks Each</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.5"
+                              value={segment.marksEach}
+                              onChange={(e) => updateSegment(sectionIndex, segmentIndex, 'marksEach', Number(e.target.value))}
+                              className="mt-1"
+                            />
+                          </div>
+                        </>
+                      )}
                       <div className="pb-2">
                         <span className="text-xs font-medium text-gray-700 block">
                           {segment.type === 'MATCHING' 
                             ? `Total: ${segment.questionCount * segment.marksEach} (1 question with ${segment.questionCount} pairs)`
+                            : segment.type === 'PASSAGE'
+                            ? `Total: ${segment.questionCount * segment.marksEach} (1 passage with ${segment.questionCount} questions)`
                             : `Total: ${segment.questionCount * segment.marksEach}`
                           }
                         </span>

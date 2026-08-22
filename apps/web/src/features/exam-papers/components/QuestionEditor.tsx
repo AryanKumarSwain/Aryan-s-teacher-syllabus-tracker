@@ -44,6 +44,20 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
               matchingPairs: Array.from({ length: segment.questionCount }, () => ({ left: '', right: '' })),
             }];
           }
+          // For PASSAGE type, create only 1 question with passage text and sub-questions
+          if (segment.type === 'PASSAGE') {
+            return [{
+              id: `${section.label}-${segIndex}-0`,
+              questionText: '',
+              options: [],
+              imageUrl: '',
+              segmentType: segment.type,
+              segmentLabel: segment.label,
+              order: 0,
+              passageText: '',
+              subQuestions: Array.from({ length: segment.questionCount }, () => ({ text: '' })),
+            }];
+          }
           // For other types, create questionCount questions
           return Array.from({ length: segment.questionCount }, (_, qIndex) => ({
             id: `${section.label}-${segIndex}-${qIndex}`,
@@ -175,6 +189,20 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
     setDraftSections(next);
   };
 
+  const updateSubQuestion = (sectionIndex: number, questionIndex: number, subQuestionIndex: number, value: string) => {
+    const next = [...draftSections];
+    const question = next[sectionIndex].questions[questionIndex];
+    const subQuestions = question.subQuestions || [];
+    subQuestions[subQuestionIndex] = { ...subQuestions[subQuestionIndex], text: value };
+    next[sectionIndex] = {
+      ...next[sectionIndex],
+      questions: next[sectionIndex].questions.map((q: any, index: number) => 
+        index === questionIndex ? { ...q, subQuestions } : q
+      ),
+    };
+    setDraftSections(next);
+  };
+
   const updateOption = (sectionIndex: number, questionIndex: number, optionIndex: number, value: string) => {
     const next = [...draftSections];
     const currentOptions = next[sectionIndex].questions[questionIndex].options || [];
@@ -242,6 +270,26 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
         
         // Skip validation for MATCHING questions - they have matching pairs instead of question text
         if (question.segmentType === 'MATCHING') {
+          continue;
+        }
+        
+        // Skip validation for PASSAGE questions - they have passage text and sub-questions
+        if (question.segmentType === 'PASSAGE') {
+          if (!question.passageText || question.passageText.trim() === '') {
+            return false;
+          }
+          const subQuestions = question.subQuestions || [];
+          if (subQuestions.length === 0 || subQuestions.some((sq: any) => !sq.text || sq.text.trim() === '')) {
+            return false;
+          }
+          continue;
+        }
+        
+        // Skip validation for ASSERTION_REASONING questions - they have assertion and reason
+        if (question.segmentType === 'ASSERTION_REASONING') {
+          if (!question.assertion || question.assertion.trim() === '' || !question.reason || question.reason.trim() === '') {
+            return false;
+          }
           continue;
         }
         
@@ -410,6 +458,62 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
                             ))}
                           </div>
                         </div>
+                      </div>
+                    </div>
+                  ) : question.segmentType === 'PASSAGE' ? (
+                    <div className="mt-3 space-y-4">
+                      <div>
+                        <Label className="text-xs font-semibold mb-2 block" style={{ fontFamily: 'sans-serif' }}>Passage Text</Label>
+                        <RichTextField 
+                          value={question.passageText || ''} 
+                          onChange={(value) => updateQuestion(sectionIndex, questionIndex, { passageText: value })} 
+                          required
+                        />
+                        {(!question.passageText || question.passageText.trim() === '') && (
+                          <p className="text-xs text-red-500 mt-1" style={{ fontFamily: 'sans-serif' }}>Passage text is required</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label className="text-xs font-semibold mb-2 block" style={{ fontFamily: 'sans-serif' }}>Questions based on passage</Label>
+                        <div className="space-y-2">
+                          {(question.subQuestions || []).map((subQ: any, subQIndex: number) => (
+                            <div key={subQIndex} className="flex items-start gap-2">
+                              <span className="text-xs font-medium mt-2" style={{ fontFamily: 'sans-serif' }}>
+                                {subQIndex + 1}.
+                              </span>
+                              <RichTextField 
+                                value={subQ.text || ''} 
+                                onChange={(value) => updateSubQuestion(sectionIndex, questionIndex, subQIndex, value)} 
+                                required
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ) : question.segmentType === 'ASSERTION_REASONING' ? (
+                    <div className="mt-3 space-y-3">
+                      <div>
+                        <Label className="text-xs font-semibold mb-2 block" style={{ fontFamily: 'sans-serif' }}>Assertion</Label>
+                        <RichTextField 
+                          value={question.assertion || ''} 
+                          onChange={(value) => updateQuestion(sectionIndex, questionIndex, { assertion: value })} 
+                          required
+                        />
+                        {(!question.assertion || question.assertion.trim() === '') && (
+                          <p className="text-xs text-red-500 mt-1" style={{ fontFamily: 'sans-serif' }}>Assertion is required</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label className="text-xs font-semibold mb-2 block" style={{ fontFamily: 'sans-serif' }}>Reason</Label>
+                        <RichTextField 
+                          value={question.reason || ''} 
+                          onChange={(value) => updateQuestion(sectionIndex, questionIndex, { reason: value })} 
+                          required
+                        />
+                        {(!question.reason || question.reason.trim() === '') && (
+                          <p className="text-xs text-red-500 mt-1" style={{ fontFamily: 'sans-serif' }}>Reason is required</p>
+                        )}
                       </div>
                     </div>
                   ) : (

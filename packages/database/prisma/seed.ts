@@ -162,6 +162,7 @@ async function main() {
         status: 'ACTIVE',
         user: { connect: { id: userRecord.id } },
         school: { connect: { id: demoSchool.id } },
+        academicSession: { connect: { id: academicSession.id } },
       },
     });
 

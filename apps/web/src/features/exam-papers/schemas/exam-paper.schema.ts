@@ -12,7 +12,7 @@ export const examQuestionSchema = z.object({
 export const examSectionSchema = z.object({
   id: z.string().optional(),
   label: z.string().min(1),
-  type: z.enum(['MCQ', 'FILL_IN_THE_BLANK', 'SHORT_ANSWER', 'DESCRIPTIVE', 'TRUE_FALSE', 'MATCHING', 'CUSTOM']),
+  type: z.enum(['MCQ', 'FILL_IN_THE_BLANK', 'SHORT_ANSWER', 'DESCRIPTIVE', 'TRUE_FALSE', 'MATCHING', 'PASSAGE', 'ASSERTION_REASONING', 'CUSTOM']),
   marksEach: z.number().int().min(0).default(1),
   order: z.number().int().optional(),
   questions: z.array(examQuestionSchema).default([]),
