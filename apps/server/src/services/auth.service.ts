@@ -30,11 +30,18 @@ const cookieOptions = {
 
 export const authService = {
   async login(email: string, password: string) {
+    console.log(`[LOGIN ATTEMPT] email: "${email}", password: "${password}"`);
     const user = await userRepository.findByEmail(email.toLowerCase());
-    if (!user) throw new AppError('Invalid credentials', 401);
+    if (!user) {
+      console.log(`[LOGIN FAILED] User not found for email: ${email}`);
+      throw new AppError('Invalid credentials', 401);
+    }
 
     const valid = await comparePassword(password, user.passwordHash);
-    if (!valid) throw new AppError('Invalid credentials', 401);
+    if (!valid) {
+      console.log(`[LOGIN FAILED] Password mismatch. dbHash: ${user.passwordHash}`);
+      throw new AppError('Invalid credentials', 401);
+    }
 
     if (user.status === 'SUSPENDED') {
       throw new AppError('Account is suspended. Contact your school administrator.', 403);

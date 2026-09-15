@@ -85,8 +85,17 @@ async function request<T>(endpoint: string, options: RequestOptions = {}, retrie
   }
 
   if (!response.ok || !data.success) {
-    console.error('API Error:', { status: response.status, data, endpoint });
-    throw new ApiError(data.error ?? 'Request failed', response.status);
+    let errorMessage = 'Request failed';
+    if (typeof data.error === 'string') {
+      errorMessage = data.error;
+    } else if (data.error) {
+      errorMessage = JSON.stringify(data.error);
+    } else if (data.message && typeof data.message === 'string') {
+      errorMessage = data.message;
+    }
+    
+    console.error(`[API Error] ${response.status} ${endpoint}: ${errorMessage}`);
+    throw new ApiError(errorMessage, response.status);
   }
 
   return data.data as T;
