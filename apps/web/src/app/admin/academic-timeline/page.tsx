@@ -2,7 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Calendar, Plus, Trash2, Calculator, Pencil, Filter, ChevronDown } from 'lucide-react';
+import {
+  Calendar,
+  Plus,
+  Trash2,
+  Calculator,
+  Pencil,
+  Filter,
+  ChevronDown,
+  Palmtree,
+  CalendarRange,
+  LayoutGrid,
+} from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -251,8 +262,9 @@ export default function AcademicTimelinePage() {
   const [selectedTermId, setSelectedTermId] = useState<string>('');
   const [dayEditOpen, setDayEditOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState<TimelineDay | null>(null);
-  // which terms/sections are collapsed in the calendar legend
-  const [collapsedTerms, setCollapsedTerms] = useState<Record<number, boolean>>({});
+  // which terms/sections are collapsed in the calendar
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+  const [calendarViewMode, setCalendarViewMode] = useState<'terms' | 'fullYear'>('terms');
 
   // Persist selectedTermId to localStorage
   useEffect(() => {
@@ -568,33 +580,6 @@ export default function AcademicTimelinePage() {
 
   const activatedTerms: Term[] = Array.isArray(selectedTerm?.terms) ? (selectedTerm.terms as Term[]) : [];
 
-  // Auto-collapse terms based on today's date - expand only the term containing current date
-  useEffect(() => {
-    if (activatedTerms.length > 0) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const todayISO = today.toISOString().split('T')[0] ?? '';
-
-      const initialCollapsed: Record<number, boolean> = {};
-      let hasActiveTerm = false;
-
-      activatedTerms.forEach((term: Term, idx: number) => {
-        const start = term.startDate.split('T')[0] ?? '';
-        const end = term.endDate.split('T')[0] ?? '';
-        const isTodayInTerm = todayISO >= start && todayISO <= end;
-        initialCollapsed[idx] = !isTodayInTerm; // Collapse if today is not in this term
-        if (isTodayInTerm) hasActiveTerm = true;
-      });
-
-      // If today is not in any term, expand the first term
-      if (!hasActiveTerm && activatedTerms.length > 0) {
-        initialCollapsed[0] = false;
-      }
-
-      setCollapsedTerms(initialCollapsed);
-    }
-  }, [activatedTerms]);
-
   const weeklyHolidaysArr: number[] = selectedTerm
     ? typeof selectedTerm.weeklyHolidays === 'string'
       ? JSON.parse(selectedTerm.weeklyHolidays as unknown as string)
@@ -616,23 +601,177 @@ export default function AcademicTimelinePage() {
   const progressPercentage =
     teachingDays.length > 0 ? (completedDays / teachingDays.length) * 100 : 0;
 
-  // Month groups (fallback view when no terms are configured)
+  // Month groups for full year view
   const monthGroups: MonthGroup[] = groupDaysByMonth(timelineDays);
 
-  // Per-term day/month groups so each term's calendar only shows its own date range
-  const termCalendars = activatedTerms.map((term: Term) => {
-    const days =
-      term.startDate && term.endDate
-        ? generateTimelineDays(
-            term.startDate,
-            term.endDate,
-            weeklyHolidaysArr,
-            selectedTerm?.vacationDays || [],
-            activatedTerms,
-          )
-        : [];
-    return { term, monthGroups: groupDaysByMonth(days) };
+  interface TimelineSection {
+    id: string;
+    type: 'term' | 'vacation';
+    name: string;
+    startDate: string;
+    endDate: string;
+    daysCount?: number;
+    termIndex?: number;
+    termColor?: (typeof TERM_COLORS)[0];
+    vacation?: VacationDay;
+    monthGroups: MonthGroup[];
+  }
+
+  // Build chronological timeline items: Terms + Vacation Breaks
+  const timelineSections: TimelineSection[] = [];
+
+  // Add terms
+  activatedTerms.forEach((term: Term, tIdx: number) => {
+    if (term.startDate && term.endDate) {
+      const days = generateTimelineDays(
+        term.startDate,
+        term.endDate,
+        weeklyHolidaysArr,
+        selectedTerm?.vacationDays || [],
+        activatedTerms,
+      );
+      timelineSections.push({
+        id: `term-${tIdx}`,
+        type: 'term',
+        name: term.name || `Term ${tIdx + 1}`,
+        startDate: term.startDate.split('T')[0]!,
+        endDate: term.endDate.split('T')[0]!,
+        termIndex: tIdx,
+        termColor: TERM_COLORS[tIdx % TERM_COLORS.length]!,
+        monthGroups: groupDaysByMonth(days),
+      });
+    }
   });
+
+  // Add vacations that fall outside/between terms so they are visible in the timeline
+  (selectedTerm?.vacationDays || []).forEach((vd: VacationDay, vIdx: number) => {
+    if (vd.startDate && vd.endDate) {
+      const vStart = vd.startDate.split('T')[0]!;
+      const vEnd = vd.endDate.split('T')[0]!;
+
+      // Check if completely contained inside a single term
+      const insideTerm = activatedTerms.some((t) => {
+        const tStart = t.startDate?.split('T')[0];
+        const tEnd = t.endDate?.split('T')[0];
+        return tStart && tEnd && vStart >= tStart && vEnd <= tEnd;
+      });
+
+      // If outside or between terms, create a dedicated vacation break timeline section
+      if (!insideTerm) {
+        const days = generateTimelineDays(
+          vStart,
+          vEnd,
+          weeklyHolidaysArr,
+          selectedTerm?.vacationDays || [],
+          activatedTerms,
+        );
+        timelineSections.push({
+          id: `vacation-${vd.id || vIdx}`,
+          type: 'vacation',
+          name: vd.reason || `Vacation Break ${vIdx + 1}`,
+          startDate: vStart,
+          endDate: vEnd,
+          daysCount: days.length,
+          vacation: vd,
+          monthGroups: groupDaysByMonth(days),
+        });
+      }
+    }
+  });
+
+  // Sort sections chronologically
+  timelineSections.sort((a, b) => a.startDate.localeCompare(b.startDate));
+
+  // Auto-collapse / expand sections
+  useEffect(() => {
+    if (timelineSections.length > 0) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayISO = today.toISOString().split('T')[0] ?? '';
+
+      const initialCollapsed: Record<string, boolean> = {};
+      let hasActiveSection = false;
+
+      timelineSections.forEach((sec) => {
+        const isTodayInSec = todayISO >= sec.startDate && todayISO <= sec.endDate;
+        initialCollapsed[sec.id] = !isTodayInSec;
+        if (isTodayInSec) hasActiveSection = true;
+      });
+
+      // Always keep vacation break sections expanded so user sees vacation days immediately
+      timelineSections.forEach((sec, idx) => {
+        if (sec.type === 'vacation') {
+          initialCollapsed[sec.id] = false;
+        } else if (!hasActiveSection && idx === 0) {
+          initialCollapsed[sec.id] = false;
+        }
+      });
+
+      setCollapsedSections(initialCollapsed);
+    }
+  }, [selectedTermId, activatedTerms.length, selectedTerm?.vacationDays?.length]);
+
+  // Reusable day cell renderer
+  const renderDayCell = (
+    day: TimelineDay | null,
+    colIdx: number,
+    termColorDayClass?: string,
+  ) => {
+    if (!day) return <div key={`empty-${colIdx}`} className="h-7" />;
+    const isTeachingDay = !day.isHoliday && !day.isVacation;
+    const vacationReason = day.isVacation
+      ? selectedTerm?.vacationDays?.find((v: VacationDay) => {
+          const s = v.startDate.split('T')[0]!;
+          const e = v.endDate.split('T')[0]!;
+          return day.date >= s && day.date <= e;
+        })?.reason
+      : undefined;
+
+    return (
+      <div
+        key={day.date}
+        onClick={() => !isViewMode && handleDayClick(day)}
+        className={cn(
+          'flex h-7 items-center justify-center rounded text-[11px] font-medium transition-all duration-100',
+          !isViewMode
+            ? 'cursor-pointer hover:scale-110 hover:shadow-sm active:scale-95'
+            : 'cursor-default',
+          // Completed teaching day
+          isTeachingDay && day.isPast && !day.isToday && 'bg-green-500 text-white',
+          // Today
+          day.isToday && 'bg-blue-500 text-white ring-2 ring-blue-300 ring-offset-1',
+          // Upcoming teaching day
+          isTeachingDay &&
+            !day.isPast &&
+            !day.isToday &&
+            (termColorDayClass ||
+              (day.termIndex !== null && day.termIndex !== undefined
+                ? TERM_COLORS[day.termIndex % TERM_COLORS.length]?.day
+                : 'bg-blue-100 text-blue-700')),
+          // Vacation day (takes visual precedence over holiday so orange is clearly seen)
+          day.isVacation &&
+            'bg-amber-100 text-amber-900 border border-amber-300 font-semibold shadow-2xs dark:bg-amber-950/60 dark:text-amber-200 dark:border-amber-700',
+          // Holiday (only when not vacation)
+          !day.isVacation &&
+            day.isHoliday &&
+            'cursor-default bg-red-100 text-red-600 hover:scale-100 dark:bg-red-950/40 dark:text-red-300',
+        )}
+        title={`${day.date}${
+          day.isVacation
+            ? ` — Vacation: ${vacationReason || 'Vacation'}`
+            : day.isHoliday
+            ? ' — Holiday'
+            : day.isToday
+            ? ' — Today'
+            : isTeachingDay
+            ? ' — Teaching Day'
+            : ''
+        }`}
+      >
+        {new Date(day.date + 'T00:00:00Z').getUTCDate()}
+      </div>
+    );
+  };
 
   const liveVacationDays = academicYears.find((t) => t.id === editingYear?.id)?.vacationDays ?? [];
 
@@ -727,7 +866,7 @@ export default function AcademicTimelinePage() {
                       { color: 'bg-blue-500 ring-2 ring-blue-300', label: 'Today' },
                       { color: 'bg-blue-100 border border-blue-200', label: 'Upcoming' },
                       { color: 'bg-red-100 border border-red-200', label: 'Holiday' },
-                      { color: 'bg-orange-100 border border-orange-200', label: 'Vacation' },
+                      { color: 'bg-amber-100 border border-amber-300', label: 'Vacation' },
                     ].map(({ color, label }) => (
                       <div key={label} className="flex items-center gap-1.5">
                         <div className={cn('h-3 w-3 rounded', color)} />
@@ -745,142 +884,309 @@ export default function AcademicTimelinePage() {
                     })}
                   </div>
 
-                  {/* Calendar grouped by Terms */}
-                  <div>
-                    <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Calendar by Term
-                    </p>
-                    {termCalendars.length > 0 ? (
-                      termCalendars.map(({ term, monthGroups: termMonthGroups }: { term: Term; monthGroups: MonthGroup[] }, tIdx: number) => {
-                        const tc = TERM_COLORS[tIdx % TERM_COLORS.length]!;
-                        const isCollapsed = collapsedTerms[tIdx];
-
-                        return (
-                          <div
-                            key={tIdx}
-                            className={cn(
-                              'mb-3 overflow-hidden rounded-xl border',
-                              tc.border,
-                              tc.light,
-                            )}
-                          >
-                            <button
-                              type="button"
-                              className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-black/5 dark:hover:bg-white/5"
-                              onClick={() => setCollapsedTerms((p) => ({ ...p, [tIdx]: !p[tIdx] }))}
+                  {/* Scheduled Vacations & Breaks Summary Box */}
+                  {(selectedTerm?.vacationDays || []).length > 0 && (
+                    <div className="rounded-xl border border-amber-200/90 bg-amber-50/60 p-3.5 space-y-2.5 dark:border-amber-900/50 dark:bg-amber-950/20">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Palmtree className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                          <span className="text-xs font-bold text-amber-900 dark:text-amber-200">
+                            Scheduled Vacations & Breaks ({selectedTerm?.vacationDays?.length})
+                          </span>
+                        </div>
+                        <Badge
+                          variant="outline"
+                          className="border-amber-300 bg-amber-100/80 text-amber-800 text-[10px] font-semibold dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300"
+                        >
+                          {timelineDays.filter((d) => d.isVacation).length} Total Vacation Days
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {selectedTerm?.vacationDays?.map((vd: VacationDay, idx: number) => {
+                          const vStart = new Date(vd.startDate.split('T')[0]! + 'T00:00:00Z');
+                          const vEnd = new Date(vd.endDate.split('T')[0]! + 'T00:00:00Z');
+                          const durationDays =
+                            Math.round((vEnd.getTime() - vStart.getTime()) / 86400000) + 1;
+                          return (
+                            <div
+                              key={vd.id || idx}
+                              className="flex items-center justify-between rounded-lg border border-amber-200 bg-white/95 p-2.5 text-xs shadow-2xs dark:border-amber-900/40 dark:bg-gray-900/80"
                             >
-                              <div className={cn('h-3 w-3 flex-shrink-0 rounded-full', tc.bg)} />
-                              <div className="min-w-0 flex-1">
-                                <span className={cn('text-sm font-bold', tc.text)}>
-                                  {term.name}
+                              <div className="flex flex-col min-w-0 pr-2">
+                                <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                                  {vd.reason || 'Vacation'}
                                 </span>
-                                <span className="text-muted-foreground ml-2 text-xs">
-                                  {term.startDate ? fmt(term.startDate) : '—'} →{' '}
-                                  {term.endDate ? fmt(term.endDate) : '—'}
+                                <span className="text-[11px] text-muted-foreground">
+                                  {fmt(vd.startDate)} → {fmt(vd.endDate)}
                                 </span>
                               </div>
-                              <ChevronDown
-                                className={cn(
-                                  'h-4 w-4 transition-transform duration-200',
-                                  tc.text,
-                                  !isCollapsed && 'rotate-180',
-                                )}
-                              />
-                            </button>
-                            {!isCollapsed && (
-                              <div className="border-t px-4 py-4">
-                                {termMonthGroups.length === 0 ? (
-                                  <p className="text-muted-foreground py-3 text-center text-xs">
-                                    Set a start and end date for this term to see its calendar.
-                                  </p>
-                                ) : (
-                                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                    {termMonthGroups.map(({ monthKey, year, month, cells }: MonthGroup) => {
-                                      const rows: (TimelineDay | null)[][] = [];
-                                      for (let i = 0; i < cells.length; i += 7)
-                                        rows.push(cells.slice(i, i + 7));
-                                      return (
-                                        <div key={monthKey}>
-                                          <div className="text-foreground mb-2 text-center text-sm font-bold">
-                                            {monthNames[month]} {year}
-                                          </div>
-                                          <div className="mb-1 grid grid-cols-7 gap-0.5">
-                                            {dayAbbr.map((d) => (
-                                              <div
-                                                key={d}
-                                                className="text-muted-foreground text-center text-[10px] font-semibold"
-                                              >
-                                                {d}
+                              <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                                {durationDays} {durationDays === 1 ? 'day' : 'days'}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Calendar Header with View Switcher */}
+                  <div>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        {calendarViewMode === 'terms'
+                          ? 'Timeline by Terms & Vacation Breaks'
+                          : 'Full Year Calendar (All 12 Months)'}
+                      </p>
+                      <div className="inline-flex rounded-lg border bg-muted/30 p-0.5 text-xs">
+                        <button
+                          type="button"
+                          onClick={() => setCalendarViewMode('terms')}
+                          className={cn(
+                            'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-medium transition-all duration-150',
+                            calendarViewMode === 'terms'
+                              ? 'bg-white text-foreground shadow-2xs dark:bg-gray-800'
+                              : 'text-muted-foreground hover:text-foreground',
+                          )}
+                        >
+                          <CalendarRange className="h-3.5 w-3.5" />
+                          <span>By Terms & Breaks</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCalendarViewMode('fullYear')}
+                          className={cn(
+                            'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-medium transition-all duration-150',
+                            calendarViewMode === 'fullYear'
+                              ? 'bg-white text-foreground shadow-2xs dark:bg-gray-800'
+                              : 'text-muted-foreground hover:text-foreground',
+                          )}
+                        >
+                          <LayoutGrid className="h-3.5 w-3.5" />
+                          <span>Full Year View</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {calendarViewMode === 'terms' ? (
+                      timelineSections.length > 0 ? (
+                        timelineSections.map((sec) => {
+                          const isCollapsed = collapsedSections[sec.id] ?? false;
+
+                          if (sec.type === 'vacation') {
+                            return (
+                              <div
+                                key={sec.id}
+                                className="mb-3 overflow-hidden rounded-xl border border-amber-200/90 bg-amber-50/40 dark:border-amber-900/50 dark:bg-amber-950/20"
+                              >
+                                <button
+                                  type="button"
+                                  className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-amber-100/40 dark:hover:bg-amber-900/20"
+                                  onClick={() =>
+                                    setCollapsedSections((p) => ({
+                                      ...p,
+                                      [sec.id]: !isCollapsed,
+                                    }))
+                                  }
+                                >
+                                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-200 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                                    <Palmtree className="h-3.5 w-3.5" />
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <span className="text-sm font-bold text-amber-900 dark:text-amber-200">
+                                        {sec.name}
+                                      </span>
+                                      <Badge
+                                        variant="outline"
+                                        className="border-amber-300 bg-amber-100 text-amber-800 text-[10px] font-semibold dark:border-amber-700 dark:bg-amber-950 dark:text-amber-300"
+                                      >
+                                        {sec.daysCount} Vacation Days
+                                      </Badge>
+                                    </div>
+                                    <span className="text-xs text-amber-700/80 dark:text-amber-300/70">
+                                      {fmt(sec.startDate)} → {fmt(sec.endDate)}
+                                    </span>
+                                  </div>
+                                  <ChevronDown
+                                    className={cn(
+                                      'h-4 w-4 text-amber-700 transition-transform duration-200 dark:text-amber-300',
+                                      !isCollapsed && 'rotate-180',
+                                    )}
+                                  />
+                                </button>
+                                {!isCollapsed && (
+                                  <div className="border-t border-amber-200/60 bg-white/60 px-4 py-4 dark:border-amber-900/40 dark:bg-gray-900/40">
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                      {sec.monthGroups.map(
+                                        ({
+                                          monthKey,
+                                          year,
+                                          month,
+                                          cells,
+                                        }: MonthGroup) => {
+                                          const rows: (TimelineDay | null)[][] = [];
+                                          for (let i = 0; i < cells.length; i += 7)
+                                            rows.push(cells.slice(i, i + 7));
+                                          return (
+                                            <div key={monthKey}>
+                                              <div className="text-foreground mb-2 text-center text-sm font-bold">
+                                                {monthNames[month]} {year}
                                               </div>
-                                            ))}
-                                          </div>
-                                          <div className="space-y-0.5">
-                                            {rows.map((row, rowIdx) => (
-                                              <div
-                                                key={rowIdx}
-                                                className="grid grid-cols-7 gap-0.5"
-                                              >
-                                                {row.map((day, colIdx) => {
-                                                  if (!day)
-                                                    return (
-                                                      <div
-                                                        key={`empty-${colIdx}`}
-                                                        className="h-7"
-                                                      />
-                                                    );
-                                                  const isTeachingDay =
-                                                    !day.isHoliday && !day.isVacation;
-                                                  return (
-                                                    <div
-                                                      key={day.date}
-                                                      onClick={() => !isViewMode && handleDayClick(day)}
-                                                      className={cn(
-                                                        'flex h-7 items-center justify-center rounded text-[11px] font-medium transition-all duration-100',
-                                                        !isViewMode ? 'cursor-pointer hover:scale-110 hover:shadow-sm active:scale-95' : 'cursor-default',
-                                                        isTeachingDay &&
-                                                          day.isPast &&
-                                                          !day.isToday &&
-                                                          'bg-green-500 text-white',
-                                                        day.isToday &&
-                                                          'bg-blue-500 text-white ring-2 ring-blue-300 ring-offset-1',
-                                                        isTeachingDay &&
-                                                          !day.isPast &&
-                                                          !day.isToday &&
-                                                          tc.day,
-                                                        day.isHoliday &&
-                                                          'cursor-default bg-red-100 text-red-600 hover:scale-100',
-                                                        day.isVacation &&
-                                                          'bg-orange-100 text-orange-700',
-                                                      )}
-                                                      title={`${day.date}`}
-                                                    >
-                                                      {new Date(
-                                                        day.date + 'T00:00:00Z',
-                                                      ).getUTCDate()}
-                                                    </div>
-                                                  );
-                                                })}
+                                              <div className="mb-1 grid grid-cols-7 gap-0.5">
+                                                {dayAbbr.map((d) => (
+                                                  <div
+                                                    key={d}
+                                                    className="text-muted-foreground text-center text-[10px] font-semibold"
+                                                  >
+                                                    {d}
+                                                  </div>
+                                                ))}
                                               </div>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      );
-                                    })}
+                                              <div className="space-y-0.5">
+                                                {rows.map((row, rowIdx) => (
+                                                  <div
+                                                    key={rowIdx}
+                                                    className="grid grid-cols-7 gap-0.5"
+                                                  >
+                                                    {row.map((day, colIdx) =>
+                                                      renderDayCell(day, colIdx),
+                                                    )}
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          );
+                                        },
+                                      )}
+                                    </div>
                                   </div>
                                 )}
                               </div>
-                            )}
-                          </div>
-                        );
-                      })
+                            );
+                          }
+
+                          // Term
+                          const tc = sec.termColor!;
+                          return (
+                            <div
+                              key={sec.id}
+                              className={cn(
+                                'mb-3 overflow-hidden rounded-xl border',
+                                tc.border,
+                                tc.light,
+                              )}
+                            >
+                              <button
+                                type="button"
+                                className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                                onClick={() =>
+                                  setCollapsedSections((p) => ({
+                                    ...p,
+                                    [sec.id]: !isCollapsed,
+                                  }))
+                                }
+                              >
+                                <div
+                                  className={cn(
+                                    'h-3 w-3 flex-shrink-0 rounded-full',
+                                    tc.bg,
+                                  )}
+                                />
+                                <div className="min-w-0 flex-1">
+                                  <span className={cn('text-sm font-bold', tc.text)}>
+                                    {sec.name}
+                                  </span>
+                                  <span className="text-muted-foreground ml-2 text-xs">
+                                    {sec.startDate ? fmt(sec.startDate) : '—'} →{' '}
+                                    {sec.endDate ? fmt(sec.endDate) : '—'}
+                                  </span>
+                                </div>
+                                <ChevronDown
+                                  className={cn(
+                                    'h-4 w-4 transition-transform duration-200',
+                                    tc.text,
+                                    !isCollapsed && 'rotate-180',
+                                  )}
+                                />
+                              </button>
+                              {!isCollapsed && (
+                                <div className="border-t px-4 py-4">
+                                  {sec.monthGroups.length === 0 ? (
+                                    <p className="text-muted-foreground py-3 text-center text-xs">
+                                      Set a start and end date for this term to see its calendar.
+                                    </p>
+                                  ) : (
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                      {sec.monthGroups.map(
+                                        ({
+                                          monthKey,
+                                          year,
+                                          month,
+                                          cells,
+                                        }: MonthGroup) => {
+                                          const rows: (TimelineDay | null)[][] = [];
+                                          for (let i = 0; i < cells.length; i += 7)
+                                            rows.push(cells.slice(i, i + 7));
+                                          return (
+                                            <div key={monthKey}>
+                                              <div className="text-foreground mb-2 text-center text-sm font-bold">
+                                                {monthNames[month]} {year}
+                                              </div>
+                                              <div className="mb-1 grid grid-cols-7 gap-0.5">
+                                                {dayAbbr.map((d) => (
+                                                  <div
+                                                    key={d}
+                                                    className="text-muted-foreground text-center text-[10px] font-semibold"
+                                                  >
+                                                    {d}
+                                                  </div>
+                                                ))}
+                                              </div>
+                                              <div className="space-y-0.5">
+                                                {rows.map((row, rowIdx) => (
+                                                  <div
+                                                    key={rowIdx}
+                                                    className="grid grid-cols-7 gap-0.5"
+                                                  >
+                                                    {row.map((day, colIdx) =>
+                                                      renderDayCell(
+                                                        day,
+                                                        colIdx,
+                                                        tc.day,
+                                                      ),
+                                                    )}
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          );
+                                        },
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <p className="text-muted-foreground py-4 text-center text-xs">
+                          No terms or vacation breaks configured yet.
+                        </p>
+                      )
                     ) : (
+                      /* Full Year View */
                       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {monthGroups.map(({ monthKey, year, month, cells }) => {
                           const rows: (TimelineDay | null)[][] = [];
                           for (let i = 0; i < cells.length; i += 7)
                             rows.push(cells.slice(i, i + 7));
                           return (
-                            <div key={monthKey}>
+                            <div
+                              key={monthKey}
+                              className="rounded-xl border bg-card p-3 shadow-2xs"
+                            >
                               <div className="text-foreground mb-2 text-center text-sm font-bold">
                                 {monthNames[month]} {year}
                               </div>
@@ -896,38 +1202,13 @@ export default function AcademicTimelinePage() {
                               </div>
                               <div className="space-y-0.5">
                                 {rows.map((row, rowIdx) => (
-                                  <div key={rowIdx} className="grid grid-cols-7 gap-0.5">
-                                    {row.map((day, colIdx) => {
-                                      if (!day)
-                                        return <div key={`empty-${colIdx}`} className="h-7" />;
-                                      const isTeachingDay = !day.isHoliday && !day.isVacation;
-                                      return (
-                                        <div
-                                          key={day.date}
-                                          onClick={() => !isViewMode && handleDayClick(day)}
-                                          className={cn(
-                                            'flex h-7 items-center justify-center rounded text-[11px] font-medium transition-all duration-100',
-                                            !isViewMode ? 'cursor-pointer hover:scale-110 hover:shadow-sm active:scale-95' : 'cursor-default',
-                                            isTeachingDay &&
-                                              day.isPast &&
-                                              !day.isToday &&
-                                              'bg-green-500 text-white',
-                                            day.isToday &&
-                                              'bg-blue-500 text-white ring-2 ring-blue-300 ring-offset-1',
-                                            isTeachingDay &&
-                                              !day.isPast &&
-                                              !day.isToday &&
-                                              'bg-blue-100 text-blue-700',
-                                            day.isHoliday &&
-                                              'cursor-default bg-red-100 text-red-600 hover:scale-100',
-                                            day.isVacation && 'bg-orange-100 text-orange-700',
-                                          )}
-                                          title={`${day.date}`}
-                                        >
-                                          {new Date(day.date + 'T00:00:00Z').getUTCDate()}
-                                        </div>
-                                      );
-                                    })}
+                                  <div
+                                    key={rowIdx}
+                                    className="grid grid-cols-7 gap-0.5"
+                                  >
+                                    {row.map((day, colIdx) =>
+                                      renderDayCell(day, colIdx),
+                                    )}
                                   </div>
                                 ))}
                               </div>
@@ -1059,6 +1340,27 @@ export default function AcademicTimelinePage() {
                               </div>
                             );
                           })}
+                        </div>
+                      )}
+
+                      {/* Vacation Days */}
+                      {year.vacationDays && year.vacationDays.length > 0 && (
+                        <div className="mt-2.5 space-y-1.5">
+                          <div className="text-muted-foreground text-xs font-semibold flex items-center gap-1">
+                            <Palmtree className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+                            <span>Vacations ({year.vacationDays.length})</span>
+                          </div>
+                          {year.vacationDays.map((vd: VacationDay, vIdx: number) => (
+                            <div
+                              key={vIdx}
+                              className="flex items-center gap-2 rounded-lg border border-amber-200/80 bg-amber-50/70 px-3 py-1.5 text-xs text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-200"
+                            >
+                              <span className="font-semibold truncate">{vd.reason || 'Vacation'}</span>
+                              <span className="text-muted-foreground ml-auto text-[11px] shrink-0">
+                                {fmt(vd.startDate)} → {fmt(vd.endDate)}
+                              </span>
+                            </div>
+                          ))}
                         </div>
                       )}
                     </CardContent>
@@ -1303,94 +1605,112 @@ export default function AcademicTimelinePage() {
 
             {/* Vacation Days */}
             <div className="animate-in fade-in slide-in-from-top-1 space-y-3 border-t pt-3 duration-200">
-              <Label className="text-xs font-semibold">Vacation Days</Label>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <Label className="text-xs">
-                    Start Date <span className="text-red-500">*</span>
+              <div className="space-y-3 rounded-xl border border-gray-200 bg-gray-50/70 p-3.5 dark:border-gray-800 dark:bg-gray-900/40">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-semibold text-gray-800 dark:text-gray-200">
+                    Vacation Days
                   </Label>
-                  <Input
-                    type="date"
-                    value={newVacationDay.startDate}
-                    onChange={(e) => {
-                      setNewVacationDay({ ...newVacationDay, startDate: e.target.value });
-                      setVacationError('');
-                    }}
-                  />
+                  {(editingYear ? liveVacationDays : pendingVacations).length > 0 && (
+                    <Badge variant="secondary" className="h-5 px-2 text-[10px] font-medium">
+                      {(editingYear ? liveVacationDays : pendingVacations).length} added
+                    </Badge>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">
+                      Start Date <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      type="date"
+                      value={newVacationDay.startDate}
+                      onChange={(e) => {
+                        setNewVacationDay({ ...newVacationDay, startDate: e.target.value });
+                        setVacationError('');
+                      }}
+                      className="bg-white dark:bg-gray-950"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">
+                      End Date <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      type="date"
+                      value={newVacationDay.endDate}
+                      onChange={(e) => {
+                        setNewVacationDay({ ...newVacationDay, endDate: e.target.value });
+                        setVacationError('');
+                      }}
+                      className="bg-white dark:bg-gray-950"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">
-                    End Date <span className="text-red-500">*</span>
+                  <Label className="text-xs text-muted-foreground">
+                    Reason <span className="text-red-500">*</span>
                   </Label>
-                  <Input
-                    type="date"
-                    value={newVacationDay.endDate}
-                    onChange={(e) => {
-                      setNewVacationDay({ ...newVacationDay, endDate: e.target.value });
-                      setVacationError('');
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">
-                  Reason <span className="text-red-500">*</span>
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="e.g. Diwali Break"
-                    value={newVacationDay.reason}
-                    onChange={(e) => {
-                      setNewVacationDay({ ...newVacationDay, reason: e.target.value });
-                      setVacationError('');
-                    }}
-                    className={cn('flex-1', vacationError && 'border-red-400')}
-                  />
-                  <Button
-                    type="button"
-                    onClick={addVacationDay}
-                    size="icon"
-                    className="transition-transform duration-150 active:scale-90"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                {vacationError && (
-                  <p className="animate-in fade-in text-xs text-red-500 duration-150">
-                    {vacationError}
-                  </p>
-                )}
-              </div>
-              <div className="max-h-40 space-y-2 overflow-y-auto">
-                {(editingYear ? liveVacationDays : pendingVacations).length === 0 && (
-                  <p className="text-muted-foreground py-3 text-center text-xs">
-                    No vacation days added yet.
-                  </p>
-                )}
-                {(editingYear ? liveVacationDays : pendingVacations).map((vd: VacationDay, idx: number) => (
-                  <div
-                    key={vd.id || idx}
-                    className="animate-in fade-in slide-in-from-top-1 flex items-center justify-between rounded-lg border bg-orange-50 p-2 duration-200 dark:bg-orange-900/10"
-                  >
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-medium">
-                        {fmt(vd.startDate)} — {fmt(vd.endDate)}
-                      </span>
-                      {vd.reason && (
-                        <span className="text-muted-foreground text-xs">{vd.reason}</span>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="e.g. Diwali Break"
+                      value={newVacationDay.reason}
+                      onChange={(e) => {
+                        setNewVacationDay({ ...newVacationDay, reason: e.target.value });
+                        setVacationError('');
+                      }}
+                      className={cn(
+                        'flex-1 bg-white dark:bg-gray-950',
+                        vacationError && 'border-red-400',
                       )}
-                    </div>
+                    />
                     <Button
                       type="button"
-                      variant="ghost"
+                      onClick={addVacationDay}
                       size="icon"
-                      className="text-destructive hover:text-destructive h-6 w-6 transition-transform duration-150 hover:scale-110"
-                      onClick={() => removeVacationDay(vd.id ?? '', idx)}
+                      className="transition-transform duration-150 active:scale-90"
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Plus className="h-4 w-4" />
                     </Button>
                   </div>
-                ))}
+                  {vacationError && (
+                    <p className="animate-in fade-in text-xs text-red-500 duration-150">
+                      {vacationError}
+                    </p>
+                  )}
+                </div>
+                <div className="max-h-40 space-y-2 overflow-y-auto">
+                  {(editingYear ? liveVacationDays : pendingVacations).length === 0 && (
+                    <p className="text-muted-foreground py-2 text-center text-xs">
+                      No vacation days added yet.
+                    </p>
+                  )}
+                  {(editingYear ? liveVacationDays : pendingVacations).map(
+                    (vd: VacationDay, idx: number) => (
+                      <div
+                        key={vd.id || idx}
+                        className="animate-in fade-in slide-in-from-top-1 flex items-center justify-between rounded-lg border border-gray-200 bg-white p-2 duration-200 dark:border-gray-800 dark:bg-gray-950"
+                      >
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-sm font-medium">
+                            {fmt(vd.startDate)} — {fmt(vd.endDate)}
+                          </span>
+                          {vd.reason && (
+                            <span className="text-muted-foreground text-xs">{vd.reason}</span>
+                          )}
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive h-6 w-6 transition-transform duration-150 hover:scale-110"
+                          onClick={() => removeVacationDay(vd.id ?? '', idx)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ),
+                  )}
+                </div>
               </div>
             </div>
 
