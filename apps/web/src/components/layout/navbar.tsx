@@ -16,7 +16,7 @@ export function Navbar({ title }: { title: string }) {
   const isAdminRoute = pathname?.startsWith('/admin');
   const isTeacherRoute = pathname?.startsWith('/teacher');
   const { school } = useSchool();
-  const { data: sessions } = useAcademicSessions();
+  const { sessions } = useAcademicSessions();
 
   const handleLogout = async () => {
     try {

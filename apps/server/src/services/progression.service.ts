@@ -1,5 +1,4 @@
 import { prisma } from '@school-syllabus/database';
-import { AppError } from '../middleware/error-handler.js';
 
 export interface ProgressionMetrics {
   globalTimeline: {
@@ -9,7 +8,7 @@ export interface ProgressionMetrics {
     elapsedTeachingDays: number;
     remainingTeachingDays: number;
     percentageComplete: number;
-  };
+  } | null;
   classProgress: ClassProgressItem[];
   subjectProgress: SubjectProgressItem[];
   teacherProgress: TeacherProgressItem[];
@@ -93,14 +92,7 @@ export class ProgressionService {
       // Do NOT fall back to a different session's ACTIVE term
       if (!academicSessionId) {
         return {
-          globalTimeline: {
-            startDate: new Date(),
-            endDate: new Date(),
-            totalTeachingDays: 0,
-            elapsedTeachingDays: 0,
-            remainingTeachingDays: 0,
-            percentageComplete: 0,
-          },
+          globalTimeline: null,
           classProgress: [],
           subjectProgress: [],
           teacherProgress: [],
@@ -109,14 +101,7 @@ export class ProgressionService {
     } else {
       // No academicYearId provided - return empty state
       return {
-        globalTimeline: {
-          startDate: new Date(),
-          endDate: new Date(),
-          totalTeachingDays: 0,
-          elapsedTeachingDays: 0,
-          remainingTeachingDays: 0,
-          percentageComplete: 0,
-        },
+        globalTimeline: null,
         classProgress: [],
         subjectProgress: [],
         teacherProgress: [],
@@ -126,14 +111,7 @@ export class ProgressionService {
     // If we still don't have an academicSessionId, return empty state
     if (!academicSessionId) {
       return {
-        globalTimeline: {
-          startDate: new Date(),
-          endDate: new Date(),
-          totalTeachingDays: 0,
-          elapsedTeachingDays: 0,
-          remainingTeachingDays: 0,
-          percentageComplete: 0,
-        },
+        globalTimeline: null,
         classProgress: [],
         subjectProgress: [],
         teacherProgress: [],
@@ -205,7 +183,7 @@ export class ProgressionService {
     }
 
     // Fetch vacation days for the active term (if available)
-    let vacationDays = [];
+    let vacationDays: Array<{ startDate: Date; endDate: Date }> = [];
     if (activeTerm) {
       vacationDays = await prisma.vacationDay.findMany({
         where: { academicTermId: activeTerm.id },
@@ -213,65 +191,54 @@ export class ProgressionService {
     }
 
     // Calculate global timeline metrics based on teaching days
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    let startDate, endDate, totalTeachingDays;
+    let globalTimeline: ProgressionMetrics['globalTimeline'] = null;
+    let percentageComplete = 0;
 
     if (activeTerm) {
-      startDate = new Date(activeTerm.startDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const startDate = new Date(activeTerm.startDate);
       startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(activeTerm.endDate);
+      const endDate = new Date(activeTerm.endDate);
       endDate.setHours(0, 0, 0, 0);
-      totalTeachingDays = activeTerm.actualAvailableDays || activeTerm.totalWorkingDays || 0;
-    } else {
-      // If no active term, use the academic session dates
-      const academicSession = await prisma.academicSession.findFirst({
-        where: { id: academicSessionId },
-        select: { startDate: true, endDate: true },
-      });
-      if (academicSession) {
-        startDate = new Date(academicSession.startDate);
-        startDate.setHours(0, 0, 0, 0);
-        endDate = new Date(academicSession.endDate);
-        endDate.setHours(0, 0, 0, 0);
-        // Estimate teaching days (rough calculation)
-        const diffTime = endDate.getTime() - startDate.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        totalTeachingDays = Math.floor(diffDays * 0.7); // Assume 70% are teaching days
-      } else {
-        // Fallback to current year
-        startDate = new Date(new Date().getFullYear(), 0, 1);
-        endDate = new Date(new Date().getFullYear(), 11, 31);
-        totalTeachingDays = 200;
-      }
-    }
+      const totalTeachingDays = activeTerm.actualAvailableDays || activeTerm.totalWorkingDays || 0;
 
-    // Calculate elapsed teaching days by counting weekdays minus holidays up to today
-    const weeklyHolidays = activeTerm
-      ? (typeof activeTerm.weeklyHolidays === 'string' ? JSON.parse(activeTerm.weeklyHolidays) : activeTerm.weeklyHolidays) || [0]
-      : [0];
-    let elapsedTeachingDays = 0;
-    let currentDate = new Date(startDate);
+      // Calculate elapsed teaching days by counting weekdays minus holidays up to today
+      const weeklyHolidays = typeof activeTerm.weeklyHolidays === 'string'
+        ? JSON.parse(activeTerm.weeklyHolidays)
+        : activeTerm.weeklyHolidays || [0];
+      let elapsedTeachingDays = 0;
+      const currentDate = new Date(startDate);
 
-    while (currentDate <= today && currentDate <= endDate) {
-      const dayOfWeek = currentDate.getDay();
-      if (!weeklyHolidays.includes(dayOfWeek)) {
-        // Check if this date falls within any vacation period
-        const isVacation = vacationDays.some((vd) => {
-          const vacStart = new Date(vd.startDate);
-          const vacEnd = new Date(vd.endDate);
-          return currentDate >= vacStart && currentDate <= vacEnd;
-        });
-        if (!isVacation) {
-          elapsedTeachingDays++;
+      while (currentDate <= today && currentDate <= endDate) {
+        const dayOfWeek = currentDate.getDay();
+        if (!weeklyHolidays.includes(dayOfWeek)) {
+          // Check if this date falls within any vacation period
+          const isVacation = vacationDays.some((vd) => {
+            const vacStart = new Date(vd.startDate);
+            const vacEnd = new Date(vd.endDate);
+            return currentDate >= vacStart && currentDate <= vacEnd;
+          });
+          if (!isVacation) {
+            elapsedTeachingDays++;
+          }
         }
+        currentDate.setDate(currentDate.getDate() + 1);
       }
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
 
-    const remainingTeachingDays = Math.max(0, totalTeachingDays - elapsedTeachingDays);
-    const percentageComplete =
-      totalTeachingDays > 0 ? (elapsedTeachingDays / totalTeachingDays) * 100 : 0;
+      const remainingTeachingDays = Math.max(0, totalTeachingDays - elapsedTeachingDays);
+      percentageComplete =
+        totalTeachingDays > 0 ? (elapsedTeachingDays / totalTeachingDays) * 100 : 0;
+
+      globalTimeline = {
+        startDate,
+        endDate,
+        totalTeachingDays,
+        elapsedTeachingDays,
+        remainingTeachingDays,
+        percentageComplete,
+      };
+    }
 
     // Get all classes with their chapters and progress
     const classes = await prisma.class.findMany({
@@ -315,14 +282,7 @@ export class ProgressionService {
     );
 
     return {
-      globalTimeline: {
-        startDate: startDate,
-        endDate: endDate,
-        totalTeachingDays,
-        elapsedTeachingDays,
-        remainingTeachingDays,
-        percentageComplete,
-      },
+      globalTimeline,
       classProgress,
       subjectProgress,
       teacherProgress,
@@ -485,6 +445,7 @@ export class ProgressionService {
   }
 
   private getVelocity(percentage: number, timelineProgress: number): 'less' | 'neutral' | 'more' {
+    if (timelineProgress <= 0) return 'neutral';
     const threshold = timelineProgress;
     // Use 5% tolerance for "on pace"
     if (percentage < threshold - 5) return 'less';

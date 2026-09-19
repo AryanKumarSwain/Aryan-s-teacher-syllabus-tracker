@@ -43,6 +43,14 @@ export const academicTermController = {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       console.log('[AcademicTermController.create] Request body:', JSON.stringify(req.body));
+      const schoolId = req.body.schoolId || getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      if (req.body.academicSessionId && req.body.academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot create timeline for an inactive or historical session' });
+      }
       const term = await academicTermService.create(req.body);
       sendSuccess(res, term, 201);
     } catch (err) {
@@ -55,6 +63,17 @@ export const academicTermController = {
     try {
       console.log('[AcademicTermController.update] Request body:', JSON.stringify(req.body));
       console.log('[AcademicTermController.update] Params:', req.params);
+      const existing = await prisma.academicTerm.findUnique({
+        where: { id: String(req.params.id) },
+        select: { academicSessionId: true, schoolId: true },
+      });
+      const school = await prisma.school.findUnique({
+        where: { id: existing?.schoolId || getTenantId(req) },
+        select: { currentAcademicSessionId: true },
+      });
+      if (existing?.academicSessionId && existing.academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot modify timeline for an inactive or historical session' });
+      }
       const term = await academicTermService.update(String(req.params.id), req.body);
       sendSuccess(res, term);
     } catch (err) {
@@ -65,6 +84,17 @@ export const academicTermController = {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
+      const existing = await prisma.academicTerm.findUnique({
+        where: { id: String(req.params.id) },
+        select: { academicSessionId: true, schoolId: true },
+      });
+      const school = await prisma.school.findUnique({
+        where: { id: existing?.schoolId || getTenantId(req) },
+        select: { currentAcademicSessionId: true },
+      });
+      if (existing?.academicSessionId && existing.academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot delete timeline of an inactive or historical session' });
+      }
       await academicTermService.softDelete(String(req.params.id));
       sendSuccess(res, { message: 'Academic term deleted' });
     } catch (err) {
@@ -74,6 +104,17 @@ export const academicTermController = {
 
   async addVacationDay(req: Request, res: Response, next: NextFunction) {
     try {
+      const existing = await prisma.academicTerm.findUnique({
+        where: { id: String(req.params.id) },
+        select: { academicSessionId: true, schoolId: true },
+      });
+      const school = await prisma.school.findUnique({
+        where: { id: existing?.schoolId || getTenantId(req) },
+        select: { currentAcademicSessionId: true },
+      });
+      if (existing?.academicSessionId && existing.academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot modify vacations for an inactive or historical session' });
+      }
       const vacationDay = await academicTermService.addVacationDay(String(req.params.id), req.body);
       sendSuccess(res, vacationDay, 201);
     } catch (err) {
@@ -83,6 +124,17 @@ export const academicTermController = {
 
   async removeVacationDay(req: Request, res: Response, next: NextFunction) {
     try {
+      const existing = await prisma.academicTerm.findUnique({
+        where: { id: String(req.params.id) },
+        select: { academicSessionId: true, schoolId: true },
+      });
+      const school = await prisma.school.findUnique({
+        where: { id: existing?.schoolId || getTenantId(req) },
+        select: { currentAcademicSessionId: true },
+      });
+      if (existing?.academicSessionId && existing.academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot modify vacations for an inactive or historical session' });
+      }
       await academicTermService.removeVacationDay(
         String(req.params.id),
         String(req.params.vacationId),
@@ -104,7 +156,26 @@ export const academicTermController = {
 
   async getTeacherTimelineProgress(req: Request, res: Response, next: NextFunction) {
     try {
-      const { teacherId, schoolId } = req.query;
+      const schoolId = String(req.query.schoolId || getTenantId(req));
+      let teacherId = req.query.teacherId as string | undefined;
+
+      if (req.user?.role === 'TEACHER') {
+        const school = await prisma.school.findUnique({
+          where: { id: schoolId },
+          select: { currentAcademicSessionId: true },
+        });
+        const teacher = await prisma.teacher.findFirst({
+          where: {
+            schoolId,
+            userId: req.user.sub,
+            ...(school?.currentAcademicSessionId ? { academicSessionId: school.currentAcademicSessionId } : {}),
+          },
+        });
+        if (teacher) {
+          teacherId = teacher.id;
+        }
+      }
+
       if (!teacherId || !schoolId) {
         throw new Error('Teacher ID and School ID are required');
       }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,7 +19,7 @@ const completeProfileSchema = z.object({
 
 type CompleteProfileFormData = z.infer<typeof completeProfileSchema>;
 
-export default function CompleteProfilePage() {
+function CompleteProfileContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -119,5 +119,13 @@ export default function CompleteProfilePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CompleteProfilePage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-[#f0f4f8]"><div className="h-40 w-80 animate-pulse rounded-xl bg-gray-200" /></div>}>
+      <CompleteProfileContent />
+    </Suspense>
   );
 }

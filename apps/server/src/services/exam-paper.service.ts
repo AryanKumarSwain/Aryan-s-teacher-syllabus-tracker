@@ -1,4 +1,4 @@
-import { prisma, type Prisma } from '@school-syllabus/database';
+import { prisma } from '@school-syllabus/database';
 import { examPaperRepository } from '../repositories/exam-paper.repository.js';
 import { AppError } from '../middleware/error-handler.js';
 
@@ -10,12 +10,21 @@ function normalizeExamDate(value?: string) {
 
 export const examPaperService = {
   async resolveTeacherId(schoolId: string, userId: string) {
+    const school = await prisma.school.findUnique({
+      where: { id: schoolId },
+      select: { currentAcademicSessionId: true },
+    });
     const teacher = await prisma.teacher.findFirst({
-      where: { schoolId, userId, deletedAt: null },
+      where: {
+        schoolId,
+        userId,
+        deletedAt: null,
+        ...(school?.currentAcademicSessionId ? { academicSessionId: school.currentAcademicSessionId } : {}),
+      },
       select: { id: true },
     });
 
-    if (!teacher) throw new AppError('Teacher profile not found', 404);
+    if (!teacher) throw new AppError('Teacher profile not found for the active academic session', 404);
     return teacher.id;
   },
 
@@ -124,13 +133,7 @@ export const examPaperService = {
   },
 
   async saveTemplate(schoolId: string, data: { headerHtml?: string; footerHtml?: string; instructions?: string; logoUrl?: string }) {
-    return examPaperRepository.upsertTemplate(schoolId, {
-      schoolId,
-      headerHtml: data.headerHtml ?? '',
-      footerHtml: data.footerHtml,
-      instructions: data.instructions,
-      logoUrl: data.logoUrl,
-    });
+    return examPaperRepository.upsertTemplate(schoolId, data);
   },
 
   async getTemplate(schoolId: string) {

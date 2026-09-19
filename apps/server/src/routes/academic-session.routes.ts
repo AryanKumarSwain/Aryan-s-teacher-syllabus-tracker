@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { academicSessionController } from '../controllers/academic-session.controller.js';
 import { authenticate, requireSchoolTenant } from '../middleware/auth.js';
 import { validateBody } from '../middleware/validate.js';
-import { withTenant } from '../repositories/base.repository.js';
 
 const academicSessionRoutes = Router();
 
@@ -35,6 +34,19 @@ academicSessionRoutes.get(
 academicSessionRoutes.get('/:id', academicSessionController.getById);
 
 
+// Create a new session
+academicSessionRoutes.post(
+  '/',
+  requireSchoolTenant,
+  validateBody(
+    z.object({
+      name: z.string().trim().min(1, 'Session name is required').max(50),
+      setAsActive: z.boolean().optional(),
+    }),
+  ),
+  academicSessionController.create,
+);
+
 // Switch active session
 academicSessionRoutes.post(
   '/switch',
@@ -44,6 +56,9 @@ academicSessionRoutes.post(
 
 // Archive a session
 academicSessionRoutes.patch('/:id/archive', academicSessionController.archive);
+
+// Delete an inactive session
+academicSessionRoutes.delete('/:id', requireSchoolTenant, academicSessionController.delete);
 
 // Import endpoints
 academicSessionRoutes.post(
@@ -69,6 +84,19 @@ academicSessionRoutes.post(
   requireSchoolTenant,
   validateBody(z.object({ sourceSessionId: z.string().uuid(), targetSessionId: z.string().uuid() })),
   academicSessionController.importSyllabus,
+);
+academicSessionRoutes.post(
+  '/import/structure',
+  requireSchoolTenant,
+  validateBody(
+    z.object({
+      sourceSessionId: z.string().uuid(),
+      targetSessionId: z.string().uuid(),
+      importClasses: z.boolean().optional(),
+      importTeachers: z.boolean().optional(),
+    }),
+  ),
+  academicSessionController.importStructure,
 );
 
 export default academicSessionRoutes;

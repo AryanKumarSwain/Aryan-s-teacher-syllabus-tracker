@@ -1,6 +1,6 @@
 import { prisma } from '@school-syllabus/database';
 import type { Prisma } from '@school-syllabus/database';
-import { withTenant, softDeleteFilter } from './base.repository.js';
+import { withTenant } from './base.repository.js';
 
 export const examPaperRepository = {
   async create(data: Prisma.ExamPaperCreateInput) {
@@ -91,11 +91,20 @@ export const examPaperRepository = {
     return prisma.examPaper.delete({ where: { id, schoolId } });
   },
 
-  async upsertTemplate(schoolId: string, data: Prisma.ExamPaperTemplateCreateInput | Prisma.ExamPaperTemplateUpdateInput) {
+  async upsertTemplate(
+    schoolId: string,
+    data: { headerHtml?: string; footerHtml?: string; instructions?: string; logoUrl?: string },
+  ) {
     return prisma.examPaperTemplate.upsert({
       where: { schoolId },
-      create: { schoolId, ...data } as Prisma.ExamPaperTemplateCreateInput,
-      update: data as Prisma.ExamPaperTemplateUpdateInput,
+      create: {
+        headerHtml: data.headerHtml ?? '',
+        footerHtml: data.footerHtml,
+        instructions: data.instructions,
+        logoUrl: data.logoUrl,
+        school: { connect: { id: schoolId } },
+      },
+      update: data,
     });
   },
 

@@ -50,7 +50,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}, retrie
   }
 
   // Try to get token from auth store first, then fallback to cookies
-  let token = skipAuth ? null : accessTokenGetter();
+  const token = skipAuth ? null : accessTokenGetter();
   
   const headers: Record<string, string> = {
     ...(init.headers as Record<string, string>),

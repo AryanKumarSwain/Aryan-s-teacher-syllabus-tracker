@@ -12,6 +12,7 @@ interface RichTextFieldProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  required?: boolean;
 }
 
 export function RichTextField({ value, onChange, placeholder }: RichTextFieldProps) {

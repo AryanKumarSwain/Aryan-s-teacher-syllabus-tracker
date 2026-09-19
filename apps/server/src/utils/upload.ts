@@ -7,9 +7,9 @@ cloudinary.config({
 });
 
 export async function uploadImage(file: File | Buffer, folder: string = 'exam-papers'): Promise<string> {
-  return new Promise(async (resolve, reject) => {
-    const buffer = file instanceof Buffer ? file : Buffer.from(await (file as File).arrayBuffer());
-    
+  const buffer = file instanceof Buffer ? file : Buffer.from(await (file as File).arrayBuffer());
+
+  return new Promise((resolve, reject) => {
     cloudinary.uploader.upload_stream(
       { 
         folder,

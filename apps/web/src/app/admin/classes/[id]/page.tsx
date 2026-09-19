@@ -77,7 +77,7 @@ export default function AdminClassDetailPage({ params }: { params: Promise<{ id:
   const { id } = use(params);
   const queryClient = useQueryClient();
   const schoolId = useSchoolId();
-  const { school } = useSchool();
+  const { school, isViewMode } = useSchool();
   const [addSubjectDialogOpen, setAddSubjectDialogOpen] = useState(false);
   const [selectedSubjectIdForAssign, setSelectedSubjectIdForAssign] = useState<string | null>(null);
 
@@ -85,7 +85,10 @@ export default function AdminClassDetailPage({ params }: { params: Promise<{ id:
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: classQueryKey,
-    queryFn: () => api.get<ClassDetails>(`/syllabus/classes/${id}`),
+    queryFn: () =>
+      api.get<ClassDetails>(`/syllabus/classes/${id}`, {
+        ...(school?.currentAcademicSessionId && { academicSessionId: school.currentAcademicSessionId }),
+      }),
     enabled: Boolean(schoolId && id),
   });
 
@@ -95,12 +98,19 @@ export default function AdminClassDetailPage({ params }: { params: Promise<{ id:
       classId: id,
       ...(school?.currentAcademicSessionId && { academicSessionId: school.currentAcademicSessionId }),
     }),
-    enabled: Boolean(schoolId && addSubjectDialogOpen),
+    enabled: Boolean(schoolId && addSubjectDialogOpen && !isViewMode),
   });
 
   const assignSubjectMutation = useMutation({
-    mutationFn: (subjectId: string) =>
-      api.patch(`/syllabus/subjects/${subjectId}`, { classId: id }),
+    mutationFn: (subjectId: string) => {
+      if (isViewMode) {
+        throw new Error('Cannot assign subject in View Mode');
+      }
+      return api.patch(`/syllabus/subjects/${subjectId}`, {
+        classId: id,
+        ...(school?.currentAcademicSessionId && { academicSessionId: school.currentAcademicSessionId }),
+      });
+    },
     onSuccess: async () => {
       await invalidateSyllabusStructure(queryClient, schoolId, school?.currentAcademicSessionId);
       await queryClient.refetchQueries({ queryKey: classQueryKey });
@@ -108,7 +118,7 @@ export default function AdminClassDetailPage({ params }: { params: Promise<{ id:
       setAddSubjectDialogOpen(false);
       setSelectedSubjectIdForAssign(null);
     },
-    onError: () => toast.error('Failed to assign subject'),
+    onError: (err: any) => toast.error(err.message || 'Failed to assign subject'),
   });
 
   useEffect(() => {
@@ -306,9 +316,15 @@ export default function AdminClassDetailPage({ params }: { params: Promise<{ id:
               <Badge className="border-none bg-blue-100 text-blue-700">
                 {data.subjects.length} subjects
               </Badge>
-              <Button size="sm" onClick={() => setAddSubjectDialogOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" /> Add Subject
-              </Button>
+              {!isViewMode ? (
+                <Button size="sm" onClick={() => setAddSubjectDialogOpen(true)}>
+                  <Plus className="mr-2 h-4 w-4" /> Add Subject
+                </Button>
+              ) : (
+                <span className="text-xs font-medium text-amber-800 bg-amber-100 px-2.5 py-1 rounded border border-amber-300">
+                  Read-Only
+                </span>
+              )}
             </div>
           </div>
 
@@ -317,7 +333,7 @@ export default function AdminClassDetailPage({ params }: { params: Promise<{ id:
               icon={GraduationCap}
               title="No subjects yet"
               description="Add subjects to start tracking progress."
-              action={{ label: 'Add Subject', onClick: () => setAddSubjectDialogOpen(true) }}
+              action={!isViewMode ? { label: 'Add Subject', onClick: () => setAddSubjectDialogOpen(true) } : undefined}
             />
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">

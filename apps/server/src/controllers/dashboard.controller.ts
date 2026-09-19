@@ -211,14 +211,7 @@ export const dashboardController = {
       if (!resolvedSessionId) {
         console.log('[DEBUG] dashboard.getAnalytics - no session resolved, returning empty state');
         return sendSuccess(res, {
-          globalTimeline: {
-            startDate: new Date(),
-            endDate: new Date(),
-            totalTeachingDays: 0,
-            elapsedTeachingDays: 0,
-            remainingTeachingDays: 0,
-            percentageComplete: 0,
-          },
+          globalTimeline: null,
           subjectProgress: [],
           teacherProgress: [],
           classProgress: [],
@@ -232,7 +225,6 @@ export const dashboardController = {
       // Use progressService for teacher progress to match /admin/teachers
       console.log('[DEBUG] dashboard.getAnalytics - calling progressService.getTeacherWiseProgress');
       const teacherProgressData = await progressService.getTeacherWiseProgress(schoolId, resolvedSessionId);
-      const subjectProgressData = await progressService.getSubjectWiseProgress(schoolId, resolvedSessionId);
 
       // Transform data to match frontend expectations
       const subjectProgress = analytics.subjectProgress.map((sp) => ({
@@ -248,8 +240,8 @@ export const dashboardController = {
         name: tp.name,
         progress: tp.progress,
         classId: tp.name, // Using name as placeholder
-        totalTopics: tp.totalTopics,
-        completedTopics: tp.completedTopics,
+        totalTopics: tp.totalChapters,
+        completedTopics: tp.completedChapters,
       }));
 
       const classProgress = analytics.classProgress.map((cp) => ({

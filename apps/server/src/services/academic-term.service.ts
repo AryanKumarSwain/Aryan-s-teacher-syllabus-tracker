@@ -1,7 +1,6 @@
 import { prisma, AcademicTermStatus } from '@school-syllabus/database';
 import { AppError } from '../middleware/error-handler.js';
 import { getPagination, softDeleteFilter } from '../repositories/base.repository.js';
-import { withTenant } from '../repositories/base.repository.js';
 
 export const academicTermService = {
   async list(params: {
@@ -390,7 +389,7 @@ export const academicTermService = {
 
     let totalWorkingDays = 0;
     let actualAvailableDays = 0;
-    let currentDate = new Date(start);
+    const currentDate = new Date(start);
 
     while (currentDate <= end) {
       const dayOfWeek = currentDate.getDay();

@@ -52,7 +52,7 @@ export const examPaperController = {
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
-      const paper = await examPaperService.getPaper(req.params.id, schoolId);
+      const paper = await examPaperService.getPaper(String(req.params.id), schoolId);
       sendSuccess(res, paper);
     } catch (error) {
       next(error);
@@ -62,7 +62,7 @@ export const examPaperController = {
   async update(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
-      const paper = await examPaperService.updatePaper(req.params.id, schoolId, req.body);
+      const paper = await examPaperService.updatePaper(String(req.params.id), schoolId, req.body);
       sendSuccess(res, paper);
     } catch (error) {
       next(error);
@@ -79,7 +79,7 @@ export const examPaperController = {
 
       const pdfUrl = await uploadImage(req.file.buffer, 'exam-papers');
       
-      const paper = await examPaperService.updatePaper(req.params.id, schoolId, { pdfUrl });
+      const paper = await examPaperService.updatePaper(String(req.params.id), schoolId, { pdfUrl });
       sendSuccess(res, paper);
     } catch (error) {
       next(error);
@@ -89,7 +89,7 @@ export const examPaperController = {
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
-      await examPaperService.deletePaper(req.params.id, schoolId);
+      await examPaperService.deletePaper(String(req.params.id), schoolId);
       sendSuccess(res, { success: true });
     } catch (error) {
       next(error);

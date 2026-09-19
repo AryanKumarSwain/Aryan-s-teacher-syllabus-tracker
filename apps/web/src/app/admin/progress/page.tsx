@@ -11,7 +11,9 @@ import {
   Info,
   Search,
   Settings,
+  ArrowRight,
 } from 'lucide-react';
+import Link from 'next/link';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,14 +37,14 @@ import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
 import { toast } from 'sonner';
 
 interface ProgressionMetrics {
-  globalTimeline: {
+  globalTimeline?: {
     startDate: string;
     endDate: string;
     totalTeachingDays: number;
     elapsedTeachingDays: number;
     remainingTeachingDays: number;
     percentageComplete: number;
-  };
+  } | null;
   classProgress: ClassProgressItem[];
   subjectProgress: SubjectProgressItem[];
   teacherProgress: TeacherProgressItem[];
@@ -90,22 +92,12 @@ export default function AdminProgressPage() {
   const [selectedTermFilter, setSelectedTermFilter] = useState<string>('all');
   const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<string>('');
 
-  // Use school's currentAcademicSessionId as the default, fallback to localStorage
+  // Always sync with school's currentAcademicSessionId (handles view mode switching dynamically)
   useEffect(() => {
     if (school?.currentAcademicSessionId) {
       setSelectedAcademicYearId(school.currentAcademicSessionId);
-    } else {
-      const saved = localStorage.getItem('selected-academic-year');
-      if (saved) setSelectedAcademicYearId(saved);
     }
   }, [school?.currentAcademicSessionId]);
-
-  // Update localStorage when selection changes
-  useEffect(() => {
-    if (selectedAcademicYearId) {
-      localStorage.setItem('selected-academic-year', selectedAcademicYearId);
-    }
-  }, [selectedAcademicYearId]);
 
   // Configurable velocity thresholds
   const [showThresholdSettings, setShowThresholdSettings] = useState(false);
@@ -140,9 +132,12 @@ export default function AdminProgressPage() {
   });
 
   const { data: academicYears } = useQuery({
-    queryKey: ['academic-terms', schoolId],
+    queryKey: ['academic-terms', schoolId, school?.currentAcademicSessionId],
     queryFn: async () => {
-      const response = await api.getPaginated<any>('/academic-terms', schoolId ? { schoolId } : undefined);
+      const response = await api.getPaginated<any>('/academic-terms', {
+        ...(schoolId && { schoolId }),
+        ...(school?.currentAcademicSessionId && { academicSessionId: school.currentAcademicSessionId }),
+      });
       return {
         ...response,
         items: response.items.map((year: any) => ({
@@ -181,7 +176,8 @@ export default function AdminProgressPage() {
   const filteredItems = useMemo(() => {
     if (!data) return [];
 
-    const targetProgress = data.globalTimeline.percentageComplete;
+    const hasTimeline = !!(data.globalTimeline && data.globalTimeline.totalTeachingDays > 0);
+    const targetProgress = data.globalTimeline?.percentageComplete ?? 0;
     let rawItems: any[] = [];
 
     switch (groupBy) {
@@ -199,18 +195,23 @@ export default function AdminProgressPage() {
     // Dynamic map applying configurable timeline status velocity logic
     const calibratedItems = rawItems.map((item) => {
       let calculatedVelocity: 'less' | 'neutral' | 'more' = 'neutral';
-      const diff = item.percentageComplete - targetProgress;
+      if (hasTimeline) {
+        const diff = item.percentageComplete - targetProgress;
 
-      // Use configurable tolerance for "on pace"
-      if (diff < -onPaceTolerance) {
-        calculatedVelocity = 'less'; // Behind
-      } else if (diff > onPaceTolerance) {
-        calculatedVelocity = 'more'; // Ahead
-      } else {
-        calculatedVelocity = 'neutral'; // On Pace (within tolerance)
+        // Use configurable tolerance for "on pace"
+        if (diff < -onPaceTolerance) {
+          calculatedVelocity = 'less'; // Behind
+        } else if (diff > onPaceTolerance) {
+          calculatedVelocity = 'more'; // Ahead
+        } else {
+          calculatedVelocity = 'neutral'; // On Pace (within tolerance)
+        }
       }
 
-      return { ...item, velocity: calculatedVelocity };
+      return {
+        ...item,
+        velocity: calculatedVelocity,
+      };
     });
 
     let items = calibratedItems;
@@ -308,89 +309,118 @@ export default function AdminProgressPage() {
             <CardTitle className="relative flex items-center gap-2 text-base font-bold">
               <Calendar className="h-5 w-5 text-blue-500" />
               Academic Timeline Progress
-              <button
-                type="button"
-                onClick={() => setShowThresholdSettings(true)}
-                className="ml-auto flex h-7 w-7 items-center justify-center rounded-full text-gray-400 outline-none hover:bg-gray-100 hover:text-gray-600"
-                title="Configure pacing thresholds"
-              >
-                <Settings className="h-4 w-4" />
-              </button>
-              {/* Interactive In-line Custom Popover */}
-              <div className="relative inline-block">
-                <button
-                  type="button"
-                  onClick={() => setShowInfoPopover(!showInfoPopover)}
-                  onBlur={() => setTimeout(() => setShowInfoPopover(false), 200)}
-                  className="flex h-6 w-6 items-center justify-center rounded-full text-gray-400 outline-none hover:bg-gray-100 hover:text-gray-600"
-                >
-                  <Info className="h-4 w-4" />
-                </button>
+              {data?.globalTimeline && data.globalTimeline.totalTeachingDays > 0 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setShowThresholdSettings(true)}
+                    className="ml-auto flex h-7 w-7 items-center justify-center rounded-full text-gray-400 outline-none hover:bg-gray-100 hover:text-gray-600"
+                    title="Configure pacing thresholds"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </button>
+                  {/* Interactive In-line Custom Popover */}
+                  <div className="relative inline-block">
+                    <button
+                      type="button"
+                      onClick={() => setShowInfoPopover(!showInfoPopover)}
+                      onBlur={() => setTimeout(() => setShowInfoPopover(false), 200)}
+                      className="flex h-6 w-6 items-center justify-center rounded-full text-gray-400 outline-none hover:bg-gray-100 hover:text-gray-600"
+                    >
+                      <Info className="h-4 w-4" />
+                    </button>
 
-                {showInfoPopover && (
-                  <div className="animate-in fade-in slide-in-from-bottom-2 absolute bottom-full left-1/2 z-50 mb-2 w-72 -translate-x-1/2 rounded-xl border border-gray-200 bg-white p-4 shadow-xl transition-all duration-200">
-                    <div className="space-y-2 text-xs font-normal normal-case tracking-normal">
-                      <h4 className="text-sm font-bold text-gray-900">How pacing is calculated:</h4>
-                      <p className="leading-relaxed text-gray-600">
-                        Metrics are evaluated against the current
-                        <span className="font-semibold text-blue-600">
-                          {' '}
-                          Timeline Progress ({data.globalTimeline.percentageComplete.toFixed(1)}%)
-                        </span>
-                        with a tolerance of ±{onPaceTolerance}%:
-                      </p>
-                      <ul className="list-disc space-y-1 pl-4 text-gray-600">
-                        <li>
-                          <span className="font-semibold text-red-600">Behind:</span> Item progress
-                          is more than {onPaceTolerance}% below the timeline threshold
-                        </li>
-                        <li>
-                          <span className="font-semibold text-amber-600">On Pace:</span> Item
-                          progress is within ±{onPaceTolerance}% of the threshold
-                        </li>
-                        <li>
-                          <span className="font-semibold text-emerald-600">Ahead:</span> Item
-                          progress is more than {onPaceTolerance}% above the threshold
-                        </li>
-                      </ul>
-                    </div>
+                    {showInfoPopover && (
+                      <div className="animate-in fade-in slide-in-from-bottom-2 absolute bottom-full left-1/2 z-50 mb-2 w-72 -translate-x-1/2 rounded-xl border border-gray-200 bg-white p-4 shadow-xl transition-all duration-200">
+                        <div className="space-y-2 text-xs font-normal normal-case tracking-normal">
+                          <h4 className="text-sm font-bold text-gray-900">How pacing is calculated:</h4>
+                          <p className="leading-relaxed text-gray-600">
+                            Metrics are evaluated against the current
+                            <span className="font-semibold text-blue-600">
+                              {' '}
+                              Timeline Progress ({data.globalTimeline.percentageComplete.toFixed(1)}%)
+                            </span>
+                            with a tolerance of ±{onPaceTolerance}%:
+                          </p>
+                          <ul className="list-disc space-y-1 pl-4 text-gray-600">
+                            <li>
+                              <span className="font-semibold text-red-600">Behind:</span> Item progress
+                              is more than {onPaceTolerance}% below the timeline threshold
+                            </li>
+                            <li>
+                              <span className="font-semibold text-amber-600">On Pace:</span> Item
+                              progress is within ±{onPaceTolerance}% of the threshold
+                            </li>
+                            <li>
+                              <span className="font-semibold text-emerald-600">Ahead:</span> Item
+                              progress is more than {onPaceTolerance}% above the threshold
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between text-xs sm:text-sm">
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground">Start Date:</span>
-                <span className="font-semibold text-gray-700">
-                  {new Date(data.globalTimeline.startDate).toLocaleDateString()}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground">End Date:</span>
-                <span className="font-semibold text-gray-700">
-                  {new Date(data.globalTimeline.endDate).toLocaleDateString()}
-                </span>
-              </div>
-            </div>
+            {data?.globalTimeline && data.globalTimeline.totalTeachingDays > 0 ? (
+              <>
+                <div className="flex items-center justify-between text-xs sm:text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">Start Date:</span>
+                    <span className="font-semibold text-gray-700">
+                      {new Date(data.globalTimeline.startDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">End Date:</span>
+                    <span className="font-semibold text-gray-700">
+                      {new Date(data.globalTimeline.endDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs sm:text-sm">
-                <span className="font-medium text-gray-700">
-                  Teaching Day {data.globalTimeline.elapsedTeachingDays} of{' '}
-                  {data.globalTimeline.totalTeachingDays}
-                </span>
-                <span className="font-bold text-blue-600">
-                  {data.globalTimeline.percentageComplete.toFixed(1)}% Term Completed
-                </span>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
+                    <span className="font-medium text-gray-700">
+                      Teaching Day {data.globalTimeline.elapsedTeachingDays} of{' '}
+                      {data.globalTimeline.totalTeachingDays}
+                    </span>
+                    <span className="font-bold text-blue-600">
+                      {data.globalTimeline.percentageComplete.toFixed(1)}% Term Completed
+                    </span>
+                  </div>
+                  <Progress value={data.globalTimeline.percentageComplete} className="h-3" />
+                  <div className="text-muted-foreground flex items-center justify-between text-[11px] sm:text-xs">
+                    <span>{data.globalTimeline.remainingTeachingDays} teaching days remaining</span>
+                    <span>{data.globalTimeline.elapsedTeachingDays} teaching days elapsed</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-dashed border-gray-200 bg-gray-50/70 p-5 sm:flex-row">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <Calendar className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 text-sm">No academic timeline configured</p>
+                    <p className="text-xs text-gray-500">
+                      Configure your session timeline to see teaching days and pacing progress.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/admin/academic-timeline"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#1a73e8] px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                >
+                  Configure Timeline
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
               </div>
-              <Progress value={data.globalTimeline.percentageComplete} className="h-3" />
-              <div className="text-muted-foreground flex items-center justify-between text-[11px] sm:text-xs">
-                <span>{data.globalTimeline.remainingTeachingDays} teaching days remaining</span>
-                <span>{data.globalTimeline.elapsedTeachingDays} teaching days elapsed</span>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { BookMarked, Trash2, Plus, Pencil, Search, MoreVertical, Loader2 } from 'lucide-react';
+import { BookMarked, Trash2, Plus, Pencil, Search, MoreVertical, Loader2, Eye } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,7 +31,6 @@ import { syllabusKeys } from '@/features/syllabus/query-keys';
 import { invalidateSyllabusStructure } from '@/features/syllabus/invalidate-syllabus';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
-import { ImportDataButton } from '@/components/admin/import-data-button';
 
 interface Subject {
   id: string;
@@ -91,9 +90,10 @@ function getClassColorStyles(className?: string | null) {
 export default function AdminSubjectsPage() {
   const queryClient = useQueryClient();
   const schoolId = useSchoolId();
-  const { school } = useSchool();
+  const { school, isViewMode } = useSchool();
+  const queryClientRef = useQueryClient();
 
-  // Modal & Form State
+  // Dialog State
   const [open, setOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
   const [name, setName] = useState('');
@@ -141,6 +141,10 @@ export default function AdminSubjectsPage() {
   }, [subjects, searchQuery, selectedClassFilter]);
 
   const handleCreateClick = () => {
+    if (isViewMode) {
+      toast.error('Cannot create subject in View Mode');
+      return;
+    }
     setEditingSubject(null);
     setName('');
     setCode('');
@@ -150,6 +154,10 @@ export default function AdminSubjectsPage() {
   };
 
   const handleEditClick = (subject: Subject) => {
+    if (isViewMode) {
+      toast.error('Cannot edit subject in View Mode');
+      return;
+    }
     setEditingSubject(subject);
     setName(subject.name);
     setCode(subject.code || '');
@@ -161,6 +169,9 @@ export default function AdminSubjectsPage() {
   // Mutations
   const createMutation = useMutation({
     mutationFn: () => {
+      if (isViewMode) {
+        throw new Error('Cannot create subject in View Mode. Switch to active session to make changes.');
+      }
       if (!school?.currentAcademicSessionId) {
         throw new Error('No active academic session found. Please create or select a session first.');
       }
@@ -180,17 +191,22 @@ export default function AdminSubjectsPage() {
       toast.success('Subject created successfully');
       setOpen(false);
     },
-    onError: () => toast.error('Failed to create subject'),
+    onError: (err: any) => toast.error(err.message || 'Failed to create subject'),
   });
 
   const updateMutation = useMutation({
-    mutationFn: (id: string) =>
-      api.patch<Subject>(`/syllabus/subjects/${id}`, {
+    mutationFn: (id: string) => {
+      if (isViewMode) {
+        throw new Error('Cannot edit subject in View Mode. Switch to active session to make changes.');
+      }
+      return api.patch<Subject>(`/syllabus/subjects/${id}`, {
+        academicSessionId: school?.currentAcademicSessionId,
         name: name.trim(),
         code: code.trim() || undefined,
         description: description.trim() || undefined,
         classId: classId || undefined,
-      }),
+      });
+    },
     onSuccess: async (updated) => {
       queryClient.setQueryData<Subject[]>(syllabusKeys.subjects(schoolId, school?.currentAcademicSessionId), (old) =>
         old ? old.map((s) => (s.id === updated.id ? updated : s)) : [updated],
@@ -199,11 +215,16 @@ export default function AdminSubjectsPage() {
       toast.success('Subject updated successfully');
       setOpen(false);
     },
-    onError: () => toast.error('Failed to update subject'),
+    onError: (err: any) => toast.error(err.message || 'Failed to update subject'),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => api.delete(`/syllabus/subjects/${id}`),
+    mutationFn: (id: string) => {
+      if (isViewMode) {
+        throw new Error('Cannot delete subject in View Mode. Switch to active session to make changes.');
+      }
+      return api.delete(`/syllabus/subjects/${id}`);
+    },
     onSuccess: async (_, deletedId) => {
       queryClient.setQueryData<Subject[]>(syllabusKeys.subjects(schoolId, school?.currentAcademicSessionId), (old) =>
         old ? old.filter((s) => s.id !== deletedId) : old,
@@ -211,7 +232,7 @@ export default function AdminSubjectsPage() {
       await invalidateSyllabusStructure(queryClient, schoolId, school?.currentAcademicSessionId);
       toast.success('Subject deleted successfully');
     },
-    onError: () => toast.error('Failed to delete subject'),
+    onError: (err: any) => toast.error(err.message || 'Failed to delete subject'),
   });
 
   const handleSubmit = () => {
@@ -262,10 +283,15 @@ export default function AdminSubjectsPage() {
         </div>
 
         <div className="flex gap-2">
-          <ImportDataButton type="subjects" label="Import Subjects" />
-          <Button onClick={handleCreateClick} className="shrink-0">
-            <Plus className="mr-2 h-4 w-4" /> Add subject
-          </Button>
+          {!isViewMode ? (
+            <Button onClick={handleCreateClick} className="shrink-0">
+              <Plus className="mr-2 h-4 w-4" /> Add subject
+            </Button>
+          ) : (
+            <span className="text-xs font-semibold text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-xs">
+              <Eye className="h-3.5 w-3.5 text-amber-600" /> Read-Only View Mode
+            </span>
+          )}
         </div>
       </div>
 
@@ -285,7 +311,7 @@ export default function AdminSubjectsPage() {
               : 'Add academic subjects to initiate school syllabus mappings.'
           }
           action={
-            searchQuery || selectedClassFilter !== 'all'
+            searchQuery || selectedClassFilter !== 'all' || isViewMode
               ? undefined
               : { label: 'Add subject', onClick: handleCreateClick }
           }
@@ -314,29 +340,31 @@ export default function AdminSubjectsPage() {
                       {s.name}
                     </CardTitle>
 
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="hover:bg-muted h-8 w-8 p-0">
-                          <MoreVertical className="text-muted-foreground h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-36">
-                        <DropdownMenuItem onClick={() => handleEditClick(s)}>
-                          <Pencil className="mr-2 h-3.5 w-3.5" /> Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          disabled={deleteMutation.isPending}
-                          className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                          onClick={() => {
-                            if (confirm('Delete this subject permanently?')) {
-                              deleteMutation.mutate(s.id);
-                            }
-                          }}
-                        >
-                          <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    {!isViewMode && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="hover:bg-muted h-8 w-8 p-0">
+                            <MoreVertical className="text-muted-foreground h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-36">
+                          <DropdownMenuItem onClick={() => handleEditClick(s)}>
+                            <Pencil className="mr-2 h-3.5 w-3.5" /> Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            disabled={deleteMutation.isPending}
+                            className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                            onClick={() => {
+                              if (confirm('Delete this subject permanently?')) {
+                                deleteMutation.mutate(s.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   </CardHeader>
 
                   <CardContent className="space-y-3">

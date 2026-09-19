@@ -48,11 +48,27 @@ export const authService = {
     }
     if (user.status !== 'ACTIVE') throw new AppError('Account is not active', 403);
 
+    let school: { id: string; name: string; currentAcademicSessionId: string | null } | undefined;
+    if (user.schoolId) {
+      const schoolData = await prisma.school.findUnique({
+        where: { id: user.schoolId },
+        select: { id: true, name: true, currentAcademicSessionId: true },
+      });
+      if (schoolData) {
+        school = schoolData;
+      }
+    }
+
     let teacherId: string | null = null;
     if (user.role === 'TEACHER') {
-      const teacher = await prisma.teacher.findFirst({ where: { userId: user.id } });
+      const teacher = await prisma.teacher.findFirst({
+        where: {
+          userId: user.id,
+          ...(school?.currentAcademicSessionId ? { academicSessionId: school.currentAcademicSessionId } : {}),
+        },
+      });
       if (!teacher || teacher.deletedAt) {
-        throw new AppError('Account is not active', 403);
+        throw new AppError('Account is not active for the current academic session', 403);
       }
       if (teacher.status === 'SUSPENDED') {
         throw new AppError('Account is suspended. Contact your school administrator.', 403);
@@ -79,17 +95,6 @@ export const authService = {
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
     });
-
-    let school: { id: string; name: string; currentAcademicSessionId: string | null } | undefined;
-    if (user.schoolId) {
-      const schoolData = await prisma.school.findUnique({
-        where: { id: user.schoolId },
-        select: { id: true, name: true, currentAcademicSessionId: true },
-      });
-      if (schoolData) {
-        school = schoolData;
-      }
-    }
 
     await userRepository.updateLastLogin(user.id);
 

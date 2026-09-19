@@ -1,9 +1,6 @@
 import { prisma, SessionStatus } from '@school-syllabus/database';
 import { AppError } from '../middleware/error-handler.js';
-import { getPagination, softDeleteFilter } from '../repositories/base.repository.js';
-
-// Hardcoded sessions as per requirements
-const HARDCODED_SESSIONS = ['2026-27', '2027-28', '2028-29'];
+import { getPagination } from '../repositories/base.repository.js';
 
 export const academicSessionService = {
   async list(params: { page: number; pageSize: number; schoolId?: string; status?: string }) {
@@ -14,10 +11,8 @@ export const academicSessionService = {
       return { items: [], total: 0, page, pageSize };
     }
 
-    // Return only hardcoded sessions from database
     const where = {
       schoolId,
-      name: { in: HARDCODED_SESSIONS },
       ...(params.status && { status: params.status as SessionStatus }),
     };
 
@@ -65,13 +60,64 @@ export const academicSessionService = {
   },
 
   async getBySchoolId(schoolId: string) {
-    // Return only hardcoded sessions for this school from database
-    return prisma.academicSession.findMany({
+    const [school, sessions] = await Promise.all([
+      prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      }),
+      prisma.academicSession.findMany({
+        where: {
+          schoolId,
+        },
+        orderBy: { name: 'asc' },
+        include: {
+          _count: {
+            select: {
+              academicTerms: true,
+              classes: true,
+              subjects: true,
+              chapters: true,
+              teachers: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    return sessions.map((s) => ({
+      ...s,
+      status: s.id === school?.currentAcademicSessionId ? SessionStatus.ACTIVE : SessionStatus.ARCHIVED,
+      isArchived: s.id !== school?.currentAcademicSessionId,
+    }));
+  },
+
+  async create(schoolId: string, data: { name: string; setAsActive?: boolean }) {
+    const trimmedName = data.name.trim();
+    if (!trimmedName) {
+      throw new AppError('Session name is required', 400);
+    }
+
+    // Check if session with name already exists for this school
+    const existing = await prisma.academicSession.findUnique({
       where: {
-        schoolId,
-        name: { in: HARDCODED_SESSIONS },
+        schoolId_name: {
+          schoolId,
+          name: trimmedName,
+        },
       },
-      orderBy: { name: 'asc' },
+    });
+
+    if (existing) {
+      throw new AppError(`Academic session "${trimmedName}" already exists`, 409);
+    }
+
+    const session = await prisma.academicSession.create({
+      data: {
+        schoolId,
+        name: trimmedName,
+        status: data.setAsActive ? SessionStatus.ACTIVE : SessionStatus.ARCHIVED,
+        isArchived: !data.setAsActive,
+      },
       include: {
         _count: {
           select: {
@@ -84,16 +130,74 @@ export const academicSessionService = {
         },
       },
     });
+
+    if (data.setAsActive) {
+      await prisma.$transaction([
+        prisma.school.update({
+          where: { id: schoolId },
+          data: { currentAcademicSessionId: session.id },
+        }),
+        prisma.academicSession.updateMany({
+          where: { schoolId, id: { not: session.id } },
+          data: { status: SessionStatus.ARCHIVED, isArchived: true },
+        }),
+      ]);
+    }
+
+    return session;
   },
 
+  async delete(schoolId: string, id: string) {
+    const session = await prisma.academicSession.findFirst({
+      where: { id, schoolId },
+      include: {
+        _count: {
+          select: {
+            classes: true,
+            subjects: true,
+            chapters: true,
+            teachers: true,
+          },
+        },
+      },
+    });
+
+    if (!session) {
+      throw new AppError('Academic session not found', 404);
+    }
+
+    const school = await prisma.school.findUnique({
+      where: { id: schoolId },
+      select: { currentAcademicSessionId: true },
+    });
+
+    if (school?.currentAcademicSessionId === id) {
+      throw new AppError('Cannot delete the currently active session. Switch to another session first.', 400);
+    }
+
+    // Delete session and related empty/cascade records
+    await prisma.$transaction(async (tx) => {
+      await tx.topicProgress.deleteMany({ where: { academicSessionId: id } });
+      await tx.chapterProgress.deleteMany({ where: { academicSessionId: id } });
+      await tx.examPaper.deleteMany({ where: { academicSessionId: id } });
+      await tx.teacherClass.deleteMany({ where: { academicSessionId: id } });
+      await tx.topic.deleteMany({ where: { academicSessionId: id } });
+      await tx.chapter.deleteMany({ where: { academicSessionId: id } });
+      await tx.subject.deleteMany({ where: { academicSessionId: id } });
+      await tx.class.deleteMany({ where: { academicSessionId: id } });
+      await tx.academicTerm.deleteMany({ where: { academicSessionId: id } });
+      await tx.academicSession.delete({ where: { id } });
+    });
+
+    return { message: 'Academic session deleted successfully' };
+  },
 
   async switchSession(schoolId: string, sessionId: string) {
-    // Verify session exists and is one of the hardcoded sessions for this school
+    // Verify session exists for this school
     const session = await prisma.academicSession.findFirst({
       where: {
         id: sessionId,
         schoolId,
-        name: { in: HARDCODED_SESSIONS },
       },
     });
 
@@ -101,10 +205,24 @@ export const academicSessionService = {
       throw new AppError('Invalid session for this school', 403);
     }
 
-    // Update current session
-    return prisma.school.update({
+    // Update current session and synchronize status/isArchived
+    await prisma.$transaction([
+      prisma.school.update({
+        where: { id: schoolId },
+        data: { currentAcademicSessionId: sessionId },
+      }),
+      prisma.academicSession.updateMany({
+        where: { schoolId, id: { not: sessionId } },
+        data: { status: SessionStatus.ARCHIVED, isArchived: true },
+      }),
+      prisma.academicSession.update({
+        where: { id: sessionId },
+        data: { status: SessionStatus.ACTIVE, isArchived: false },
+      }),
+    ]);
+
+    return prisma.school.findUnique({
       where: { id: schoolId },
-      data: { currentAcademicSessionId: sessionId },
     });
   },
 
@@ -236,6 +354,25 @@ export const academicSessionService = {
       throw new AppError('Sessions must belong to the same school', 400);
     }
 
+    // Get teachers belonging to source session
+    let sourceTeachers = await prisma.teacher.findMany({
+      where: {
+        academicSessionId: sourceSessionId,
+        schoolId: sourceSession.schoolId,
+        deletedAt: null,
+      },
+    });
+
+    // If no teachers specifically tagged with sourceSessionId, look up active teachers in this school
+    if (sourceTeachers.length === 0) {
+      sourceTeachers = await prisma.teacher.findMany({
+        where: {
+          schoolId: sourceSession.schoolId,
+          deletedAt: null,
+        },
+      });
+    }
+
     // Get teacher-class mappings from source session
     const sourceTeacherClasses = await prisma.teacherClass.findMany({
       where: {
@@ -243,73 +380,145 @@ export const academicSessionService = {
       },
     });
 
-    if (sourceTeacherClasses.length === 0) {
-      throw new AppError('No teacher assignments found in source session', 404);
+    if (sourceTeachers.length === 0 && sourceTeacherClasses.length === 0) {
+      throw new AppError('No teachers found in this school to import', 404);
     }
 
-    // Map old IDs to new IDs
-    const sourceClasses = await prisma.class.findMany({
-      where: { academicSessionId: sourceSessionId },
-    });
+    // Assign teachers to the target session (only those not already in target session)
+    const teachersToUpdate = sourceTeachers.filter((t) => t.academicSessionId !== targetSessionId);
+    if (teachersToUpdate.length > 0) {
+      await prisma.teacher.updateMany({
+        where: {
+          id: { in: teachersToUpdate.map((t) => t.id) },
+          schoolId: sourceSession.schoolId,
+        },
+        data: {
+          academicSessionId: targetSessionId,
+        },
+      });
+    }
 
-    const targetClasses = await prisma.class.findMany({
-      where: { academicSessionId: targetSessionId },
-    });
+    let successAssignmentsCount = 0;
 
-    const sourceSubjects = await prisma.subject.findMany({
-      where: { academicSessionId: sourceSessionId },
-    });
+    if (sourceTeacherClasses.length > 0) {
+      // Map old IDs to new IDs
+      const sourceClasses = await prisma.class.findMany({
+        where: { academicSessionId: sourceSessionId },
+      });
 
-    const targetSubjects = await prisma.subject.findMany({
-      where: { academicSessionId: targetSessionId },
-    });
+      const targetClasses = await prisma.class.findMany({
+        where: { academicSessionId: targetSessionId },
+      });
 
-    const classMapping: Record<string, string> = {};
-    const subjectMapping: Record<string, string> = {};
+      const sourceSubjects = await prisma.subject.findMany({
+        where: { academicSessionId: sourceSessionId },
+      });
 
-    sourceClasses.forEach((src) => {
-      const matching = targetClasses.find(
-        (tgt) => tgt.name === src.name && tgt.section === src.section,
-      );
-      if (matching) {
-        classMapping[src.id] = matching.id;
-      }
-    });
+      const targetSubjects = await prisma.subject.findMany({
+        where: { academicSessionId: targetSessionId },
+      });
 
-    sourceSubjects.forEach((src) => {
-      const matching = targetSubjects.find((tgt) => tgt.name === src.name);
-      if (matching) {
-        subjectMapping[src.id] = matching.id;
-      }
-    });
+      const classMapping: Record<string, string> = {};
+      const subjectMapping: Record<string, string> = {};
 
-    // Create teacher-class mappings in target session
-    const createdTeacherClasses = await Promise.all(
-      sourceTeacherClasses.map((srcTC) => {
-        const newClassId = classMapping[srcTC.classId];
-        const newSubjectId = srcTC.subjectId ? subjectMapping[srcTC.subjectId] : null;
-
-        if (!newClassId) {
-          return null; // Skip if class mapping not found
+      sourceClasses.forEach((src) => {
+        const matching = targetClasses.find(
+          (tgt) => tgt.name === src.name && tgt.section === src.section,
+        );
+        if (matching) {
+          classMapping[src.id] = matching.id;
         }
+      });
 
-        return prisma.teacherClass.create({
-          data: {
-            schoolId: srcTC.schoolId,
-            academicSessionId: targetSessionId,
-            teacherId: srcTC.teacherId,
-            classId: newClassId,
-            subjectId: newSubjectId,
-          },
-        });
-      }),
-    );
+      sourceSubjects.forEach((src) => {
+        const matching = targetSubjects.find((tgt) => tgt.name === src.name);
+        if (matching) {
+          subjectMapping[src.id] = matching.id;
+        }
+      });
 
-    const successCount = createdTeacherClasses.filter((tc) => tc !== null).length;
+      // Create teacher-class mappings in target session
+      const createdTeacherClasses = await Promise.all(
+        sourceTeacherClasses.map(async (srcTC) => {
+          const newClassId = classMapping[srcTC.classId];
+          const newSubjectId = srcTC.subjectId ? subjectMapping[srcTC.subjectId] : null;
+
+          if (!newClassId) {
+            return null; // Skip if class mapping not found
+          }
+
+          // Check if mapping already exists in target session to avoid unique constraint collisions
+          const existing = await prisma.teacherClass.findFirst({
+            where: {
+              academicSessionId: targetSessionId,
+              teacherId: srcTC.teacherId,
+              classId: newClassId,
+              subjectId: newSubjectId,
+              schoolId: srcTC.schoolId,
+            },
+          });
+          if (existing) {
+            return existing;
+          }
+
+          return prisma.teacherClass.create({
+            data: {
+              schoolId: srcTC.schoolId,
+              academicSessionId: targetSessionId,
+              teacherId: srcTC.teacherId,
+              classId: newClassId,
+              subjectId: newSubjectId,
+            },
+          });
+        }),
+      );
+
+      successAssignmentsCount = createdTeacherClasses.filter((tc) => tc !== null).length;
+    }
+
+    const messageParts: string[] = [];
+    if (sourceTeachers.length > 0) {
+      messageParts.push(`${sourceTeachers.length} teachers`);
+    }
+    if (successAssignmentsCount > 0) {
+      messageParts.push(`${successAssignmentsCount} assignments`);
+    }
 
     return {
-      message: `Successfully imported ${successCount} teacher assignments`,
-      count: successCount,
+      message: `Successfully imported ${messageParts.join(' and ')}`,
+      teacherCount: sourceTeachers.length,
+      assignmentCount: successAssignmentsCount,
+    };
+  },
+
+  async importStructure(
+    sourceSessionId: string,
+    targetSessionId: string,
+    options: { importClasses?: boolean; importTeachers?: boolean } = {},
+  ) {
+    const doClasses = options.importClasses ?? true;
+    const doTeachers = options.importTeachers ?? false;
+
+    if (!doClasses && !doTeachers) {
+      throw new AppError('Select at least classes or teachers to import', 400);
+    }
+
+    const results: { classes?: any; teachers?: any } = {};
+    const messages: string[] = [];
+
+    if (doClasses) {
+      results.classes = await this.importClasses(sourceSessionId, targetSessionId);
+      messages.push(`${results.classes.count} classes`);
+    }
+
+    if (doTeachers) {
+      results.teachers = await this.importTeachers(sourceSessionId, targetSessionId);
+      messages.push(results.teachers.message.replace(/^Successfully imported\s+/i, ''));
+    }
+
+    return {
+      message: `Successfully imported ${messages.join(' and ')}`,
+      results,
     };
   },
 

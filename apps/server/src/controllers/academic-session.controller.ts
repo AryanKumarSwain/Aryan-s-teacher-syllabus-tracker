@@ -37,6 +37,32 @@ export const academicSessionController = {
   },
 
 
+  async create(req: Request, res: Response, next: NextFunction) {
+    try {
+      const schoolId = req.schoolId || String(req.body.schoolId);
+      if (!schoolId) {
+        return res.status(400).json({ success: false, error: 'schoolId is required' });
+      }
+      const session = await academicSessionService.create(schoolId, req.body);
+      sendSuccess(res, session, 201);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async delete(req: Request, res: Response, next: NextFunction) {
+    try {
+      const schoolId = req.schoolId || String(req.query.schoolId);
+      if (!schoolId) {
+        return res.status(400).json({ success: false, error: 'schoolId is required' });
+      }
+      const result = await academicSessionService.delete(schoolId, String(req.params.id));
+      sendSuccess(res, result);
+    } catch (err) {
+      next(err);
+    }
+  },
+
   async switchSession(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = req.schoolId || String(req.body.schoolId);
@@ -117,6 +143,24 @@ export const academicSessionController = {
           .json({ success: false, error: 'sourceSessionId and targetSessionId are required' });
       }
       const result = await academicSessionService.importSyllabus(sourceSessionId, targetSessionId);
+      sendSuccess(res, result);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async importStructure(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { sourceSessionId, targetSessionId, importClasses = true, importTeachers = false } = req.body;
+      if (!sourceSessionId || !targetSessionId) {
+        return res
+          .status(400)
+          .json({ success: false, error: 'sourceSessionId and targetSessionId are required' });
+      }
+      const result = await academicSessionService.importStructure(sourceSessionId, targetSessionId, {
+        importClasses,
+        importTeachers,
+      });
       sendSuccess(res, result);
     } catch (err) {
       next(err);

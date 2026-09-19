@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
+import { useAcademicSessions } from '@/features/syllabus/hooks/use-academic-sessions';
 
 interface VacationDay {
   id?: string;
@@ -215,7 +216,9 @@ function fmt(dateStr: string) {
 
 export default function AcademicTimelinePage() {
   const schoolId = useSchoolId();
-  const { school } = useSchool();
+  const { school, isViewMode } = useSchool();
+  const { sessions } = useAcademicSessions();
+  const activeSession = sessions.find((s) => s.id === school?.currentAcademicSessionId);
   const qc = useQueryClient();
   const STORAGE_KEY = `academic-timeline-form-${schoolId || 'default'}`;
 
@@ -293,12 +296,17 @@ export default function AcademicTimelinePage() {
   }, [open, editingYear, STORAGE_KEY]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['academic-terms', schoolId],
+    queryKey: ['academic-terms', schoolId, school?.currentAcademicSessionId],
     queryFn: async () => {
       // Query academic terms for current session only
+      const params: Record<string, any> = {};
+      if (schoolId) params.schoolId = schoolId;
+      if (school?.currentAcademicSessionId) {
+        params.academicSessionId = school.currentAcademicSessionId;
+      }
       const response = await api.getPaginated<any>(
         '/academic-terms',
-        schoolId ? { schoolId } : undefined,
+        Object.keys(params).length > 0 ? params : undefined,
       );
       const items = response.items.map((year: any) => ({
         ...year,
@@ -328,9 +336,23 @@ export default function AcademicTimelinePage() {
 
   const selectedTerm = academicYears.find((t) => t.id === selectedTermId);
 
+  const getAutoFetchedSessionName = () => {
+    if (!activeSession?.name) return '';
+    return activeSession.name.toLowerCase().includes('academic') ||
+      activeSession.name.toLowerCase().includes('year')
+      ? activeSession.name
+      : `${activeSession.name} Academic Year`;
+  };
+
+  useEffect(() => {
+    if (!editingYear && !savedState?.yearName && activeSession?.name && !yearName) {
+      setYearName(getAutoFetchedSessionName());
+    }
+  }, [activeSession?.name, editingYear, savedState?.yearName, yearName]);
+
   const handleCreateClick = () => {
     setEditingYear(null);
-    setYearName('');
+    setYearName(getAutoFetchedSessionName());
     setYearStartDate('');
     setYearEndDate('');
     setWeeklyHolidays([0]);
@@ -355,8 +377,8 @@ export default function AcademicTimelinePage() {
     setTerms(
       (year.terms || []).map((t: Term) => ({
         name: t.name,
-        startDate: t.startDate ? t.startDate.split('T')[0] : '',
-        endDate: t.endDate ? t.endDate.split('T')[0] : '',
+        startDate: (t.startDate ? t.startDate.split('T')[0] : '') || '',
+        endDate: (t.endDate ? t.endDate.split('T')[0] : '') || '',
       })),
     );
     setNewVacationDay({ startDate: '', endDate: '', reason: '' });
@@ -366,6 +388,9 @@ export default function AcademicTimelinePage() {
 
   const createMutation = useMutation({
     mutationFn: () => {
+      if (isViewMode) {
+        throw new Error('Viewing mode is read-only. Cannot create academic year.');
+      }
       if (!yearName || !yearStartDate || !yearEndDate)
         throw new Error('Fill in all required fields');
       if (!schoolId) throw new Error('School ID is required');
@@ -394,7 +419,7 @@ export default function AcademicTimelinePage() {
       });
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['academic-terms', schoolId] });
+      qc.invalidateQueries({ queryKey: ['academic-terms'] });
       toast.success('Academic year created');
       setOpen(false);
     },
@@ -402,16 +427,20 @@ export default function AcademicTimelinePage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (id: string) =>
-      api.patch<AcademicYear>(`/academic-terms/${id}`, {
+    mutationFn: (id: string) => {
+      if (isViewMode) {
+        throw new Error('Viewing mode is read-only. Cannot edit academic year.');
+      }
+      return api.patch<AcademicYear>(`/academic-terms/${id}`, {
         name: yearName,
         startDate: yearStartDate,
         endDate: yearEndDate,
         weeklyHolidays,
         terms,
-      }),
+      });
+    },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['academic-terms', schoolId] });
+      qc.invalidateQueries({ queryKey: ['academic-terms'] });
       toast.success('Academic year updated');
       setOpen(false);
     },
@@ -419,24 +448,39 @@ export default function AcademicTimelinePage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => api.delete(`/academic-terms/${id}`),
+    mutationFn: (id: string) => {
+      if (isViewMode) {
+        throw new Error('Viewing mode is read-only. Cannot delete academic year.');
+      }
+      return api.delete(`/academic-terms/${id}`);
+    },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['academic-terms', schoolId] });
+      qc.invalidateQueries({ queryKey: ['academic-terms'] });
       toast.success('Academic term deleted');
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const handleSubmit = () => {
+    if (isViewMode) {
+      toast.error('Viewing mode is read-only.');
+      return;
+    }
     if (editingYear) updateMutation.mutate(editingYear.id);
     else createMutation.mutate();
   };
-  const toggleWeeklyHoliday = (day: number) =>
+  const toggleWeeklyHoliday = (day: number) => {
+    if (isViewMode) return;
     setWeeklyHolidays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
     );
+  };
 
   const addVacationDay = async () => {
+    if (isViewMode) {
+      toast.error('Viewing mode is read-only.');
+      return;
+    }
     if (!newVacationDay.startDate || !newVacationDay.endDate) {
       setVacationError('Start date and end date are required.');
       return;
@@ -449,8 +493,8 @@ export default function AcademicTimelinePage() {
     if (editingYear) {
       try {
         await api.post(`/academic-terms/${editingYear.id}/vacation-days`, newVacationDay);
-        await qc.invalidateQueries({ queryKey: ['academic-terms', schoolId] });
-        const cached = qc.getQueryData<{ items: AcademicYear[] }>(['academic-terms', schoolId]);
+        await qc.invalidateQueries({ queryKey: ['academic-terms'] });
+        const cached = qc.getQueryData<{ items: AcademicYear[] }>(['academic-terms', schoolId, school?.currentAcademicSessionId]);
         const fresh = cached?.items.find((t) => t.id === editingYear.id);
         if (fresh) setEditingYear(fresh);
         setNewVacationDay({ startDate: '', endDate: '', reason: '' });
@@ -465,11 +509,15 @@ export default function AcademicTimelinePage() {
   };
 
   const removeVacationDay = async (vacationId: string, index?: number) => {
+    if (isViewMode) {
+      toast.error('Viewing mode is read-only.');
+      return;
+    }
     if (editingYear) {
       try {
         await api.delete(`/academic-terms/${editingYear.id}/vacation-days/${vacationId}`);
-        await qc.invalidateQueries({ queryKey: ['academic-terms', schoolId] });
-        const cached = qc.getQueryData<{ items: AcademicYear[] }>(['academic-terms', schoolId]);
+        await qc.invalidateQueries({ queryKey: ['academic-terms'] });
+        const cached = qc.getQueryData<{ items: AcademicYear[] }>(['academic-terms', schoolId, school?.currentAcademicSessionId]);
         const fresh = cached?.items.find((t) => t.id === editingYear.id);
         if (fresh) setEditingYear(fresh);
         toast.success('Vacation removed');
@@ -482,14 +530,19 @@ export default function AcademicTimelinePage() {
   };
 
   const handleDayClick = (day: TimelineDay) => {
+    if (isViewMode) return;
     setSelectedDay(day);
     setDayEditOpen(true);
   };
 
   const toggleDayAsVacation = async () => {
+    if (isViewMode) {
+      toast.error('Viewing mode is read-only.');
+      return;
+    }
     if (!selectedTerm || !selectedDay) return;
     try {
-      const existing = selectedTerm.vacationDays?.find((vd) => {
+      const existing = selectedTerm.vacationDays?.find((vd: VacationDay) => {
         const s = new Date(vd.startDate),
           e = new Date(vd.endDate),
           dd = new Date(selectedDay.date);
@@ -506,28 +559,29 @@ export default function AcademicTimelinePage() {
         });
         toast.success('Day marked as vacation');
       }
-      qc.invalidateQueries({ queryKey: ['academic-terms', schoolId] });
+      qc.invalidateQueries({ queryKey: ['academic-terms'] });
       setDayEditOpen(false);
     } catch (e: any) {
       toast.error(e.message);
     }
   };
 
-  const activatedTerms = Array.isArray(selectedTerm?.terms) ? selectedTerm.terms : [];
+  const activatedTerms: Term[] = Array.isArray(selectedTerm?.terms) ? (selectedTerm.terms as Term[]) : [];
 
   // Auto-collapse terms based on today's date - expand only the term containing current date
   useEffect(() => {
     if (activatedTerms.length > 0) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const todayISO = today.toISOString().split('T')[0];
+      const todayISO = today.toISOString().split('T')[0] ?? '';
 
       const initialCollapsed: Record<number, boolean> = {};
       let hasActiveTerm = false;
 
-      activatedTerms.forEach((term, idx) => {
-        const isTodayInTerm =
-          todayISO >= term.startDate.split('T')[0]! && todayISO <= term.endDate.split('T')[0]!;
+      activatedTerms.forEach((term: Term, idx: number) => {
+        const start = term.startDate.split('T')[0] ?? '';
+        const end = term.endDate.split('T')[0] ?? '';
+        const isTodayInTerm = todayISO >= start && todayISO <= end;
         initialCollapsed[idx] = !isTodayInTerm; // Collapse if today is not in this term
         if (isTodayInTerm) hasActiveTerm = true;
       });
@@ -566,7 +620,7 @@ export default function AcademicTimelinePage() {
   const monthGroups: MonthGroup[] = groupDaysByMonth(timelineDays);
 
   // Per-term day/month groups so each term's calendar only shows its own date range
-  const termCalendars = activatedTerms.map((term) => {
+  const termCalendars = activatedTerms.map((term: Term) => {
     const days =
       term.startDate && term.endDate
         ? generateTimelineDays(
@@ -594,12 +648,15 @@ export default function AcademicTimelinePage() {
               teaching days.
             </p>
           </div>
-          {!timelineExists && (
+          {isViewMode ? (
+            <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-700 py-1.5 px-3 font-medium">
+              Read-Only View Mode
+            </Badge>
+          ) : !timelineExists ? (
             <Button onClick={handleCreateClick}>
               <Plus className="mr-2 h-4 w-4" /> Create Timeline
             </Button>
-          )}
-          {timelineExists && (
+          ) : (
             <div className="inline-flex items-center rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
               <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -624,8 +681,12 @@ export default function AcademicTimelinePage() {
           <EmptyState
             icon={Calendar}
             title="No academic timeline configured"
-            description="Create an academic timeline to start tracking teaching days and progress. You can do this once per academic session."
-            action={{ label: 'Create Timeline', onClick: handleCreateClick }}
+            description={
+              isViewMode
+                ? "No academic timeline exists for this historical session."
+                : "Create an academic timeline to start tracking teaching days and progress. You can do this once per academic session."
+            }
+            action={!isViewMode ? { label: 'Create Timeline', onClick: handleCreateClick } : undefined}
           />
         ) : (
           <>
@@ -673,7 +734,7 @@ export default function AcademicTimelinePage() {
                         <span>{label}</span>
                       </div>
                     ))}
-                    {activatedTerms.map((t, i) => {
+                    {activatedTerms.map((t: Term, i: number) => {
                       const tc = TERM_COLORS[i % TERM_COLORS.length]!;
                       return (
                         <div key={i} className="flex items-center gap-1.5">
@@ -690,7 +751,7 @@ export default function AcademicTimelinePage() {
                       Calendar by Term
                     </p>
                     {termCalendars.length > 0 ? (
-                      termCalendars.map(({ term, monthGroups: termMonthGroups }, tIdx) => {
+                      termCalendars.map(({ term, monthGroups: termMonthGroups }: { term: Term; monthGroups: MonthGroup[] }, tIdx: number) => {
                         const tc = TERM_COLORS[tIdx % TERM_COLORS.length]!;
                         const isCollapsed = collapsedTerms[tIdx];
 
@@ -734,7 +795,7 @@ export default function AcademicTimelinePage() {
                                   </p>
                                 ) : (
                                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                    {termMonthGroups.map(({ monthKey, year, month, cells }) => {
+                                    {termMonthGroups.map(({ monthKey, year, month, cells }: MonthGroup) => {
                                       const rows: (TimelineDay | null)[][] = [];
                                       for (let i = 0; i < cells.length; i += 7)
                                         rows.push(cells.slice(i, i + 7));
@@ -772,9 +833,10 @@ export default function AcademicTimelinePage() {
                                                   return (
                                                     <div
                                                       key={day.date}
-                                                      onClick={() => handleDayClick(day)}
+                                                      onClick={() => !isViewMode && handleDayClick(day)}
                                                       className={cn(
-                                                        'flex h-7 cursor-pointer items-center justify-center rounded text-[11px] font-medium transition-all duration-100 hover:scale-110 hover:shadow-sm active:scale-95',
+                                                        'flex h-7 items-center justify-center rounded text-[11px] font-medium transition-all duration-100',
+                                                        !isViewMode ? 'cursor-pointer hover:scale-110 hover:shadow-sm active:scale-95' : 'cursor-default',
                                                         isTeachingDay &&
                                                           day.isPast &&
                                                           !day.isToday &&
@@ -842,9 +904,10 @@ export default function AcademicTimelinePage() {
                                       return (
                                         <div
                                           key={day.date}
-                                          onClick={() => handleDayClick(day)}
+                                          onClick={() => !isViewMode && handleDayClick(day)}
                                           className={cn(
-                                            'flex h-7 cursor-pointer items-center justify-center rounded text-[11px] font-medium transition-all duration-100 hover:scale-110 hover:shadow-sm active:scale-95',
+                                            'flex h-7 items-center justify-center rounded text-[11px] font-medium transition-all duration-100',
+                                            !isViewMode ? 'cursor-pointer hover:scale-110 hover:shadow-sm active:scale-95' : 'cursor-default',
                                             isTeachingDay &&
                                               day.isPast &&
                                               !day.isToday &&
@@ -1016,26 +1079,30 @@ export default function AcademicTimelinePage() {
                     >
                       <Calculator className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-foreground h-8 w-8"
-                      title="Edit year"
-                      onClick={() => handleEditClick(year)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
-                      title="Delete year"
-                      onClick={() => {
-                        if (confirm('Delete this academic year?')) deleteMutation.mutate(year.id);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {!isViewMode && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-muted-foreground hover:text-foreground h-8 w-8"
+                          title="Edit year"
+                          onClick={() => handleEditClick(year)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
+                          title="Delete year"
+                          onClick={() => {
+                            if (confirm('Delete this academic year?')) deleteMutation.mutate(year.id);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
@@ -1057,7 +1124,19 @@ export default function AcademicTimelinePage() {
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Year Name</Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold">Year Name</Label>
+                {activeSession?.name && (
+                  <button
+                    type="button"
+                    onClick={() => setYearName(getAutoFetchedSessionName())}
+                    className="text-[11px] text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                    title="Auto-fill with current active session name"
+                  >
+                    Auto-fill: {activeSession.name}
+                  </button>
+                )}
+              </div>
               <Input
                 value={yearName}
                 onChange={(e) => setYearName(e.target.value)}
@@ -1288,7 +1367,7 @@ export default function AcademicTimelinePage() {
                     No vacation days added yet.
                   </p>
                 )}
-                {(editingYear ? liveVacationDays : pendingVacations).map((vd, idx) => (
+                {(editingYear ? liveVacationDays : pendingVacations).map((vd: VacationDay, idx: number) => (
                   <div
                     key={vd.id || idx}
                     className="animate-in fade-in slide-in-from-top-1 flex items-center justify-between rounded-lg border bg-orange-50 p-2 duration-200 dark:bg-orange-900/10"

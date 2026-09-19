@@ -130,7 +130,7 @@ export default function TeacherAcademicTimelinePage() {
   useEffect(() => {
     if (terms.length > 0) {
       const stillValid = terms.find((t) => t.id === selectedTermId);
-      if (!stillValid) {
+      if (!stillValid && terms[0]) {
         setSelectedTermId(terms[0].id);
       }
     }

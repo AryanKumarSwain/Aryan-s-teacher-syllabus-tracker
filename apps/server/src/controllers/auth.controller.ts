@@ -262,14 +262,6 @@ export const authController = {
         return res.status(404).json({ success: false, error: 'User not found' });
       }
 
-      let teacherId: string | null = null;
-      if (user.role === 'TEACHER') {
-        const teacher = await prisma.teacher.findFirst({ where: { userId: user.id } });
-        if (teacher) {
-          teacherId = teacher.id;
-        }
-      }
-
       let school: { id: string; name: string; currentAcademicSessionId: string | null } | undefined;
       if (user.schoolId) {
         const schoolData = await prisma.school.findUnique({
@@ -278,6 +270,19 @@ export const authController = {
         });
         if (schoolData) {
           school = schoolData;
+        }
+      }
+
+      let teacherId: string | null = null;
+      if (user.role === 'TEACHER') {
+        const teacher = await prisma.teacher.findFirst({
+          where: {
+            userId: user.id,
+            ...(school?.currentAcademicSessionId ? { academicSessionId: school.currentAcademicSessionId } : {}),
+          },
+        });
+        if (teacher) {
+          teacherId = teacher.id;
         }
       }
 
@@ -505,8 +510,8 @@ export const authController = {
 
           try {
             const result = await authService.refresh(refreshToken);
-            userId = result.user.id;
-            req.user = { sub: result.user.id, email: result.user.email, role: result.user.role, schoolId: result.user.schoolId };
+            userId = result.user.sub;
+            req.user = { sub: result.user.sub, email: result.user.email, role: result.user.role, schoolId: result.user.schoolId };
             console.log('[completeGoogleProfile] Successfully refreshed token for user:', userId);
           } catch (refreshErr) {
             console.error('[completeGoogleProfile] Refresh token invalid:', refreshErr);
@@ -555,11 +560,13 @@ export const authController = {
       // Set 2026-27 as the default current session
       const session2026 = sessions.find(s => s.name === '2026-27');
       const targetSession = session2026 || sessions[0];
-      await prisma.school.update({
-        where: { id: school.id },
-        data: { currentAcademicSessionId: targetSession.id },
-      });
-      console.log('[completeGoogleProfile] Current session set:', targetSession.name);
+      if (targetSession) {
+        await prisma.school.update({
+          where: { id: school.id },
+          data: { currentAcademicSessionId: targetSession.id },
+        });
+        console.log('[completeGoogleProfile] Current session set:', targetSession.name);
+      }
 
       // Update user with phone and schoolId
       const updatedUser = await prisma.user.update({

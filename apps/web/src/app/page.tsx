@@ -84,7 +84,7 @@ function FeatureCard({
 }: {
   title: string; description: string; icon: React.ElementType; badge?: string; idx: number;
 }) {
-  const c = CARD_COLORS[idx % CARD_COLORS.length];
+  const c = CARD_COLORS[idx % CARD_COLORS.length]!;
   return (
     <motion.div
       whileHover={{ y: -4, scale: 1.01 }}
@@ -119,19 +119,19 @@ function SyllabusExplorer() {
 
   const nodes = useMemo(() => {
     if (tab === 'class') return [
-      { key: 'c9',  label: 'Class 9',  meta: '3 subjects', color: CARD_COLORS[0], progress: null },
-      { key: 'c10', label: 'Class 10', meta: '4 subjects', color: CARD_COLORS[1], progress: null },
-      { key: 'c8',  label: 'Class 8',  meta: '2 subjects', color: CARD_COLORS[2], progress: null },
+      { key: 'c9',  label: 'Class 9',  meta: '3 subjects', color: CARD_COLORS[0]!, progress: null },
+      { key: 'c10', label: 'Class 10', meta: '4 subjects', color: CARD_COLORS[1]!, progress: null },
+      { key: 'c8',  label: 'Class 8',  meta: '2 subjects', color: CARD_COLORS[2]!, progress: null },
     ];
     if (tab === 'subject') return [
-      { key: 'math',    label: 'Mathematics', meta: '12 chapters', color: CARD_COLORS[0], progress: null },
-      { key: 'science', label: 'Science',     meta: '10 chapters', color: CARD_COLORS[1], progress: null },
-      { key: 'english', label: 'English',     meta: '8 chapters',  color: CARD_COLORS[3], progress: null },
+      { key: 'math',    label: 'Mathematics', meta: '12 chapters', color: CARD_COLORS[0]!, progress: null },
+      { key: 'science', label: 'Science',     meta: '10 chapters', color: CARD_COLORS[1]!, progress: null },
+      { key: 'english', label: 'English',     meta: '8 chapters',  color: CARD_COLORS[3]!, progress: null },
     ];
     return [
-      { key: 'ch1', label: 'Chapter 1: Algebra Foundations',    meta: '75% complete', color: CARD_COLORS[1], progress: 75 },
-      { key: 'ch2', label: 'Chapter 2: Geometry Matrices',      meta: '42% complete', color: CARD_COLORS[0], progress: 42 },
-      { key: 'ch3', label: 'Chapter 3: Complex Trigonometry',   meta: '18% complete', color: CARD_COLORS[2], progress: 18 },
+      { key: 'ch1', label: 'Chapter 1: Algebra Foundations',    meta: '75% complete', color: CARD_COLORS[1]!, progress: 75 },
+      { key: 'ch2', label: 'Chapter 2: Geometry Matrices',      meta: '42% complete', color: CARD_COLORS[0]!, progress: 42 },
+      { key: 'ch3', label: 'Chapter 3: Complex Trigonometry',   meta: '18% complete', color: CARD_COLORS[2]!, progress: 18 },
     ];
   }, [tab]);
 

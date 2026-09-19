@@ -28,3 +28,28 @@ export enum SchoolStatus {
   SUSPENDED = 'SUSPENDED',
   INACTIVE = 'INACTIVE',
 }
+
+export enum CpdDomain {
+  CORE_VALUES_ETHICS = 'CORE_VALUES_ETHICS',
+  KNOWLEDGE_PRACTICE = 'KNOWLEDGE_PRACTICE',
+  PROFESSIONAL_GROWTH = 'PROFESSIONAL_GROWTH',
+}
+
+export enum CpdProvider {
+  CBSE = 'CBSE',
+  SCHOOL = 'SCHOOL',
+  SAHODAYA = 'SAHODAYA',
+  OTHER = 'OTHER',
+}
+
+export enum CpdTrainingMode {
+  OFFLINE = 'OFFLINE',
+  ONLINE = 'ONLINE',
+  BLENDED = 'BLENDED',
+}
+
+export enum CpdRecordStatus {
+  VERIFIED = 'VERIFIED',
+  SUBMITTED = 'SUBMITTED',
+  REJECTED = 'REJECTED',
+}

@@ -8,23 +8,27 @@ export const syllabusController = {
   async listClasses(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      const activeSessionId = school?.currentAcademicSessionId || undefined;
+
       let teacherId: string | undefined;
+      let academicSessionId: string | undefined;
 
       if (req.user?.role === 'TEACHER') {
+        academicSessionId = activeSessionId;
         const teacher = await prisma.teacher.findFirst({
-          where: { schoolId, userId: req.user.sub },
+          where: {
+            schoolId,
+            userId: req.user.sub,
+            ...(activeSessionId ? { academicSessionId: activeSessionId } : {}),
+          },
         });
         teacherId = teacher?.id;
-      }
-      
-      // Get school's current session if not provided
-      let academicSessionId = req.query.academicSessionId as string | undefined;
-      if (!academicSessionId) {
-        const school = await prisma.school.findUnique({
-          where: { id: schoolId },
-          select: { currentAcademicSessionId: true },
-        });
-        academicSessionId = school?.currentAcademicSessionId || undefined;
+      } else {
+        academicSessionId = (req.query.academicSessionId as string) || activeSessionId;
       }
 
       const params = {
@@ -42,7 +46,18 @@ export const syllabusController = {
 
   async createClass(req: Request, res: Response, next: NextFunction) {
     try {
-      const item = await syllabusService.createClass(getTenantId(req), req.body);
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      if (req.body.academicSessionId && req.body.academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot create classes in an inactive or historical session' });
+      }
+      const item = await syllabusService.createClass(schoolId, {
+        ...req.body,
+        academicSessionId: req.body.academicSessionId || school?.currentAcademicSessionId,
+      });
       sendSuccess(res, item, 201);
     } catch (err) {
       next(err);
@@ -52,23 +67,27 @@ export const syllabusController = {
   async getClassDetails(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      const activeSessionId = school?.currentAcademicSessionId || undefined;
+
       let teacherId: string | undefined;
+      let academicSessionId: string | undefined;
 
       if (req.user?.role === 'TEACHER') {
+        academicSessionId = activeSessionId;
         const teacher = await prisma.teacher.findFirst({
-          where: { schoolId, userId: req.user.sub },
+          where: {
+            schoolId,
+            userId: req.user.sub,
+            ...(activeSessionId ? { academicSessionId: activeSessionId } : {}),
+          },
         });
         teacherId = teacher?.id;
-      }
-
-      // Get school's current session if not provided
-      let academicSessionId = req.query.academicSessionId as string | undefined;
-      if (!academicSessionId) {
-        const school = await prisma.school.findUnique({
-          where: { id: schoolId },
-          select: { currentAcademicSessionId: true },
-        });
-        academicSessionId = school?.currentAcademicSessionId || undefined;
+      } else {
+        academicSessionId = (req.query.academicSessionId as string) || activeSessionId;
       }
 
       const item = await syllabusService.getClassDetails(
@@ -86,21 +105,22 @@ export const syllabusController = {
   async listAssignedClasses(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
-      const teacher = await prisma.teacher.findFirst({
-        where: { schoolId, userId: req.user!.sub },
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
       });
-      if (!teacher) throw new Error('Teacher profile not found');
+      const activeSessionId = school?.currentAcademicSessionId || undefined;
+
+      const teacher = await prisma.teacher.findFirst({
+        where: {
+          schoolId,
+          userId: req.user!.sub,
+          ...(activeSessionId ? { academicSessionId: activeSessionId } : {}),
+        },
+      });
+      if (!teacher) throw new Error('Teacher profile not found for the active academic session');
       
-      // Get school's current session if not provided
-      let academicSessionId = req.query.academicSessionId as string | undefined;
-      if (!academicSessionId) {
-        const school = await prisma.school.findUnique({
-          where: { id: schoolId },
-          select: { currentAcademicSessionId: true },
-        });
-        academicSessionId = school?.currentAcademicSessionId || undefined;
-      }
-      
+      const academicSessionId = activeSessionId;
       const params = {
         ...req.query,
         academicSessionId,
@@ -118,8 +138,20 @@ export const syllabusController = {
 
   async updateSubject(req: Request, res: Response, next: NextFunction) {
     try {
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      const sub = await prisma.subject.findUnique({
+        where: { id: String(req.params.id) },
+        select: { class: { select: { academicSessionId: true } } },
+      });
+      if (sub?.class?.academicSessionId && sub.class.academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot modify subjects in an inactive or historical session' });
+      }
       const item = await syllabusService.updateSubject(
-        getTenantId(req),
+        schoolId,
         String(req.params.id),
         req.body,
       );
@@ -131,8 +163,20 @@ export const syllabusController = {
 
   async updateChapter(req: Request, res: Response, next: NextFunction) {
     try {
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      const ch = await prisma.chapter.findUnique({
+        where: { id: String(req.params.id) },
+        select: { subject: { select: { class: { select: { academicSessionId: true } } } } },
+      });
+      if (ch?.subject?.class?.academicSessionId && ch.subject.class.academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot modify chapters in an inactive or historical session' });
+      }
       const item = await syllabusService.updateChapter(
-        getTenantId(req),
+        schoolId,
         String(req.params.id),
         req.body,
       );
@@ -144,8 +188,20 @@ export const syllabusController = {
 
   async updateTopic(req: Request, res: Response, next: NextFunction) {
     try {
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      const tp = await prisma.topic.findUnique({
+        where: { id: String(req.params.id) },
+        select: { chapter: { select: { subject: { select: { class: { select: { academicSessionId: true } } } } } } },
+      });
+      if (tp?.chapter?.subject?.class?.academicSessionId && tp.chapter.subject.class.academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot modify topics in an inactive or historical session' });
+      }
       const item = await syllabusService.updateTopic(
-        getTenantId(req),
+        schoolId,
         String(req.params.id),
         req.body,
       );
@@ -158,23 +214,27 @@ export const syllabusController = {
   async listSubjects(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      const activeSessionId = school?.currentAcademicSessionId || undefined;
+
       let teacherId: string | undefined;
+      let academicSessionId: string | undefined;
 
       if (req.user?.role === 'TEACHER') {
+        academicSessionId = activeSessionId;
         const teacher = await prisma.teacher.findFirst({
-          where: { schoolId, userId: req.user.sub },
+          where: {
+            schoolId,
+            userId: req.user.sub,
+            ...(activeSessionId ? { academicSessionId: activeSessionId } : {}),
+          },
         });
         teacherId = teacher?.id;
-      }
-      
-      // Get school's current session if not provided
-      let academicSessionId = req.query.academicSessionId as string | undefined;
-      if (!academicSessionId) {
-        const school = await prisma.school.findUnique({
-          where: { id: schoolId },
-          select: { currentAcademicSessionId: true },
-        });
-        academicSessionId = school?.currentAcademicSessionId || undefined;
+      } else {
+        academicSessionId = (req.query.academicSessionId as string) || activeSessionId;
       }
 
       const items = await syllabusService.listSubjects(
@@ -191,7 +251,21 @@ export const syllabusController = {
 
   async createSubject(req: Request, res: Response, next: NextFunction) {
     try {
-      const item = await syllabusService.createSubject(getTenantId(req), req.body);
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      if (req.body.classId) {
+        const cls = await prisma.class.findUnique({
+          where: { id: req.body.classId },
+          select: { academicSessionId: true },
+        });
+        if (cls?.academicSessionId && cls.academicSessionId !== school?.currentAcademicSessionId) {
+          return res.status(400).json({ success: false, error: 'Cannot create subjects in an inactive or historical session' });
+        }
+      }
+      const item = await syllabusService.createSubject(schoolId, req.body);
       sendSuccess(res, item, 201);
     } catch (err) {
       next(err);
@@ -201,24 +275,27 @@ export const syllabusController = {
   async listChapters(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      const activeSessionId = school?.currentAcademicSessionId || undefined;
+
       let teacherId: string | undefined;
+      let academicSessionId: string | undefined;
 
       if (req.user?.role === 'TEACHER') {
-        const { prisma } = await import('@school-syllabus/database');
+        academicSessionId = activeSessionId;
         const teacher = await prisma.teacher.findFirst({
-          where: { schoolId, userId: req.user.sub },
+          where: {
+            schoolId,
+            userId: req.user.sub,
+            ...(activeSessionId ? { academicSessionId: activeSessionId } : {}),
+          },
         });
         teacherId = teacher?.id;
-      }
-
-      // Get school's current session if not provided
-      let academicSessionId = req.query.academicSessionId as string | undefined;
-      if (!academicSessionId) {
-        const school = await prisma.school.findUnique({
-          where: { id: schoolId },
-          select: { currentAcademicSessionId: true },
-        });
-        academicSessionId = school?.currentAcademicSessionId || undefined;
+      } else {
+        academicSessionId = (req.query.academicSessionId as string) || activeSessionId;
       }
 
       const items = await syllabusService.listChapters(
@@ -235,7 +312,21 @@ export const syllabusController = {
 
   async createChapter(req: Request, res: Response, next: NextFunction) {
     try {
-      const item = await syllabusService.createChapter(getTenantId(req), req.body);
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      if (req.body.subjectId) {
+        const sub = await prisma.subject.findUnique({
+          where: { id: req.body.subjectId },
+          select: { class: { select: { academicSessionId: true } } },
+        });
+        if (sub?.class?.academicSessionId && sub.class.academicSessionId !== school?.currentAcademicSessionId) {
+          return res.status(400).json({ success: false, error: 'Cannot add chapters in an inactive or historical session' });
+        }
+      }
+      const item = await syllabusService.createChapter(schoolId, req.body);
       sendSuccess(res, item, 201);
     } catch (err) {
       next(err);
@@ -244,7 +335,21 @@ export const syllabusController = {
 
   async createTopic(req: Request, res: Response, next: NextFunction) {
     try {
-      const item = await syllabusService.createTopic(getTenantId(req), req.body);
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      if (req.body.chapterId) {
+        const ch = await prisma.chapter.findUnique({
+          where: { id: req.body.chapterId },
+          select: { subject: { select: { class: { select: { academicSessionId: true } } } } },
+        });
+        if (ch?.subject?.class?.academicSessionId && ch.subject.class.academicSessionId !== school?.currentAcademicSessionId) {
+          return res.status(400).json({ success: false, error: 'Cannot add topics in an inactive or historical session' });
+        }
+      }
+      const item = await syllabusService.createTopic(schoolId, req.body);
       sendSuccess(res, item, 201);
     } catch (err) {
       next(err);
@@ -254,15 +359,15 @@ export const syllabusController = {
   async getTree(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      const activeSessionId = school?.currentAcademicSessionId || undefined;
       
-      // Get school's current session if not provided
-      let academicSessionId = req.query.academicSessionId as string | undefined;
-      if (!academicSessionId) {
-        const school = await prisma.school.findUnique({
-          where: { id: schoolId },
-          select: { currentAcademicSessionId: true },
-        });
-        academicSessionId = school?.currentAcademicSessionId || undefined;
+      let academicSessionId = (req.query.academicSessionId as string) || activeSessionId;
+      if (req.user?.role === 'TEACHER') {
+        academicSessionId = activeSessionId;
       }
 
       const tree = await syllabusService.getTree(
@@ -286,8 +391,20 @@ export const syllabusController = {
 
   async updateClass(req: Request, res: Response, next: NextFunction) {
     try {
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      const existing = await prisma.class.findUnique({
+        where: { id: String(req.params.id) },
+        select: { academicSessionId: true },
+      });
+      if (existing?.academicSessionId && existing.academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot modify classes in an inactive or historical session' });
+      }
       const item = await syllabusService.updateClass(
-        getTenantId(req),
+        schoolId,
         String(req.params.id),
         req.body,
       );
@@ -299,7 +416,19 @@ export const syllabusController = {
 
   async deleteClass(req: Request, res: Response, next: NextFunction) {
     try {
-      await syllabusService.deleteClass(getTenantId(req), String(req.params.id));
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      const existing = await prisma.class.findUnique({
+        where: { id: String(req.params.id) },
+        select: { academicSessionId: true },
+      });
+      if (existing?.academicSessionId && existing.academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot delete classes in an inactive or historical session' });
+      }
+      await syllabusService.deleteClass(schoolId, String(req.params.id));
       sendSuccess(res, { message: 'Class deleted' });
     } catch (err) {
       next(err);
@@ -308,7 +437,8 @@ export const syllabusController = {
 
   async reorderChapters(req: Request, res: Response, next: NextFunction) {
     try {
-      await syllabusService.reorderChapters(getTenantId(req), req.body.orderedIds);
+      const schoolId = getTenantId(req);
+      await syllabusService.reorderChapters(schoolId, req.body.orderedIds);
       sendSuccess(res, { message: 'Chapters reordered' });
     } catch (err) {
       next(err);
@@ -317,7 +447,19 @@ export const syllabusController = {
 
   async deleteChapter(req: Request, res: Response, next: NextFunction) {
     try {
-      await syllabusService.deleteChapter(getTenantId(req), String(req.params.id));
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      const ch = await prisma.chapter.findUnique({
+        where: { id: String(req.params.id) },
+        select: { subject: { select: { class: { select: { academicSessionId: true } } } } },
+      });
+      if (ch?.subject?.class?.academicSessionId && ch.subject.class.academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot delete chapters in an inactive or historical session' });
+      }
+      await syllabusService.deleteChapter(schoolId, String(req.params.id));
       sendSuccess(res, { message: 'Chapter deleted' });
     } catch (err) {
       next(err);
@@ -327,7 +469,19 @@ export const syllabusController = {
   // ✅ ADDED
   async deleteSubject(req: Request, res: Response, next: NextFunction) {
     try {
-      await syllabusService.deleteSubject(getTenantId(req), String(req.params.id));
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      const sub = await prisma.subject.findUnique({
+        where: { id: String(req.params.id) },
+        select: { class: { select: { academicSessionId: true } } },
+      });
+      if (sub?.class?.academicSessionId && sub.class.academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot delete subjects in an inactive or historical session' });
+      }
+      await syllabusService.deleteSubject(schoolId, String(req.params.id));
       sendSuccess(res, { message: 'Subject deleted' });
     } catch (err) {
       next(err);
@@ -337,7 +491,19 @@ export const syllabusController = {
   // ✅ ADDED
   async deleteTopic(req: Request, res: Response, next: NextFunction) {
     try {
-      await syllabusService.deleteTopic(getTenantId(req), String(req.params.id));
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      const tp = await prisma.topic.findUnique({
+        where: { id: String(req.params.id) },
+        select: { chapter: { select: { subject: { select: { class: { select: { academicSessionId: true } } } } } } },
+      });
+      if (tp?.chapter?.subject?.class?.academicSessionId && tp.chapter.subject.class.academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot delete topics in an inactive or historical session' });
+      }
+      await syllabusService.deleteTopic(schoolId, String(req.params.id));
       sendSuccess(res, { message: 'Topic deleted' });
     } catch (err) {
       next(err);
@@ -346,8 +512,17 @@ export const syllabusController = {
 
   async bulkCreateClasses(req: Request, res: Response, next: NextFunction) {
     try {
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
       const { academicSessionId, classes } = req.body;
-      const result = await syllabusService.bulkCreateClasses(getTenantId(req), academicSessionId, classes);
+      if (academicSessionId && academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot bulk create classes in an inactive or historical session' });
+      }
+      const targetSessionId = academicSessionId || school?.currentAcademicSessionId;
+      const result = await syllabusService.bulkCreateClasses(schoolId, targetSessionId, classes);
       sendSuccess(res, result, 201);
     } catch (err) {
       next(err);
@@ -356,8 +531,17 @@ export const syllabusController = {
 
   async bulkCreateSubjects(req: Request, res: Response, next: NextFunction) {
     try {
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
       const { academicSessionId, subjects } = req.body;
-      const result = await syllabusService.bulkCreateSubjects(getTenantId(req), academicSessionId, subjects);
+      if (academicSessionId && academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot bulk create subjects in an inactive or historical session' });
+      }
+      const targetSessionId = academicSessionId || school?.currentAcademicSessionId;
+      const result = await syllabusService.bulkCreateSubjects(schoolId, targetSessionId, subjects);
       sendSuccess(res, result, 201);
     } catch (err) {
       next(err);

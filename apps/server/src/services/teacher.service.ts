@@ -172,7 +172,7 @@ export const teacherService = {
 
       if (!academicYear) {
         const academicSession = await prisma.academicSession.findFirst({
-          where: { id: yearId, schoolId, deletedAt: null },
+          where: { id: yearId, schoolId, isArchived: false },
         });
         if (academicSession) {
           const sessionYear = await prisma.academicTerm.findFirst({
@@ -556,7 +556,7 @@ export const teacherService = {
 
     if (!academicYear) {
       const academicSession = await prisma.academicSession.findFirst({
-        where: { id: yearId, schoolId, deletedAt: null },
+        where: { id: yearId, schoolId, isArchived: false },
       });
       if (academicSession) {
         const sessionYear = await prisma.academicTerm.findFirst({
@@ -640,6 +640,7 @@ export const teacherService = {
   let emailChanged = false;
   let newEmail = teacher.user.email;
   let tempPassword: string | null = null;
+  let passwordHash: string | null = null;
 
   // Check if email is being changed
   if (data.email && data.email.toLowerCase() !== teacher.user.email.toLowerCase()) {
@@ -661,16 +662,16 @@ export const teacherService = {
     emailChanged = true;
     newEmail = newEmailLower;
     tempPassword = authService.generateSecurePassword();
-    const passwordHash = await hashPassword(tempPassword);
+    passwordHash = await hashPassword(tempPassword);
   }
 
   return prisma.$transaction(async (tx) => {
     const updateData: any = {};
     if (data.name) updateData.name = data.name;
     if (data.phone !== undefined) updateData.phone = data.phone;
-    if (emailChanged && tempPassword) {
+    if (emailChanged && passwordHash) {
       updateData.email = newEmail;
-      updateData.passwordHash = await hashPassword(tempPassword);
+      updateData.passwordHash = passwordHash;
     }
 
     if (Object.keys(updateData).length > 0) {

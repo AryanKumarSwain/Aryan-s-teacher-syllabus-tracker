@@ -89,10 +89,12 @@ export const schoolService = {
       // Set 2026-27 as the default current session
       const session2026 = sessions.find(s => s.name === '2026-27');
       const targetSession = session2026 || sessions[0];
-      await tx.school.update({
-        where: { id: school.id },
-        data: { currentAcademicSessionId: targetSession.id },
-      });
+      if (targetSession) {
+        await tx.school.update({
+          where: { id: school.id },
+          data: { currentAcademicSessionId: targetSession.id },
+        });
+      }
 
       if (data.planId) {
         await tx.subscription.create({

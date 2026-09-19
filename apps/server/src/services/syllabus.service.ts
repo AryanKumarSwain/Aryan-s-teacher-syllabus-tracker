@@ -555,8 +555,12 @@ export const syllabusService = {
       where: { schoolId, subjectId: data.subjectId },
       _max: { sortOrder: true },
     });
+    const chapterNo =
+      data.chapterNo !== undefined && data.chapterNo !== null && !isNaN(Number(data.chapterNo))
+        ? Number(data.chapterNo)
+        : undefined;
     return prisma.chapter.create({
-      data: { schoolId, ...data, sortOrder: (maxOrder._max.sortOrder ?? 0) + 1 },
+      data: { schoolId, ...data, chapterNo, sortOrder: (maxOrder._max.sortOrder ?? 0) + 1 },
     });
   },
 
@@ -575,7 +579,12 @@ export const syllabusService = {
       _max: { sortOrder: true },
     });
     return prisma.topic.create({
-      data: { schoolId, ...data, sortOrder: (maxOrder._max.sortOrder ?? 0) + 1 },
+      data: {
+        schoolId,
+        academicSessionId: chapter.academicSessionId,
+        ...data,
+        sortOrder: (maxOrder._max.sortOrder ?? 0) + 1,
+      },
     });
   },
 

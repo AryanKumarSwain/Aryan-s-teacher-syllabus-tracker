@@ -15,6 +15,7 @@ interface ImageCropModalProps {
 
 export function ImageCropModal({ isOpen, onClose, onCropComplete, imageSrc }: ImageCropModalProps) {
   const [crop, setCrop] = useState<Crop>();
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null);
 
   const getCroppedImg = (image: HTMLImageElement, crop: PixelCrop): Promise<string> => {
@@ -54,8 +55,9 @@ export function ImageCropModal({ isOpen, onClose, onCropComplete, imageSrc }: Im
   };
 
   const handleCrop = async () => {
-    if (!crop || !imageRef) return;
-    const croppedImageUrl = await getCroppedImg(imageRef, crop);
+    const targetCrop = completedCrop || (crop && crop.unit === 'px' ? (crop as PixelCrop) : undefined);
+    if (!targetCrop || !imageRef) return;
+    const croppedImageUrl = await getCroppedImg(imageRef, targetCrop);
     onCropComplete(croppedImageUrl);
     onClose();
   };
@@ -71,6 +73,7 @@ export function ImageCropModal({ isOpen, onClose, onCropComplete, imageSrc }: Im
             <ReactCrop
               crop={crop}
               onChange={(_, percentCrop) => setCrop(percentCrop)}
+              onComplete={(c) => setCompletedCrop(c)}
               aspect={undefined}
               keepSelection
             >

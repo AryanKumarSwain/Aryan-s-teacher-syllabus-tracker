@@ -18,6 +18,7 @@ export interface AuthUser {
   schoolId: string | null;
   teacherId: string | null;
   avatar: string | null;
+  phone?: string | null;
   school?: {
     id: string;
     name: string;

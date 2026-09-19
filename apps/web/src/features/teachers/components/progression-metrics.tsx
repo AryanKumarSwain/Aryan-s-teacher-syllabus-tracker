@@ -10,14 +10,14 @@ import { useAuthStore } from '@/store/auth-store';
 import { toast } from 'sonner';
 
 interface TeacherProgression {
-  globalTimeline: {
+  globalTimeline?: {
     startDate: string;
     endDate: string;
     totalTeachingDays: number;
     elapsedTeachingDays: number;
     remainingTeachingDays: number;
     percentageComplete: number;
-  };
+  } | null;
   subjectProgress: SubjectProgressItem[];
 }
 
@@ -100,27 +100,33 @@ export function TeacherProgressionMetrics() {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Global Timeline */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm">
-            <Calendar className="text-muted-foreground h-4 w-4" />
-            <span className="text-muted-foreground">Academic Timeline</span>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                Teaching Day {data.globalTimeline.elapsedTeachingDays} of{' '}
-                {data.globalTimeline.totalTeachingDays}
-              </span>
-              <span className="text-primary font-bold">
-                {data.globalTimeline.percentageComplete.toFixed(1)}%
-              </span>
+        {data.globalTimeline && data.globalTimeline.totalTeachingDays > 0 ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="text-muted-foreground h-4 w-4" />
+              <span className="text-muted-foreground">Academic Timeline</span>
             </div>
-            <Progress value={data.globalTimeline.percentageComplete} className="h-2" />
-            <div className="text-muted-foreground flex items-center justify-between text-xs">
-              <span>{data.globalTimeline.remainingTeachingDays} teaching days remaining</span>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">
+                  Teaching Day {data.globalTimeline.elapsedTeachingDays} of{' '}
+                  {data.globalTimeline.totalTeachingDays}
+                </span>
+                <span className="text-primary font-bold">
+                  {data.globalTimeline.percentageComplete.toFixed(1)}%
+                </span>
+              </div>
+              <Progress value={data.globalTimeline.percentageComplete} className="h-2" />
+              <div className="text-muted-foreground flex items-center justify-between text-xs">
+                <span>{data.globalTimeline.remainingTeachingDays} teaching days remaining</span>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="rounded-lg border border-dashed p-3 text-center text-xs text-muted-foreground">
+            No academic timeline configured for this session.
+          </div>
+        )}
 
         {/* Subject Progress */}
         <div className="space-y-3">

@@ -35,8 +35,16 @@ import { ImportDataButton } from '@/components/admin/import-data-button';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/services/api-client';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
+import { getTeacherColorStyles } from '@/features/teachers/utils/teacher-styles';
 
 function teacherStatusBadge(status: string) {
+  if (status === 'INACTIVE') {
+    return (
+      <Badge variant="secondary" className="text-gray-400">
+        Inactive
+      </Badge>
+    );
+  }
   if (status === 'SUSPENDED') {
     return (
       <Badge variant="warning" className="animate-pulse">
@@ -50,53 +58,6 @@ function teacherStatusBadge(status: string) {
   return <Badge variant="secondary">{status}</Badge>;
 }
 
-const CARD_THEMES = [
-  {
-    border: 'hover:border-blue-200',
-    accentBg: 'bg-blue-50/70',
-    accentText: 'text-blue-600',
-    iconColor: 'text-blue-500',
-  },
-  {
-    border: 'hover:border-purple-200',
-    accentBg: 'bg-purple-50/70',
-    accentText: 'text-purple-600',
-    iconColor: 'text-purple-500',
-  },
-  {
-    border: 'hover:border-emerald-200',
-    accentBg: 'bg-emerald-50/70',
-    accentText: 'text-emerald-600',
-    iconColor: 'text-emerald-500',
-  },
-  {
-    border: 'hover:border-amber-200',
-    accentBg: 'bg-amber-50/70',
-    accentText: 'text-amber-600',
-    iconColor: 'text-amber-500',
-  },
-  {
-    border: 'hover:border-rose-200',
-    accentBg: 'bg-rose-50/70',
-    accentText: 'text-rose-600',
-    iconColor: 'text-rose-500',
-  },
-  {
-    border: 'hover:border-cyan-200',
-    accentBg: 'bg-cyan-50/70',
-    accentText: 'text-cyan-600',
-    iconColor: 'text-cyan-500',
-  },
-];
-
-export function getTeacherColorStyles(id: string): (typeof CARD_THEMES)[0] {
-  let sum = 0;
-  for (let i = 0; i < id.length; i++) {
-    sum += id.charCodeAt(i);
-  }
-  return CARD_THEMES[sum % CARD_THEMES.length]!;
-}
-
 export default function AdminTeachersPage() {
   const [search, setSearch] = useState('');
   const [selectedClassFilter, setSelectedClassFilter] = useState('all');
@@ -107,9 +68,9 @@ export default function AdminTeachersPage() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedTeacher, setSelectedTeacher] = useState<{ id: string; user: { name: string; email: string; phone: string | null } } | null>(null);
 
-  const { school } = useSchool();
+  const { school, isViewMode } = useSchool();
 
-  const { data, isLoading } = useTeachers({ search: search || undefined, termFilter: selectedTermFilter, academicSessionId: school?.currentAcademicSessionId });
+  const { data, isLoading } = useTeachers({ search: search || undefined, termFilter: selectedTermFilter, academicSessionId: school?.currentAcademicSessionId || undefined });
   const deleteTeacher = useDeleteTeacher();
   const updateStatus = useUpdateTeacherStatus();
 
@@ -117,9 +78,12 @@ export default function AdminTeachersPage() {
 
   // Fetch academic years for term filter
   const { data: academicYears } = useQuery({
-    queryKey: ['academic-terms'],
+    queryKey: ['academic-terms', school?.currentAcademicSessionId],
     queryFn: async () => {
-      const response = await api.getPaginated<any>('/academic-terms');
+      const response = await api.getPaginated<any>(
+        '/academic-terms',
+        school?.currentAcademicSessionId ? { academicSessionId: school.currentAcademicSessionId } : undefined
+      );
       return {
         ...response,
         items: response.items.map((year: any) => ({
@@ -250,13 +214,21 @@ export default function AdminTeachersPage() {
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            <ImportDataButton type="teachers" label="Import Teachers" />
-            <Button variant="outline" onClick={() => setBulkOpen(true)}>
-              <Upload className="mr-2 h-4 w-4" /> Bulk import
-            </Button>
-            <Button onClick={() => setDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" /> Add teacher
-            </Button>
+            {!isViewMode ? (
+              <>
+                <ImportDataButton type="teachers" label="Import Teachers" />
+                <Button variant="outline" onClick={() => setBulkOpen(true)}>
+                  <Upload className="mr-2 h-4 w-4" /> Bulk import
+                </Button>
+                <Button onClick={() => setDialogOpen(true)}>
+                  <Plus className="mr-2 h-4 w-4" /> Add teacher
+                </Button>
+              </>
+            ) : (
+              <span className="text-xs font-semibold text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-xs">
+                <Eye className="h-3.5 w-3.5 text-amber-600" /> Read-Only View Mode
+              </span>
+            )}
           </div>
         </div>
 
@@ -276,7 +248,7 @@ export default function AdminTeachersPage() {
             }
             description="Try adjusting your search criteria or add teachers to get started."
             action={
-              selectedClassFilter !== 'all' || selectedSubjectFilter !== 'all' || search
+              selectedClassFilter !== 'all' || selectedSubjectFilter !== 'all' || search || isViewMode
                 ? undefined
                 : { label: 'Add teacher', onClick: () => setDialogOpen(true) }
             }
@@ -380,49 +352,54 @@ export default function AdminTeachersPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="mt-3 flex items-center justify-end gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-muted-foreground hover:text-foreground h-7 w-7"
-                        onClick={() => {
-                          setSelectedTeacher(teacher);
-                          setEditDialogOpen(true);
-                        }}
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-muted-foreground hover:text-foreground h-7 w-7"
-                        onClick={() => {
-                          updateStatus.mutate({
-                            id: teacher.id,
-                            status: status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED',
-                          });
-                        }}
-                        disabled={updateStatus.isPending}
-                      >
-                        {status === 'SUSPENDED' ? (
-                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                        ) : (
-                          <Ban className="h-3.5 w-3.5 text-amber-600" />
-                        )}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7"
-                        onClick={() => {
-                          if (confirm('Permanently delete this teacher?')) {
-                            deleteTeacher.mutate(teacher.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
+                    {!isViewMode && (
+                      <div className="mt-3 flex items-center justify-end gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-muted-foreground hover:text-foreground h-7 w-7"
+                          title="Edit Teacher"
+                          onClick={() => {
+                            setSelectedTeacher(teacher);
+                            setEditDialogOpen(true);
+                          }}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-muted-foreground hover:text-foreground h-7 w-7"
+                          title={status === 'SUSPENDED' ? 'Activate' : 'Suspend'}
+                          onClick={() => {
+                            updateStatus.mutate({
+                              id: teacher.id,
+                              status: status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED',
+                            });
+                          }}
+                          disabled={updateStatus.isPending}
+                        >
+                          {status === 'SUSPENDED' ? (
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                          ) : (
+                            <Ban className="h-3.5 w-3.5 text-amber-600" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7"
+                          title="Delete Teacher"
+                          onClick={() => {
+                            if (confirm('Permanently delete this teacher?')) {
+                              deleteTeacher.mutate(teacher.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               );

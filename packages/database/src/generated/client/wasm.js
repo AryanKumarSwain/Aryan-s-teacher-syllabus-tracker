@@ -428,6 +428,31 @@ exports.Prisma.VacationDayScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.TeacherTrainingRecordScalarFieldEnum = {
+  id: 'id',
+  schoolId: 'schoolId',
+  academicSessionId: 'academicSessionId',
+  teacherId: 'teacherId',
+  title: 'title',
+  domain: 'domain',
+  annexure: 'annexure',
+  provider: 'provider',
+  trainingMode: 'trainingMode',
+  hours: 'hours',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  organizedBy: 'organizedBy',
+  locationOrPlatform: 'locationOrPlatform',
+  isAcademicActivity: 'isAcademicActivity',
+  academicActivityKey: 'academicActivityKey',
+  certificateNumber: 'certificateNumber',
+  certificateUrl: 'certificateUrl',
+  remarks: 'remarks',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -525,6 +550,31 @@ exports.AcademicTermStatus = exports.$Enums.AcademicTermStatus = {
   ARCHIVED: 'ARCHIVED'
 };
 
+exports.CpdDomain = exports.$Enums.CpdDomain = {
+  CORE_VALUES_ETHICS: 'CORE_VALUES_ETHICS',
+  KNOWLEDGE_PRACTICE: 'KNOWLEDGE_PRACTICE',
+  PROFESSIONAL_GROWTH: 'PROFESSIONAL_GROWTH'
+};
+
+exports.CpdProvider = exports.$Enums.CpdProvider = {
+  CBSE: 'CBSE',
+  SCHOOL: 'SCHOOL',
+  SAHODAYA: 'SAHODAYA',
+  OTHER: 'OTHER'
+};
+
+exports.CpdTrainingMode = exports.$Enums.CpdTrainingMode = {
+  OFFLINE: 'OFFLINE',
+  ONLINE: 'ONLINE',
+  BLENDED: 'BLENDED'
+};
+
+exports.CpdRecordStatus = exports.$Enums.CpdRecordStatus = {
+  VERIFIED: 'VERIFIED',
+  SUBMITTED: 'SUBMITTED',
+  REJECTED: 'REJECTED'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   RefreshToken: 'RefreshToken',
@@ -548,7 +598,8 @@ exports.Prisma.ModelName = {
   ActivityLog: 'ActivityLog',
   AuditLog: 'AuditLog',
   AcademicTerm: 'AcademicTerm',
-  VacationDay: 'VacationDay'
+  VacationDay: 'VacationDay',
+  TeacherTrainingRecord: 'TeacherTrainingRecord'
 };
 
 /**

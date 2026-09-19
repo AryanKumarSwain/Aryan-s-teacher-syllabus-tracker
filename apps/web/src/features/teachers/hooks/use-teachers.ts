@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/services/api-client';
 import { toast } from 'sonner';
+import { useSchool } from '@/features/syllabus/hooks/use-school';
 
 export interface TeacherRow {
   id: string;
@@ -86,13 +87,16 @@ export function useCreateTeacher() {
 
 export function useBulkCreateTeachers() {
   const qc = useQueryClient();
+  const { school } = useSchool();
   return useMutation({
     mutationFn: (teachers: BulkTeacherRow[]) =>
       api.post<{ results: BulkResult[]; succeeded: number; failed: number }>('/teachers/bulk', {
         teachers,
+        academicSessionId: school?.currentAcademicSessionId,
       }),
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ['teachers'] });
+      qc.invalidateQueries({ queryKey: ['academic-sessions'] });
       const emailWarnings = data.results.filter((r) => r.success && r.warning).length;
       if (data.succeeded > 0) {
         toast.success(

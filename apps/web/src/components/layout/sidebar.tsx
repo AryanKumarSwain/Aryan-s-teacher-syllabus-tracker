@@ -16,7 +16,9 @@ import {
   CreditCard,
   ChevronLeft,
   Calendar,
+  CalendarRange,
   TrendingUp,
+  Award,
 } from 'lucide-react';
 import { UserRole } from '@school-syllabus/types';
 import { cn } from '@/lib/utils';
@@ -40,6 +42,8 @@ const navByRole: Record<UserRole, { href: string; label: string; icon: React.Ele
     { href: '/admin/syllabus', label: 'Syllabus', icon: BookOpen },
     { href: '/admin/progress', label: 'Progress', icon: TrendingUp },
     { href: '/admin/exam-papers', label: 'Exam Papers', icon: BookOpen },
+    { href: '/admin/teacher-training', label: 'Teacher Training', icon: Award },
+    { href: '/admin/sessions', label: 'Sessions', icon: CalendarRange },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ],
   [UserRole.TEACHER]: [
@@ -48,6 +52,7 @@ const navByRole: Record<UserRole, { href: string; label: string; icon: React.Ele
     { href: '/teacher/progress', label: 'Progress', icon: TrendingUp },
     { href: '/teacher/academic-timeline', label: 'Academic Timeline', icon: Calendar },
     { href: '/teacher/exam-papers', label: 'Exam Papers', icon: BookOpen },
+    { href: '/teacher/teacher-training', label: 'Teacher Training', icon: Award },
     { href: '/teacher/settings', label: 'Settings', icon: Settings },
   ],
 };

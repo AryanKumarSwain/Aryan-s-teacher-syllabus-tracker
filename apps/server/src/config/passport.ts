@@ -17,7 +17,7 @@ if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET) {
         _accessToken: string,
         _refreshToken: string,
         profile: Profile,
-        done: (error: any, user?: any) => void,
+        done: (error: any, user?: any, info?: any) => void,
       ) => {
         try {
           const email = profile.emails?.[0]?.value;

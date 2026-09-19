@@ -125,7 +125,7 @@ export default function AdminClassesPage() {
   const router = useRouter();
   const qc = useQueryClient();
   const schoolId = useSchoolId();
-  const { school } = useSchool();
+  const { school, isViewMode } = useSchool();
 
   const [open, setOpen] = useState(false);
   const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
@@ -167,6 +167,10 @@ export default function AdminClassesPage() {
   const totalSubjects = rawClassesList.reduce((s, c) => s + (c._count?.subjects ?? 0), 0);
 
   const handleEditClick = (cls: ClassItem) => {
+    if (isViewMode) {
+      toast.error('Cannot edit class in View Mode');
+      return;
+    }
     setEditingClass(cls);
     setName(cls.name);
     setSection(cls.section || '');
@@ -175,6 +179,10 @@ export default function AdminClassesPage() {
   };
 
   const handleCreateClick = () => {
+    if (isViewMode) {
+      toast.error('Cannot create class in View Mode');
+      return;
+    }
     setEditingClass(null);
     setName('');
     setSection('');
@@ -184,6 +192,9 @@ export default function AdminClassesPage() {
 
   const createClass = useMutation({
     mutationFn: () => {
+      if (isViewMode) {
+        throw new Error('Cannot create class in View Mode. Switch to active session to make changes.');
+      }
       if (!school?.currentAcademicSessionId) {
         throw new Error('No active academic session found. Please create or select a session first.');
       }
@@ -206,12 +217,15 @@ export default function AdminClassesPage() {
   });
 
   const updateClass = useMutation({
-    mutationFn: (id: string) =>
-      api.patch<ClassItem>(`/syllabus/classes/${id}`, {
-        name,
-        section: section || undefined,
-        description: description || undefined,
-      }),
+    mutationFn: ({ id, ...body }: { id: string; name: string; section?: string; description?: string }) => {
+      if (isViewMode) {
+        throw new Error('Cannot edit class in View Mode. Switch to active session to make changes.');
+      }
+      return api.patch<ClassItem>(`/syllabus/classes/${id}`, {
+        academicSessionId: school?.currentAcademicSessionId,
+        ...body,
+      });
+    },
     onSuccess: async (updated) => {
       qc.setQueryData<PaginatedResponse<ClassItem>>(syllabusKeys.classes(schoolId, school?.currentAcademicSessionId), (old) =>
         old
@@ -229,7 +243,12 @@ export default function AdminClassesPage() {
   });
 
   const deleteClass = useMutation({
-    mutationFn: (id: string) => api.delete(`/syllabus/classes/${id}`),
+    mutationFn: (id: string) => {
+      if (isViewMode) {
+        throw new Error('Cannot delete class in View Mode. Switch to active session to make changes.');
+      }
+      return api.delete(`/syllabus/classes/${id}`);
+    },
     onSuccess: async (_, deletedId) => {
       qc.setQueryData<PaginatedResponse<ClassItem>>(syllabusKeys.classes(schoolId, school?.currentAcademicSessionId), (old) =>
         old
@@ -250,6 +269,9 @@ export default function AdminClassesPage() {
 
   const bulkCreateClasses = useMutation({
     mutationFn: (classes: BulkClassRow[]) => {
+      if (isViewMode) {
+        throw new Error('Cannot create classes in View Mode. Switch to active session to make changes.');
+      }
       if (!school?.currentAcademicSessionId) {
         throw new Error('No active academic session found. Please create or select a session first.');
       }
@@ -281,7 +303,7 @@ export default function AdminClassesPage() {
     ]);
     ws['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 30 }];
     const wb = XLSX.utils.book_new();
-    XUtils.book_append_sheet(wb, ws, 'Classes');
+    XLSX.utils.book_append_sheet(wb, ws, 'Classes');
     XLSX.writeFile(wb, 'classes_template.xlsx');
   };
 
@@ -397,15 +419,23 @@ export default function AdminClassesPage() {
               className="pl-9"
             />
           </div>
-          <div className="flex gap-2">
-            <ImportDataButton type="classes" label="Import Classes" />
-            <Button onClick={() => setBulkUploadOpen(true)} variant="outline" size="sm">
-              <Upload className="mr-2 h-4 w-4" /> Bulk Upload
-            </Button>
-            <Button onClick={handleCreateClick} size="sm">
-              <Plus className="mr-2 h-4 w-4" /> Add Class
-            </Button>
-          </div>
+          {!isViewMode ? (
+            <div className="flex gap-2">
+              <ImportDataButton type="classes" label="Import Classes" />
+              <Button onClick={() => setBulkUploadOpen(true)} variant="outline" size="sm">
+                <Upload className="mr-2 h-4 w-4" /> Bulk Upload
+              </Button>
+              <Button onClick={handleCreateClick} size="sm">
+                <Plus className="mr-2 h-4 w-4" /> Add Class
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-xs">
+                <Eye className="h-3.5 w-3.5 text-amber-600" /> Read-Only View Mode
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Class Cards */}
@@ -436,7 +466,7 @@ export default function AdminClassesPage() {
               const remaining = total - done;
 
               // Pick color theme based on array index looping
-              const theme = CARD_THEMES[i % CARD_THEMES.length];
+              const theme = CARD_THEMES[i % CARD_THEMES.length]!;
 
               return (
                 <div
@@ -537,29 +567,36 @@ export default function AdminClassesPage() {
                           variant="ghost"
                           size="icon"
                           className="text-muted-foreground hover:text-foreground h-7 w-7"
+                          title="View Class"
                           onClick={() => router.push(`/admin/classes/${cls.id}`)}
                         >
                           <Eye className="h-3.5 w-3.5" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-muted-foreground hover:text-foreground h-7 w-7"
-                          onClick={() => handleEditClick(cls)}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7"
-                          onClick={() => {
-                            setDeleteTarget(cls);
-                            setDeleteConfirmValue('');
-                          }}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
+                        {!isViewMode && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-muted-foreground hover:text-foreground h-7 w-7"
+                              title="Edit Class"
+                              onClick={() => handleEditClick(cls)}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7"
+                              title="Delete Class"
+                              onClick={() => {
+                                setDeleteTarget(cls);
+                                setDeleteConfirmValue('');
+                              }}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -610,7 +647,9 @@ export default function AdminClassesPage() {
             <Button
               className="mt-2 w-full active:scale-[0.99]"
               onClick={() =>
-                editingClass ? updateClass.mutate(editingClass.id) : createClass.mutate()
+                editingClass
+                  ? updateClass.mutate({ id: editingClass.id, name, section, description })
+                  : createClass.mutate()
               }
               disabled={!name.trim() || createClass.isPending || updateClass.isPending}
             >

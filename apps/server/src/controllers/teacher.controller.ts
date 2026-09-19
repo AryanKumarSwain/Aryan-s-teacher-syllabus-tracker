@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+import { prisma } from '@school-syllabus/database';
 import { teacherService } from '../services/teacher.service.js';
 import { getTenantId } from '../middleware/tenant.js';
 import { sendPaginated, sendSuccess } from '../utils/api-response.js';
@@ -13,8 +14,23 @@ export const teacherController = {
       if (teachers.length > 100) {
         return res.status(400).json({ success: false, error: 'Maximum 100 teachers per import' });
       }
-      const academicSessionId = (req.query.academicSessionId as string) || (req.body.academicSessionId as string);
-      const results = await teacherService.bulkCreate(getTenantId(req), academicSessionId, teachers);
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      let academicSessionId: string | undefined =
+        (req.query.academicSessionId as string) || (req.body.academicSessionId as string) || undefined;
+      if (academicSessionId && academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot import teachers into an inactive or historical session' });
+      }
+      if (!academicSessionId) {
+        academicSessionId = school?.currentAcademicSessionId ?? undefined;
+      }
+      if (!academicSessionId) {
+        return res.status(400).json({ success: false, error: 'Active academic session ID is required' });
+      }
+      const results = await teacherService.bulkCreate(schoolId, academicSessionId, teachers);
       const succeeded = results.filter((r) => r.success).length;
       const failed = results.filter((r) => !r.success).length;
       sendSuccess(res, { results, succeeded, failed }, 201);
@@ -62,7 +78,7 @@ export const teacherController = {
       const schoolId = getTenantId(req);
       
       // Get school's current session if not provided
-      let academicSessionId = (req.query.academicSessionId as string) || (req.body.academicSessionId as string);
+      let academicSessionId: string | undefined = (req.query.academicSessionId as string) || (req.body.academicSessionId as string);
       if (!academicSessionId) {
         const school = await prisma.school.findUnique({
           where: { id: schoolId },
@@ -87,19 +103,21 @@ export const teacherController = {
     try {
       console.log('[CREATE TEACHER] body:', JSON.stringify(req.body, null, 2));
       const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
       
-      // Get school's current session if not provided
       let academicSessionId = req.body.academicSessionId as string | undefined;
+      if (academicSessionId && academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot create teachers in an inactive or historical session' });
+      }
       if (!academicSessionId) {
-        const school = await prisma.school.findUnique({
-          where: { id: schoolId },
-          select: { currentAcademicSessionId: true },
-        });
         academicSessionId = school?.currentAcademicSessionId || undefined;
       }
       
       if (!academicSessionId) {
-        return res.status(400).json({ success: false, error: 'Academic session ID is required' });
+        return res.status(400).json({ success: false, error: 'Active academic session ID is required' });
       }
       
       const result = await teacherService.create(schoolId, academicSessionId, req.body);
@@ -113,19 +131,21 @@ export const teacherController = {
   async addAssignment(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
       
-      // Get school's current session if not provided
       let academicSessionId = req.body.academicSessionId as string | undefined;
+      if (academicSessionId && academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot add assignments in an inactive or historical session' });
+      }
       if (!academicSessionId) {
-        const school = await prisma.school.findUnique({
-          where: { id: schoolId },
-          select: { currentAcademicSessionId: true },
-        });
         academicSessionId = school?.currentAcademicSessionId || undefined;
       }
       
       if (!academicSessionId) {
-        return res.status(400).json({ success: false, error: 'Academic session ID is required' });
+        return res.status(400).json({ success: false, error: 'Active academic session ID is required' });
       }
       
       const assignment = await teacherService.createAssignment(
@@ -142,8 +162,20 @@ export const teacherController = {
 
   async deleteAssignment(req: Request, res: Response, next: NextFunction) {
     try {
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      const teacher = await prisma.teacher.findUnique({
+        where: { id: String(req.params.id) },
+        select: { academicSessionId: true },
+      });
+      if (teacher?.academicSessionId && teacher.academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot modify assignments in an inactive or historical session' });
+      }
       await teacherService.deleteAssignment(
-        getTenantId(req),
+        schoolId,
         String(req.params.id),
         String(req.params.assignmentId),
       );
@@ -156,19 +188,21 @@ export const teacherController = {
   async update(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
       
-      // Get school's current session if not provided
       let academicSessionId = req.body.academicSessionId as string | undefined;
+      if (academicSessionId && academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot update teachers in an inactive or historical session' });
+      }
       if (!academicSessionId) {
-        const school = await prisma.school.findUnique({
-          where: { id: schoolId },
-          select: { currentAcademicSessionId: true },
-        });
         academicSessionId = school?.currentAcademicSessionId || undefined;
       }
       
       if (!academicSessionId) {
-        return res.status(400).json({ success: false, error: 'Academic session ID is required' });
+        return res.status(400).json({ success: false, error: 'Active academic session ID is required' });
       }
       
       const teacher = await teacherService.update(
@@ -186,19 +220,21 @@ export const teacherController = {
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
       
-      // Get school's current session if not provided
-      let academicSessionId = (req.query.academicSessionId as string) || (req.body.academicSessionId as string);
+      let academicSessionId: string | undefined = (req.query.academicSessionId as string) || (req.body.academicSessionId as string);
+      if (academicSessionId && academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot delete teachers in an inactive or historical session' });
+      }
       if (!academicSessionId) {
-        const school = await prisma.school.findUnique({
-          where: { id: schoolId },
-          select: { currentAcademicSessionId: true },
-        });
         academicSessionId = school?.currentAcademicSessionId || undefined;
       }
       
       if (!academicSessionId) {
-        return res.status(400).json({ success: false, error: 'Academic session ID is required' });
+        return res.status(400).json({ success: false, error: 'Active academic session ID is required' });
       }
       
       await teacherService.softDelete(schoolId, academicSessionId, String(req.params.id));

@@ -32,7 +32,12 @@ function parseExcel(file: File): Promise<BulkTeacherRow[]> {
       try {
         const data = new Uint8Array(e.target!.result as ArrayBuffer);
         const wb = XLSX.read(data, { type: 'array' });
-        const ws = wb.Sheets[wb.SheetNames[0]];
+        const sheetName = wb.SheetNames[0];
+        const ws = sheetName ? wb.Sheets[sheetName] : undefined;
+        if (!ws) {
+          resolve([]);
+          return;
+        }
         const rows: any[] = XLSX.utils.sheet_to_json(ws, { defval: '' });
         const parsed: BulkTeacherRow[] = rows
           .map((r) => ({

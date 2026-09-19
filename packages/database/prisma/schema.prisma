@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/client"
+  output   = "../src/generated/client3"
 }
 
 datasource db {
@@ -77,6 +77,7 @@ model School {
   users                    User[]
   examPapers               ExamPaper[]
   examPaperTemplates       ExamPaperTemplate[]
+  teacherTrainingRecords   TeacherTrainingRecord[]
 
   @@index([status])
   @@index([slug])
@@ -85,24 +86,25 @@ model School {
 }
 
 model AcademicSession {
-  id              String            @id @default(uuid()) @db.VarChar(50)
-  schoolId        String            @map("school_id") @db.VarChar(50)
-  name            String            @db.VarChar(50) // e.g. "2026-27"
-  status          SessionStatus     @default(ACTIVE)
-  isArchived      Boolean           @default(false) @map("is_archived")
-  createdAt       DateTime          @default(now()) @map("created_at")
-  updatedAt       DateTime          @updatedAt @map("updated_at")
-  school          School            @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  academicTerms   AcademicTerm[]
-  chapterProgress ChapterProgress[]
-  classes         Class[]
-  subjects        Subject[]
-  chapters        Chapter[]
-  topics          Topic[]
-  teacherClasses  TeacherClass[]
-  teachers        Teacher[]
-  topicProgress   TopicProgress[]
-  examPapers      ExamPaper[] // ➕ Back-relation added here to resolve validation error
+  id                     String                  @id @default(uuid()) @db.VarChar(50)
+  schoolId               String                  @map("school_id") @db.VarChar(50)
+  name                   String                  @db.VarChar(50) // e.g. "2026-27"
+  status                 SessionStatus           @default(ACTIVE)
+  isArchived             Boolean                 @default(false) @map("is_archived")
+  createdAt              DateTime                @default(now()) @map("created_at")
+  updatedAt              DateTime                @updatedAt @map("updated_at")
+  school                 School                  @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  academicTerms          AcademicTerm[]
+  chapterProgress        ChapterProgress[]
+  classes                Class[]
+  subjects               Subject[]
+  chapters               Chapter[]
+  topics                 Topic[]
+  teacherClasses         TeacherClass[]
+  teachers               Teacher[]
+  topicProgress          TopicProgress[]
+  examPapers             ExamPaper[] // ➕ Back-relation added here to resolve validation error
+  teacherTrainingRecords TeacherTrainingRecord[]
 
   @@unique([schoolId, name])
   @@index([schoolId])
@@ -164,6 +166,7 @@ model Teacher {
   user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   topicProgress     TopicProgress[]
   examPapers        ExamPaper[]
+  trainingRecords   TeacherTrainingRecord[]
 
   @@unique([schoolId, userId, academicSessionId])
   @@index([schoolId])
@@ -605,4 +608,66 @@ enum QuestionType {
   PASSAGE
   ASSERTION_REASONING
   CUSTOM
+}
+
+model TeacherTrainingRecord {
+  id                  String             @id @default(uuid()) @db.VarChar(50)
+  schoolId            String             @map("school_id") @db.VarChar(50)
+  academicSessionId   String             @map("academic_session_id") @db.VarChar(50)
+  teacherId           String             @map("teacher_id") @db.VarChar(50)
+  title               String             @db.VarChar(255)
+  domain              CpdDomain
+  annexure            String?            @db.VarChar(50)
+  provider            CpdProvider        @default(CBSE)
+  trainingMode        CpdTrainingMode    @default(OFFLINE) @map("training_mode")
+  hours               Decimal            @db.Decimal(5, 2)
+  startDate           DateTime?          @map("start_date")
+  endDate             DateTime?          @map("end_date")
+  organizedBy         String?            @map("organized_by") @db.VarChar(191)
+  locationOrPlatform  String?            @map("location_or_platform") @db.VarChar(191)
+  isAcademicActivity  Boolean            @default(false) @map("is_academic_activity")
+  academicActivityKey String?            @map("academic_activity_key") @db.VarChar(100)
+  certificateNumber   String?            @map("certificate_number") @db.VarChar(100)
+  certificateUrl      String?            @map("certificate_url") @db.VarChar(500)
+  remarks             String?            @db.Text
+  status              CpdRecordStatus    @default(VERIFIED)
+  createdAt           DateTime           @default(now()) @map("created_at")
+  updatedAt           DateTime           @updatedAt @map("updated_at")
+
+  school              School             @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  academicSession     AcademicSession    @relation(fields: [academicSessionId], references: [id], onDelete: Cascade)
+  teacher             Teacher            @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([schoolId])
+  @@index([academicSessionId])
+  @@index([teacherId])
+  @@index([domain])
+  @@index([provider])
+  @@index([status])
+  @@map("teacher_training_records")
+}
+
+enum CpdDomain {
+  CORE_VALUES_ETHICS
+  KNOWLEDGE_PRACTICE
+  PROFESSIONAL_GROWTH
+}
+
+enum CpdProvider {
+  CBSE
+  SCHOOL
+  SAHODAYA
+  OTHER
+}
+
+enum CpdTrainingMode {
+  OFFLINE
+  ONLINE
+  BLENDED
+}
+
+enum CpdRecordStatus {
+  VERIFIED
+  SUBMITTED
+  REJECTED
 }

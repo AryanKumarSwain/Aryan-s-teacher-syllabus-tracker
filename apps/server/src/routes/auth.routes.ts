@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authController } from '../controllers/auth.controller.js';
-import { authenticate, optionalAuth } from '../middleware/auth.js';
+import { authenticate } from '../middleware/auth.js';
 import { validateBody } from '../middleware/validate.js';
 import {
   completeGoogleProfileSchema,

@@ -14,6 +14,7 @@ import {
   Trash2,
   Plus,
   Filter,
+  Eye,
 } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Card, CardContent } from '@/components/ui/card';
@@ -140,7 +141,7 @@ export default function AdminSyllabusPage() {
   const [newClassName, setNewClassName] = useState('');
   const queryClient = useQueryClient();
   const schoolId = useSchoolId();
-  const { school } = useSchool();
+  const { school, isViewMode } = useSchool();
 
   const { data: tree = [], isLoading } = useQuery({
     queryKey: syllabusKeys.syllabusTree(schoolId, school?.currentAcademicSessionId),
@@ -151,11 +152,14 @@ export default function AdminSyllabusPage() {
   });
 
   const { data: academicYearsResponse } = useQuery({
-    queryKey: ['academic-terms', schoolId],
+    queryKey: ['academic-terms', schoolId, school?.currentAcademicSessionId],
     queryFn: async () => {
       const response = await api.getPaginated<any>(
         '/academic-terms',
-        schoolId ? { schoolId } : undefined,
+        {
+          ...(schoolId && { schoolId }),
+          ...(school?.currentAcademicSessionId && { academicSessionId: school.currentAcademicSessionId }),
+        },
       );
       return response;
     },
@@ -221,14 +225,17 @@ export default function AdminSyllabusPage() {
 
   const mutation = useMutation({
     mutationFn: async (vars: {
+      type: 'subject' | 'chapter';
       id: string;
-      type: EditingItem['type'];
       name: string;
       chapterNo?: number;
       academicYearId?: string;
       termIndex?: number;
       termName?: string;
     }) => {
+      if (isViewMode) {
+        return Promise.reject(new Error('Cannot edit syllabus in View Mode. Switch to active session to make changes.'));
+      }
       if (vars.type === 'subject')
         return api.patch(`/syllabus/subjects/${vars.id}`, { name: vars.name });
       if (vars.type === 'chapter')
@@ -248,7 +255,7 @@ export default function AdminSyllabusPage() {
       setEditChapterNo('');
       setEditTermKey('');
     },
-    onError: () => toast.error('Failed to save changes'),
+    onError: (err: any) => toast.error(err.message || 'Failed to save changes'),
   });
 
   const resetChapterForm = () => {
@@ -268,6 +275,9 @@ export default function AdminSyllabusPage() {
       termIndex?: number;
       termName?: string;
     }) => {
+      if (isViewMode) {
+        throw new Error('Cannot create chapter in View Mode. Switch to active session to make changes.');
+      }
       if (!school?.currentAcademicSessionId) {
         throw new Error('No active academic session found. Please create or select a session first.');
       }
@@ -283,22 +293,29 @@ export default function AdminSyllabusPage() {
       toast.success('Chapter created');
       resetChapterForm();
     },
-    onError: () => toast.error('Failed to create chapter'),
+    onError: (err: any) => toast.error(err.message || 'Failed to create chapter'),
   });
 
   const deleteChapterMutation = useMutation({
-    mutationFn: ({ chapterId }: { chapterId: string }) =>
-      api.delete(`/syllabus/chapters/${chapterId}`),
+    mutationFn: ({ chapterId }: { chapterId: string }) => {
+      if (isViewMode) {
+        throw new Error('Cannot delete chapter in View Mode. Switch to active session to make changes.');
+      }
+      return api.delete(`/syllabus/chapters/${chapterId}`);
+    },
     onSuccess: async () => {
       await invalidateSyllabusStructure(queryClient, schoolId, school?.currentAcademicSessionId);
       queryClient.invalidateQueries({ queryKey: ['teacher-classes'] });
       toast.success('Chapter deleted');
     },
-    onError: () => toast.error('Failed to delete chapter'),
+    onError: (err: any) => toast.error(err.message || 'Failed to delete chapter'),
   });
 
   const createClassMutation = useMutation({
     mutationFn: (payload: { name: string }) => {
+      if (isViewMode) {
+        throw new Error('Cannot create class in View Mode. Switch to active session to make changes.');
+      }
       if (!school?.currentAcademicSessionId) {
         throw new Error('No active academic session found. Please create or select a session first.');
       }
@@ -313,7 +330,7 @@ export default function AdminSyllabusPage() {
       setAddClassDialogOpen(false);
       setNewClassName('');
     },
-    onError: () => toast.error('Failed to create class'),
+    onError: (err: any) => toast.error(err.message || 'Failed to create class'),
   });
 
   const toggle = (key: string) => setExpanded((p) => ({ ...p, [key]: !p[key] }));
@@ -540,9 +557,15 @@ export default function AdminSyllabusPage() {
             >
               Collapse All
             </Button>
-            <Button size="sm" className="gap-1 text-xs" onClick={() => setAddClassDialogOpen(true)}>
-              <Plus className="h-3.5 w-3.5" /> Add Class
-            </Button>
+            {!isViewMode ? (
+              <Button size="sm" className="gap-1 text-xs" onClick={() => setAddClassDialogOpen(true)}>
+                <Plus className="h-3.5 w-3.5" /> Add Class
+              </Button>
+            ) : (
+              <span className="text-xs font-semibold text-amber-800 bg-amber-100 border border-amber-300 px-2.5 py-1 rounded-md flex items-center gap-1.5 shadow-xs">
+                <Eye className="h-3.5 w-3.5 text-amber-600" /> Read-Only View Mode
+              </span>
+            )}
           </div>
         </div>
 
@@ -639,20 +662,22 @@ export default function AdminSyllabusPage() {
                                       ({subject.chapters.length})
                                     </span>
                                   </button>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-8 gap-1 text-xs"
-                                    onClick={() =>
-                                      openEdit({
-                                        type: 'subject',
-                                        id: subject.id,
-                                        name: subject.name,
-                                      })
-                                    }
-                                  >
-                                    <Pencil className="h-3 w-3" /> Edit
-                                  </Button>
+                                  {!isViewMode && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="h-8 gap-1 text-xs"
+                                      onClick={() =>
+                                        openEdit({
+                                          type: 'subject',
+                                          id: subject.id,
+                                          name: subject.name,
+                                        })
+                                      }
+                                    >
+                                      <Pencil className="h-3 w-3" /> Edit
+                                    </Button>
+                                  )}
                                 </div>
 
                                 <div
@@ -690,102 +715,106 @@ export default function AdminSyllabusPage() {
                                             </div>
 
                                             {/* Right side: Action Buttons */}
-                                            <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                                              <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="text-muted-foreground hover:text-foreground h-7 px-2 text-xs"
-                                                onClick={() => openEditChapter(chapter)}
-                                              >
-                                                <Pencil className="h-3 w-3" />
-                                              </Button>
-                                              <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="text-destructive hover:bg-destructive/10 hover:text-destructive h-7 px-2 text-xs"
-                                                onClick={() => {
-                                                  if (confirm(`Delete "${chapter.title}"?`)) {
-                                                    deleteChapterMutation.mutate({
-                                                      chapterId: chapter.id,
-                                                    });
-                                                  }
-                                                }}
-                                              >
-                                                <Trash2 className="h-3 w-3" />
-                                              </Button>
-                                            </div>
+                                            {!isViewMode && (
+                                              <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="text-muted-foreground hover:text-foreground h-7 px-2 text-xs"
+                                                  onClick={() => openEditChapter(chapter)}
+                                                >
+                                                  <Pencil className="h-3 w-3" />
+                                                </Button>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="text-destructive hover:bg-destructive/10 hover:text-destructive h-7 px-2 text-xs"
+                                                  onClick={() => {
+                                                    if (confirm(`Delete "${chapter.title}"?`)) {
+                                                      deleteChapterMutation.mutate({
+                                                        chapterId: chapter.id,
+                                                      });
+                                                    }
+                                                  }}
+                                                >
+                                                  <Trash2 className="h-3 w-3" />
+                                                </Button>
+                                              </div>
+                                            )}
                                           </div>
                                         );
                                       })}
 
-                                      <div className="pt-2">
-                                        {isAddingHere ? (
-                                          <div className="animate-in slide-in-from-left-2 flex max-w-xl flex-wrap items-center gap-2 duration-200">
-                                            <Input
-                                              value={newChapterNo}
-                                              onChange={(e) => setNewChapterNo(e.target.value)}
-                                              placeholder="Chapter No."
-                                              type="number"
-                                              min={1}
-                                              className="h-8 w-24 text-xs"
-                                              autoFocus
-                                            />
-                                            <Input
-                                              value={newChapterTitle}
-                                              onChange={(e) => setNewChapterTitle(e.target.value)}
-                                              placeholder="Chapter Name"
-                                              className="h-8 min-w-[10rem] flex-1 text-xs"
-                                            />
-                                            <select
-                                              value={newChapterTermKey}
-                                              onChange={(e) => setNewChapterTermKey(e.target.value)}
-                                              disabled={termOptions.length === 0}
-                                              className="border-input bg-background h-8 rounded-md border px-2 text-xs disabled:opacity-50"
-                                            >
-                                              <option value="">
-                                                {termOptions.length === 0
-                                                  ? 'No terms available'
-                                                  : 'Select term'}
-                                              </option>
-                                              {termOptions.map((opt) => (
-                                                <option key={opt.key} value={opt.key}>
-                                                  {opt.label}
+                                      {!isViewMode && (
+                                        <div className="pt-2">
+                                          {isAddingHere ? (
+                                            <div className="animate-in slide-in-from-left-2 flex max-w-xl flex-wrap items-center gap-2 duration-200">
+                                              <Input
+                                                value={newChapterNo}
+                                                onChange={(e) => setNewChapterNo(e.target.value)}
+                                                placeholder="Chapter No."
+                                                type="number"
+                                                min={1}
+                                                className="h-8 w-24 text-xs"
+                                                autoFocus
+                                              />
+                                              <Input
+                                                value={newChapterTitle}
+                                                onChange={(e) => setNewChapterTitle(e.target.value)}
+                                                placeholder="Chapter Name"
+                                                className="h-8 min-w-[10rem] flex-1 text-xs"
+                                              />
+                                              <select
+                                                value={newChapterTermKey}
+                                                onChange={(e) => setNewChapterTermKey(e.target.value)}
+                                                disabled={termOptions.length === 0}
+                                                className="border-input bg-background h-8 rounded-md border px-2 text-xs disabled:opacity-50"
+                                              >
+                                                <option value="">
+                                                  {termOptions.length === 0
+                                                    ? 'No terms available'
+                                                    : 'Select term'}
                                                 </option>
-                                              ))}
-                                            </select>
+                                                {termOptions.map((opt) => (
+                                                  <option key={opt.key} value={opt.key}>
+                                                    {opt.label}
+                                                  </option>
+                                                ))}
+                                              </select>
+                                              <Button
+                                                size="sm"
+                                                className="h-8 gap-1 px-3 text-xs"
+                                                onClick={() => handleSaveChapter(cls.id, subject.id)}
+                                                disabled={createChapterMutation.isPending}
+                                              >
+                                                <Check className="h-3 w-3" /> Save
+                                              </Button>
+                                              <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-8 text-xs"
+                                                onClick={resetChapterForm}
+                                              >
+                                                Cancel
+                                              </Button>
+                                            </div>
+                                          ) : (
                                             <Button
+                                              variant="outline"
                                               size="sm"
-                                              className="h-8 gap-1 px-3 text-xs"
-                                              onClick={() => handleSaveChapter(cls.id, subject.id)}
-                                              disabled={createChapterMutation.isPending}
+                                              className="text-muted-foreground hover:text-foreground h-8 border-dashed text-xs"
+                                              onClick={() =>
+                                                setCreatingChapterFor({
+                                                  classId: cls.id,
+                                                  subjectId: subject.id,
+                                                })
+                                              }
                                             >
-                                              <Check className="h-3 w-3" /> Save
+                                              + Add Chapter
                                             </Button>
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              className="h-8 text-xs"
-                                              onClick={resetChapterForm}
-                                            >
-                                              Cancel
-                                            </Button>
-                                          </div>
-                                        ) : (
-                                          <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="text-muted-foreground hover:text-foreground h-8 border-dashed text-xs"
-                                            onClick={() =>
-                                              setCreatingChapterFor({
-                                                classId: cls.id,
-                                                subjectId: subject.id,
-                                              })
-                                            }
-                                          >
-                                            + Add Chapter
-                                          </Button>
-                                        )}
-                                      </div>
+                                          )}
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 </div>

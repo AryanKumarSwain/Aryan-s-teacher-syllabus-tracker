@@ -22,10 +22,13 @@ import {
   Info,
   ArrowUp,
   ArrowDown,
+  ArrowRight,
 } from 'lucide-react';
+import Link from 'next/link';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { api } from '@/services/api-client';
 import type { DashboardStats } from '@school-syllabus/types';
+import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { formatPercent } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/shared/empty-state';
@@ -184,33 +187,36 @@ function CountUp({ end, duration = 1000 }: { end: number; duration?: number }) {
 }
 
 export default function AdminDashboardPage() {
+  const { school, isViewMode } = useSchool();
   const [selectedClass, setSelectedClass] = useState<string>('all');
   const [classSortDir, setClassSortDir] = useState<SortDirection>('desc');
   const [selectedTeacher, setSelectedTeacher] = useState<string | null>(null);
   const [teacherSortDir, setTeacherSortDir] = useState<SortDirection>('desc');
   const [progressTimeRange, setProgressTimeRange] = useState<'1' | '3' | '6' | 'all'>('all');
-  const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<string>('');
+  const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<string>(
+    school?.currentAcademicSessionId || ''
+  );
 
-  // Load selected academic year from localStorage
+  // Sync selected academic year with school's current session (viewed or active)
   useEffect(() => {
-    const saved = localStorage.getItem('selected-academic-year');
-    if (saved) setSelectedAcademicYearId(saved);
-  }, []);
-
-  // Update localStorage when selection changes
-  useEffect(() => {
-    if (selectedAcademicYearId) {
-      localStorage.setItem('selected-academic-year', selectedAcademicYearId);
+    if (school?.currentAcademicSessionId) {
+      setSelectedAcademicYearId(school.currentAcademicSessionId);
     }
-  }, [selectedAcademicYearId]);
+  }, [school?.currentAcademicSessionId]);
 
   const {
     data: stats,
     isLoading: statsLoading,
     error: statsError,
   } = useQuery({
-    queryKey: ['dashboard', 'stats'],
-    queryFn: () => api.get<DashboardStats>('/dashboard/stats'),
+    queryKey: ['dashboard', 'stats', school?.currentAcademicSessionId],
+    queryFn: () =>
+      api.get<DashboardStats>(
+        '/dashboard/stats',
+        school?.currentAcademicSessionId
+          ? { academicSessionId: school.currentAcademicSessionId }
+          : undefined,
+      ),
   });
 
   const {
@@ -218,7 +224,7 @@ export default function AdminDashboardPage() {
     isLoading: analyticsLoading,
     error: analyticsError,
   } = useQuery({
-    queryKey: ['dashboard', 'analytics', selectedAcademicYearId],
+    queryKey: ['dashboard', 'analytics', selectedAcademicYearId || school?.currentAcademicSessionId],
     queryFn: () =>
       api.get<{
         globalTimeline?: {
@@ -228,7 +234,7 @@ export default function AdminDashboardPage() {
           elapsedTeachingDays: number;
           remainingTeachingDays: number;
           percentageComplete: number;
-        };
+        } | null;
         subjectProgress: {
           name: string;
           progress: number;
@@ -254,20 +260,31 @@ export default function AdminDashboardPage() {
         }[];
       }>(
         '/dashboard/analytics',
-        selectedAcademicYearId ? { academicYearId: selectedAcademicYearId } : undefined,
+        (selectedAcademicYearId || school?.currentAcademicSessionId)
+          ? { academicYearId: (selectedAcademicYearId || school?.currentAcademicSessionId) as string }
+          : undefined,
       ),
   });
 
   const { data: academicYears } = useQuery({
-    queryKey: ['academic-terms'],
-    queryFn: () => api.getPaginated<any>('/academic-terms'),
+    queryKey: ['academic-terms', school?.currentAcademicSessionId],
+    queryFn: () =>
+      api.getPaginated<any>(
+        '/academic-terms',
+        school?.currentAcademicSessionId
+          ? { academicSessionId: school.currentAcademicSessionId }
+          : undefined,
+      ),
   });
 
   const { data: teacherProgressHistory } = useQuery({
-    queryKey: ['teacher-progress-history', selectedTeacher],
+    queryKey: ['teacher-progress-history', selectedTeacher, school?.currentAcademicSessionId],
     queryFn: () =>
       api.get<{ history: { date: string; progress: number }[]; totalTopics: number }>(
         `/dashboard/teacher-progress/${encodeURIComponent(selectedTeacher || '')}`,
+        school?.currentAcademicSessionId
+          ? { academicSessionId: school.currentAcademicSessionId }
+          : undefined,
       ),
     enabled: !!selectedTeacher,
   });
@@ -299,7 +316,7 @@ export default function AdminDashboardPage() {
         progress: Math.round(c.percentageComplete),
         completed: c.completedTopics,
         total: c.totalTopics,
-        fillColor: CHART_COLORS[i % CHART_COLORS.length],
+        fillColor: CHART_COLORS[i % CHART_COLORS.length]!,
       }));
     } else if (analytics?.subjectProgress) {
       const byClass = new Map<
@@ -323,7 +340,7 @@ export default function AdminDashboardPage() {
         progress: c.count > 0 ? Math.round(c.sum / c.count) : 0,
         completed: 0,
         total: 0,
-        fillColor: CHART_COLORS[i % CHART_COLORS.length],
+        fillColor: CHART_COLORS[i % CHART_COLORS.length]!,
       }));
     }
 
@@ -388,10 +405,10 @@ export default function AdminDashboardPage() {
     ];
     (analytics?.subjectProgress ?? []).forEach((item) => {
       const p = item.progress || 0;
-      if (p <= 25) buckets[0].count++;
-      else if (p <= 50) buckets[1].count++;
-      else if (p <= 75) buckets[2].count++;
-      else buckets[3].count++;
+      if (p <= 25) buckets[0]!.count++;
+      else if (p <= 50) buckets[1]!.count++;
+      else if (p <= 75) buckets[2]!.count++;
+      else buckets[3]!.count++;
     });
     return buckets;
   }, [analytics]);
@@ -537,86 +554,109 @@ export default function AdminDashboardPage() {
           </div>
         </Section>
 
-        {analytics?.globalTimeline && (
-          <Section title="Academic Timeline" icon={Calendar}>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="flex items-center gap-4 rounded-xl border border-blue-100 bg-blue-50/40 p-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-blue-500 shadow-sm">
-                  <Calendar className="h-5 w-5 text-white" />
+        <Section title="Academic Timeline" icon={Calendar}>
+          {analytics?.globalTimeline && analytics.globalTimeline.totalTeachingDays > 0 ? (
+            <>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="flex items-center gap-4 rounded-xl border border-blue-100 bg-blue-50/40 p-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-blue-500 shadow-sm">
+                    <Calendar className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
+                      Start Date
+                    </p>
+                    <p className="mt-0.5 text-sm font-semibold text-blue-700">
+                      {new Date(analytics.globalTimeline.startDate).toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
-                    Start Date
-                  </p>
-                  <p className="mt-0.5 text-sm font-semibold text-blue-700">
-                    {new Date(analytics.globalTimeline.startDate).toLocaleDateString()}
-                  </p>
+                <div className="flex items-center gap-4 rounded-xl border border-purple-100 bg-purple-50/40 p-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-purple-500 shadow-sm">
+                    <Clock className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold uppercase tracking-wider text-purple-600">
+                      End Date
+                    </p>
+                    <p className="mt-0.5 text-sm font-semibold text-purple-700">
+                      {new Date(analytics.globalTimeline.endDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 rounded-xl border border-emerald-100 bg-emerald-50/40 p-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-emerald-500 shadow-sm">
+                    <TrendingUp className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold uppercase tracking-wider text-emerald-600">
+                      Elapsed Days
+                    </p>
+                    <p className="mt-0.5 text-2xl font-black leading-none text-emerald-700">
+                      {analytics.globalTimeline.elapsedTeachingDays}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 rounded-xl border border-amber-100 bg-amber-50/40 p-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-amber-500 shadow-sm">
+                    <Activity className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold uppercase tracking-wider text-amber-600">
+                      Timeline Progress
+                    </p>
+                    <p className="mt-0.5 text-2xl font-black leading-none text-amber-700">
+                      {analytics.globalTimeline.percentageComplete.toFixed(1)}%
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-4 rounded-xl border border-purple-100 bg-purple-50/40 p-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-purple-500 shadow-sm">
-                  <Clock className="h-5 w-5 text-white" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold uppercase tracking-wider text-purple-600">
-                    End Date
-                  </p>
-                  <p className="mt-0.5 text-sm font-semibold text-purple-700">
-                    {new Date(analytics.globalTimeline.endDate).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 rounded-xl border border-emerald-100 bg-emerald-50/40 p-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-emerald-500 shadow-sm">
-                  <TrendingUp className="h-5 w-5 text-white" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold uppercase tracking-wider text-emerald-600">
-                    Elapsed Days
-                  </p>
-                  <p className="mt-0.5 text-2xl font-black leading-none text-emerald-700">
-                    {analytics.globalTimeline.elapsedTeachingDays}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 rounded-xl border border-amber-100 bg-amber-50/40 p-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-amber-500 shadow-sm">
-                  <Activity className="h-5 w-5 text-white" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold uppercase tracking-wider text-amber-600">
-                    Timeline Progress
-                  </p>
-                  <p className="mt-0.5 text-2xl font-black leading-none text-amber-700">
+              <div className="mt-4 rounded-xl border border-gray-100 bg-gray-50/50 p-4">
+                <div className="mb-2 flex items-center justify-between text-xs">
+                  <span className="font-semibold text-gray-600">Academic Year Progress</span>
+                  <span className="font-black text-[#1a73e8]">
                     {analytics.globalTimeline.percentageComplete.toFixed(1)}%
+                  </span>
+                </div>
+                <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200/80">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-[#1a73e8] via-indigo-500 to-[#34a853] transition-all duration-1000"
+                    style={{
+                      width: `${Math.min(analytics.globalTimeline.percentageComplete, 100)}%`,
+                    }}
+                  />
+                </div>
+                <div className="mt-2 flex items-center justify-between text-[10px] text-gray-500">
+                  <span>
+                    {analytics.globalTimeline.remainingTeachingDays} teaching days remaining
+                  </span>
+                  <span>{analytics.globalTimeline.totalTeachingDays} total teaching days</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-dashed border-gray-200 bg-gray-50/70 p-6 text-center sm:flex-row sm:text-left">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+                  <Calendar className="h-6 w-6" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900">No Academic Timeline Configured</h4>
+                  <p className="text-sm text-gray-500">
+                    Create an academic timeline (start & end dates, working days, holidays) for this session to track teaching days and schedule progression.
                   </p>
                 </div>
               </div>
+              <Link
+                href="/admin/academic-timeline"
+                className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#1a73e8] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700"
+              >
+                Configure Timeline
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
-            <div className="mt-4 rounded-xl border border-gray-100 bg-gray-50/50 p-4">
-              <div className="mb-2 flex items-center justify-between text-xs">
-                <span className="font-semibold text-gray-600">Academic Year Progress</span>
-                <span className="font-black text-[#1a73e8]">
-                  {analytics.globalTimeline.percentageComplete.toFixed(1)}%
-                </span>
-              </div>
-              <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200/80">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#1a73e8] via-indigo-500 to-[#34a853] transition-all duration-1000"
-                  style={{
-                    width: `${Math.min(analytics.globalTimeline.percentageComplete, 100)}%`,
-                  }}
-                />
-              </div>
-              <div className="mt-2 flex items-center justify-between text-[10px] text-gray-500">
-                <span>
-                  {analytics.globalTimeline.remainingTeachingDays} teaching days remaining
-                </span>
-                <span>{analytics.globalTimeline.totalTeachingDays} total teaching days</span>
-              </div>
-            </div>
-          </Section>
-        )}
+          )}
+        </Section>
 
         <div className="grid grid-cols-3 gap-4">
           {(['behind', 'onpace', 'ahead'] as const).map((key) => {
@@ -694,7 +734,7 @@ export default function AdminDashboardPage() {
                       <Tooltip
                         cursor={{ fill: '#f1f5f9' }}
                         content={({ active, payload }) => {
-                          if (active && payload && payload.length) {
+                          if (active && payload && payload.length && payload[0]) {
                             const item = payload[0].payload;
                             return (
                               <div className="rounded-xl border border-gray-100 bg-white p-3 shadow-xl">

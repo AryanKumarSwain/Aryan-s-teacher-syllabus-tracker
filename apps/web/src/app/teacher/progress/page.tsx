@@ -154,7 +154,7 @@ export default function TeacherProgressPage() {
     enabled: !!user?.teacherId && !!user?.schoolId,
   });
 
-  const classes = Array.isArray(classesData)
+  const classes: AssignedClass[] = Array.isArray(classesData)
     ? classesData
     : (classesData as any)?.items || (classesData as any)?.data || [];
   const rawSubjectProgress = progressionData?.subjectProgress ?? [];

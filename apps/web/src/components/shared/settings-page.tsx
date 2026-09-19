@@ -58,7 +58,14 @@ export function SettingsPageContent() {
       api.patch<{ id: string; name: string }>('/schools/me', data),
     onSuccess: (updated) => {
       setAuth(
-        { ...user!, school: { id: user!.school?.id || '', name: updated.name } },
+        {
+          ...user!,
+          school: {
+            id: user!.school?.id || '',
+            name: updated.name,
+            currentAcademicSessionId: user!.school?.currentAcademicSessionId ?? null,
+          },
+        },
         accessToken!,
       );
       toast.success('School name updated');

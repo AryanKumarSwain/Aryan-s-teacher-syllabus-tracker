@@ -11,7 +11,14 @@ interface SectionConfigFormProps {
   onBack?: () => void;
 }
 
-const defaultSections = [
+interface SectionConfigItem {
+  label: string;
+  type: string;
+  marksEach: number;
+  questions: any[];
+}
+
+const defaultSections: SectionConfigItem[] = [
   { label: 'MCQ', type: 'MCQ', marksEach: 1, questions: [] },
   { label: 'Fill in the Blanks', type: 'FILL_IN_THE_BLANK', marksEach: 1, questions: [] },
   { label: 'Short Answer', type: 'SHORT_ANSWER', marksEach: 2, questions: [] },
@@ -19,12 +26,15 @@ const defaultSections = [
 ];
 
 export function SectionConfigForm({ targetTotalMarks, onSubmit, onBack }: SectionConfigFormProps) {
-  const [sections, setSections] = useState(defaultSections);
+  const [sections, setSections] = useState<SectionConfigItem[]>(defaultSections);
 
-  const updateSection = (index: number, field: string, value: any) => {
+  const updateSection = (index: number, field: keyof SectionConfigItem, value: any) => {
     const next = [...sections];
-    next[index] = { ...next[index], [field]: value };
-    setSections(next);
+    const current = next[index];
+    if (current) {
+      next[index] = { ...current, [field]: value };
+      setSections(next);
+    }
   };
 
   const addSection = () => {

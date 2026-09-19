@@ -2,7 +2,7 @@
 
 import { use, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Eye } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,7 +22,7 @@ import { toast } from 'sonner';
 import { syllabusKeys } from '@/features/syllabus/query-keys';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
-import { getTeacherColorStyles } from '../page';
+import { getTeacherColorStyles } from '@/features/teachers/utils/teacher-styles';
 
 interface TeacherProfile {
   id: string;
@@ -48,15 +48,18 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
   const { id } = use(params);
   const qc = useQueryClient();
   const schoolId = useSchoolId();
-  const { school } = useSchool();
+  const { school, isViewMode } = useSchool();
   const [assignOpen, setAssignOpen] = useState(false);
 
   const [selectedClassIds, setSelectedClassIds] = useState<string[]>([]);
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([]);
 
   const { data: teacher, isLoading } = useQuery({
-    queryKey: ['teacher', id],
-    queryFn: () => api.get<TeacherProfile>(`/teachers/${id}`),
+    queryKey: ['teacher', id, school?.currentAcademicSessionId],
+    queryFn: () =>
+      api.get<TeacherProfile>(`/teachers/${id}`, {
+        ...(school?.currentAcademicSessionId && { academicSessionId: school.currentAcademicSessionId }),
+      }),
     refetchInterval: 30000, // Refetch every 30 seconds to get updated progress
   });
 
@@ -79,7 +82,7 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
         pageSize: 100,
         ...(school?.currentAcademicSessionId && { academicSessionId: school.currentAcademicSessionId }),
       }),
-    enabled: assignOpen,
+    enabled: assignOpen && !isViewMode,
   });
 
   const classes = classesData?.items ?? [];
@@ -104,7 +107,7 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
       const flatSubjects = results.flat();
       return Array.from(new Map(flatSubjects.map((s) => [s.id, s])).values());
     },
-    enabled: assignOpen && selectedClassIds.length > 0,
+    enabled: assignOpen && selectedClassIds.length > 0 && !isViewMode,
   });
 
   const assignmentCards = useMemo(() => {
@@ -119,6 +122,9 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
 
   const addAssignments = useMutation({
     mutationFn: async () => {
+      if (isViewMode) {
+        throw new Error('Cannot add assignments in View Mode');
+      }
       const targets: { classId: string; subjectId: string }[] = [];
 
       selectedClassIds.forEach((classId) => {
@@ -135,7 +141,12 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
       }
 
       return Promise.all(
-        targets.map((payload) => api.post(`/teachers/${id}/assignments`, payload)),
+        targets.map((payload) =>
+          api.post(`/teachers/${id}/assignments`, {
+            ...payload,
+            ...(school?.currentAcademicSessionId && { academicSessionId: school.currentAcademicSessionId }),
+          }),
+        ),
       );
     },
     onSuccess: () => {
@@ -149,7 +160,12 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
   });
 
   const deleteAssignment = useMutation({
-    mutationFn: (assignmentId: string) => api.delete(`/teachers/${id}/assignments/${assignmentId}`),
+    mutationFn: (assignmentId: string) => {
+      if (isViewMode) {
+        throw new Error('Cannot delete assignment in View Mode');
+      }
+      return api.delete(`/teachers/${id}/assignments/${assignmentId}`);
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['teacher', id] });
       toast.success('Assignment removed');
@@ -236,10 +252,16 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
         <Card className="lg:col-span-3">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Subject assignments</CardTitle>
-            <Button onClick={() => setAssignOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add assignment
-            </Button>
+            {!isViewMode ? (
+              <Button onClick={() => setAssignOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add assignment
+              </Button>
+            ) : (
+              <span className="text-xs font-semibold text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-xs">
+                <Eye className="h-3.5 w-3.5 text-amber-600" /> Read-Only View Mode
+              </span>
+            )}
           </CardHeader>
           <CardContent>
             {assignmentCards.length === 0 ? (
@@ -257,16 +279,18 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
                     )}
                   >
                     <span className="text-sm font-semibold">{a.label}</span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => deleteAssignment.mutate(a.id)}
-                      disabled={deleteAssignment.isPending}
-                      className="hover:bg-destructive/10 text-muted-foreground hover:text-destructive h-8 w-8 rounded-md"
-                      aria-label="Remove assignment"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {!isViewMode && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => deleteAssignment.mutate(a.id)}
+                        disabled={deleteAssignment.isPending}
+                        className="hover:bg-destructive/10 text-muted-foreground hover:text-destructive h-8 w-8 rounded-md"
+                        aria-label="Remove assignment"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>
