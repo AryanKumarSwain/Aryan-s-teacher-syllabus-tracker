@@ -25,6 +25,7 @@ import { CbseGuidelinesModal } from '@/features/teacher-training/components/cbse
 import { LogTrainingDialog } from '@/features/teacher-training/components/log-training-dialog';
 import { TeacherCpdDrawer } from '@/features/teacher-training/components/teacher-cpd-drawer';
 import { DomainStackedProgressBar } from '@/features/teacher-training/components/domain-stacked-progress-bar';
+import { CpdQuotaProgressBar } from '@/features/teacher-training/components/cpd-quota-progress-bar';
 import {
   Award,
   BookOpen,
@@ -489,33 +490,50 @@ export default function AdminTeacherTrainingPage() {
                           </div>
                         </td>
 
-                        {/* Column 2: Total Hours Progress */}
-                        <td className="py-3 px-4 min-w-[180px]">
-                          <div className="flex items-center justify-between text-xs mb-1">
-                            <span className="font-black text-gray-900">{t.totalHours} <span className="font-normal text-gray-400">/ 50h</span></span>
-                            <span className="font-bold text-gray-600">{t.totalProgress}%</span>
-                          </div>
-                          <DomainStackedProgressBar
-                            domain1Hours={t.domain1Hours}
-                            domain2Hours={t.domain2Hours}
-                            domain3Hours={t.domain3Hours}
-                            totalHours={t.totalHours}
-                            targetHours={50}
-                          />
-                          <div className="flex items-center justify-between text-[10px] text-gray-400 mt-1">
-                            <span>
-                              {t.hoursRemaining > 0
-                                ? `${t.hoursRemaining}h remaining`
-                                : 'Target Achieved!'}
-                            </span>
-                            <span className="flex items-center gap-1.5 font-medium">
-                              <span className="text-indigo-600">{t.domain1Hours}h</span>
-                              <span className="text-gray-300">|</span>
-                              <span className="text-sky-600">{t.domain2Hours}h</span>
-                              <span className="text-gray-300">|</span>
-                              <span className="text-emerald-600">{t.domain3Hours}h</span>
-                            </span>
-                          </div>
+                        {/* Column 2: Total Hours Progress (Strict 25h CBSE + 25h School Quota) */}
+                        <td className="py-3 px-4 min-w-[200px]">
+                          {(() => {
+                            const effectiveCbse = Math.min(25, t.cbseHours);
+                            const effectiveSchool = Math.min(25, t.schoolHours);
+                            const effectiveTotal = t.effectiveTotalHours ?? Number((effectiveCbse + effectiveSchool).toFixed(1));
+                            const remaining = t.hoursRemaining ?? Math.max(0, Number((50 - effectiveTotal).toFixed(1)));
+                            const progress = t.totalProgress ?? Math.min(100, Math.round((effectiveTotal / 50) * 100));
+
+                            return (
+                              <>
+                                <div className="flex items-center justify-between text-xs mb-1">
+                                  <div className="flex items-baseline gap-1">
+                                    <span className="font-black text-gray-900">{effectiveTotal}</span>
+                                    <span className="font-normal text-gray-400">/ 50h</span>
+                                    {t.totalHours > effectiveTotal && (
+                                      <span className="text-[10px] text-gray-400 font-normal">
+                                        ({t.totalHours}h logged)
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="font-bold text-gray-600">{progress}%</span>
+                                </div>
+                                <CpdQuotaProgressBar
+                                  cbseHours={t.cbseHours}
+                                  schoolHours={t.schoolHours}
+                                  targetCbse={25}
+                                  targetSchool={25}
+                                />
+                                <div className="flex items-center justify-between text-[10px] text-gray-400 mt-1">
+                                  <span>
+                                    {remaining > 0
+                                      ? `${remaining}h remaining`
+                                      : 'Target Achieved!'}
+                                  </span>
+                                  <span className="flex items-center gap-1.5 font-medium">
+                                    <span className="text-[#1a73e8]">CBSE: {effectiveCbse}/25h</span>
+                                    <span className="text-gray-300">|</span>
+                                    <span className="text-emerald-600">School: {effectiveSchool}/25h</span>
+                                  </span>
+                                </div>
+                              </>
+                            );
+                          })()}
                         </td>
 
                         {/* Column 3: Split Quota */}
@@ -525,9 +543,8 @@ export default function AdminTeacherTrainingPage() {
                               <span className="text-[11px] text-gray-500 w-12">CBSE:</span>
                               <Badge
                                 variant="outline"
-                                className={`text-[10px] py-0 px-1.5 ${
-                                  t.cbseHours >= 25 ? 'bg-blue-50 text-blue-700 border-blue-200' : 'text-gray-600'
-                                }`}
+                                className={`text-[10px] py-0 px-1.5 ${t.cbseHours >= 25 ? 'bg-blue-50 text-blue-700 border-blue-200' : 'text-gray-600'
+                                  }`}
                               >
                                 {t.cbseHours} / 25h
                               </Badge>
@@ -536,9 +553,8 @@ export default function AdminTeacherTrainingPage() {
                               <span className="text-[11px] text-gray-500 w-12">School:</span>
                               <Badge
                                 variant="outline"
-                                className={`text-[10px] py-0 px-1.5 ${
-                                  t.schoolHours >= 25 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'text-gray-600'
-                                }`}
+                                className={`text-[10px] py-0 px-1.5 ${t.schoolHours >= 25 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'text-gray-600'
+                                  }`}
                               >
                                 {t.schoolHours} / 25h
                               </Badge>
@@ -550,17 +566,14 @@ export default function AdminTeacherTrainingPage() {
                         <td className="py-3 px-4 whitespace-nowrap">
                           <div className="space-y-1">
                             <div className="flex items-center gap-1.5 text-[11px]">
-                              <span className="inline-block w-2 h-2 rounded-full bg-indigo-500" />
                               <span className="text-gray-500">D1 (Ethics):</span>
                               <span className="font-semibold text-gray-800">{t.domain1Hours}/12h</span>
                             </div>
                             <div className="flex items-center gap-1.5 text-[11px]">
-                              <span className="inline-block w-2 h-2 rounded-full bg-sky-500" />
                               <span className="text-gray-500">D2 (Practice):</span>
                               <span className="font-semibold text-gray-800">{t.domain2Hours}/24h</span>
                             </div>
                             <div className="flex items-center gap-1.5 text-[11px]">
-                              <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
                               <span className="text-gray-500">D3 (Growth):</span>
                               <span className="font-semibold text-gray-800">{t.domain3Hours}/14h</span>
                             </div>
@@ -570,13 +583,12 @@ export default function AdminTeacherTrainingPage() {
                         {/* Column 5: Status */}
                         <td className="py-3 px-4">
                           <Badge
-                            className={`text-[11px] font-semibold py-0.5 px-2 ${
-                              isCompliant
+                            className={`text-[11px] font-semibold py-0.5 px-2 ${isCompliant
                                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                 : isInProgress
-                                ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                : 'bg-gray-100 text-gray-700 border-gray-200'
-                            }`}
+                                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                  : 'bg-gray-100 text-gray-700 border-gray-200'
+                              }`}
                             variant="outline"
                           >
                             {isCompliant ? 'COMPLIANT' : isInProgress ? 'IN PROGRESS' : 'NOT STARTED'}
