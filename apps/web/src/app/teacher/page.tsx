@@ -21,11 +21,11 @@ import { EmptyState } from '@/components/shared/empty-state';
 import { api } from '@/services/api-client';
 import { useAuthStore } from '@/store/auth-store';
 import { cn } from '@/lib/utils';
+import { useRealtimeSync } from '@/lib/realtime-sync';
 
 interface AssignedClass {
   id: string;
   name: string;
-  grade: string | null;
   section: string | null;
   totalChapters: number;
   completedChapters: number;
@@ -69,6 +69,8 @@ export default function TeacherDashboardPage() {
   const schoolId = useAuthStore((s) => s.user?.schoolId);
   const academicSessionId = useAuthStore((s) => s.user?.school?.currentAcademicSessionId);
 
+  useRealtimeSync([['teacher-classes'], ['teacher-timeline-progress']]);
+
   const { data, isLoading } = useQuery({
     queryKey: ['teacher-classes', schoolId, academicSessionId],
     queryFn: () =>
@@ -78,6 +80,7 @@ export default function TeacherDashboardPage() {
         ...(academicSessionId && { academicSessionId }),
       }),
     enabled: !!schoolId,
+    refetchInterval: 5000,
   });
 
   const { data: timelineData, isLoading: timelineLoading } = useQuery({

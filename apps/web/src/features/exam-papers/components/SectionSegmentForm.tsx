@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
+import { Eye } from 'lucide-react';
 
 interface MatchingPair {
   left: string;
@@ -29,34 +31,58 @@ interface SectionSegmentFormProps {
   onBack: () => void;
   targetTotalMarks: number;
   initialSections?: any[];
+  onSectionsChange?: (sections: any[]) => void;
+  onOpenPreview?: (currentSections?: any[]) => void;
 }
 
 const segmentTypes = [
-  { value: 'MCQ', label: 'MCQ' },
-  { value: 'FILL_IN_THE_BLANK', label: 'Fill in the Blanks' },
-  { value: 'SHORT_ANSWER', label: 'Short Answer' },
-  { value: 'DESCRIPTIVE', label: 'Descriptive' },
-  { value: 'TRUE_FALSE', label: 'True/False' },
-  { value: 'MATCHING', label: 'Matching' },
-  { value: 'PASSAGE', label: 'Passage' },
-  { value: 'ASSERTION_REASONING', label: 'Assertion & Reasoning' },
-  { value: 'CUSTOM', label: 'Custom' },
+  { value: 'MCQ', label: 'Multiple Choice Questions (MCQ)' },
+  { value: 'FILL_BLANKS', label: 'Fill in the Blanks' },
+  { value: 'TRUE_FALSE', label: 'True / False' },
+  { value: 'SHORT_ANSWER', label: 'Short Answer Questions' },
+  { value: 'LONG_ANSWER', label: 'Long Answer Questions' },
+  { value: 'MATCHING', label: 'Match the Following' },
+  { value: 'ASSERTION_REASON', label: 'Assertion & Reasoning' },
+  { value: 'PASSAGE', label: 'Case Study / Passage Based' },
+  { value: 'CUSTOM', label: 'Custom Question Type' },
 ];
 
 const sectionLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
-export function SectionSegmentForm({ onSubmit, onBack, targetTotalMarks, initialSections }: SectionSegmentFormProps) {
+export function SectionSegmentForm({ 
+  onSubmit, 
+  onBack, 
+  targetTotalMarks, 
+  initialSections,
+  onSectionsChange,
+  onOpenPreview
+}: SectionSegmentFormProps) {
   const [sectionCount, setSectionCount] = useState(1);
   const [sections, setSections] = useState<Section[]>([
     { label: 'Section A', segments: [] }
   ]);
+  const initialLoadedRef = useRef(false);
 
   useEffect(() => {
-    if (initialSections && initialSections.length > 0) {
+    if (initialSections && initialSections.length > 0 && !initialLoadedRef.current) {
       setSections(initialSections);
       setSectionCount(initialSections.length);
+      initialLoadedRef.current = true;
     }
   }, [initialSections]);
+
+  useEffect(() => {
+    if (onSectionsChange) {
+      const formatted = sections.map(section => ({
+        label: section.label,
+        type: section.segments[0]?.type || 'CUSTOM',
+        marksEach: section.segments[0]?.marksEach || 0,
+        questions: [],
+        segments: section.segments
+      }));
+      onSectionsChange(formatted);
+    }
+  }, [sections]);
 
   const updateSectionCount = (count: number) => {
     const newCount = Math.max(1, Math.min(8, count));
@@ -142,11 +168,34 @@ export function SectionSegmentForm({ onSubmit, onBack, targetTotalMarks, initial
 
   return (
     <div className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-      <div>
-        <h3 className="text-lg font-semibold text-gray-800">Section & Segment Configuration</h3>
-        <p className="text-sm text-gray-500">
-          Define sections and add question segments (MCQ, Fill-ups, etc.) within each section.
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-800">Section & Segment Configuration</h3>
+          <p className="text-sm text-gray-500">
+            Define sections and add question segments (MCQ, Fill-ups, etc.) within each section.
+          </p>
+        </div>
+        {onOpenPreview && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const formatted = sections.map(section => ({
+                label: section.label,
+                type: section.segments[0]?.type || 'CUSTOM',
+                marksEach: section.segments[0]?.marksEach || 0,
+                questions: [],
+                segments: section.segments
+              }));
+              onOpenPreview(formatted);
+            }}
+            className="bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 text-xs flex items-center gap-1.5 font-semibold"
+          >
+            <Eye className="w-3.5 h-3.5 text-indigo-600" />
+            Preview Paper
+          </Button>
+        )}
       </div>
 
       <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">

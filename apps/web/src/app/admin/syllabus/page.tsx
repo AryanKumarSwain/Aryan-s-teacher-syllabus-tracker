@@ -396,10 +396,13 @@ export default function AdminSyllabusPage() {
   const openEditChapter = (chapter: Chapter) => {
     const matchedTerm = termOptions.find((t) => t.termName === chapter.termName);
     const chNo = chapter.chapterNo ?? (chapter as any).chapter_no;
+    const cleanTitle = (chapter.title || '')
+      .replace(/^Chapter\s*\d+\s*[:\-]?\s*/i, '')
+      .replace(/^[:\-]\s*/, '');
     openEdit({
       type: 'chapter',
       id: chapter.id,
-      title: chapter.title,
+      title: cleanTitle,
       chapterNo: chNo != null ? String(chNo) : '',
       termKey: matchedTerm?.key ?? '',
     });
@@ -413,11 +416,15 @@ export default function AdminSyllabusPage() {
     if (!newChapterTermKey) return toast.error('Please select a term');
 
     const selectedTermOption = termOptions.find((t) => t.key === newChapterTermKey);
+    const cleanTitle = newChapterTitle
+      .trim()
+      .replace(/^Chapter\s*\d+\s*[:\-]?\s*/i, '')
+      .replace(/^[:\-]\s*/, '');
 
     createChapterMutation.mutate({
       classId,
       subjectId,
-      title: newChapterTitle.trim(),
+      title: cleanTitle,
       chapterNo: parseInt(newChapterNo, 10),
       academicYearId: selectedTermOption?.academicYearId,
       termIndex: selectedTermOption?.termIndex,
@@ -441,11 +448,15 @@ export default function AdminSyllabusPage() {
     if (!editTermKey) return toast.error('Please select a term');
 
     const selectedTermOption = termOptions.find((t) => t.key === editTermKey);
+    const cleanTitle = value
+      .trim()
+      .replace(/^Chapter\s*\d+\s*[:\-]?\s*/i, '')
+      .replace(/^[:\-]\s*/, '');
 
     mutation.mutate({
       id: editing.id,
       type: 'chapter',
-      name: value.trim(),
+      name: cleanTitle,
       chapterNo: Number(editChapterNo),
       academicYearId: selectedTermOption?.academicYearId,
       termIndex: selectedTermOption?.termIndex,
@@ -644,12 +655,11 @@ export default function AdminSyllabusPage() {
                                 key={subject.id}
                                 className="rounded-xl border bg-gray-50/50 p-4 transition-all duration-200 hover:border-gray-300"
                               >
-                                <div className="flex items-center justify-between gap-4">
-                                  <button
-                                    type="button"
-                                    className="flex items-center gap-2 text-sm font-semibold hover:opacity-80"
-                                    onClick={() => toggle(`subject-${subject.id}`)}
-                                  >
+                                <div
+                                  className="flex cursor-pointer items-center justify-between gap-4 select-none hover:opacity-95"
+                                  onClick={() => toggle(`subject-${subject.id}`)}
+                                >
+                                  <div className="flex items-center gap-2 text-sm font-semibold">
                                     <ChevronRight
                                       className={cn(
                                         'text-muted-foreground h-3.5 w-3.5 transition-transform duration-200',
@@ -657,23 +667,24 @@ export default function AdminSyllabusPage() {
                                       )}
                                     />
                                     <BookOpen className="h-3.5 w-3.5 text-blue-500" />
-                                    {subject.name}
+                                    <span>{subject.name}</span>
                                     <span className="text-muted-foreground text-xs font-normal">
                                       ({subject.chapters.length})
                                     </span>
-                                  </button>
+                                  </div>
                                   {!isViewMode && (
                                     <Button
                                       variant="outline"
                                       size="sm"
                                       className="h-8 gap-1 text-xs"
-                                      onClick={() =>
+                                      onClick={(e) => {
+                                        e.stopPropagation();
                                         openEdit({
                                           type: 'subject',
                                           id: subject.id,
                                           name: subject.name,
-                                        })
-                                      }
+                                        });
+                                      }}
                                     >
                                       <Pencil className="h-3 w-3" /> Edit
                                     </Button>
@@ -695,6 +706,9 @@ export default function AdminSyllabusPage() {
                                         const chNo = chapter.chapterNo ?? (chapter as any).chapter_no;
                                         const tName = chapter.termName ?? (chapter as any).term_name;
                                         const tc = getTermColor(tName);
+                                        const cleanTitle = (chapter.title || '')
+                                          .replace(/^Chapter\s*\d+\s*[:\-]?\s*/i, '')
+                                          .replace(/^[:\-]\s*/, '');
 
                                         return (
                                           <div
@@ -704,7 +718,7 @@ export default function AdminSyllabusPage() {
                                             {/* Left side: Chapter Number & Title + Term Tag Badge */}
                                             <div className="flex items-center gap-3 text-xs font-medium text-gray-700">
                                               <span className="font-bold text-gray-900">
-                                                {chNo ? `Chapter ${chNo} ` : ''}{chapter.title}
+                                                {chNo ? `Chapter ${chNo}: ` : ''}{cleanTitle}
                                               </span>
 
                                               {tName && (
@@ -749,15 +763,18 @@ export default function AdminSyllabusPage() {
                                         <div className="pt-2">
                                           {isAddingHere ? (
                                             <div className="animate-in slide-in-from-left-2 flex max-w-xl flex-wrap items-center gap-2 duration-200">
-                                              <Input
-                                                value={newChapterNo}
-                                                onChange={(e) => setNewChapterNo(e.target.value)}
-                                                placeholder="Chapter No."
-                                                type="number"
-                                                min={1}
-                                                className="h-8 w-24 text-xs"
-                                                autoFocus
-                                              />
+                                              <div className="flex items-center gap-1.5">
+                                                <Input
+                                                  value={newChapterNo}
+                                                  onChange={(e) => setNewChapterNo(e.target.value)}
+                                                  placeholder="Chapter No."
+                                                  type="number"
+                                                  min={1}
+                                                  className="h-8 w-24 text-xs"
+                                                  autoFocus
+                                                />
+                                                <span className="text-gray-500 font-bold text-sm select-none">:</span>
+                                              </div>
                                               <Input
                                                 value={newChapterTitle}
                                                 onChange={(e) => setNewChapterTitle(e.target.value)}
@@ -884,15 +901,18 @@ export default function AdminSyllabusPage() {
           </DialogHeader>
           <div className="space-y-3 py-2">
             {editing?.type === 'chapter' && (
-              <div className="flex gap-2">
-                <Input
-                  value={editChapterNo}
-                  onChange={(e) => setEditChapterNo(e.target.value)}
-                  placeholder="Chapter No."
-                  type="number"
-                  min={1}
-                  className="w-28"
-                />
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
+                  <Input
+                    value={editChapterNo}
+                    onChange={(e) => setEditChapterNo(e.target.value)}
+                    placeholder="Chapter No."
+                    type="number"
+                    min={1}
+                    className="w-28"
+                  />
+                  <span className="text-gray-500 font-bold text-sm select-none">:</span>
+                </div>
                 <select
                   value={editTermKey}
                   onChange={(e) => setEditTermKey(e.target.value)}

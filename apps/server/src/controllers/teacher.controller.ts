@@ -99,6 +99,17 @@ export const teacherController = {
     }
   },
 
+  async getActivityLogs(req: Request, res: Response, next: NextFunction) {
+    try {
+      const schoolId = getTenantId(req);
+      const limit = req.query.limit ? parseInt(String(req.query.limit), 10) : 50;
+      const logs = await teacherService.getActivityLogs(schoolId, String(req.params.id), limit);
+      sendSuccess(res, logs);
+    } catch (err) {
+      next(err);
+    }
+  },
+
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       console.log('[CREATE TEACHER] body:', JSON.stringify(req.body, null, 2));

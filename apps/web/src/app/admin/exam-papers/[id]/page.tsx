@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
 import { QuestionEditor } from '@/features/exam-papers/components/QuestionEditor';
+import { ExamPaperPreviewModal } from '@/features/exam-papers/components/ExamPaperLivePreview';
 import { api } from '@/services/api-client';
 import { useParams } from 'next/navigation';
 import { generateExamPaperPdf, generateBulkExamPapersZip } from '@/features/exam-papers/utils/pdf-generator';
@@ -25,6 +26,7 @@ export default function AdminExamPaperReviewPage() {
   const [paper, setPaper] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [studentCount, setStudentCount] = useState(30);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
 
   useEffect(() => {
     if (!params.id) return;
@@ -209,12 +211,48 @@ export default function AdminExamPaperReviewPage() {
 
           <div className="flex gap-3 pt-4 border-t">
             <Button variant="outline" onClick={() => setIsEditing(true)}>Edit Paper</Button>
+            <Button
+              variant="outline"
+              onClick={() => setPreviewModalOpen(true)}
+              className="flex items-center gap-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              Preview Paper
+            </Button>
             {paper.status !== 'REVIEWED' && (
               <Button onClick={handleMarkReviewed}>Mark Reviewed</Button>
             )}
           </div>
         </div>
       </div>
+
+      {/* Preview Modal */}
+      <ExamPaperPreviewModal
+        isOpen={previewModalOpen}
+        onClose={() => setPreviewModalOpen(false)}
+        paperDetails={{
+          schoolName: paper.school?.name || '',
+          examName: paper.examName || '',
+          className: paper.class?.name || '',
+          subjectName: paper.subject?.name || '',
+          examDate: paper.examDate || '',
+          totalMarks: paper.totalMarks || 0,
+          duration: paper.duration || 0,
+          templateType: paper.templateType || 'SINGLE',
+          styleFontFamily: paper.styleFontFamily || 'Times New Roman',
+          styleFontSize: paper.styleFontSize || '11pt',
+          styleColor: paper.styleColor || '#000000',
+          logoUrl: paper.school?.examPaperTemplates?.[0]?.logoUrl || '',
+          teacherName: paper.teacher?.user?.name || '',
+        }}
+        sections={paper.sections || []}
+        instructions={paper.instructions || ''}
+        step={5}
+        onDownloadPdf={handleDownloadSinglePdf}
+      />
     </DashboardShell>
   );
 }

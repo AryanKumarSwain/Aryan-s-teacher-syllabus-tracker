@@ -15,6 +15,7 @@ export interface TrainingRecordItem {
   startDate?: string | null;
   endDate?: string | null;
   organizedBy?: string | null;
+  resourcePerson?: string | null;
   locationOrPlatform?: string | null;
   isAcademicActivity: boolean;
   academicActivityKey?: string | null;
@@ -34,6 +35,9 @@ export interface TeacherCpdItem {
   subjectNames: string[];
   classNames: string[];
   totalHours: number;
+  effectiveTotalHours?: number;
+  effectiveCbseHours?: number;
+  effectiveSchoolHours?: number;
   cbseHours: number;
   schoolHours: number;
   domain1Hours: number; // Core Values & Ethics (out of 12)
@@ -199,6 +203,49 @@ export function useDeleteTraining() {
     },
     onError: (err: any) => {
       toast.error(err?.message || 'Failed to delete training record');
+    },
+  });
+}
+
+export function usePendingTrainingApprovals() {
+  return useQuery({
+    queryKey: ['pending-training-approvals'],
+    queryFn: () => api.get<TrainingRecordItem[]>('/teacher-trainings/pending'),
+  });
+}
+
+export function useApproveTraining() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      api.patch(`/teacher-trainings/${id}`, { status: 'VERIFIED' }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['teacher-trainings'] });
+      qc.invalidateQueries({ queryKey: ['school-cpd-stats'] });
+      qc.invalidateQueries({ queryKey: ['teacher-cpd-detail'] });
+      qc.invalidateQueries({ queryKey: ['pending-training-approvals'] });
+      toast.success('Training record approved');
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || 'Failed to approve training');
+    },
+  });
+}
+
+export function useRejectTraining() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      api.patch(`/teacher-trainings/${id}`, { status: 'REJECTED' }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['teacher-trainings'] });
+      qc.invalidateQueries({ queryKey: ['school-cpd-stats'] });
+      qc.invalidateQueries({ queryKey: ['teacher-cpd-detail'] });
+      qc.invalidateQueries({ queryKey: ['pending-training-approvals'] });
+      toast.success('Training request rejected');
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || 'Failed to reject training');
     },
   });
 }

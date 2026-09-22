@@ -12,8 +12,11 @@ export interface TeacherCpdSummary {
   subjectNames: string[];
   classNames: string[];
   totalHours: number;
+  effectiveTotalHours?: number;
   cbseHours: number;
+  effectiveCbseHours?: number;
   schoolHours: number;
+  effectiveSchoolHours?: number;
   domain1Hours: number; // Core Values & Ethics (out of 12)
   domain2Hours: number; // Knowledge & Practice (out of 24)
   domain3Hours: number; // Professional Growth (out of 14)
@@ -46,6 +49,8 @@ function computeCpdSummary(teacher: any): TeacherCpdSummary {
   let onlineHours = 0;
 
   for (const rec of records) {
+    // Only count VERIFIED records towards CPD hours — SUBMITTED records are pending admin approval
+    if (rec.status !== 'VERIFIED') continue;
     const hrs = Number(rec.hours) || 0;
     totalHours += hrs;
 
@@ -77,19 +82,27 @@ function computeCpdSummary(teacher: any): TeacherCpdSummary {
   const effectiveAcademicHrs = Math.min(11, academicActivityHours);
   const adjustedDomain3Hrs = domain3Hours - academicActivityHours + effectiveAcademicHrs;
 
-  const totalProgress = Math.min(100, Math.round((totalHours / CPD_STANDARDS.TOTAL_HOURS_REQUIRED) * 100));
-  const cbseProgress = Math.min(100, Math.round((cbseHours / CPD_STANDARDS.CBSE_HOURS_REQUIRED) * 100));
-  const schoolProgress = Math.min(100, Math.round((schoolHours / CPD_STANDARDS.SCHOOL_HOURS_REQUIRED) * 100));
+  // CBSE and School quotas each contribute up to 25 hours towards the 50-hour mandatory target.
+  // Excess hours in either category do NOT count towards the other quota or the 50h progress.
+  const effectiveCbseHours = Math.min(25, cbseHours);
+  const effectiveSchoolHours = Math.min(25, schoolHours);
+  const effectiveTotalHours = Number((effectiveCbseHours + effectiveSchoolHours).toFixed(1));
+
+  const totalProgress = Math.min(100, Math.round((effectiveTotalHours / CPD_STANDARDS.TOTAL_HOURS_REQUIRED) * 100));
+  const cbseProgress = Math.min(100, Math.round((effectiveCbseHours / CPD_STANDARDS.CBSE_HOURS_REQUIRED) * 100));
+  const schoolProgress = Math.min(100, Math.round((effectiveSchoolHours / CPD_STANDARDS.SCHOOL_HOURS_REQUIRED) * 100));
   const domain1Progress = Math.min(100, Math.round((domain1Hours / CPD_STANDARDS.DOMAINS.CORE_VALUES_ETHICS.totalRequired) * 100));
   const domain2Progress = Math.min(100, Math.round((domain2Hours / CPD_STANDARDS.DOMAINS.KNOWLEDGE_PRACTICE.totalRequired) * 100));
   const domain3Progress = Math.min(100, Math.round((adjustedDomain3Hrs / CPD_STANDARDS.DOMAINS.PROFESSIONAL_GROWTH.totalRequired) * 100));
 
   let complianceStatus: 'COMPLIANT' | 'IN_PROGRESS' | 'NOT_STARTED' = 'NOT_STARTED';
-  if (totalHours >= 50 && cbseHours >= 25 && schoolHours >= 25) {
+  if (cbseHours >= 25 && schoolHours >= 25) {
     complianceStatus = 'COMPLIANT';
   } else if (totalHours > 0) {
     complianceStatus = 'IN_PROGRESS';
   }
+
+  const hoursRemaining = Math.max(0, Number((50 - effectiveTotalHours).toFixed(1)));
 
   const subjectNames = Array.from(
     new Set(
@@ -116,8 +129,11 @@ function computeCpdSummary(teacher: any): TeacherCpdSummary {
     subjectNames,
     classNames,
     totalHours: Number(totalHours.toFixed(1)),
+    effectiveTotalHours,
     cbseHours: Number(cbseHours.toFixed(1)),
+    effectiveCbseHours: Number(effectiveCbseHours.toFixed(1)),
     schoolHours: Number(schoolHours.toFixed(1)),
+    effectiveSchoolHours: Number(effectiveSchoolHours.toFixed(1)),
     domain1Hours: Number(domain1Hours.toFixed(1)),
     domain2Hours: Number(domain2Hours.toFixed(1)),
     domain3Hours: Number(adjustedDomain3Hrs.toFixed(1)),
@@ -130,7 +146,7 @@ function computeCpdSummary(teacher: any): TeacherCpdSummary {
     domain1Progress,
     domain2Progress,
     domain3Progress,
-    hoursRemaining: Math.max(0, Number((50 - totalHours).toFixed(1))),
+    hoursRemaining,
     complianceStatus,
     recordsCount: records.length,
     recentRecords: records.slice(0, 5),
@@ -231,6 +247,32 @@ export const teacherTrainingService = {
     };
   },
 
+  // Admin: get all training records with status=SUBMITTED (pending approval) across the school
+  async getPendingApprovals(schoolId: string, academicSessionId?: string) {
+    const sessionId = await this.resolveActiveAcademicSession(schoolId, academicSessionId);
+    const records = await prisma.teacherTrainingRecord.findMany({
+      where: {
+        schoolId,
+        academicSessionId: sessionId,
+        status: 'SUBMITTED',
+      },
+      include: {
+        teacher: {
+          include: {
+            user: { select: { name: true, email: true, avatar: true } },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return records.map((r) => ({
+      ...r,
+      teacherName: r.teacher?.user?.name || 'Unknown',
+      teacherEmail: r.teacher?.user?.email || '',
+      teacherAvatar: r.teacher?.user?.avatar || null,
+    }));
+  },
+
   async createTraining(
     schoolId: string,
     input: {
@@ -245,6 +287,7 @@ export const teacherTrainingService = {
       startDate?: string;
       endDate?: string;
       organizedBy?: string;
+      resourcePerson?: string;
       locationOrPlatform?: string;
       isAcademicActivity?: boolean;
       academicActivityKey?: string;
@@ -284,6 +327,7 @@ export const teacherTrainingService = {
         startDate,
         endDate,
         organizedBy: input.organizedBy,
+        resourcePerson: input.resourcePerson,
         locationOrPlatform: input.locationOrPlatform,
         isAcademicActivity: input.isAcademicActivity,
         academicActivityKey: input.academicActivityKey,
@@ -308,6 +352,7 @@ export const teacherTrainingService = {
       startDate,
       endDate,
       organizedBy: input.organizedBy,
+      resourcePerson: input.resourcePerson,
       locationOrPlatform: input.locationOrPlatform,
       isAcademicActivity: input.isAcademicActivity,
       academicActivityKey: input.academicActivityKey,
@@ -334,6 +379,7 @@ export const teacherTrainingService = {
       startDate?: string;
       endDate?: string;
       organizedBy?: string;
+      resourcePerson?: string;
       locationOrPlatform?: string;
       isAcademicActivity?: boolean;
       academicActivityKey?: string;

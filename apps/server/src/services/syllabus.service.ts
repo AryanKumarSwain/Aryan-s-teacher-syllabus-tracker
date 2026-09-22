@@ -20,7 +20,14 @@ export const syllabusService = {
       ...softDeleteFilter(),
       academicSessionId: params.academicSessionId,
       ...(params.search && { name: { contains: params.search } }),
-      ...(teacherId && { teacherClasses: { some: { teacherId } } }),
+      ...(teacherId && {
+        teacherClasses: {
+          some: {
+            teacherId,
+            academicSessionId: params.academicSessionId,
+          },
+        },
+      }),
     });
 
     const [items, total] = await Promise.all([
@@ -215,14 +222,18 @@ export const syllabusService = {
       throw new AppError('Academic session ID is required', 400);
     }
 
-    // If teacherId is provided, verify the teacher is assigned to this class
+    let assignedSubjectIds: string[] | undefined;
     if (teacherId) {
-      const teacherAssignment = await prisma.teacherClass.findFirst({
+      const teacherAssignments = await prisma.teacherClass.findMany({
         where: { teacherId, classId: id, academicSessionId },
+        select: { subjectId: true },
       });
-      if (!teacherAssignment) {
+      if (teacherAssignments.length === 0) {
         throw new AppError('Class not found or not assigned to you', 404);
       }
+      assignedSubjectIds = teacherAssignments
+        .map((tc) => tc.subjectId)
+        .filter((subId): subId is string => Boolean(subId));
     }
 
     const classItem = await prisma.class.findFirst({
@@ -233,7 +244,7 @@ export const syllabusService = {
             ...softDeleteFilter(),
             // ✅ If teacher: only subjects assigned to this teacher
             ...(teacherId && {
-              teacherClasses: { some: { teacherId } },
+              id: { in: assignedSubjectIds || [] },
             }),
           },
           orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
@@ -282,10 +293,11 @@ export const syllabusService = {
     const chapters = await prisma.chapter.findMany({
       where: withTenant(schoolId, {
         classId: id,
+        academicSessionId,
         ...softDeleteFilter(),
         // ✅ If teacher: only chapters in their assigned subjects
         ...(teacherId && {
-          subject: { teacherClasses: { some: { teacherId } } },
+          subjectId: { in: assignedSubjectIds || [] },
         }),
       }),
       select: {
@@ -454,26 +466,25 @@ export const syllabusService = {
       ...(classId && { classId }),
     });
 
-    // For teachers: filter by their assigned classes, not just teacherClasses directly on subject
+    // For teachers: strictly filter by assigned subjects
     if (teacherId) {
-      console.log('[listSubjects] Filtering for teacher:', teacherId);
-      // Get teacher's assigned class IDs
+      console.log('[listSubjects] Filtering strictly for teacher assigned subjects:', teacherId, 'classId:', classId);
       const teacherClasses = await prisma.teacherClass.findMany({
-        where: { teacherId, academicSessionId },
-        select: { classId: true, subjectId: true },
+        where: {
+          teacherId,
+          academicSessionId,
+          ...(classId && { classId }),
+        },
+        select: { subjectId: true },
       });
-      console.log('[listSubjects] Teacher classes:', teacherClasses);
 
-      const assignedClassIds = teacherClasses.map((tc) => tc.classId).filter((id): id is string => id !== null);
-      const assignedSubjectIds = teacherClasses.map((tc) => tc.subjectId).filter((id): id is string => id !== null);
+      const assignedSubjectIds = teacherClasses
+        .map((tc) => tc.subjectId)
+        .filter((id): id is string => Boolean(id));
 
-      console.log('[listSubjects] Assigned classIds:', assignedClassIds, 'subjectIds:', assignedSubjectIds);
+      console.log('[listSubjects] Filtered assignedSubjectIds:', assignedSubjectIds);
 
-      // Filter subjects by: either assigned directly via subjectId OR belong to assigned classes
-      where.OR = [
-        { id: { in: assignedSubjectIds } },
-        { classId: { in: assignedClassIds } },
-      ];
+      where.id = { in: assignedSubjectIds };
     }
 
     console.log('[listSubjects] Final where clause:', JSON.stringify(where, null, 2));

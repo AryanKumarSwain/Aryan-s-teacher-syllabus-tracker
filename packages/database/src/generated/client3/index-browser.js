@@ -442,6 +442,7 @@ exports.Prisma.TeacherTrainingRecordScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   organizedBy: 'organizedBy',
+  resourcePerson: 'resourcePerson',
   locationOrPlatform: 'locationOrPlatform',
   isAcademicActivity: 'isAcademicActivity',
   academicActivityKey: 'academicActivityKey',

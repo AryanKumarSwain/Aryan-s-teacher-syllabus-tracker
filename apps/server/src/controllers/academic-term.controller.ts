@@ -145,6 +145,30 @@ export const academicTermController = {
     }
   },
 
+  async updateVacationDay(req: Request, res: Response, next: NextFunction) {
+    try {
+      const existing = await prisma.academicTerm.findUnique({
+        where: { id: String(req.params.id) },
+        select: { academicSessionId: true, schoolId: true },
+      });
+      const school = await prisma.school.findUnique({
+        where: { id: existing?.schoolId || getTenantId(req) },
+        select: { currentAcademicSessionId: true },
+      });
+      if (existing?.academicSessionId && existing.academicSessionId !== school?.currentAcademicSessionId) {
+        return res.status(400).json({ success: false, error: 'Cannot modify vacations for an inactive or historical session' });
+      }
+      const vacationDay = await academicTermService.updateVacationDay(
+        String(req.params.id),
+        String(req.params.vacationId),
+        req.body,
+      );
+      sendSuccess(res, vacationDay);
+    } catch (err) {
+      next(err);
+    }
+  },
+
   async calculateAvailableDays(req: Request, res: Response, next: NextFunction) {
     try {
       const calculation = await academicTermService.calculateAvailableDays(String(req.params.id));

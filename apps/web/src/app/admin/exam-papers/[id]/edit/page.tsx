@@ -9,6 +9,7 @@ import { PaperSetupForm } from '@/features/exam-papers/components/PaperSetupForm
 import { SectionSegmentForm } from '@/features/exam-papers/components/SectionSegmentForm';
 import { QuestionEditor } from '@/features/exam-papers/components/QuestionEditor';
 import { InstructionsForm } from '@/features/exam-papers/components/InstructionsForm';
+import { ExamPaperPreviewModal } from '@/features/exam-papers/components/ExamPaperLivePreview';
 import { api } from '@/services/api-client';
 import { generateExamPaperPdf, generateBulkExamPapersZip } from '@/features/exam-papers/utils/pdf-generator';
 
@@ -33,6 +34,7 @@ export default function AdminEditExamPaperPage() {
   const [step, setStep] = useState(1);
   const [studentCount, setStudentCount] = useState(30);
   const [paperLoaded, setPaperLoaded] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
   
   // State to store paper setup details for Step 1, 2 & PDF generation metadata
   const [paperDetails, setPaperDetails] = useState({
@@ -252,11 +254,27 @@ export default function AdminEditExamPaperPage() {
             <h2 className="text-xl font-semibold">Step {step} of {totalSteps}</h2>
             <p className="text-sm text-gray-500">Edit exam paper configuration.</p>
           </div>
-          {step > 1 && (
-            <div className="text-sm font-medium text-gray-700 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
-              Duration: {formatDuration(paperDetails.duration)} | Total Marks: {paperDetails.totalMarks}
-            </div>
-          )}
+          <div className="flex items-center gap-3 flex-wrap">
+            {step > 1 && (
+              <div className="text-sm font-medium text-gray-700 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
+                Duration: {formatDuration(paperDetails.duration)} | Total Marks: {paperDetails.totalMarks}
+              </div>
+            )}
+            {step >= 2 && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setPreviewModalOpen(true)}
+                className="flex items-center gap-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                Preview Paper
+              </Button>
+            )}
+          </div>
         </div>
         
         {step === 1 ? (
@@ -371,6 +389,17 @@ export default function AdminEditExamPaperPage() {
             </div>
           </div>
         ) : null}
+
+        {/* Preview Modal */}
+        <ExamPaperPreviewModal
+          isOpen={previewModalOpen}
+          onClose={() => setPreviewModalOpen(false)}
+          paperDetails={paperDetails}
+          sections={sections}
+          instructions={instructions}
+          step={step}
+          onDownloadPdf={handleDownloadSinglePdf}
+        />
       </div>
     </DashboardShell>
   );

@@ -79,7 +79,12 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
         ...(user?.school?.currentAcademicSessionId && { academicSessionId: user.school.currentAcademicSessionId }),
       });
       if (isActive) {
-        setSubjects(subjectData ?? []);
+        const items = subjectData ?? [];
+        setSubjects(items);
+        const firstItem = items[0];
+        if (items.length === 1 && firstItem && !form.getValues('subjectId')) {
+          form.setValue('subjectId', firstItem.id, { shouldDirty: true, shouldValidate: true });
+        }
       }
     }
 
@@ -87,7 +92,7 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
     return () => {
       isActive = false;
     };
-  }, [selectedClassId, form]);
+  }, [selectedClassId, form, user?.school?.currentAcademicSessionId]);
 
   const handleSubmit = async (values: any) => {
     const totalDuration = (Number(values.durationHours) * 60) + Number(values.durationMinutes);
@@ -143,8 +148,19 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
           <Input {...form.register('examName')} placeholder="Mid-Term" />
         </div>
         <div>
-          <Label>Exam Date</Label>
-          <Input type="date" {...form.register('examDate')} />
+          <Label>
+            Exam Date <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            type="date"
+            {...form.register('examDate')}
+            min={new Date().toISOString().slice(0, 10)}
+          />
+          {form.formState.errors.examDate && (
+            <p className="text-xs text-red-500 mt-1">
+              {form.formState.errors.examDate.message as string}
+            </p>
+          )}
         </div>
         <div>
           <Label>Total Marks</Label>

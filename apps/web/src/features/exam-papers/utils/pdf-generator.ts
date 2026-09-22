@@ -1,5 +1,7 @@
 import { jsPDF } from 'jspdf';
 import JSZip from 'jszip';
+import katex from 'katex';
+import html2canvas from 'html2canvas';
 
 async function fetchImageAsBase64(url: string): Promise<string> {
   const response = await fetch(url);
@@ -37,6 +39,88 @@ function loadDevanagariFont(doc: any): void {
 // Detect if text contains Devanagari characters
 function containsDevanagari(text: string): boolean {
   return /[\u0900-\u097F]/.test(text);
+}
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 8192;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode.apply(null, chunk as unknown as number[]);
+  }
+  return btoa(binary);
+}
+
+// In-memory cache for downloaded font base64 strings
+const fontBinaryCache = new Map<string, string>();
+
+async function ensureCustomFontLoaded(doc: any, fontFamily: string): Promise<string> {
+  const fontMap: Record<string, { regular: string; bold?: string; italic?: string }> = {
+    'Century Gothic': { regular: '/fonts/GOTHIC.TTF', bold: '/fonts/GOTHICB.TTF', italic: '/fonts/GOTHICI.TTF' },
+    'Calibri': { regular: '/fonts/calibri.ttf', bold: '/fonts/calibrib.ttf', italic: '/fonts/calibrii.ttf' },
+    'Georgia': { regular: '/fonts/georgia.ttf', bold: '/fonts/georgiab.ttf', italic: '/fonts/georgiai.ttf' },
+    'Verdana': { regular: '/fonts/verdana.ttf', bold: '/fonts/verdanab.ttf', italic: '/fonts/verdanai.ttf' },
+    'Trebuchet MS': { regular: '/fonts/trebuc.ttf', bold: '/fonts/trebucbd.ttf', italic: '/fonts/trebucit.ttf' },
+  };
+
+  const config = fontMap[fontFamily];
+  if (!config || typeof window === 'undefined') {
+    if (fontFamily === 'Times New Roman' || fontFamily === 'Cambria') return 'Times';
+    return 'Helvetica';
+  }
+
+  try {
+    const safeFamilyName = fontFamily.replace(/\s+/g, '_');
+    if (!fontBinaryCache.has(config.regular)) {
+      const resp = await fetch(config.regular);
+      if (resp.ok) {
+        const buffer = await resp.arrayBuffer();
+        fontBinaryCache.set(config.regular, arrayBufferToBase64(buffer));
+      }
+    }
+    const regBase64 = fontBinaryCache.get(config.regular);
+    if (regBase64) {
+      doc.addFileToVFS(`${safeFamilyName}-Regular.ttf`, regBase64);
+      doc.addFont(`${safeFamilyName}-Regular.ttf`, fontFamily, 'normal');
+    }
+
+    if (config.bold) {
+      if (!fontBinaryCache.has(config.bold)) {
+        const resp = await fetch(config.bold);
+        if (resp.ok) {
+          const buffer = await resp.arrayBuffer();
+          fontBinaryCache.set(config.bold, arrayBufferToBase64(buffer));
+        }
+      }
+      const boldBase64 = fontBinaryCache.get(config.bold);
+      if (boldBase64) {
+        doc.addFileToVFS(`${safeFamilyName}-Bold.ttf`, boldBase64);
+        doc.addFont(`${safeFamilyName}-Bold.ttf`, fontFamily, 'bold');
+      }
+    }
+
+    if (config.italic) {
+      if (!fontBinaryCache.has(config.italic)) {
+        const resp = await fetch(config.italic);
+        if (resp.ok) {
+          const buffer = await resp.arrayBuffer();
+          fontBinaryCache.set(config.italic, arrayBufferToBase64(buffer));
+        }
+      }
+      const italicBase64 = fontBinaryCache.get(config.italic);
+      if (italicBase64) {
+        doc.addFileToVFS(`${safeFamilyName}-Italic.ttf`, italicBase64);
+        doc.addFont(`${safeFamilyName}-Italic.ttf`, fontFamily, 'italic');
+      }
+    }
+
+    return fontFamily;
+  } catch (err) {
+    console.warn(`Failed to load custom font ${fontFamily}, falling back:`, err);
+    if (fontFamily === 'Times New Roman' || fontFamily === 'Cambria') return 'Times';
+    return 'Helvetica';
+  }
 }
 
 interface PdfPaperData {
@@ -107,12 +191,187 @@ interface FormattedTextSegment {
   sub: boolean;
   code: boolean;
   listItem: boolean;
+  isMath?: boolean;
+  latex?: string;
+  mathImg?: string;
+  mathWidth?: number;
+  mathHeight?: number;
+  baselineRatio?: number;
 }
 
 interface OptionRenderData {
   prefix: string;
   prefixWidth: number;
   lines: string[];
+}
+
+function convertLatexToFallbackUnicode(latex: string): string {
+  let text = latex;
+  text = text.replace(/\\cdot/g, '·');
+  text = text.replace(/\\times/g, '×');
+  text = text.replace(/\\div/g, '÷');
+  text = text.replace(/\\pm/g, '±');
+  text = text.replace(/\\mp/g, '∓');
+  text = text.replace(/\\neq/g, '≠');
+  text = text.replace(/\\leq?/g, '≤');
+  text = text.replace(/\\geq?/g, '≥');
+  text = text.replace(/\\approx/g, '≈');
+  text = text.replace(/\\equiv/g, '≡');
+  text = text.replace(/\\infty/g, '∞');
+  text = text.replace(/\\pi/g, 'π');
+  text = text.replace(/\\theta/g, 'θ');
+  text = text.replace(/\\alpha/g, 'α');
+  text = text.replace(/\\beta/g, 'β');
+  text = text.replace(/\\gamma/g, 'γ');
+  text = text.replace(/\\Delta/g, 'Δ');
+  text = text.replace(/\\lambda/g, 'λ');
+  text = text.replace(/\\mu/g, 'μ');
+  text = text.replace(/\\sigma/g, 'σ');
+  text = text.replace(/\\omega/g, 'ω');
+  text = text.replace(/\\phi/g, 'φ');
+  text = text.replace(/\\int/g, '∫');
+  text = text.replace(/\\sum/g, '∑');
+  text = text.replace(/\\sqrt\[([^\]]+)\]\{([^}]+)\}/g, '$1√($2)');
+  text = text.replace(/\\sqrt\{([^}]+)\}/g, '√($1)');
+  text = text.replace(/\\frac\{1\}\{2\}/g, '½');
+  text = text.replace(/\\frac\{1\}\{4\}/g, '¼');
+  text = text.replace(/\\frac\{3\}\{4\}/g, '¾');
+  text = text.replace(/\\frac\{1\}\{3\}/g, '⅓');
+  text = text.replace(/\\frac\{2\}\{3\}/g, '⅔');
+  text = text.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1/$2');
+  text = text.replace(/\^\{2\}/g, '²');
+  text = text.replace(/\^\{3\}/g, '³');
+  text = text.replace(/\^2/g, '²');
+  text = text.replace(/\^3/g, '³');
+  text = text.replace(/\^\{([^}]+)\}/g, '^$1');
+  text = text.replace(/_\{([^}]+)\}/g, '_$1');
+  text = text.replace(/\\left/g, '');
+  text = text.replace(/\\right/g, '');
+  text = text.replace(/\\/g, '');
+  return text.trim();
+}
+
+// In-memory cache for rendered math images
+const mathImageCache = new Map<string, { dataUrl: string; widthMm: number; heightMm: number; baselineRatio: number }>();
+
+async function renderMathToImage(
+  latex: string, 
+  color: string = '#000000',
+  fontSizePt: number = 10
+): Promise<{ dataUrl: string; widthMm: number; heightMm: number; baselineRatio: number } | null> {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return null;
+
+  const trimmed = latex.trim();
+  if (!trimmed) return null;
+
+  const cacheKey = `${trimmed}_${color}_${fontSizePt}`;
+  if (mathImageCache.has(cacheKey)) {
+    return mathImageCache.get(cacheKey)!;
+  }
+
+  let container: HTMLDivElement | null = null;
+  try {
+    container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.left = '-10000px';
+    container.style.top = '0';
+    container.style.width = 'auto';
+    container.style.height = 'auto';
+    container.style.visibility = 'visible';
+    container.style.pointerEvents = 'none';
+
+    // Flex container to measure exact typographic baseline
+    const flexWrap = document.createElement('div');
+    flexWrap.style.display = 'inline-flex';
+    flexWrap.style.alignItems = 'baseline';
+
+    const zeroAnchor = document.createElement('span');
+    zeroAnchor.style.display = 'inline-block';
+    zeroAnchor.style.width = '0';
+    zeroAnchor.style.height = '0';
+    zeroAnchor.style.verticalAlign = 'baseline';
+
+    const mathSpan = document.createElement('span');
+    mathSpan.style.display = 'inline-block';
+    // Generous padding — prevents radical vinculum and fraction bars from being clipped
+    // at the top/bottom edges of the canvas
+    mathSpan.style.padding = '8px 6px';
+    mathSpan.style.color = color;
+    mathSpan.style.backgroundColor = 'transparent';
+    mathSpan.style.fontSize = '24px';
+    mathSpan.style.lineHeight = '1.4';
+
+    katex.render(trimmed, mathSpan, {
+      throwOnError: false,
+      displayMode: false,
+    });
+
+    flexWrap.appendChild(zeroAnchor);
+    flexWrap.appendChild(mathSpan);
+    container.appendChild(flexWrap);
+    document.body.appendChild(container);
+
+    // Use scale:4 for sharper output; html2canvas renders at device scale
+    const CANVAS_SCALE = 4;
+    const canvas = await html2canvas(mathSpan, {
+      backgroundColor: null,
+      scale: CANVAS_SCALE,
+      logging: false,
+      // DO NOT pass explicit width/height — KaTeX fractions render with overflow:visible
+      // and the denominator extends BELOW getBoundingClientRect(). Passing explicit height
+      // would clip the canvas exactly at the bounding rect, cutting off the denominator.
+    });
+
+    const dataUrl = canvas.toDataURL('image/png');
+
+    const rect = mathSpan.getBoundingClientRect();
+    const anchorRect = zeroAnchor.getBoundingClientRect();
+
+    // Use canvas pixel dimensions — more reliable than getBoundingClientRect for overflow content
+    const pixelWidth = canvas.width / CANVAS_SCALE;
+    const pixelHeight = canvas.height / CANVAS_SCALE;
+
+    // Distance from top of mathSpan to typographic baseline
+    const baselinePx = anchorRect.bottom - rect.top;
+    // Add the top padding (8px) offset since canvas includes it
+    const baselinePxWithPadding = baselinePx + 8;
+    const baselineRatio = Math.max(0.20, Math.min(0.85, baselinePxWithPadding / (pixelHeight || 1)));
+
+    // Scaling to match PDF font size:
+    // In DOM, font size is 24px. 1pt = 0.35278mm.
+    const mmPerPixel = (fontSizePt * 0.35278) / 24;
+    const widthMm = Math.max(pixelWidth * mmPerPixel, 2);
+    const heightMm = Math.max(pixelHeight * mmPerPixel, 2);
+
+    const result = { dataUrl, widthMm, heightMm, baselineRatio };
+    mathImageCache.set(cacheKey, result);
+    return result;
+  } catch (err) {
+    console.warn('Failed to render KaTeX formula to image with html2canvas:', err);
+    return null;
+  } finally {
+    if (container && container.parentNode) {
+      container.parentNode.removeChild(container);
+    }
+  }
+}
+
+async function resolveMathSegments(
+  segments: FormattedTextSegment[],
+  color: string,
+  fontSizePt: number
+): Promise<void> {
+  for (const seg of segments) {
+    if (seg.isMath && seg.latex) {
+      const img = await renderMathToImage(seg.latex, color, fontSizePt);
+      if (img) {
+        seg.mathImg = img.dataUrl;
+        seg.mathWidth = img.widthMm;
+        seg.mathHeight = img.heightMm;
+        seg.baselineRatio = img.baselineRatio;
+      }
+    }
+  }
 }
 
 function parseHtmlToFormattedText(html: string): FormattedTextSegment[] {
@@ -129,16 +388,57 @@ function parseHtmlToFormattedText(html: string): FormattedTextSegment[] {
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'");
   
-  const tagRegex = /<\/?([a-z]+)(?:\s[^>]*)?>/gi;
+  const tagRegex = /<\/?([a-z0-9-]+)(?:\s[^>]*)?>/gi;
   let lastIndex = 0;
-  let match;
-  
-  while ((match = tagRegex.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      const plainText = text.substring(lastIndex, match.index);
-      if (plainText.trim()) {
+  let match: RegExpExecArray | null;
+
+  const pushPlainText = (str: string) => {
+    if (!str) return;
+    const mathRegex = /\$([^\$]+)\$/g;
+    let textLastIdx = 0;
+    let mMatch: RegExpExecArray | null;
+
+    while ((mMatch = mathRegex.exec(str)) !== null) {
+      if (mMatch.index > textLastIdx) {
+        const subText = str.substring(textLastIdx, mMatch.index);
+        if (subText) {
+          segments.push({
+            text: subText,
+            bold: stack.some(s => s.bold),
+            italic: stack.some(s => s.italic),
+            underline: stack.some(s => s.underline),
+            strike: stack.some(s => s.strike),
+            sup: stack.some(s => s.sup),
+            sub: stack.some(s => s.sub),
+            code: stack.some(s => s.code),
+            listItem: stack.some(s => s.listItem),
+          });
+        }
+      }
+
+      const latex = (mMatch && mMatch[1] ? mMatch[1] : '').trim();
+      segments.push({
+        text: convertLatexToFallbackUnicode(latex),
+        bold: false,
+        italic: false,
+        underline: false,
+        strike: false,
+        sup: false,
+        sub: false,
+        code: false,
+        listItem: false,
+        isMath: true,
+        latex,
+      });
+
+      textLastIdx = mMatch.index + mMatch[0].length;
+    }
+
+    if (textLastIdx < str.length) {
+      const rest = str.substring(textLastIdx);
+      if (rest) {
         segments.push({
-          text: plainText,
+          text: rest,
           bold: stack.some(s => s.bold),
           italic: stack.some(s => s.italic),
           underline: stack.some(s => s.underline),
@@ -149,6 +449,13 @@ function parseHtmlToFormattedText(html: string): FormattedTextSegment[] {
           listItem: stack.some(s => s.listItem),
         });
       }
+    }
+  };
+  
+  while ((match = tagRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      const plainText = text.substring(lastIndex, match.index);
+      pushPlainText(plainText);
     }
     
     const tagName = match[1]?.toLowerCase() || '';
@@ -166,33 +473,33 @@ function parseHtmlToFormattedText(html: string): FormattedTextSegment[] {
     }
 
     if (tagName === 'span' && !isClosing) {
-      const classMatch = match[0].match(/class="([^"]+)"/);
-      if (classMatch && classMatch[1]?.includes('math-node')) {
-        const dataMatch = match[0].match(/data-latex="([^"]+)"/);
-        if (dataMatch) {
-          const latex = dataMatch[1] ?? '';
-          let convertedText = latex;
-          
-          // Convert basic LaTeX to Unicode
-          convertedText = convertedText.replace(/\\sqrt\{([^}]+)\}/g, '√($1)');
-          convertedText = convertedText.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1)/($2)');
-          convertedText = convertedText.replace(/\^\{([^}]+)\}/g, '^($1)');
-          convertedText = convertedText.replace(/_\{([^}]+)\}/g, '_($1)');
-          
-          segments.push({
-            text: convertedText,
-            bold: false,
-            italic: false,
-            underline: false,
-            strike: false,
-            sup: false,
-            sub: false,
-            code: false,
-            listItem: false,
-          });
+      const dataMatch = match[0].match(/data-latex="([^"]+)"/);
+      if (dataMatch) {
+        const latex = dataMatch[1] ?? '';
+        segments.push({
+          text: convertLatexToFallbackUnicode(latex),
+          bold: false,
+          italic: false,
+          underline: false,
+          strike: false,
+          sup: false,
+          sub: false,
+          code: false,
+          listItem: false,
+          isMath: true,
+          latex,
+        });
+
+        // Skip internal KaTeX DOM spans inside this math element
+        const restOfText = text.substring(match.index + match[0].length);
+        const closeSpanIdx = restOfText.indexOf('</span>');
+        if (closeSpanIdx !== -1) {
+          lastIndex = match.index + match[0].length + closeSpanIdx + 7;
+          tagRegex.lastIndex = lastIndex;
+        } else {
           lastIndex = match.index + match[0].length;
-          continue;
         }
+        continue;
       }
     }
 
@@ -220,19 +527,7 @@ function parseHtmlToFormattedText(html: string): FormattedTextSegment[] {
   
   if (lastIndex < text.length) {
     const plainText = text.substring(lastIndex);
-    if (plainText.trim()) {
-      segments.push({
-        text: plainText,
-        bold: stack.some(s => s.bold),
-        italic: stack.some(s => s.italic),
-        underline: stack.some(s => s.underline),
-        strike: stack.some(s => s.strike),
-        sup: stack.some(s => s.sup),
-        sub: stack.some(s => s.sub),
-        code: stack.some(s => s.code),
-        listItem: stack.some(s => s.listItem),
-      });
-    }
+    pushPlainText(plainText);
   }
   
   return segments;
@@ -244,29 +539,50 @@ function estimateSegmentsHeight(
   width: number,
   lineHeight: number
 ): number {
-  let totalLines = 0;
-  let current: string[] = [];
+  let totalHeight = 0;
+  let currentLineWidth = 0;
+  let currentLineHeight = lineHeight;
+  const spaceWidth = doc.getTextWidth(' ');
 
-  const flush = () => {
-    const text = current.join(' ').trim();
-    if (text) {
-      totalLines += doc.splitTextToSize(text, width).length;
-    } else {
-      totalLines += 1;
-    }
-    current = [];
+  const wrapLine = () => {
+    totalHeight += currentLineHeight;
+    currentLineWidth = 0;
+    currentLineHeight = lineHeight;
   };
 
   segments.forEach(seg => {
-    if (seg.text === '') {
-      flush();
-    } else {
-      current.push(seg.text);
+    if (seg.text === '' && !seg.isMath) {
+      wrapLine();
+      return;
     }
-  });
-  if (current.length > 0) flush();
 
-  return totalLines * lineHeight;
+    if (seg.isMath && seg.mathWidth) {
+      if (currentLineWidth + seg.mathWidth > width && currentLineWidth > 0) {
+        wrapLine();
+      }
+      currentLineWidth += seg.mathWidth + spaceWidth * 0.3;
+      if (seg.mathHeight && seg.mathHeight > currentLineHeight) {
+        // Add generous buffer (4mm) to account for tall radicals/fractions and padding
+        currentLineHeight = Math.max(currentLineHeight, seg.mathHeight + 4.0);
+      }
+      return;
+    }
+
+    const words = seg.text.split(/\s+/).filter(w => w.length > 0);
+    words.forEach(word => {
+      const wordWidth = doc.getTextWidth(word);
+      if (currentLineWidth + wordWidth > width && currentLineWidth > 0) {
+        wrapLine();
+      }
+      currentLineWidth += wordWidth + spaceWidth;
+    });
+  });
+
+  if (currentLineWidth > 0) {
+    totalHeight += currentLineHeight;
+  }
+
+  return Math.max(totalHeight, lineHeight);
 }
 
 function renderFormattedText(
@@ -276,16 +592,21 @@ function renderFormattedText(
   y: number,
   maxWidth: number,
   lineHeight: number,
-  fontFamily: string,
-  rgb: { r: number; g: number; b: number }
+  activeFont: string,
+  rgb: { r: number; g: number; b: number },
+  fontSizePt: number = 10
 ): { newY: number } {
   let currentX = x;
   let currentY = y;
   const rightEdge = x + maxWidth;
+  const spaceWidth = doc.getTextWidth(' ');
+  let wroteAnything = false;
+  let maxDescender = Math.max(lineHeight * 0.25, 1.0);
 
   const applyFont = (segment: FormattedTextSegment, text: string = '') => {
     if (segment.code) {
       doc.setFont('Courier', 'normal');
+      doc.setFontSize(fontSizePt);
       return;
     }
     
@@ -298,36 +619,71 @@ function renderFormattedText(
     const style = fontStyle.length > 0 ? fontStyle.join('') : 'normal';
     
     if (hasDevanagari) {
-      // Use Devanagari font for Hindi text
-      // Devanagari fonts often don't have true italic, fall back to normal
       const devanagariStyle = style === 'italic' ? 'normal' : style;
       doc.setFont('NotoSansDevanagari', devanagariStyle);
     } else {
-      doc.setFont(fontFamily === 'Times New Roman' || fontFamily === 'Georgia' || fontFamily === 'Cambria' ? 'Times' : 'Helvetica', style);
+      doc.setFont(activeFont, style);
     }
+    doc.setFontSize(fontSizePt);
   };
 
-  const spaceWidth = doc.getTextWidth(' ');
-  let wroteAnything = false;
-
   segments.forEach(segment => {
-    if (segment.text === '') {
-      if (wroteAnything) {
-        currentY += lineHeight;
+    // If it's a rendered math formula image
+    if (segment.isMath && segment.mathImg && segment.mathWidth && segment.mathHeight) {
+      const mWidth = segment.mathWidth;
+      const mHeight = segment.mathHeight;
+      const bRatio = segment.baselineRatio ?? 0.55;
+
+      if (currentX > x && currentX + mWidth > rightEdge) {
+        currentY += Math.max(lineHeight, maxDescender + (lineHeight * 0.6));
         currentX = x;
-        wroteAnything = false;
-      } else {
-        currentY += lineHeight;
-        currentX = x;
+        maxDescender = Math.max(lineHeight * 0.25, 1.0);
       }
+
+      // Draw image so that the baseline of the math aligns with the text baseline (currentY).
+      // yDraw = top of image = currentY - (portion above baseline)
+      // We clamp so image top is never above current Y minus line height (prevents page-edge clipping)
+      const aboveBaseline = mHeight * bRatio;
+      const yDraw = Math.max(currentY - aboveBaseline, currentY - Math.max(lineHeight * 1.5, mHeight));
+      try {
+        doc.addImage(segment.mathImg, 'PNG', currentX, yDraw, mWidth, mHeight);
+      } catch (e) {
+        console.warn('Failed to draw math image in PDF, fallback to text:', e);
+        doc.text(segment.text, currentX, currentY);
+      }
+
+      // Track how far below baseline the image extends
+      const mathDescender = mHeight - aboveBaseline;
+      if (mathDescender > maxDescender) {
+        maxDescender = mathDescender;
+      }
+      // Also track if the image top goes above current line — need extra space above
+      const imageTop = yDraw;
+      const spaceAboveBaseline = currentY - imageTop;
+      if (spaceAboveBaseline > lineHeight) {
+        // The image is taller than normal line height — update maxDescender to account for full height
+        maxDescender = Math.max(maxDescender, mHeight - lineHeight * 0.5);
+      }
+
+      currentX += mWidth + (spaceWidth * 0.3);
+      wroteAnything = true;
+      return;
+    }
+
+    if (segment.text === '') {
+      currentY += Math.max(lineHeight, maxDescender + 1.5);
+      currentX = x;
+      maxDescender = Math.max(lineHeight * 0.25, 1.0);
+      wroteAnything = false;
       return;
     }
 
     let textToRender = segment.text;
     if (segment.listItem) {
       if (wroteAnything) {
-        currentY += lineHeight;
+        currentY += Math.max(lineHeight, maxDescender + 1.5);
         currentX = x;
+        maxDescender = Math.max(lineHeight * 0.25, 1.0);
       }
       textToRender = '• ' + textToRender;
     }
@@ -339,39 +695,35 @@ function renderFormattedText(
     words.forEach((word: string) => {
       // Check each word for Devanagari and switch font if needed
       const wordHasDevanagari = containsDevanagari(word);
+      const fontStyle = [];
+      if (segment.bold) fontStyle.push('bold');
+      if (segment.italic) fontStyle.push('italic');
+      const style = fontStyle.length > 0 ? fontStyle.join('') : 'normal';
+
       if (wordHasDevanagari) {
-        const fontStyle = [];
-        if (segment.bold) fontStyle.push('bold');
-        if (segment.italic) fontStyle.push('italic');
-        const style = fontStyle.length > 0 ? fontStyle.join('') : 'normal';
         const devanagariStyle = style === 'italic' ? 'normal' : style;
         doc.setFont('NotoSansDevanagari', devanagariStyle);
       } else {
-        // Switch back to Latin font for English words
-        const fontStyle = [];
-        if (segment.bold) fontStyle.push('bold');
-        if (segment.italic) fontStyle.push('italic');
-        const style = fontStyle.length > 0 ? fontStyle.join('') : 'normal';
-        doc.setFont(fontFamily === 'Times New Roman' || fontFamily === 'Georgia' || fontFamily === 'Cambria' ? 'Times' : 'Helvetica', style);
+        doc.setFont(activeFont, style);
       }
+      doc.setFontSize(fontSizePt);
       
       const wordWidth = doc.getTextWidth(word);
       if (currentX > x && currentX + wordWidth > rightEdge) {
-        currentY += lineHeight;
+        currentY += Math.max(lineHeight, maxDescender + (lineHeight * 0.6));
         currentX = x;
+        maxDescender = Math.max(lineHeight * 0.25, 1.0);
       }
 
       const drawX = currentX;
       if (segment.sup) {
-        const originalFontSize = doc.getFontSize();
-        doc.setFontSize(originalFontSize * 0.6);
-        doc.text(word, drawX, currentY - 1.5);
-        doc.setFontSize(originalFontSize);
+        doc.setFontSize(fontSizePt * 0.65);
+        doc.text(word, drawX, currentY - (fontSizePt * 0.15));
+        doc.setFontSize(fontSizePt);
       } else if (segment.sub) {
-        const originalFontSize = doc.getFontSize();
-        doc.setFontSize(originalFontSize * 0.6);
-        doc.text(word, drawX, currentY + 1.5);
-        doc.setFontSize(originalFontSize);
+        doc.setFontSize(fontSizePt * 0.65);
+        doc.text(word, drawX, currentY + (fontSizePt * 0.15));
+        doc.setFontSize(fontSizePt);
       } else {
         doc.text(word, drawX, currentY);
       }
@@ -388,10 +740,12 @@ function renderFormattedText(
   });
 
   if (wroteAnything) {
-    currentY += lineHeight;
+    // Leave safe clearance below the deepest formula descender on this line
+    currentY += Math.max(lineHeight, maxDescender + 2.5);
   }
 
-  doc.setFont(fontFamily === 'Times New Roman' || fontFamily === 'Georgia' || fontFamily === 'Cambria' ? 'Times' : 'Helvetica', 'normal');
+  doc.setFont(activeFont, 'normal');
+  doc.setFontSize(fontSizePt);
   doc.setDrawColor(rgb.r, rgb.g, rgb.b);
 
   return { newY: currentY };
@@ -420,12 +774,16 @@ function buildSuffixSegments(question: { subject?: string; hint?: string }): For
 function buildOptionRenderData(
   doc: typeof jsPDF.prototype,
   options: Array<{ text: string; isCorrect?: boolean } | string>,
-  availableWidth: number
+  availableWidth: number,
+  activeFont: string,
+  fontSize: number
 ): OptionRenderData[] {
+  doc.setFont(activeFont, 'normal');
+  doc.setFontSize(fontSize);
   return options.map((opt, oIndex) => {
     const optPrefix = `${String.fromCharCode(97 + oIndex)}) `;
-    const optText = typeof opt === 'string' ? opt : (opt.text || '');
-    console.log('RAW OPTION:', JSON.stringify(optText));
+    const rawText = typeof opt === 'string' ? opt : (opt.text || '');
+    const optText = convertLatexToFallbackUnicode(rawText);
     const prefixWidth = doc.getTextWidth(optPrefix);
     const lines = doc.splitTextToSize(optText, Math.max(availableWidth - prefixWidth, 10));
     return { prefix: optPrefix, prefixWidth, lines };
@@ -437,8 +795,12 @@ function renderOptionColumn(
   options: OptionRenderData[],
   x: number,
   startY: number,
-  lineHeight: number
+  lineHeight: number,
+  activeFont: string,
+  fontSize: number
 ): number {
+  doc.setFont(activeFont, 'normal');
+  doc.setFontSize(fontSize);
   let currentY = startY;
   options.forEach((opt) => {
     opt.lines.forEach((line, lineIdx) => {
@@ -449,6 +811,7 @@ function renderOptionColumn(
       }
       currentY += lineHeight;
     });
+    currentY += 1.0;
   });
   return currentY;
 }
@@ -479,7 +842,16 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
   // Load Devanagari font for Hindi text support
   loadDevanagariFont(doc);
 
-  const fontFamily = paper.styleFontFamily || 'Times New Roman';
+  const rawFontSize = parseFloat((paper.styleFontSize || '11').replace(/[^\d.]/g, '')) || 11;
+  const baseFontSize = Math.min(Math.max(rawFontSize, 8), 24);
+  const LINE_HEIGHT = Math.max(3.8, (baseFontSize * 0.3528) * 1.25);
+  const optFontSize = Math.max(baseFontSize - 1.5, 8);
+  const optLineHeight = Math.max(3.5, (optFontSize * 0.3528) * 1.20);
+  const subQFontSize = Math.max(baseFontSize - 1.0, 8.5);
+  const subQLineHeight = Math.max(3.6, (subQFontSize * 0.3528) * 1.22);
+
+  const requestedFont = paper.styleFontFamily || 'Times New Roman';
+  const activeFont = await ensureCustomFontLoaded(doc, requestedFont);
   const fontColor = paper.styleColor || '#000000';
 
   const PAGE_WIDTH = 210;
@@ -549,14 +921,14 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
     }
 
     const logoOffset = paper.logoUrl ? 25 : 0;
-    pDoc.setFont(fontFamily === 'Times New Roman' || fontFamily === 'Georgia' || fontFamily === 'Cambria' ? 'Times' : 'Helvetica', 'bold');
+    pDoc.setFont(activeFont, 'bold');
     pDoc.setFontSize(14);
     pDoc.text(paper.schoolName || 'SCHOOL ACADEMIC PORTAL', 105 + logoOffset / 2, 22, { align: 'center' });
 
     pDoc.setFontSize(11);
     pDoc.text(paper.examName || 'EXAMINATION QUESTION PAPER', 105 + logoOffset / 2, 28, { align: 'center' });
 
-    pDoc.setFont(fontFamily === 'Times New Roman' || fontFamily === 'Georgia' || fontFamily === 'Cambria' ? 'Times' : 'Helvetica', 'normal');
+    pDoc.setFont(activeFont, 'normal');
     pDoc.setFontSize(9);
     const dateStr = paper.examDate ? new Date(paper.examDate).toLocaleDateString() : null;
     const teacherNameStr = paper.teacherName ? `Teacher: ${paper.teacherName}` : '';
@@ -567,7 +939,7 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
     pDoc.text(`Duration: ${formatDuration(paper.duration || 0)}    |    Total Marks: ${paper.totalMarks || 0} Marks`, 105 + logoOffset / 2, 41, { align: 'center' });
 
     pDoc.rect(15, 52, 180, 12);
-    pDoc.setFont(fontFamily === 'Times New Roman' || fontFamily === 'Georgia' || fontFamily === 'Cambria' ? 'Times' : 'Helvetica', 'bold');
+    pDoc.setFont(activeFont, 'bold');
     pDoc.setFontSize(9);
     pDoc.text('Student Name: _____________________________________', 18, 60);
     pDoc.text(`Roll Number: ${pRoll || '__________________'}`, 132, 60);
@@ -581,8 +953,6 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
   let currentColumn = 0; 
   let y = 72;
 
-  const fontName = fontFamily === 'Times New Roman' || fontFamily === 'Georgia' || fontFamily === 'Cambria' ? 'Times' : 'Helvetica';
-
   const advanceCursor = async (requiredHeight: number) => {
     if (y + requiredHeight > 297 - bottomMargin) {
       if (paper.templateType === 'SPLIT' && currentColumn === 0) {
@@ -593,7 +963,7 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
         currentPage++;
         await setupPage(doc, currentPage);
 
-        doc.setFont(fontName, 'italic');
+        doc.setFont(activeFont, 'italic');
         doc.setFontSize(8);
         doc.text(`${paper.examName} - ${paper.subjectName}`, 15, 12);
         if (rollNumber) {
@@ -625,17 +995,18 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
   if (paper.instructions) {
     const instructionsWithBreaks = insertInstructionLineBreaks(paper.instructions);
     const formattedInstructions = parseHtmlToFormattedText(instructionsWithBreaks);
+    await resolveMathSegments(formattedInstructions, fontColor, Math.max(baseFontSize - 1, 9));
     const instHeight = estimateSegmentsHeight(doc, formattedInstructions, colWidth, LINE_HEIGHT);
 
     await advanceCursor(5 + instHeight);
 
-    doc.setFont(fontName, 'bold');
-    doc.setFontSize(10);
+    doc.setFont(activeFont, 'bold');
+    doc.setFontSize(Math.max(baseFontSize - 0.5, 9.5));
     doc.text('General Instructions:', getX(), y);
     y += 5;
 
-    doc.setFont(fontName, 'normal');
-    doc.setFontSize(9);
+    doc.setFont(activeFont, 'normal');
+    doc.setFontSize(Math.max(baseFontSize - 1, 9));
 
     const { newY: afterInstructionsY } = renderFormattedText(
       doc,
@@ -644,8 +1015,9 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
       y,
       colWidth,
       LINE_HEIGHT,
-      fontFamily,
-      rgb
+      activeFont,
+      rgb,
+      Math.max(baseFontSize - 1, 9)
     );
     y = afterInstructionsY;
     y += 3;
@@ -667,8 +1039,8 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
 
     await advanceCursor(12);
 
-    doc.setFont(fontName, 'bold');
-    doc.setFontSize(10.5);
+    doc.setFont(activeFont, 'bold');
+    doc.setFontSize(Math.max(baseFontSize + 1, 10.5));
     doc.text(section.label, getCenterX(), y, { align: 'center' });
     y += (section.segments && section.segments.length > 0) ? 5 : SECTION_LABEL_GAP;
 
@@ -681,13 +1053,13 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
         if (segmentQuestions.length === 0) continue;
 
         await advanceCursor(8);
-        doc.setFont(fontName, 'bold');
-        doc.setFontSize(9);
+        doc.setFont(activeFont, 'bold');
+        doc.setFontSize(Math.max(baseFontSize - 0.5, 9));
         const segmentLabel = `${segment.label} (${segment.questionCount} questions × ${segment.marksEach} marks = ${segment.questionCount * segment.marksEach} marks)`;
         doc.text(segmentLabel, getX() + 5, y);
         y += SEGMENT_HEADER_GAP;
 
-// Render instruction block for ASSERTION_REASONING segments
+        // Render instruction block for ASSERTION_REASONING segments
         if (segment.type === 'ASSERTION_REASONING' && segmentQuestions.length > 0) {
           const availableWidth = colWidth - 5;
           const instructionText = 'For each question, consider the Assertion (A) and the Reason (R). Then, choose the correct option from the following key:';
@@ -699,28 +1071,28 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
             'E) Both (A) and (R) are false.'
           ];
 
-          doc.setFont(fontName, 'bold');
-          doc.setFontSize(8.5);
+          doc.setFont(activeFont, 'bold');
+          doc.setFontSize(Math.max(baseFontSize - 1.5, 8.5));
           const instructionLines: string[] = doc.splitTextToSize(instructionText, availableWidth);
 
-          doc.setFont(fontName, 'normal');
-          doc.setFontSize(8);
+          doc.setFont(activeFont, 'normal');
+          doc.setFontSize(Math.max(baseFontSize - 2, 8));
           const optionLinesArr: string[][] = options.map((option) => doc.splitTextToSize(option, availableWidth));
           const totalOptionLines = optionLinesArr.reduce((sum, lines) => sum + lines.length, 0);
 
           const blockHeight = (instructionLines.length + totalOptionLines) * LINE_HEIGHT + LINE_HEIGHT * 2;
           await advanceCursor(blockHeight);
 
-          doc.setFont(fontName, 'bold');
-          doc.setFontSize(8.5);
+          doc.setFont(activeFont, 'bold');
+          doc.setFontSize(Math.max(baseFontSize - 1.5, 8.5));
           instructionLines.forEach((line: string) => {
             doc.text(line, getX() + 5, y);
             y += LINE_HEIGHT;
           });
           y += LINE_HEIGHT * 0.5;
 
-          doc.setFont(fontName, 'normal');
-          doc.setFontSize(8);
+          doc.setFont(activeFont, 'normal');
+          doc.setFontSize(Math.max(baseFontSize - 2, 8));
           optionLinesArr.forEach((lines: string[]) => {
             lines.forEach((line: string) => {
               doc.text(line, getX() + 5, y);
@@ -736,8 +1108,8 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
 
           const qPrefix = `Q${qIndex + 1}. `;
 
-          doc.setFont(fontName, 'normal');
-          doc.setFontSize(9.5);
+          doc.setFont(activeFont, 'bold');
+          doc.setFontSize(baseFontSize);
           const qPrefixWidth = doc.getTextWidth(qPrefix);
 
           const hasImage = !!question.imageUrl;
@@ -751,26 +1123,25 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
             const matchingPairs = question.matchingPairs || [];
             const pairCount = matchingPairs.length;
             
-            // Estimate height for matching pairs (2 columns)
-            const pairHeight = LINE_HEIGHT * 1.2;
+            const pairHeight = subQLineHeight * 1.2;
             const totalMatchingHeight = pairCount * pairHeight + 10;
             
             await advanceCursor(totalMatchingHeight);
             
+            doc.setFont(activeFont, 'bold');
+            doc.setFontSize(baseFontSize);
             doc.text(qPrefix, getX(), y);
             y += LINE_HEIGHT;
             
-            // Render column headers
-            doc.setFont(fontName, 'bold');
-            doc.setFontSize(8.5);
+            doc.setFont(activeFont, 'bold');
+            doc.setFontSize(subQFontSize);
             const headerY = y;
             doc.text('Column A', getX() + qPrefixWidth + 5, headerY);
             doc.text('Column B', getX() + qPrefixWidth + colWidth / 2 + 5, headerY);
             y += LINE_HEIGHT * 1.5;
             
-            // Render matching pairs in 2 columns
-            doc.setFont(fontName, 'normal');
-            doc.setFontSize(9);
+            doc.setFont(activeFont, 'normal');
+            doc.setFontSize(subQFontSize);
             
             for (let i = 0; i < pairCount; i++) {
               const pair = matchingPairs[i];
@@ -778,10 +1149,7 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
               const leftLabel = `${String.fromCharCode(65 + i)}.`;
               const rightLabel = `${i + 1}.`;
               
-              // Column A
               doc.text(`${leftLabel} ${pair.left || ''}`, getX() + qPrefixWidth + 5, y);
-              
-              // Column B
               doc.text(`${rightLabel} ${pair.right || ''}`, getX() + qPrefixWidth + colWidth / 2 + 5, y);
               
               y += pairHeight;
@@ -797,26 +1165,25 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
             const subQuestions = question.subQuestions || [];
             
             const formattedPassage = parseHtmlToFormattedText(passageText);
+            await resolveMathSegments(formattedPassage, fontColor, subQFontSize);
             const passageHeight = estimateSegmentsHeight(doc, formattedPassage, textAreaWidth, LINE_HEIGHT);
             
-            // Calculate height for instruction line and sub-questions
             const instructionHeight = LINE_HEIGHT * 1.5;
             let subQuestionsHeight = 0;
-            subQuestions.forEach((sq: any) => {
+            for (const sq of subQuestions) {
               const formattedSQ = parseHtmlToFormattedText(sq.text || '');
-              subQuestionsHeight += estimateSegmentsHeight(doc, formattedSQ, textAreaWidth, LINE_HEIGHT) + LINE_HEIGHT;
-            });
+              await resolveMathSegments(formattedSQ, fontColor, subQFontSize);
+              subQuestionsHeight += estimateSegmentsHeight(doc, formattedSQ, textAreaWidth, subQLineHeight) + subQLineHeight;
+            }
             
             const totalPassageHeight = passageHeight + instructionHeight + subQuestionsHeight + 20;
             
             await advanceCursor(totalPassageHeight);
             
+            doc.setFont(activeFont, 'bold');
+            doc.setFontSize(baseFontSize);
             doc.text(qPrefix, getX(), y);
             y += LINE_HEIGHT;
-            
-            // Render passage text
-            doc.setFont(fontName, 'italic');
-            doc.setFontSize(9);
             
             const { newY: afterPassageY } = renderFormattedText(
               doc,
@@ -825,26 +1192,27 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
               y,
               textAreaWidth,
               LINE_HEIGHT,
-              fontFamily,
-              rgb
+              activeFont,
+              rgb,
+              subQFontSize
             );
             y = afterPassageY + LINE_HEIGHT;
             
-            // Render instruction line
-            doc.setFont(fontName, 'bold');
-            doc.setFontSize(8.5);
+            doc.setFont(activeFont, 'bold');
+            doc.setFontSize(Math.max(subQFontSize - 0.5, 8.5));
             doc.text('Answer the following questions based on the above passage:', getX() + qPrefixWidth, y);
             y += LINE_HEIGHT * 1.5;
             
-            // Render sub-questions with lettered format
-            doc.setFont(fontName, 'normal');
-            doc.setFontSize(9);
-            
-            subQuestions.forEach((sq: any, index: number) => {
+            for (let index = 0; index < subQuestions.length; index++) {
+              const sq = subQuestions[index];
+              if (!sq) continue;
               const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't'];
-              const sqPrefix = `${letters[index]})`;
+              const sqPrefix = `${letters[index]}) `;
+              doc.setFont(activeFont, 'bold');
+              doc.setFontSize(subQFontSize);
               const sqPrefixWidth = doc.getTextWidth(sqPrefix);
               const formattedSQ = parseHtmlToFormattedText(sq.text || '');
+              await resolveMathSegments(formattedSQ, fontColor, subQFontSize);
               
               doc.text(sqPrefix, getX() + qPrefixWidth, y);
               
@@ -854,12 +1222,13 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
                 getX() + qPrefixWidth + sqPrefixWidth,
                 y,
                 textAreaWidth - sqPrefixWidth,
-                LINE_HEIGHT,
-                fontFamily,
-                rgb
+                subQLineHeight,
+                activeFont,
+                rgb,
+                subQFontSize
               );
-              y = afterSQY + LINE_HEIGHT;
-            });
+              y = afterSQY + subQLineHeight;
+            }
             
             y += QUESTION_GAP;
             continue;
@@ -872,6 +1241,8 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
             
             const formattedAssertion = parseHtmlToFormattedText(assertion);
             const formattedReason = parseHtmlToFormattedText(reason);
+            await resolveMathSegments(formattedAssertion, fontColor, baseFontSize);
+            await resolveMathSegments(formattedReason, fontColor, baseFontSize);
             
             const assertionHeight = estimateSegmentsHeight(doc, formattedAssertion, textAreaWidth, LINE_HEIGHT);
             const reasonHeight = estimateSegmentsHeight(doc, formattedReason, textAreaWidth, LINE_HEIGHT);
@@ -879,16 +1250,16 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
             
             await advanceCursor(totalARHeight);
             
+            doc.setFont(activeFont, 'bold');
+            doc.setFontSize(baseFontSize);
             doc.text(qPrefix, getX(), y);
             y += LINE_HEIGHT;
             
-            // Render Assertion (A)
-            doc.setFont(fontName, 'bold');
-            doc.setFontSize(9);
+            doc.setFont(activeFont, 'bold');
+            doc.setFontSize(baseFontSize);
             doc.text('Assertion (A):', getX() + qPrefixWidth, y);
             y += LINE_HEIGHT;
             
-            doc.setFont(fontName, 'normal');
             const { newY: afterAssertionY } = renderFormattedText(
               doc,
               formattedAssertion,
@@ -896,18 +1267,17 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
               y,
               textAreaWidth,
               LINE_HEIGHT,
-              fontFamily,
-              rgb
+              activeFont,
+              rgb,
+              baseFontSize
             );
             y = afterAssertionY + LINE_HEIGHT;
             
-            // Render Reason (R)
-            doc.setFont(fontName, 'bold');
-            doc.setFontSize(9);
+            doc.setFont(activeFont, 'bold');
+            doc.setFontSize(baseFontSize);
             doc.text('Reason (R):', getX() + qPrefixWidth, y);
             y += LINE_HEIGHT;
             
-            doc.setFont(fontName, 'normal');
             const { newY: afterReasonY } = renderFormattedText(
               doc,
               formattedReason,
@@ -915,8 +1285,9 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
               y,
               textAreaWidth,
               LINE_HEIGHT,
-              fontFamily,
-              rgb
+              activeFont,
+              rgb,
+              baseFontSize
             );
             y = afterReasonY;
             
@@ -944,6 +1315,7 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
 
           const formattedSegments = parseHtmlToFormattedText(question.questionText)
             .concat(buildSuffixSegments(question));
+          await resolveMathSegments(formattedSegments, fontColor, baseFontSize);
 
           const totalHeight = estimateSegmentsHeight(doc, formattedSegments, textAreaWidth, LINE_HEIGHT);
 
@@ -952,11 +1324,10 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
           const isMCQ = segment.type === 'MCQ' || question.segmentType === 'MCQ';
 
           if (isMCQ && question.options && question.options.length > 0) {
-            optionsData = buildOptionRenderData(doc, question.options, colWidth / 2 - 5);
-            // Calculate height as max height of side-by-side columns
+            optionsData = buildOptionRenderData(doc, question.options, colWidth / 2 - 5, activeFont, optFontSize);
             const leftLines = (optionsData[0]?.lines.length || 0) + (optionsData[1]?.lines.length || 0);
             const rightLines = (optionsData[2]?.lines.length || 0) + (optionsData[3]?.lines.length || 0);
-            totalOptionsHeight = Math.max(leftLines, rightLines) * LINE_HEIGHT;
+            totalOptionsHeight = Math.max(leftLines, rightLines) * optLineHeight + 4;
           }
 
           const textAndImageHeight = Math.max(totalHeight, (hasImage && scaledHeight > 0) ? scaledHeight - 3 : 0);
@@ -966,8 +1337,8 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
 
           const questionStartY = y;
 
-          doc.setFont(fontName, 'normal');
-          doc.setFontSize(9.5);
+          doc.setFont(activeFont, 'bold');
+          doc.setFontSize(baseFontSize);
           doc.text(qPrefix, getX(), y);
 
           const { newY: afterQuestionY } = renderFormattedText(
@@ -977,17 +1348,17 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
             y,
             textAreaWidth,
             LINE_HEIGHT,
-            fontFamily,
-            rgb
+            activeFont,
+            rgb,
+            baseFontSize
           );
           y = afterQuestionY;
 
           // Render image on right side if present
           if (hasImage && imgBase64 && scaledWidth > 0 && scaledHeight > 0) {
             try {
-              const imgX = getX() + colWidth - IMAGE_RIGHT_MARGIN - scaledWidth; // Position on right side
+              const imgX = getX() + colWidth - IMAGE_RIGHT_MARGIN - scaledWidth;
               doc.addImage(imgBase64, 'PNG', imgX, questionStartY - 3, scaledWidth, scaledHeight);
-              // Make sure the cursor clears the image too, not just the text.
               y = Math.max(y, questionStartY - 3 + scaledHeight);
             } catch (e) {
               console.warn('Failed to render question image:', e);
@@ -996,10 +1367,10 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
 
           if (isMCQ && optionsData.length > 0) {
             const halfColWidth = colWidth / 2;
-            const startY = y;
+            const startY = y + 2.5;
 
-            const leftY = renderOptionColumn(doc, optionsData.slice(0, 2), getX(), startY, LINE_HEIGHT);
-            const rightY = renderOptionColumn(doc, optionsData.slice(2, 4), getX() + halfColWidth, startY, LINE_HEIGHT);
+            const leftY = renderOptionColumn(doc, optionsData.slice(0, 2), getX(), startY, optLineHeight, activeFont, optFontSize);
+            const rightY = renderOptionColumn(doc, optionsData.slice(2, 4), getX() + halfColWidth, startY, optLineHeight, activeFont, optFontSize);
 
             y = Math.max(leftY, rightY);
           }
@@ -1012,12 +1383,13 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
             if (!alt.questionText) continue;
 
             // Render OR separator
-            doc.setFont(fontName, 'bold');
-            doc.setFontSize(9.5);
+            doc.setFont(activeFont, 'bold');
+            doc.setFontSize(baseFontSize);
             doc.text('OR', getX(), y);
             y += LINE_HEIGHT;
 
             const altFormattedSegments = parseHtmlToFormattedText(alt.questionText);
+            await resolveMathSegments(altFormattedSegments, fontColor, baseFontSize);
 
             const altTotalHeight = estimateSegmentsHeight(doc, altFormattedSegments, textAreaWidth, LINE_HEIGHT);
 
@@ -1026,10 +1398,10 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
             const altIsMCQ = segment.type === 'MCQ' || question.segmentType === 'MCQ';
 
             if (altIsMCQ && alt.options && alt.options.length > 0) {
-              altOptionsData = buildOptionRenderData(doc, alt.options, colWidth / 2 - 5);
+              altOptionsData = buildOptionRenderData(doc, alt.options, colWidth / 2 - 5, activeFont, optFontSize);
               const altLeftLines = (altOptionsData[0]?.lines.length || 0) + (altOptionsData[1]?.lines.length || 0);
               const altRightLines = (altOptionsData[2]?.lines.length || 0) + (altOptionsData[3]?.lines.length || 0);
-              altTotalOptionsHeight = Math.max(altLeftLines, altRightLines) * LINE_HEIGHT;
+              altTotalOptionsHeight = Math.max(altLeftLines, altRightLines) * optLineHeight + 4;
             }
 
             const altHasImage = !!alt.imageUrl;
@@ -1065,8 +1437,9 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
               y,
               textAreaWidth,
               LINE_HEIGHT,
-              fontFamily,
-              rgb
+              activeFont,
+              rgb,
+              baseFontSize
             );
             y = afterAltQuestionY;
 
@@ -1082,10 +1455,10 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
 
             if (altIsMCQ && altOptionsData.length > 0) {
               const halfColWidth = colWidth / 2;
-              const startY = y;
+              const startY = y + 2.5;
 
-              const leftY = renderOptionColumn(doc, altOptionsData.slice(0, 2), getX(), startY, LINE_HEIGHT);
-              const rightY = renderOptionColumn(doc, altOptionsData.slice(2, 4), getX() + halfColWidth, startY, LINE_HEIGHT);
+              const leftY = renderOptionColumn(doc, altOptionsData.slice(0, 2), getX(), startY, optLineHeight, activeFont, optFontSize);
+              const rightY = renderOptionColumn(doc, altOptionsData.slice(2, 4), getX() + halfColWidth, startY, optLineHeight, activeFont, optFontSize);
 
               y = Math.max(leftY, rightY);
             }
@@ -1101,8 +1474,8 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
 
         const qPrefix = `Q${qIndex + 1}. `;
 
-        doc.setFont(fontName, 'normal');
-        doc.setFontSize(9.5);
+        doc.setFont(activeFont, 'bold');
+        doc.setFontSize(baseFontSize);
         const qPrefixWidth = doc.getTextWidth(qPrefix);
 
         const hasImage = !!question.imageUrl;
@@ -1131,6 +1504,7 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
 
         const formattedSegments = parseHtmlToFormattedText(question.questionText)
           .concat(buildSuffixSegments(question));
+        await resolveMathSegments(formattedSegments, fontColor, baseFontSize);
 
         const totalHeight = estimateSegmentsHeight(doc, formattedSegments, textAreaWidth, LINE_HEIGHT);
 
@@ -1139,10 +1513,10 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
         const isMCQ = section.type === 'MCQ' || question.segmentType === 'MCQ';
 
         if (isMCQ && question.options && question.options.length > 0) {
-          optionsData = buildOptionRenderData(doc, question.options, colWidth / 2 - 5);
+          optionsData = buildOptionRenderData(doc, question.options, colWidth / 2 - 5, activeFont, optFontSize);
           const leftLines = (optionsData[0]?.lines.length || 0) + (optionsData[1]?.lines.length || 0);
           const rightLines = (optionsData[2]?.lines.length || 0) + (optionsData[3]?.lines.length || 0);
-          totalOptionsHeight = Math.max(leftLines, rightLines) * LINE_HEIGHT;
+          totalOptionsHeight = Math.max(leftLines, rightLines) * optLineHeight + 4;
         }
 
         const textAndImageHeight = Math.max(totalHeight, (hasImage && scaledHeight > 0) ? scaledHeight - 3 : 0);
@@ -1152,8 +1526,8 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
 
         const questionStartY = y;
 
-        doc.setFont(fontName, 'normal');
-        doc.setFontSize(9.5);
+        doc.setFont(activeFont, 'bold');
+        doc.setFontSize(baseFontSize);
         doc.text(qPrefix, getX(), y);
 
         const { newY: afterQuestionY } = renderFormattedText(
@@ -1163,15 +1537,16 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
           y,
           textAreaWidth,
           LINE_HEIGHT,
-          fontFamily,
-          rgb
+          activeFont,
+          rgb,
+          baseFontSize
         );
         y = afterQuestionY;
 
         // Render image on right side if present
         if (hasImage && imgBase64 && scaledWidth > 0 && scaledHeight > 0) {
           try {
-            const imgX = getX() + colWidth - IMAGE_RIGHT_MARGIN - scaledWidth; // Position on right side
+            const imgX = getX() + colWidth - IMAGE_RIGHT_MARGIN - scaledWidth;
             doc.addImage(imgBase64, 'PNG', imgX, questionStartY - 3, scaledWidth, scaledHeight);
             y = Math.max(y, questionStartY - 3 + scaledHeight);
           } catch (e) {
@@ -1181,10 +1556,10 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
 
         if (isMCQ && optionsData.length > 0) {
           const halfColWidth = colWidth / 2;
-          const startY = y;
+          const startY = y + 1.0;
 
-          const leftY = renderOptionColumn(doc, optionsData.slice(0, 2), getX(), startY, LINE_HEIGHT);
-          const rightY = renderOptionColumn(doc, optionsData.slice(2, 4), getX() + halfColWidth, startY, LINE_HEIGHT);
+          const leftY = renderOptionColumn(doc, optionsData.slice(0, 2), getX(), startY, optLineHeight, activeFont, optFontSize);
+          const rightY = renderOptionColumn(doc, optionsData.slice(2, 4), getX() + halfColWidth, startY, optLineHeight, activeFont, optFontSize);
 
           y = Math.max(leftY, rightY);
         }
@@ -1197,12 +1572,13 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
           if (!alt.questionText) continue;
 
           // Render OR separator
-          doc.setFont(fontName, 'bold');
-          doc.setFontSize(9.5);
+          doc.setFont(activeFont, 'bold');
+          doc.setFontSize(baseFontSize);
           doc.text('OR', getX(), y);
           y += LINE_HEIGHT;
 
           const altFormattedSegments = parseHtmlToFormattedText(alt.questionText);
+          await resolveMathSegments(altFormattedSegments, fontColor, baseFontSize);
 
           const altTotalHeight = estimateSegmentsHeight(doc, altFormattedSegments, textAreaWidth, LINE_HEIGHT);
 
@@ -1211,10 +1587,10 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
           const altIsMCQ = section.type === 'MCQ' || question.segmentType === 'MCQ';
 
           if (altIsMCQ && alt.options && alt.options.length > 0) {
-            altOptionsData = buildOptionRenderData(doc, alt.options, colWidth / 2 - 5);
+            altOptionsData = buildOptionRenderData(doc, alt.options, colWidth / 2 - 5, activeFont, optFontSize);
             const altLeftLines = (altOptionsData[0]?.lines.length || 0) + (altOptionsData[1]?.lines.length || 0);
             const altRightLines = (altOptionsData[2]?.lines.length || 0) + (altOptionsData[3]?.lines.length || 0);
-            altTotalOptionsHeight = Math.max(altLeftLines, altRightLines) * LINE_HEIGHT;
+            altTotalOptionsHeight = Math.max(altLeftLines, altRightLines) * optLineHeight + 4;
           }
 
           const altHasImage = !!alt.imageUrl;
@@ -1250,8 +1626,9 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
             y,
             textAreaWidth,
             LINE_HEIGHT,
-            fontFamily,
-            rgb
+            activeFont,
+            rgb,
+            baseFontSize
           );
           y = afterAltQuestionY;
 
@@ -1267,10 +1644,10 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
 
           if (altIsMCQ && altOptionsData.length > 0) {
             const halfColWidth = colWidth / 2;
-            const startY = y;
+            const startY = y + 1.0;
 
-            const leftY = renderOptionColumn(doc, altOptionsData.slice(0, 2), getX(), startY, LINE_HEIGHT);
-            const rightY = renderOptionColumn(doc, altOptionsData.slice(2, 4), getX() + halfColWidth, startY, LINE_HEIGHT);
+            const leftY = renderOptionColumn(doc, altOptionsData.slice(0, 2), getX(), startY, optLineHeight, activeFont, optFontSize);
+            const rightY = renderOptionColumn(doc, altOptionsData.slice(2, 4), getX() + halfColWidth, startY, optLineHeight, activeFont, optFontSize);
 
             y = Math.max(leftY, rightY);
           }

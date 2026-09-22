@@ -29,6 +29,18 @@ export const teacherTrainingController = {
     }
   },
 
+  async getPendingApprovals(req: Request, res: Response, next: NextFunction) {
+    try {
+      const schoolId = getTenantId(req);
+      const academicSessionId = req.query.academicSessionId as string | undefined;
+
+      const pending = await teacherTrainingService.getPendingApprovals(schoolId, academicSessionId);
+      sendSuccess(res, pending);
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async getCatalog(_req: Request, res: Response, next: NextFunction) {
     try {
       const catalog = teacherTrainingService.getCatalog();
@@ -64,7 +76,7 @@ export const teacherTrainingController = {
         {
           ...req.body,
           teacherId,
-          status: 'VERIFIED', // Default verified for ease of use, or teacher logged
+          status: 'SUBMITTED', // Teacher logs are SUBMITTED → Admin must approve before they count
         },
         academicSessionId,
       );

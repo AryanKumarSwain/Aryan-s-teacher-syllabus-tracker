@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -31,7 +31,19 @@ import {
   useCreateMyTraining,
   TeacherCpdItem,
 } from '../hooks/use-teacher-training';
-import { Award, Calendar, Clock, MapPin, Users, Sparkles } from 'lucide-react';
+import {
+  Award,
+  Calendar,
+  Clock,
+  MapPin,
+  Users,
+  Sparkles,
+  Search,
+  ChevronDown,
+  Check,
+  X,
+  User,
+} from 'lucide-react';
 
 interface LogTrainingDialogProps {
   open: boolean;
@@ -54,6 +66,48 @@ export function LogTrainingDialog({
   const [targetType, setTargetType] = useState<'single' | 'bulk'>('single');
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>(preselectedTeacherId || '');
   const [selectedTeacherIds, setSelectedTeacherIds] = useState<string[]>([]);
+  const [singleSearch, setSingleSearch] = useState('');
+  const [singleOpen, setSingleOpen] = useState(false);
+  const [bulkSearch, setBulkSearch] = useState('');
+  const comboboxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (comboboxRef.current && !comboboxRef.current.contains(e.target as Node)) {
+        setSingleOpen(false);
+      }
+    }
+    if (singleOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [singleOpen]);
+
+  const filteredSingleTeachers = useMemo(() => {
+    if (!singleSearch.trim()) return teachers;
+    const q = singleSearch.toLowerCase();
+    return teachers.filter(
+      (t) =>
+        t.name.toLowerCase().includes(q) ||
+        t.email.toLowerCase().includes(q) ||
+        t.subjectNames.some((s) => s.toLowerCase().includes(q)),
+    );
+  }, [teachers, singleSearch]);
+
+  const filteredBulkTeachers = useMemo(() => {
+    if (!bulkSearch.trim()) return teachers;
+    const q = bulkSearch.toLowerCase();
+    return teachers.filter(
+      (t) =>
+        t.name.toLowerCase().includes(q) ||
+        t.email.toLowerCase().includes(q) ||
+        t.subjectNames.some((s) => s.toLowerCase().includes(q)),
+    );
+  }, [teachers, bulkSearch]);
+
+  const currentSelectedTeacher = useMemo(() => {
+    return teachers.find((t) => t.teacherId === selectedTeacherId);
+  }, [teachers, selectedTeacherId]);
 
   // Category tab for selecting prescribed topics
   const [categoryType, setCategoryType] = useState<'annexure1' | 'annexure2' | 'annexure3' | 'academic' | 'custom'>('annexure1');
@@ -69,6 +123,7 @@ export function LogTrainingDialog({
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0] || '');
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0] || '');
   const [organizedBy, setOrganizedBy] = useState('');
+  const [resourcePerson, setResourcePerson] = useState('');
   const [locationOrPlatform, setLocationOrPlatform] = useState('');
   const [certificateNumber, setCertificateNumber] = useState('');
   const [remarks, setRemarks] = useState('');
@@ -154,11 +209,12 @@ export function LogTrainingDialog({
       startDate: startDate || undefined,
       endDate: endDate || undefined,
       organizedBy: organizedBy || undefined,
+      resourcePerson: resourcePerson || undefined,
       locationOrPlatform: locationOrPlatform || undefined,
       isAcademicActivity: categoryType === 'academic',
       certificateNumber: certificateNumber || undefined,
       remarks: remarks || undefined,
-      status: 'VERIFIED' as const,
+      status: isTeacherPortal ? ('SUBMITTED' as const) : ('VERIFIED' as const),
     };
 
     if (isTeacherPortal) {
@@ -257,20 +313,113 @@ export function LogTrainingDialog({
               </div>
 
               {targetType === 'single' ? (
-                <Select value={selectedTeacherId} onValueChange={setSelectedTeacherId}>
-                  <SelectTrigger className="bg-white">
-                    <SelectValue placeholder="Select a teacher..." />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {teachers.map((t) => (
-                      <SelectItem key={t.teacherId} value={t.teacherId}>
-                        {t.name} ({t.subjectNames.join(', ') || 'General'}) — {t.totalHours}/50h
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div ref={comboboxRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSingleOpen(!singleOpen);
+                      setSingleSearch('');
+                    }}
+                    className="w-full flex items-center justify-between h-9 px-3 py-1.5 text-xs bg-white border border-gray-200 rounded-lg shadow-xs hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1a73e8]/20 transition-all text-left"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <User className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+                      {currentSelectedTeacher ? (
+                        <span className="truncate text-gray-900 font-medium">
+                          {currentSelectedTeacher.name}{' '}
+                          <span className="text-gray-500 font-normal">
+                            ({currentSelectedTeacher.subjectNames.join(', ') || 'General'})
+                          </span>{' '}
+                          <span className="text-gray-400 font-normal">
+                            — {currentSelectedTeacher.totalHours}/50h
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">Select a teacher...</span>
+                      )}
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-gray-400 shrink-0 ml-2" />
+                  </button>
+
+                  {singleOpen && (
+                    <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden p-1.5 animate-in fade-in-50 zoom-in-95">
+                      {/* Search Input Box */}
+                      <div className="relative mb-1">
+                        <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-gray-400" />
+                        <Input
+                          placeholder="Search teacher by name or subject..."
+                          value={singleSearch}
+                          onChange={(e) => setSingleSearch(e.target.value)}
+                          className="h-8 pl-8 pr-7 text-xs bg-gray-50/75 border-gray-200 focus-visible:bg-white"
+                          autoFocus
+                        />
+                        {singleSearch && (
+                          <button
+                            type="button"
+                            onClick={() => setSingleSearch('')}
+                            className="absolute right-2.5 top-2.5 text-gray-400 hover:text-gray-600"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Filtered Teachers List */}
+                      <div className="max-h-48 overflow-y-auto space-y-0.5">
+                        {filteredSingleTeachers.length === 0 ? (
+                          <div className="py-6 text-center text-xs text-gray-400">
+                            No teacher found matching "{singleSearch}"
+                          </div>
+                        ) : (
+                          filteredSingleTeachers.map((t) => {
+                            const isSelected = t.teacherId === selectedTeacherId;
+                            return (
+                              <button
+                                key={t.teacherId}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedTeacherId(t.teacherId);
+                                  setSingleOpen(false);
+                                }}
+                                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs transition-colors text-left ${
+                                  isSelected
+                                    ? 'bg-blue-50 text-[#1a73e8] font-semibold'
+                                    : 'text-gray-700 hover:bg-gray-100'
+                                }`}
+                              >
+                                <div className="truncate">
+                                  <span>{t.name}</span>{' '}
+                                  <span className="text-gray-500 font-normal">
+                                    ({t.subjectNames.join(', ') || 'General'})
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0 ml-2">
+                                  <span className="text-[11px] text-gray-400">
+                                    {t.totalHours}/50h
+                                  </span>
+                                  {isSelected && <Check className="h-3.5 w-3.5 text-[#1a73e8]" />}
+                                </div>
+                              </button>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="space-y-2">
+                  {/* Search box for Bulk Mode */}
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-gray-400" />
+                    <Input
+                      placeholder="Search teachers by name or subject to select..."
+                      value={bulkSearch}
+                      onChange={(e) => setBulkSearch(e.target.value)}
+                      className="h-8 pl-8 text-xs bg-white"
+                    />
+                  </div>
+
                   <div className="flex items-center justify-between text-xs px-1 text-gray-600">
                     <label className="flex items-center gap-2 cursor-pointer font-medium">
                       <input
@@ -288,26 +437,32 @@ export function LogTrainingDialog({
                     </span>
                   </div>
                   <div className="max-h-36 overflow-y-auto border border-gray-200 rounded-xl p-2 bg-white space-y-1">
-                    {teachers.map((t) => (
-                      <label
-                        key={t.teacherId}
-                        className="flex items-center justify-between p-1.5 rounded-lg hover:bg-gray-50 text-xs cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={selectedTeacherIds.includes(t.teacherId)}
-                            onChange={() => handleToggleTeacher(t.teacherId)}
-                            className="rounded border-gray-300 text-[#1a73e8] focus:ring-[#1a73e8] h-4 w-4"
-                          />
-                          <span className="font-medium text-gray-800">{t.name}</span>
-                          <span className="text-gray-400 text-[11px]">
-                            ({t.subjectNames.join(', ') || 'General'})
-                          </span>
-                        </div>
-                        <span className="text-gray-400 text-[11px]">{t.totalHours}h logged</span>
-                      </label>
-                    ))}
+                    {filteredBulkTeachers.length === 0 ? (
+                      <div className="py-4 text-center text-xs text-gray-400">
+                        No teachers match "{bulkSearch}"
+                      </div>
+                    ) : (
+                      filteredBulkTeachers.map((t) => (
+                        <label
+                          key={t.teacherId}
+                          className="flex items-center justify-between p-1.5 rounded-lg hover:bg-gray-50 text-xs cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={selectedTeacherIds.includes(t.teacherId)}
+                              onChange={() => handleToggleTeacher(t.teacherId)}
+                              className="rounded border-gray-300 text-[#1a73e8] focus:ring-[#1a73e8] h-4 w-4"
+                            />
+                            <span className="font-medium text-gray-800">{t.name}</span>
+                            <span className="text-gray-400 text-[11px]">
+                              ({t.subjectNames.join(', ') || 'General'})
+                            </span>
+                          </div>
+                          <span className="text-gray-400 text-[11px]">{t.totalHours}h logged</span>
+                        </label>
+                      ))
+                    )}
                   </div>
                 </div>
               )}
@@ -482,21 +637,30 @@ export function LogTrainingDialog({
             </div>
           </div>
 
-          {/* Organizer & Location */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* Organizer, Resource Person & Location */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-gray-700">Organized By</Label>
               <Input
-                placeholder="e.g. CBSE COE Chandigarh / School In-house"
+                placeholder="e.g. CBSE COE / School"
                 value={organizedBy}
                 onChange={(e) => setOrganizedBy(e.target.value)}
                 className="text-xs bg-white"
               />
             </div>
             <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-gray-700">Resource Person</Label>
+              <Input
+                placeholder="e.g. Dr. R. Sharma"
+                value={resourcePerson}
+                onChange={(e) => setResourcePerson(e.target.value)}
+                className="text-xs bg-white"
+              />
+            </div>
+            <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-gray-700">Location / Platform</Label>
               <Input
-                placeholder="e.g. School Auditorium / Zoom / DIKSHA"
+                placeholder="e.g. Auditorium / Zoom"
                 value={locationOrPlatform}
                 onChange={(e) => setLocationOrPlatform(e.target.value)}
                 className="text-xs bg-white"

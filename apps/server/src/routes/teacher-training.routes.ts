@@ -44,6 +44,9 @@ teacherTrainingRoutes.post(
 teacherTrainingRoutes.get('/stats', ...adminOnly, teacherTrainingController.getStats);
 teacherTrainingRoutes.get('/', ...adminOnly, validateQuery(trainingQuerySchema), teacherTrainingController.list);
 
+// Admin: fetch all SUBMITTED (pending approval) records
+teacherTrainingRoutes.get('/pending', ...adminOnly, teacherTrainingController.getPendingApprovals);
+
 // View specific teacher CPD
 teacherTrainingRoutes.get(
   '/teacher/:teacherId',
@@ -70,7 +73,7 @@ teacherTrainingRoutes.patch(
 
 teacherTrainingRoutes.delete(
   '/:id',
-  ...teacherOrAdmin,
+  ...adminOnly,
   validateParams(trainingIdParamSchema),
   teacherTrainingController.delete,
 );

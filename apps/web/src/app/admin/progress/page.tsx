@@ -12,8 +12,10 @@ import {
   Search,
   Settings,
   ArrowRight,
+  X,
 } from 'lucide-react';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -310,57 +312,118 @@ export default function AdminProgressPage() {
               <Calendar className="h-5 w-5 text-blue-500" />
               Academic Timeline Progress
               {data?.globalTimeline && data.globalTimeline.totalTeachingDays > 0 && (
-                <>
+                <div className="ml-auto flex items-center gap-2">
+                  {/* Pacing Settings Button */}
                   <button
                     type="button"
                     onClick={() => setShowThresholdSettings(true)}
-                    className="ml-auto flex h-7 w-7 items-center justify-center rounded-full text-gray-400 outline-none hover:bg-gray-100 hover:text-gray-600"
+                    className="flex h-8 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-semibold text-gray-700 shadow-2xs transition-all duration-150 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-900 active:scale-95 dark:border-gray-750 dark:bg-gray-800 dark:text-gray-200"
                     title="Configure pacing thresholds"
                   >
-                    <Settings className="h-4 w-4" />
+                    <Settings className="h-4 w-4 text-gray-500 transition-colors" />
+                    <span>Thresholds</span>
                   </button>
-                  {/* Interactive In-line Custom Popover */}
+
+                  {/* Interactive Popover Button */}
                   <div className="relative inline-block">
                     <button
                       type="button"
-                      onClick={() => setShowInfoPopover(!showInfoPopover)}
-                      onBlur={() => setTimeout(() => setShowInfoPopover(false), 200)}
-                      className="flex h-6 w-6 items-center justify-center rounded-full text-gray-400 outline-none hover:bg-gray-100 hover:text-gray-600"
+                      onClick={() => setShowInfoPopover((prev) => !prev)}
+                      className={cn(
+                        'flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold shadow-2xs transition-all duration-150 active:scale-95',
+                        showInfoPopover
+                          ? 'border-blue-300 bg-blue-100 text-blue-700 dark:border-blue-700 dark:bg-blue-900/60 dark:text-blue-200'
+                          : 'border-blue-200 bg-blue-50 text-blue-700 hover:border-blue-300 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-300',
+                      )}
+                      title="How pacing is calculated"
                     >
-                      <Info className="h-4 w-4" />
+                      <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <span>Pacing Guide</span>
                     </button>
 
                     {showInfoPopover && (
-                      <div className="animate-in fade-in slide-in-from-bottom-2 absolute bottom-full left-1/2 z-50 mb-2 w-72 -translate-x-1/2 rounded-xl border border-gray-200 bg-white p-4 shadow-xl transition-all duration-200">
-                        <div className="space-y-2 text-xs font-normal normal-case tracking-normal">
-                          <h4 className="text-sm font-bold text-gray-900">How pacing is calculated:</h4>
-                          <p className="leading-relaxed text-gray-600">
-                            Metrics are evaluated against the current
-                            <span className="font-semibold text-blue-600">
-                              {' '}
-                              Timeline Progress ({data.globalTimeline.percentageComplete.toFixed(1)}%)
-                            </span>
-                            with a tolerance of ±{onPaceTolerance}%:
-                          </p>
-                          <ul className="list-disc space-y-1 pl-4 text-gray-600">
-                            <li>
-                              <span className="font-semibold text-red-600">Behind:</span> Item progress
-                              is more than {onPaceTolerance}% below the timeline threshold
-                            </li>
-                            <li>
-                              <span className="font-semibold text-amber-600">On Pace:</span> Item
-                              progress is within ±{onPaceTolerance}% of the threshold
-                            </li>
-                            <li>
-                              <span className="font-semibold text-emerald-600">Ahead:</span> Item
-                              progress is more than {onPaceTolerance}% above the threshold
-                            </li>
-                          </ul>
+                      <>
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setShowInfoPopover(false)}
+                        />
+                        <div
+                          className="animate-in fade-in slide-in-from-top-2 absolute right-0 top-full z-50 mt-2 w-80 max-w-[calc(100vw-2.5rem)] rounded-xl border border-gray-200 bg-white p-4 shadow-2xl transition-all duration-200 dark:border-gray-800 dark:bg-gray-900"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="space-y-3 text-xs font-normal normal-case tracking-normal">
+                            <div className="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-800">
+                              <div className="flex items-center gap-2">
+                                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-300">
+                                  <Info className="h-3.5 w-3.5" />
+                                </span>
+                                <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                  Pacing Calculation Guide
+                                </h4>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setShowInfoPopover(false)}
+                                className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+
+                            <p className="leading-relaxed text-gray-600 dark:text-gray-300">
+                              Metrics are evaluated against the current{' '}
+                              <span className="font-semibold text-blue-600 dark:text-blue-400">
+                                Timeline Progress ({data.globalTimeline.percentageComplete.toFixed(1)}%)
+                              </span>{' '}
+                              with a tolerance of{' '}
+                              <span className="font-semibold text-gray-800 dark:text-gray-200">
+                                ±{onPaceTolerance}%
+                              </span>:
+                            </p>
+
+                            <div className="space-y-2 pt-1">
+                              <div className="flex items-start gap-2.5 rounded-lg border border-red-100 bg-red-50/70 p-2.5 dark:border-red-900/40 dark:bg-red-950/30">
+                                <span className="mt-1 inline-block h-2 w-2 shrink-0 rounded-full bg-red-500" />
+                                <div className="text-xs">
+                                  <span className="font-bold text-red-700 dark:text-red-300">
+                                    Behind:{' '}
+                                  </span>
+                                  <span className="leading-normal text-red-900/80 dark:text-red-200/80">
+                                    Item progress is more than {onPaceTolerance}% below the timeline threshold.
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="flex items-start gap-2.5 rounded-lg border border-amber-100 bg-amber-50/70 p-2.5 dark:border-amber-900/40 dark:bg-amber-950/30">
+                                <span className="mt-1 inline-block h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+                                <div className="text-xs">
+                                  <span className="font-bold text-amber-700 dark:text-amber-300">
+                                    On Pace:{' '}
+                                  </span>
+                                  <span className="leading-normal text-amber-900/80 dark:text-amber-200/80">
+                                    Item progress is within ±{onPaceTolerance}% of the threshold.
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="flex items-start gap-2.5 rounded-lg border border-emerald-100 bg-emerald-50/70 p-2.5 dark:border-emerald-900/40 dark:bg-emerald-950/30">
+                                <span className="mt-1 inline-block h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
+                                <div className="text-xs">
+                                  <span className="font-bold text-emerald-700 dark:text-emerald-300">
+                                    Ahead:{' '}
+                                  </span>
+                                  <span className="leading-normal text-emerald-900/80 dark:text-emerald-200/80">
+                                    Item progress is more than {onPaceTolerance}% above the threshold.
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      </>
                     )}
                   </div>
-                </>
+                </div>
               )}
             </CardTitle>
           </CardHeader>

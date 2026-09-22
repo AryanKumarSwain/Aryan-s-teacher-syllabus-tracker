@@ -13,6 +13,8 @@ import {
   Palmtree,
   CalendarRange,
   LayoutGrid,
+  Landmark,
+  Sparkles,
 } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
@@ -66,11 +68,16 @@ interface AcademicYear {
 interface TimelineDay {
   date: string;
   isHoliday: boolean;
+  isWeeklyHoliday?: boolean;
   isVacation: boolean;
   isPast: boolean;
   isToday: boolean;
   weekNumber: number;
   termIndex: number | null; // which term this day belongs to (0-based), null = between terms
+  holidayName?: string;
+  isNationalHoliday?: boolean;
+  wasHoliday?: boolean;
+  originalHolidayName?: string;
 }
 
 interface MonthGroup {
@@ -132,6 +139,113 @@ const TERM_COLORS = [
   },
 ];
 
+// Indian National & Gazetted Festival Holidays
+const INDIAN_NATIONAL_AND_FESTIVAL_HOLIDAYS: Record<string, string> = {
+  // 2025
+  '2025-01-01': "New Year's Day",
+  '2025-01-14': 'Makar Sankranti / Pongal',
+  '2025-01-26': 'Republic Day',
+  '2025-02-26': 'Maha Shivratri',
+  '2025-03-14': 'Holi',
+  '2025-03-31': 'Eid-ul-Fitr',
+  '2025-04-10': 'Mahavir Jayanti',
+  '2025-04-14': 'Dr. B.R. Ambedkar Jayanti',
+  '2025-04-18': 'Good Friday',
+  '2025-05-12': 'Buddha Purnima',
+  '2025-06-07': 'Bakrid / Eid-ul-Adha',
+  '2025-07-06': 'Muharram',
+  '2025-08-15': 'Independence Day',
+  '2025-08-16': 'Janmashtami',
+  '2025-09-05': 'Milad-un-Nabi',
+  '2025-10-02': 'Mahatma Gandhi Jayanti',
+  '2025-10-12': 'Dussehra (Vijayadashami)',
+  '2025-10-20': 'Diwali (Deepavali)',
+  '2025-11-05': 'Guru Nanak Jayanti',
+  '2025-12-25': 'Christmas Day',
+
+  // 2026
+  '2026-01-01': "New Year's Day",
+  '2026-01-14': 'Makar Sankranti / Pongal',
+  '2026-01-26': 'Republic Day',
+  '2026-02-15': 'Maha Shivratri',
+  '2026-03-04': 'Holi',
+  '2026-03-20': 'Eid-ul-Fitr',
+  '2026-03-31': 'Mahavir Jayanti',
+  '2026-04-03': 'Good Friday',
+  '2026-04-14': 'Dr. B.R. Ambedkar Jayanti',
+  '2026-05-01': 'Buddha Purnima / May Day',
+  '2026-05-27': 'Bakrid / Eid-ul-Adha',
+  '2026-06-25': 'Muharram',
+  '2026-08-15': 'Independence Day',
+  '2026-08-28': 'Raksha Bandhan',
+  '2026-09-04': 'Janmashtami',
+  '2026-09-25': 'Milad-un-Nabi',
+  '2026-10-02': 'Mahatma Gandhi Jayanti',
+  '2026-10-20': 'Dussehra (Vijayadashami)',
+  '2026-11-08': 'Diwali (Deepavali)',
+  '2026-11-24': 'Guru Nanak Jayanti',
+  '2026-12-25': 'Christmas Day',
+
+  // 2027
+  '2027-01-01': "New Year's Day",
+  '2027-01-14': 'Makar Sankranti / Pongal',
+  '2027-01-26': 'Republic Day',
+  '2027-03-06': 'Maha Shivratri',
+  '2027-03-10': 'Eid-ul-Fitr',
+  '2027-03-23': 'Holi',
+  '2027-03-26': 'Good Friday',
+  '2027-04-14': 'Dr. B.R. Ambedkar Jayanti',
+  '2027-04-20': 'Mahavir Jayanti',
+  '2027-05-16': 'Bakrid / Eid-ul-Adha',
+  '2027-05-20': 'Buddha Purnima',
+  '2027-06-15': 'Muharram',
+  '2027-08-15': 'Independence Day',
+  '2027-08-25': 'Janmashtami',
+  '2027-09-15': 'Milad-un-Nabi',
+  '2027-10-02': 'Mahatma Gandhi Jayanti',
+  '2027-10-09': 'Dussehra (Vijayadashami)',
+  '2027-10-29': 'Diwali (Deepavali)',
+  '2027-11-14': 'Guru Nanak Jayanti',
+  '2027-12-25': 'Christmas Day',
+
+  // 2028
+  '2028-01-01': "New Year's Day",
+  '2028-01-14': 'Makar Sankranti / Pongal',
+  '2028-01-26': 'Republic Day',
+  '2028-02-24': 'Maha Shivratri',
+  '2028-02-28': 'Eid-ul-Fitr',
+  '2028-03-11': 'Holi',
+  '2028-04-09': 'Mahavir Jayanti',
+  '2028-04-14': 'Dr. B.R. Ambedkar Jayanti / Good Friday',
+  '2028-05-05': 'Bakrid / Eid-ul-Adha',
+  '2028-05-09': 'Buddha Purnima',
+  '2028-06-03': 'Muharram',
+  '2028-08-14': 'Janmashtami',
+  '2028-08-15': 'Independence Day',
+  '2028-10-02': 'Mahatma Gandhi Jayanti',
+  '2028-10-28': 'Dussehra (Vijayadashami)',
+  '2028-11-16': 'Diwali (Deepavali)',
+  '2028-12-25': 'Christmas Day',
+};
+
+function getNationalHolidayName(isoDate: string): string | undefined {
+  if (INDIAN_NATIONAL_AND_FESTIVAL_HOLIDAYS[isoDate]) {
+    return INDIAN_NATIONAL_AND_FESTIVAL_HOLIDAYS[isoDate];
+  }
+  // Generic fallback for any year for fixed national holidays
+  const parts = isoDate.split('-');
+  const mmdd = `${parts[1]}-${parts[2]}`;
+  const fixed: Record<string, string> = {
+    '01-01': "New Year's Day",
+    '01-26': 'Republic Day',
+    '04-14': 'Dr. B.R. Ambedkar Jayanti',
+    '08-15': 'Independence Day',
+    '10-02': 'Mahatma Gandhi Jayanti',
+    '12-25': 'Christmas Day',
+  };
+  return fixed[mmdd];
+}
+
 function getWeekNumber(date: Date): number {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const dayNum = d.getUTCDay() || 7;
@@ -146,20 +260,28 @@ function generateTimelineDays(
   weeklyHolidays: number[],
   vacationDays: VacationDay[],
   terms: Term[],
+  includeNationalHolidays: boolean = false,
+  excludedHolidays: string[] = [],
 ): TimelineDay[] {
   const days: TimelineDay[] = [];
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+  const startStr = startDate.split('T')[0]!;
+  const endStr = endDate.split('T')[0]!;
+  const [sY, sM, sD] = startStr.split('-').map(Number);
+  const [eY, eM, eD] = endStr.split('-').map(Number);
+  const start = new Date(Date.UTC(sY!, sM! - 1, sD!));
+  const end = new Date(Date.UTC(eY!, eM! - 1, eD!));
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const todayIso = today.toISOString().split('T')[0]!;
 
   const vacationSet = new Set(
     vacationDays.flatMap((vd) => {
       const dates: string[] = [];
-      const s = new Date(vd.startDate);
-      s.setUTCHours(0, 0, 0, 0);
-      const e = new Date(vd.endDate);
-      e.setUTCHours(0, 0, 0, 0);
+      const sStr = vd.startDate.split('T')[0]!;
+      const eStr = vd.endDate.split('T')[0]!;
+      const [vsY, vsM, vsD] = sStr.split('-').map(Number);
+      const [veY, veM, veD] = eStr.split('-').map(Number);
+      const s = new Date(Date.UTC(vsY!, vsM! - 1, vsD!));
+      const e = new Date(Date.UTC(veY!, veM! - 1, veD!));
       for (let d = new Date(s); d <= e; d.setUTCDate(d.getUTCDate() + 1))
         dates.push(d.toISOString().split('T')[0]!);
       return dates;
@@ -168,28 +290,41 @@ function generateTimelineDays(
 
   // Build term ranges (ensure terms is an array)
   const termRanges = (Array.isArray(terms) ? terms : []).map((t) => ({
-    start: new Date(t.startDate + 'T00:00:00Z'),
-    end: new Date(t.endDate + 'T00:00:00Z'),
+    start: new Date(t.startDate.split('T')[0]! + 'T00:00:00Z'),
+    end: new Date(t.endDate.split('T')[0]! + 'T00:00:00Z'),
   }));
 
-  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+  for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
     const isoDate = d.toISOString().split('T')[0]!;
-    const dayOfWeek = d.getDay();
-    const isHoliday = weeklyHolidays.includes(dayOfWeek);
+    const isExcluded = excludedHolidays.includes(isoDate);
+
+    const dayOfWeek = d.getUTCDay();
+    const rawWeeklyHoliday = weeklyHolidays.includes(dayOfWeek);
+    const natHolidayName = includeNationalHolidays ? getNationalHolidayName(isoDate) : undefined;
+    const rawNationalHoliday = Boolean(natHolidayName);
+
+    const isWeeklyHoliday = rawWeeklyHoliday && !isExcluded;
+    const isNationalHoliday = rawNationalHoliday && !isExcluded;
+    const isHoliday = isWeeklyHoliday || isNationalHoliday;
     const isVacation = vacationSet.has(isoDate);
-    const isPast = d < today;
-    const isToday = isoDate === today.toISOString().split('T')[0];
+    const isPast = isoDate < todayIso;
+    const isToday = isoDate === todayIso;
     const dUTC = new Date(isoDate + 'T00:00:00Z');
     const termIndex = termRanges.findIndex((r) => dUTC >= r.start && dUTC <= r.end);
 
     days.push({
       date: isoDate,
       isHoliday,
+      isWeeklyHoliday,
+      isNationalHoliday,
+      holidayName: isNationalHoliday ? natHolidayName : undefined,
       isVacation,
       isPast,
       isToday,
       weekNumber: getWeekNumber(d),
       termIndex: termIndex >= 0 ? termIndex : null,
+      wasHoliday: isExcluded && (rawNationalHoliday || rawWeeklyHoliday),
+      originalHolidayName: isExcluded ? (natHolidayName || (rawWeeklyHoliday ? 'Weekly Off' : undefined)) : undefined,
     });
   }
   return days;
@@ -262,9 +397,38 @@ export default function AcademicTimelinePage() {
   const [selectedTermId, setSelectedTermId] = useState<string>('');
   const [dayEditOpen, setDayEditOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState<TimelineDay | null>(null);
+  const [dayHolidayTitle, setDayHolidayTitle] = useState('');
+  const [isDayHolidaySaving, setIsDayHolidaySaving] = useState(false);
   // which terms/sections are collapsed in the calendar
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
   const [calendarViewMode, setCalendarViewMode] = useState<'terms' | 'fullYear'>('terms');
+  const [includeNationalHolidays, setIncludeNationalHolidays] = useState<boolean>(false);
+  const [excludedHolidays, setExcludedHolidays] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!selectedTermId) return;
+    try {
+      const saved = localStorage.getItem(`timeline-excluded-holidays-${selectedTermId}`);
+      if (saved) {
+        setExcludedHolidays(JSON.parse(saved));
+      } else {
+        setExcludedHolidays([]);
+      }
+    } catch {
+      setExcludedHolidays([]);
+    }
+  }, [selectedTermId]);
+
+  const updateExcludedHolidays = (newList: string[]) => {
+    setExcludedHolidays(newList);
+    if (selectedTermId) {
+      try {
+        localStorage.setItem(`timeline-excluded-holidays-${selectedTermId}`, JSON.stringify(newList));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
 
   // Persist selectedTermId to localStorage
   useEffect(() => {
@@ -497,25 +661,25 @@ export default function AcademicTimelinePage() {
       setVacationError('Start date and end date are required.');
       return;
     }
-    if (!newVacationDay.reason?.trim()) {
-      setVacationError('Reason is required.');
-      return;
-    }
     setVacationError('');
+    const payload = {
+      ...newVacationDay,
+      reason: newVacationDay.reason?.trim() || 'Holiday',
+    };
     if (editingYear) {
       try {
-        await api.post(`/academic-terms/${editingYear.id}/vacation-days`, newVacationDay);
+        await api.post(`/academic-terms/${editingYear.id}/vacation-days`, payload);
         await qc.invalidateQueries({ queryKey: ['academic-terms'] });
         const cached = qc.getQueryData<{ items: AcademicYear[] }>(['academic-terms', schoolId, school?.currentAcademicSessionId]);
         const fresh = cached?.items.find((t) => t.id === editingYear.id);
         if (fresh) setEditingYear(fresh);
         setNewVacationDay({ startDate: '', endDate: '', reason: '' });
-        toast.success('Vacation added');
+        toast.success('Holiday break added');
       } catch (e: any) {
         toast.error(e.message);
       }
     } else {
-      setPendingVacations((prev) => [...prev, { ...newVacationDay }]);
+      setPendingVacations((prev) => [...prev, { ...payload }]);
       setNewVacationDay({ startDate: '', endDate: '', reason: '' });
     }
   };
@@ -544,38 +708,127 @@ export default function AcademicTimelinePage() {
   const handleDayClick = (day: TimelineDay) => {
     if (isViewMode) return;
     setSelectedDay(day);
+    const existing = selectedTerm?.vacationDays?.find((vd: VacationDay) => {
+      const s = vd.startDate.split('T')[0]!;
+      const e = vd.endDate.split('T')[0]!;
+      return day.date >= s && day.date <= e;
+    });
+    const currentReason = existing?.reason;
+    setDayHolidayTitle(
+      currentReason && currentReason !== 'Manual vacation' && currentReason !== 'Holiday'
+        ? currentReason
+        : '',
+    );
     setDayEditOpen(true);
   };
 
-  const toggleDayAsVacation = async () => {
+  const handleMarkAsHoliday = async () => {
     if (isViewMode) {
       toast.error('Viewing mode is read-only.');
       return;
     }
     if (!selectedTerm || !selectedDay) return;
+    setIsDayHolidaySaving(true);
     try {
-      const existing = selectedTerm.vacationDays?.find((vd: VacationDay) => {
-        const s = new Date(vd.startDate),
-          e = new Date(vd.endDate),
-          dd = new Date(selectedDay.date);
-        return dd >= s && dd <= e;
+      const reasonText = dayHolidayTitle.trim() || 'Holiday';
+      await api.post(`/academic-terms/${selectedTerm.id}/vacation-days`, {
+        startDate: selectedDay.date,
+        endDate: selectedDay.date,
+        reason: reasonText,
       });
-      if (existing) {
-        await api.delete(`/academic-terms/${selectedTerm.id}/vacation-days/${existing.id}`);
-        toast.success('Day removed from vacation');
-      } else {
-        await api.post(`/academic-terms/${selectedTerm.id}/vacation-days`, {
-          startDate: selectedDay.date,
-          endDate: selectedDay.date,
-          reason: 'Manual vacation',
-        });
-        toast.success('Day marked as vacation');
+      if (excludedHolidays.includes(selectedDay.date)) {
+        updateExcludedHolidays(excludedHolidays.filter((d) => d !== selectedDay.date));
       }
+      toast.success('Day marked as holiday');
       qc.invalidateQueries({ queryKey: ['academic-terms'] });
       setDayEditOpen(false);
     } catch (e: any) {
-      toast.error(e.message);
+      toast.error(e.message || 'Failed to mark day as holiday');
+    } finally {
+      setIsDayHolidaySaving(false);
     }
+  };
+
+  const handleUpdateHolidayTitle = async () => {
+    if (isViewMode) {
+      toast.error('Viewing mode is read-only.');
+      return;
+    }
+    if (!selectedTerm || !selectedDay) return;
+    setIsDayHolidaySaving(true);
+    try {
+      const existing = selectedTerm.vacationDays?.find((vd: VacationDay) => {
+        const s = vd.startDate.split('T')[0]!;
+        const e = vd.endDate.split('T')[0]!;
+        return selectedDay.date >= s && selectedDay.date <= e;
+      });
+      if (existing) {
+        const newReason = dayHolidayTitle.trim() || 'Holiday';
+        try {
+          await api.patch(`/academic-terms/${selectedTerm.id}/vacation-days/${existing.id}`, {
+            reason: newReason,
+          });
+        } catch {
+          // Fallback: delete and re-create
+          await api.delete(`/academic-terms/${selectedTerm.id}/vacation-days/${existing.id}`);
+          await api.post(`/academic-terms/${selectedTerm.id}/vacation-days`, {
+            startDate: existing.startDate.split('T')[0]!,
+            endDate: existing.endDate.split('T')[0]!,
+            reason: newReason,
+          });
+        }
+        toast.success('Holiday title updated');
+        qc.invalidateQueries({ queryKey: ['academic-terms'] });
+        setDayEditOpen(false);
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to update holiday title');
+    } finally {
+      setIsDayHolidaySaving(false);
+    }
+  };
+
+  const handleRemoveHoliday = async () => {
+    if (isViewMode) {
+      toast.error('Viewing mode is read-only.');
+      return;
+    }
+    if (!selectedTerm || !selectedDay) return;
+    setIsDayHolidaySaving(true);
+    try {
+      const existing = selectedTerm.vacationDays?.find((vd: VacationDay) => {
+        const s = vd.startDate.split('T')[0]!;
+        const e = vd.endDate.split('T')[0]!;
+        return selectedDay.date >= s && selectedDay.date <= e;
+      });
+      if (existing) {
+        await api.delete(`/academic-terms/${selectedTerm.id}/vacation-days/${existing.id}`);
+      }
+
+      // If it's a national holiday, weekly holiday, or any holiday date, exclude it
+      if (!excludedHolidays.includes(selectedDay.date)) {
+        updateExcludedHolidays([...excludedHolidays, selectedDay.date]);
+      }
+
+      toast.success('Holiday removed');
+      qc.invalidateQueries({ queryKey: ['academic-terms'] });
+      setDayEditOpen(false);
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to remove holiday');
+    } finally {
+      setIsDayHolidaySaving(false);
+    }
+  };
+
+  const handleRestoreHoliday = () => {
+    if (isViewMode) {
+      toast.error('Viewing mode is read-only.');
+      return;
+    }
+    if (!selectedDay) return;
+    updateExcludedHolidays(excludedHolidays.filter((d) => d !== selectedDay.date));
+    toast.success('Holiday restored');
+    setDayEditOpen(false);
   };
 
   const activatedTerms: Term[] = Array.isArray(selectedTerm?.terms) ? (selectedTerm.terms as Term[]) : [];
@@ -593,6 +846,8 @@ export default function AcademicTimelinePage() {
         weeklyHolidaysArr,
         selectedTerm.vacationDays,
         activatedTerms,
+        includeNationalHolidays,
+        excludedHolidays,
       )
     : [];
 
@@ -629,6 +884,8 @@ export default function AcademicTimelinePage() {
         weeklyHolidaysArr,
         selectedTerm?.vacationDays || [],
         activatedTerms,
+        includeNationalHolidays,
+        excludedHolidays,
       );
       timelineSections.push({
         id: `term-${tIdx}`,
@@ -664,6 +921,8 @@ export default function AcademicTimelinePage() {
           weeklyHolidaysArr,
           selectedTerm?.vacationDays || [],
           activatedTerms,
+          includeNationalHolidays,
+          excludedHolidays,
         );
         timelineSections.push({
           id: `vacation-${vd.id || vIdx}`,
@@ -709,7 +968,7 @@ export default function AcademicTimelinePage() {
 
       setCollapsedSections(initialCollapsed);
     }
-  }, [selectedTermId, activatedTerms.length, selectedTerm?.vacationDays?.length]);
+  }, [selectedTermId, activatedTerms.length, selectedTerm?.vacationDays?.length, includeNationalHolidays, excludedHolidays.length]);
 
   // Reusable day cell renderer
   const renderDayCell = (
@@ -748,19 +1007,28 @@ export default function AcademicTimelinePage() {
               (day.termIndex !== null && day.termIndex !== undefined
                 ? TERM_COLORS[day.termIndex % TERM_COLORS.length]?.day
                 : 'bg-blue-100 text-blue-700')),
-          // Vacation day (takes visual precedence over holiday so orange is clearly seen)
+          // Vacation day
           day.isVacation &&
-            'bg-amber-100 text-amber-900 border border-amber-300 font-semibold shadow-2xs dark:bg-amber-950/60 dark:text-amber-200 dark:border-amber-700',
-          // Holiday (only when not vacation)
+            'bg-orange-100 text-orange-900 border border-orange-300 font-semibold shadow-2xs dark:bg-orange-950/60 dark:text-orange-200 dark:border-orange-700',
+          // Holiday (National/Festival) - YELLOW
           !day.isVacation &&
-            day.isHoliday &&
-            'cursor-default bg-red-100 text-red-600 hover:scale-100 dark:bg-red-950/40 dark:text-red-300',
+            day.isNationalHoliday &&
+            'cursor-pointer bg-yellow-200 text-yellow-950 border border-yellow-400 font-bold shadow-2xs hover:scale-105 transition-transform dark:bg-yellow-950/70 dark:text-yellow-200 dark:border-yellow-600',
+          // Weekly Holiday - RED (only when not a national holiday and not vacation)
+          !day.isVacation &&
+            !day.isNationalHoliday &&
+            day.isWeeklyHoliday &&
+            'cursor-pointer bg-red-100 text-red-700 border border-red-200 font-medium dark:bg-red-950/40 dark:text-red-300 dark:border-red-900',
         )}
         title={`${day.date}${
           day.isVacation
-            ? ` — Vacation: ${vacationReason || 'Vacation'}`
-            : day.isHoliday
-            ? ' — Holiday'
+            ? ` — Holiday${vacationReason && vacationReason !== 'Manual vacation' && vacationReason !== 'Holiday' ? `: ${vacationReason}` : ''}`
+            : day.holidayName
+            ? ` — Holiday: ${day.holidayName}${day.isWeeklyHoliday ? ' (Weekly Off)' : ''}`
+            : day.wasHoliday
+            ? ` — Teaching Day (Holiday removed: ${day.originalHolidayName})`
+            : day.isWeeklyHoliday
+            ? ' — Weekly Holiday'
             : day.isToday
             ? ' — Today'
             : isTeachingDay
@@ -865,8 +1133,9 @@ export default function AcademicTimelinePage() {
                       { color: 'bg-green-500', label: 'Completed' },
                       { color: 'bg-blue-500 ring-2 ring-blue-300', label: 'Today' },
                       { color: 'bg-blue-100 border border-blue-200', label: 'Upcoming' },
-                      { color: 'bg-red-100 border border-red-200', label: 'Holiday' },
-                      { color: 'bg-amber-100 border border-amber-300', label: 'Vacation' },
+                      { color: 'bg-red-100 border border-red-300', label: 'Weekly Holiday' },
+                      { color: 'bg-yellow-200 border border-yellow-400', label: 'Holiday (Festival/Nat.)' },
+                      { color: 'bg-orange-100 border border-orange-300', label: 'Holiday' },
                     ].map(({ color, label }) => (
                       <div key={label} className="flex items-center gap-1.5">
                         <div className={cn('h-3 w-3 rounded', color)} />
@@ -884,87 +1153,95 @@ export default function AcademicTimelinePage() {
                     })}
                   </div>
 
-                  {/* Scheduled Vacations & Breaks Summary Box */}
-                  {(selectedTerm?.vacationDays || []).length > 0 && (
-                    <div className="rounded-xl border border-amber-200/90 bg-amber-50/60 p-3.5 space-y-2.5 dark:border-amber-900/50 dark:bg-amber-950/20">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Palmtree className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                          <span className="text-xs font-bold text-amber-900 dark:text-amber-200">
-                            Scheduled Vacations & Breaks ({selectedTerm?.vacationDays?.length})
-                          </span>
-                        </div>
-                        <Badge
-                          variant="outline"
-                          className="border-amber-300 bg-amber-100/80 text-amber-800 text-[10px] font-semibold dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300"
-                        >
-                          {timelineDays.filter((d) => d.isVacation).length} Total Vacation Days
-                        </Badge>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                        {selectedTerm?.vacationDays?.map((vd: VacationDay, idx: number) => {
-                          const vStart = new Date(vd.startDate.split('T')[0]! + 'T00:00:00Z');
-                          const vEnd = new Date(vd.endDate.split('T')[0]! + 'T00:00:00Z');
-                          const durationDays =
-                            Math.round((vEnd.getTime() - vStart.getTime()) / 86400000) + 1;
-                          return (
-                            <div
-                              key={vd.id || idx}
-                              className="flex items-center justify-between rounded-lg border border-amber-200 bg-white/95 p-2.5 text-xs shadow-2xs dark:border-amber-900/40 dark:bg-gray-900/80"
-                            >
-                              <div className="flex flex-col min-w-0 pr-2">
-                                <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">
-                                  {vd.reason || 'Vacation'}
-                                </span>
-                                <span className="text-[11px] text-muted-foreground">
-                                  {fmt(vd.startDate)} → {fmt(vd.endDate)}
-                                </span>
-                              </div>
-                              <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
-                                {durationDays} {durationDays === 1 ? 'day' : 'days'}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
 
-                  {/* Calendar Header with View Switcher */}
+                  {/* Calendar Header with View Switcher & National Holidays Toggle */}
                   <div>
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        {calendarViewMode === 'terms'
-                          ? 'Timeline by Terms & Vacation Breaks'
-                          : 'Full Year Calendar (All 12 Months)'}
-                      </p>
-                      <div className="inline-flex rounded-lg border bg-muted/30 p-0.5 text-xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                          {calendarViewMode === 'terms'
+                            ? 'Timeline by Terms & Vacation Breaks'
+                            : 'Full Year Calendar (All 12 Months)'}
+                        </p>
+                        {includeNationalHolidays && (
+                          <span className="text-[11px] font-medium text-red-600 dark:text-red-400 flex items-center gap-1 mt-0.5 animate-in fade-in duration-150">
+                            <Sparkles className="h-3 w-3" />
+                            National & Festival Holidays included
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        {/* Add National Holiday Toggle Button */}
                         <button
                           type="button"
-                          onClick={() => setCalendarViewMode('terms')}
+                          onClick={() => setIncludeNationalHolidays((prev) => !prev)}
                           className={cn(
-                            'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-medium transition-all duration-150',
-                            calendarViewMode === 'terms'
-                              ? 'bg-white text-foreground shadow-2xs dark:bg-gray-800'
-                              : 'text-muted-foreground hover:text-foreground',
+                            'inline-flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all duration-150 shadow-2xs',
+                            includeNationalHolidays
+                              ? 'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300'
+                              : 'border-border bg-background text-muted-foreground hover:text-foreground hover:bg-muted/30',
                           )}
+                          title={
+                            includeNationalHolidays
+                              ? 'Disable National & Festival Holidays'
+                              : 'Enable National & Festival Holidays'
+                          }
                         >
-                          <CalendarRange className="h-3.5 w-3.5" />
-                          <span>By Terms & Breaks</span>
+                          <Landmark
+                            className={cn(
+                              'h-3.5 w-3.5',
+                              includeNationalHolidays
+                                ? 'text-red-600 dark:text-red-400'
+                                : 'text-muted-foreground',
+                            )}
+                          />
+                          <span>Add National Holidays</span>
+                          {/* Toggle Switch */}
+                          <span
+                            className={cn(
+                              'relative inline-flex h-4 w-7 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out',
+                              includeNationalHolidays ? 'bg-red-600' : 'bg-gray-300 dark:bg-gray-700',
+                            )}
+                          >
+                            <span
+                              className={cn(
+                                'inline-block h-3 w-3 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out mt-0.5',
+                                includeNationalHolidays ? 'translate-x-3.5' : 'translate-x-0.5',
+                              )}
+                            />
+                          </span>
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => setCalendarViewMode('fullYear')}
-                          className={cn(
-                            'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-medium transition-all duration-150',
-                            calendarViewMode === 'fullYear'
-                              ? 'bg-white text-foreground shadow-2xs dark:bg-gray-800'
-                              : 'text-muted-foreground hover:text-foreground',
-                          )}
-                        >
-                          <LayoutGrid className="h-3.5 w-3.5" />
-                          <span>Full Year View</span>
-                        </button>
+
+                        {/* View Switcher */}
+                        <div className="inline-flex rounded-lg border bg-muted/30 p-0.5 text-xs">
+                          <button
+                            type="button"
+                            onClick={() => setCalendarViewMode('terms')}
+                            className={cn(
+                              'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-medium transition-all duration-150',
+                              calendarViewMode === 'terms'
+                                ? 'bg-white text-foreground shadow-2xs dark:bg-gray-800'
+                                : 'text-muted-foreground hover:text-foreground',
+                            )}
+                          >
+                            <CalendarRange className="h-3.5 w-3.5" />
+                            <span>By Terms & Breaks</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCalendarViewMode('fullYear')}
+                            className={cn(
+                              'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-medium transition-all duration-150',
+                              calendarViewMode === 'fullYear'
+                                ? 'bg-white text-foreground shadow-2xs dark:bg-gray-800'
+                                : 'text-muted-foreground hover:text-foreground',
+                            )}
+                          >
+                            <LayoutGrid className="h-3.5 w-3.5" />
+                            <span>Full Year View</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -1220,7 +1497,7 @@ export default function AcademicTimelinePage() {
                   </div>
 
                   {/* Stats */}
-                  <div className="grid grid-cols-4 gap-3 border-t pt-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 border-t pt-4">
                     {[
                       {
                         value: teachingDays.length,
@@ -1229,9 +1506,14 @@ export default function AcademicTimelinePage() {
                       },
                       { value: completedDays, label: 'Completed', color: 'text-green-600' },
                       {
-                        value: timelineDays.filter((d) => d.isHoliday).length,
-                        label: 'Holidays',
+                        value: timelineDays.filter((d) => d.isWeeklyHoliday && !d.isNationalHoliday).length,
+                        label: 'Weekly Off',
                         color: 'text-red-600',
+                      },
+                      {
+                        value: timelineDays.filter((d) => d.isNationalHoliday).length,
+                        label: 'Festival / Holidays',
+                        color: 'text-yellow-600',
                       },
                       {
                         value: timelineDays.filter((d) => d.isVacation).length,
@@ -1417,305 +1699,420 @@ export default function AcademicTimelinePage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
           aria-describedby={undefined}
-          className="max-h-[90vh] overflow-y-auto sm:max-w-lg"
+          className="max-h-[92vh] w-[95vw] sm:max-w-lg md:max-w-4xl lg:max-w-5xl xl:max-w-6xl flex flex-col p-4 sm:p-6 overflow-hidden"
         >
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold">
-              {editingYear ? 'Edit Academic Year' : 'New Academic Year'}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 pt-2">
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs font-semibold">Year Name</Label>
-                {activeSession?.name && (
-                  <button
-                    type="button"
-                    onClick={() => setYearName(getAutoFetchedSessionName())}
-                    className="text-[11px] text-blue-600 hover:text-blue-800 hover:underline font-medium"
-                    title="Auto-fill with current active session name"
-                  >
-                    Auto-fill: {activeSession.name}
-                  </button>
-                )}
+          <DialogHeader className="pb-3 border-b flex-shrink-0">
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="text-lg md:text-xl font-bold">
+                  {editingYear ? 'Edit Academic Year' : 'New Academic Year'}
+                </DialogTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Configure session dates, terms, weekly off-days, and vacation periods.
+                </p>
               </div>
-              <Input
-                value={yearName}
-                onChange={(e) => setYearName(e.target.value)}
-                placeholder="e.g. 2026-2027 Academic Year"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">Start Date</Label>
-                <Input
-                  type="date"
-                  value={yearStartDate}
-                  onChange={(e) => setYearStartDate(e.target.value)}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">End Date</Label>
-                <Input
-                  type="date"
-                  value={yearEndDate}
-                  onChange={(e) => setYearEndDate(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Weekly Holidays</Label>
-              <div className="flex flex-wrap gap-2">
-                {dayNames.map((day, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => toggleWeeklyHoliday(index)}
-                    className={cn(
-                      'rounded-lg border px-3 py-1.5 text-sm font-medium transition-all duration-150',
-                      weeklyHolidays.includes(index)
-                        ? 'scale-105 border-red-500 bg-red-100 text-red-700'
-                        : 'border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100',
-                    )}
-                  >
-                    {day}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Terms */}
-            <div className="space-y-3 border-t pt-3">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs font-semibold">Terms</Label>
-                <Button
+              {activeSession?.name && (
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
-                  className="h-7 text-xs"
-                  onClick={() => {
-                    const newTermIndex = terms.length + 1;
-                    const prevEnd =
-                      terms.length > 0 ? terms[terms.length - 1]?.endDate : yearStartDate;
-                    const nextDay = prevEnd
-                      ? new Date(new Date(prevEnd).getTime() + 86400000)
-                          .toISOString()
-                          .split('T')[0]!
-                      : yearStartDate;
-                    setTerms([
-                      ...terms,
-                      { name: `Term ${newTermIndex}`, startDate: nextDay, endDate: '' },
-                    ]);
-                  }}
+                  onClick={() => setYearName(getAutoFetchedSessionName())}
+                  className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-full bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800 transition-colors font-medium"
+                  title="Auto-fill with current active session name"
                 >
-                  <Plus className="mr-1 h-3 w-3" /> Add Term
-                </Button>
-              </div>
-              {terms.map((term, index) => {
-                const tc = TERM_COLORS[index % TERM_COLORS.length]!;
-                return (
-                  <div
-                    key={index}
-                    className={cn('space-y-2 rounded-xl border p-3', tc.light, tc.border)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className={cn('h-3 w-3 rounded-full', tc.bg)} />
-                        <Label className={cn('text-xs font-bold', tc.text)}>
-                          {term.name || `Term ${index + 1}`}
-                        </Label>
-                      </div>
-                      <Button
+                  <Sparkles className="h-3 w-3 text-blue-500" />
+                  Auto-fill: {activeSession.name}
+                </button>
+              )}
+            </div>
+          </DialogHeader>
+
+          {/* Scrollable Content: 1 col on mobile, 2 cols on PC (16:9 wide layout) */}
+          <div className="flex-1 overflow-y-auto pr-1 md:pr-2 py-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+              {/* Left Column: Basic Details & Terms */}
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-semibold">Year Name</Label>
+                    {activeSession?.name && (
+                      <button
                         type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7"
-                        onClick={() => setTerms(terms.filter((_, i) => i !== index))}
+                        onClick={() => setYearName(getAutoFetchedSessionName())}
+                        className="sm:hidden text-[11px] text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                        title="Auto-fill with current active session name"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                        Auto-fill: {activeSession.name}
+                      </button>
+                    )}
+                  </div>
+                  <Input
+                    value={yearName}
+                    onChange={(e) => setYearName(e.target.value)}
+                    placeholder="e.g. 2026-2027 Academic Year"
+                    className="h-9 text-sm"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold">Start Date</Label>
+                    <Input
+                      type="date"
+                      value={yearStartDate}
+                      onChange={(e) => setYearStartDate(e.target.value)}
+                      className="h-9 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold">End Date</Label>
+                    <Input
+                      type="date"
+                      value={yearEndDate}
+                      onChange={(e) => setYearEndDate(e.target.value)}
+                      className="h-9 text-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Weekly Holidays */}
+                <div className="space-y-1.5 rounded-xl border border-gray-100 bg-gray-50/50 p-3 dark:border-gray-800 dark:bg-gray-900/30">
+                  <div className="flex items-center justify-between mb-1">
+                    <Label className="text-xs font-semibold">Weekly Holidays</Label>
+                    <span className="text-[11px] text-muted-foreground">
+                      {weeklyHolidays.length} day{weeklyHolidays.length === 1 ? '' : 's'}/week
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {dayNames.map((day, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => toggleWeeklyHoliday(index)}
+                        className={cn(
+                          'rounded-md border px-2.5 py-1 text-xs font-medium transition-all duration-150',
+                          weeklyHolidays.includes(index)
+                            ? 'scale-105 border-red-500 bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300'
+                            : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700',
+                        )}
+                      >
+                        {day}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Terms Section */}
+                <div className="space-y-3 pt-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <CalendarRange className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <Label className="text-xs font-semibold">Terms & Semesters</Label>
+                      {terms.length > 0 && (
+                        <Badge variant="secondary" className="h-4 px-1.5 text-[10px] font-medium">
+                          {terms.length}
+                        </Badge>
+                      )}
                     </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">Term Name</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => {
+                        const newTermIndex = terms.length + 1;
+                        const prevEnd =
+                          terms.length > 0 ? terms[terms.length - 1]?.endDate : yearStartDate;
+                        const nextDay = prevEnd
+                          ? new Date(new Date(prevEnd).getTime() + 86400000)
+                              .toISOString()
+                              .split('T')[0]!
+                          : yearStartDate;
+                        setTerms([
+                          ...terms,
+                          { name: `Term ${newTermIndex}`, startDate: nextDay, endDate: '' },
+                        ]);
+                      }}
+                    >
+                      <Plus className="mr-1 h-3 w-3" /> Add Term
+                    </Button>
+                  </div>
+
+                  <div className="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
+                    {terms.map((term, index) => {
+                      const tc = TERM_COLORS[index % TERM_COLORS.length]!;
+                      return (
+                        <div
+                          key={index}
+                          className={cn('space-y-2 rounded-xl border p-3', tc.light, tc.border)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className={cn('h-2.5 w-2.5 rounded-full', tc.bg)} />
+                              <Label className={cn('text-xs font-bold', tc.text)}>
+                                {term.name || `Term ${index + 1}`}
+                              </Label>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10 h-6 w-6"
+                              onClick={() => setTerms(terms.filter((_, i) => i !== index))}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-[11px] text-muted-foreground">Term Name</Label>
+                            <Input
+                              value={term.name}
+                              onChange={(e) => {
+                                const n = [...terms];
+                                if (n[index]) n[index].name = e.target.value;
+                                setTerms(n);
+                              }}
+                              placeholder={`Term ${index + 1}`}
+                              className="h-8 text-xs bg-white dark:bg-gray-950"
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="space-y-1">
+                              <Label className="text-[11px] text-muted-foreground">Start Date</Label>
+                              <Input
+                                type="date"
+                                value={term.startDate}
+                                onChange={(e) => {
+                                  const n = [...terms];
+                                  if (n[index]) n[index].startDate = e.target.value;
+                                  setTerms(n);
+                                }}
+                                className="h-8 text-xs bg-white dark:bg-gray-950"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-[11px] text-muted-foreground">End Date</Label>
+                              <Input
+                                type="date"
+                                value={term.endDate}
+                                onChange={(e) => {
+                                  const n = [...terms];
+                                  if (n[index]) {
+                                    n[index].endDate = e.target.value;
+                                    if (index < n.length - 1) {
+                                      const next = n[index + 1];
+                                      if (next)
+                                        next.startDate = new Date(
+                                          new Date(e.target.value).getTime() + 86400000,
+                                        )
+                                          .toISOString()
+                                          .split('T')[0]!;
+                                    }
+                                  }
+                                  setTerms(n);
+                                }}
+                                className="h-8 text-xs bg-white dark:bg-gray-950"
+                              />
+                            </div>
+                          </div>
+                          {term.startDate && term.endDate && (
+                            <p className={cn('text-[11px] font-medium', tc.text)}>
+                              {fmt(term.startDate)} → {fmt(term.endDate)}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                    {terms.length === 0 && (
+                      <div className="rounded-xl border border-dashed p-4 text-center">
+                        <p className="text-muted-foreground text-xs">
+                          No terms added yet. Click &quot;Add Term&quot; to divide this session into terms.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Vacation Days & Overview Summary */}
+              <div className="space-y-4">
+                {/* Vacation Days Container Box */}
+                <div className="space-y-3 rounded-xl border border-amber-200/80 bg-amber-50/40 p-3.5 dark:border-amber-900/50 dark:bg-amber-950/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <Palmtree className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                      <Label className="text-xs font-semibold text-gray-800 dark:text-gray-200">
+                        Vacation Days & Breaks
+                      </Label>
+                    </div>
+                    {(editingYear ? liveVacationDays : pendingVacations).length > 0 && (
+                      <Badge variant="secondary" className="h-5 px-2 text-[10px] font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300">
+                        {(editingYear ? liveVacationDays : pendingVacations).length} scheduled
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label className="text-[11px] text-muted-foreground">
+                        Start Date <span className="text-red-500">*</span>
+                      </Label>
                       <Input
-                        value={term.name}
+                        type="date"
+                        value={newVacationDay.startDate}
                         onChange={(e) => {
-                          const n = [...terms];
-                          if (n[index]) n[index].name = e.target.value;
-                          setTerms(n);
+                          setNewVacationDay({ ...newVacationDay, startDate: e.target.value });
+                          setVacationError('');
                         }}
-                        placeholder={`Term ${index + 1}`}
-                        className="h-8 text-sm"
+                        className="h-8 text-xs bg-white dark:bg-gray-950"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="space-y-1">
-                        <Label className="text-xs">Start Date</Label>
-                        <Input
-                          type="date"
-                          value={term.startDate}
-                          onChange={(e) => {
-                            const n = [...terms];
-                            if (n[index]) n[index].startDate = e.target.value;
-                            setTerms(n);
-                          }}
-                          className="h-8 text-sm"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">End Date</Label>
-                        <Input
-                          type="date"
-                          value={term.endDate}
-                          onChange={(e) => {
-                            const n = [...terms];
-                            if (n[index]) {
-                              n[index].endDate = e.target.value;
-                              if (index < n.length - 1) {
-                                const next = n[index + 1];
-                                if (next)
-                                  next.startDate = new Date(
-                                    new Date(e.target.value).getTime() + 86400000,
-                                  )
-                                    .toISOString()
-                                    .split('T')[0]!;
-                              }
-                            }
-                            setTerms(n);
-                          }}
-                          className="h-8 text-sm"
-                        />
-                      </div>
+                    <div className="space-y-1">
+                      <Label className="text-[11px] text-muted-foreground">
+                        End Date <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        type="date"
+                        value={newVacationDay.endDate}
+                        onChange={(e) => {
+                          setNewVacationDay({ ...newVacationDay, endDate: e.target.value });
+                          setVacationError('');
+                        }}
+                        className="h-8 text-xs bg-white dark:bg-gray-950"
+                      />
                     </div>
-                    {/* Show date range summary */}
-                    {term.startDate && term.endDate && (
-                      <p className={cn('text-xs', tc.text)}>
-                        {fmt(term.startDate)} → {fmt(term.endDate)}
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-[11px] text-muted-foreground">
+                      Reason / Festival <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="e.g. Diwali Break / Summer Vacation"
+                        value={newVacationDay.reason}
+                        onChange={(e) => {
+                          setNewVacationDay({ ...newVacationDay, reason: e.target.value });
+                          setVacationError('');
+                        }}
+                        className={cn(
+                          'h-8 text-xs flex-1 bg-white dark:bg-gray-950',
+                          vacationError && 'border-red-400',
+                        )}
+                      />
+                      <Button
+                        type="button"
+                        onClick={addVacationDay}
+                        size="sm"
+                        className="h-8 px-3 text-xs bg-amber-600 hover:bg-amber-700 text-white transition-transform duration-150 active:scale-95"
+                      >
+                        <Plus className="mr-1 h-3.5 w-3.5" /> Add
+                      </Button>
+                    </div>
+                    {vacationError && (
+                      <p className="animate-in fade-in text-[11px] text-red-500 duration-150">
+                        {vacationError}
                       </p>
                     )}
                   </div>
-                );
-              })}
-              {terms.length === 0 && (
-                <p className="text-muted-foreground py-3 text-center text-xs">
-                  No terms added yet. Click "Add Term" to create terms.
-                </p>
-              )}
-            </div>
 
-            {/* Vacation Days */}
-            <div className="animate-in fade-in slide-in-from-top-1 space-y-3 border-t pt-3 duration-200">
-              <div className="space-y-3 rounded-xl border border-gray-200 bg-gray-50/70 p-3.5 dark:border-gray-800 dark:bg-gray-900/40">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs font-semibold text-gray-800 dark:text-gray-200">
-                    Vacation Days
-                  </Label>
-                  {(editingYear ? liveVacationDays : pendingVacations).length > 0 && (
-                    <Badge variant="secondary" className="h-5 px-2 text-[10px] font-medium">
-                      {(editingYear ? liveVacationDays : pendingVacations).length} added
-                    </Badge>
-                  )}
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">
-                      Start Date <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      type="date"
-                      value={newVacationDay.startDate}
-                      onChange={(e) => {
-                        setNewVacationDay({ ...newVacationDay, startDate: e.target.value });
-                        setVacationError('');
-                      }}
-                      className="bg-white dark:bg-gray-950"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">
-                      End Date <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      type="date"
-                      value={newVacationDay.endDate}
-                      onChange={(e) => {
-                        setNewVacationDay({ ...newVacationDay, endDate: e.target.value });
-                        setVacationError('');
-                      }}
-                      className="bg-white dark:bg-gray-950"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">
-                    Reason <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="e.g. Diwali Break"
-                      value={newVacationDay.reason}
-                      onChange={(e) => {
-                        setNewVacationDay({ ...newVacationDay, reason: e.target.value });
-                        setVacationError('');
-                      }}
-                      className={cn(
-                        'flex-1 bg-white dark:bg-gray-950',
-                        vacationError && 'border-red-400',
-                      )}
-                    />
-                    <Button
-                      type="button"
-                      onClick={addVacationDay}
-                      size="icon"
-                      className="transition-transform duration-150 active:scale-90"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  {vacationError && (
-                    <p className="animate-in fade-in text-xs text-red-500 duration-150">
-                      {vacationError}
-                    </p>
-                  )}
-                </div>
-                <div className="max-h-40 space-y-2 overflow-y-auto">
-                  {(editingYear ? liveVacationDays : pendingVacations).length === 0 && (
-                    <p className="text-muted-foreground py-2 text-center text-xs">
-                      No vacation days added yet.
-                    </p>
-                  )}
-                  {(editingYear ? liveVacationDays : pendingVacations).map(
-                    (vd: VacationDay, idx: number) => (
-                      <div
-                        key={vd.id || idx}
-                        className="animate-in fade-in slide-in-from-top-1 flex items-center justify-between rounded-lg border border-gray-200 bg-white p-2 duration-200 dark:border-gray-800 dark:bg-gray-950"
-                      >
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-sm font-medium">
-                            {fmt(vd.startDate)} — {fmt(vd.endDate)}
-                          </span>
-                          {vd.reason && (
-                            <span className="text-muted-foreground text-xs">{vd.reason}</span>
-                          )}
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:text-destructive h-6 w-6 transition-transform duration-150 hover:scale-110"
-                          onClick={() => removeVacationDay(vd.id ?? '', idx)}
+                  {/* Added Vacations List */}
+                  <div className="max-h-44 space-y-2 overflow-y-auto pr-1">
+                    {(editingYear ? liveVacationDays : pendingVacations).length === 0 && (
+                      <p className="text-muted-foreground py-3 text-center text-xs">
+                        No vacation breaks added yet. Specify dates and reason above.
+                      </p>
+                    )}
+                    {(editingYear ? liveVacationDays : pendingVacations).map(
+                      (vd: VacationDay, idx: number) => (
+                        <div
+                          key={vd.id || idx}
+                          className="animate-in fade-in slide-in-from-top-1 flex items-center justify-between rounded-lg border border-amber-200/60 bg-white p-2 text-xs duration-200 dark:border-amber-900/40 dark:bg-gray-950"
                         >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ),
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-semibold text-gray-800 dark:text-gray-200">
+                              {fmt(vd.startDate)} — {fmt(vd.endDate)}
+                            </span>
+                            {vd.reason && (
+                              <span className="text-muted-foreground text-[11px]">
+                                {vd.reason}
+                              </span>
+                            )}
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive h-6 w-6 transition-transform duration-150 hover:scale-110"
+                            onClick={() => removeVacationDay(vd.id ?? '', idx)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                </div>
+
+                {/* Live Overview & Stats Preview Card */}
+                <div className="rounded-xl border border-gray-200 bg-gray-50/60 p-3.5 dark:border-gray-800 dark:bg-gray-900/30">
+                  <Label className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block">
+                    Session Preview & Summary
+                  </Label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div className="rounded-lg bg-white p-2 border text-center dark:bg-gray-950 dark:border-gray-800">
+                      <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Duration</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                        {(() => {
+                          if (!yearStartDate || !yearEndDate) return '—';
+                          const s = new Date(yearStartDate);
+                          const e = new Date(yearEndDate);
+                          const d = Math.round((e.getTime() - s.getTime()) / 86400000) + 1;
+                          return d > 0 ? `${d}d` : '—';
+                        })()}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-white p-2 border text-center dark:bg-gray-950 dark:border-gray-800">
+                      <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Terms</p>
+                      <p className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                        {terms.length}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-white p-2 border text-center dark:bg-gray-950 dark:border-gray-800">
+                      <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Vacations</p>
+                      <p className="text-sm font-bold text-amber-600 dark:text-amber-400">
+                        {(editingYear ? liveVacationDays : pendingVacations).length}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-white p-2 border text-center dark:bg-gray-950 dark:border-gray-800">
+                      <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Weekly Off</p>
+                      <p className="text-sm font-bold text-red-600 dark:text-red-400">
+                        {weeklyHolidays.length}/wk
+                      </p>
+                    </div>
+                  </div>
+                  {yearStartDate && yearEndDate && (
+                    <p className="text-[11px] text-muted-foreground text-center mt-2.5">
+                      Span: <span className="font-medium text-gray-700 dark:text-gray-300">{fmt(yearStartDate)}</span> to <span className="font-medium text-gray-700 dark:text-gray-300">{fmt(yearEndDate)}</span>
+                    </p>
                   )}
                 </div>
               </div>
             </div>
+          </div>
 
+          {/* Dialog Footer */}
+          <DialogFooter className="pt-3 border-t mt-1 flex-shrink-0 flex-row items-center justify-end gap-2">
             <Button
-              className="mt-2 w-full transition-all duration-150 active:scale-95"
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setOpen(false)}
+              className="text-xs"
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              className="text-xs px-5 transition-all duration-150 active:scale-95"
               onClick={handleSubmit}
               disabled={
                 !yearName.trim() ||
@@ -1727,13 +2124,13 @@ export default function AcademicTimelinePage() {
             >
               {editingYear ? 'Save Changes' : 'Create Academic Year'}
             </Button>
-          </div>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Day Edit Dialog */}
       <Dialog open={dayEditOpen} onOpenChange={setDayEditOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Day</DialogTitle>
             <DialogDescription>
@@ -1754,44 +2151,170 @@ export default function AcademicTimelinePage() {
                 )}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Current Status</Label>
-              <div className="flex items-center gap-2">
-                {selectedDay?.isHoliday && (
-                  <span className="rounded-md bg-red-100 px-2 py-1 text-sm font-medium text-red-700">
+          <div className="space-y-4 py-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">Current Status</Label>
+              <div className="flex flex-wrap items-center gap-2">
+                {selectedDay?.isNationalHoliday && (
+                  <span className="rounded-md border border-yellow-400 bg-yellow-100 px-2.5 py-1 text-xs font-bold text-yellow-950 dark:border-yellow-700 dark:bg-yellow-950/60 dark:text-yellow-200">
+                    Holiday: {selectedDay.holidayName}
+                  </span>
+                )}
+                {selectedDay?.isWeeklyHoliday && !selectedDay?.isNationalHoliday && (
+                  <span className="rounded-md border border-red-200 bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700 dark:border-red-800 dark:bg-red-950/50 dark:text-red-300">
                     Weekly Holiday
                   </span>
                 )}
+                {selectedDay?.isWeeklyHoliday && selectedDay?.isNationalHoliday && (
+                  <span className="rounded-md border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-600 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+                    Also Weekly Off
+                  </span>
+                )}
                 {selectedDay?.isVacation && (
-                  <span className="rounded-md bg-orange-100 px-2 py-1 text-sm font-medium text-orange-700">
-                    Vacation
+                  <span className="rounded-md border border-orange-300 bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-800 dark:border-orange-800 dark:bg-orange-950/50 dark:text-orange-300">
+                    {(() => {
+                      const matched = selectedTerm?.vacationDays?.find((v: VacationDay) => {
+                        const s = v.startDate.split('T')[0]!;
+                        const e = v.endDate.split('T')[0]!;
+                        return selectedDay.date >= s && selectedDay.date <= e;
+                      });
+                      const r = matched?.reason;
+                      return r && r !== 'Manual vacation' && r !== 'Holiday' ? `Holiday: ${r}` : 'Holiday';
+                    })()}
                   </span>
                 )}
                 {!selectedDay?.isHoliday && !selectedDay?.isVacation && (
-                  <span className="rounded-md bg-blue-100 px-2 py-1 text-sm font-medium text-blue-700">
+                  <span className="rounded-md border border-blue-200 bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-300">
                     Teaching Day
+                  </span>
+                )}
+                {selectedDay?.wasHoliday && (
+                  <span className="rounded-md border border-amber-300 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                    Holiday Removed
                   </span>
                 )}
               </div>
             </div>
-            {!selectedDay?.isHoliday && (
-              <Button
-                onClick={toggleDayAsVacation}
-                variant={selectedDay?.isVacation ? 'destructive' : 'default'}
-                className="w-full transition-all duration-150 active:scale-95"
-              >
-                {selectedDay?.isVacation ? 'Remove from Vacation' : 'Mark as Vacation'}
-              </Button>
+
+            {/* National / Festival Holiday Details Card */}
+            {selectedDay?.isNationalHoliday && selectedDay?.holidayName && (
+              <div className="rounded-xl border border-yellow-400 bg-yellow-50 p-3.5 dark:border-yellow-800 dark:bg-yellow-950/30">
+                <div className="flex items-center gap-2">
+                  <Landmark className="h-4 w-4 text-yellow-700 dark:text-yellow-400 shrink-0" />
+                  <span className="text-sm font-bold text-yellow-950 dark:text-yellow-200">
+                    {selectedDay.holidayName}
+                  </span>
+                </div>
+                <p className="text-xs text-yellow-900/80 dark:text-yellow-300/80 mt-1">
+                  Observed as an official Gazetted / National Festival Holiday.
+                  {selectedDay.isWeeklyHoliday && ' (This day also falls on a recurring weekly off day)'}
+                </p>
+              </div>
             )}
-            {selectedDay?.isHoliday && (
+
+            {/* Weekly Holiday Note (only when purely a weekly off) */}
+            {selectedDay?.isWeeklyHoliday && !selectedDay?.isNationalHoliday && (
               <p className="text-muted-foreground text-sm">
-                This is a weekly holiday. Edit the academic term to change it.
+                This is a recurring weekly holiday. You can remove the holiday for this specific date to mark it as a working teaching day.
               </p>
             )}
+
+            {/* Excluded Holiday Note */}
+            {selectedDay?.wasHoliday && selectedDay?.originalHolidayName && (
+              <div className="rounded-lg border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+                Originally <span className="font-semibold">{selectedDay.originalHolidayName}</span>, but currently removed from holidays and set as a working Teaching Day.
+              </div>
+            )}
+
+            {/* ACTIONS */}
+            <div className="space-y-3 pt-1">
+              {/* If it was an excluded holiday, allow restoring it */}
+              {selectedDay?.wasHoliday && (
+                <Button
+                  onClick={handleRestoreHoliday}
+                  variant="outline"
+                  className="w-full text-xs font-medium border-amber-300 text-amber-900 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-200"
+                  disabled={isViewMode}
+                >
+                  Restore Holiday ({selectedDay.originalHolidayName})
+                </Button>
+              )}
+
+              {/* If it's currently any type of holiday: Custom Holiday, National Holiday, or Weekly Holiday */}
+              {(selectedDay?.isHoliday || selectedDay?.isVacation) ? (
+                <div className="space-y-3">
+                  {/* If custom holiday, allow updating title */}
+                  {selectedDay?.isVacation && (
+                    <div className="space-y-1.5">
+                      <Label htmlFor="day-holiday-title" className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                        Holiday Title / Name <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
+                      </Label>
+                      <Input
+                        id="day-holiday-title"
+                        placeholder="e.g. Sports Day, Annual Day, Local Festival..."
+                        value={dayHolidayTitle}
+                        onChange={(e) => setDayHolidayTitle(e.target.value)}
+                        className="h-9 text-xs"
+                        disabled={isViewMode || isDayHolidaySaving}
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
+                    {selectedDay?.isVacation && (
+                      <Button
+                        onClick={handleUpdateHolidayTitle}
+                        variant="default"
+                        className="w-full sm:flex-1 text-xs transition-all duration-150 active:scale-95"
+                        disabled={isViewMode || isDayHolidaySaving}
+                      >
+                        {isDayHolidaySaving ? 'Saving...' : 'Update Title'}
+                      </Button>
+                    )}
+                    <Button
+                      onClick={handleRemoveHoliday}
+                      variant="destructive"
+                      className="w-full sm:flex-1 text-xs transition-all duration-150 active:scale-95"
+                      disabled={isViewMode || isDayHolidaySaving}
+                    >
+                      {isDayHolidaySaving ? 'Removing...' : 'Remove Holiday'}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                /* It is currently a Teaching Day: allow marking as holiday */
+                <div className="space-y-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="day-holiday-title" className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                      Holiday Title / Name <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
+                    </Label>
+                    <Input
+                      id="day-holiday-title"
+                      placeholder="e.g. Sports Day, Annual Day, Local Festival..."
+                      value={dayHolidayTitle}
+                      onChange={(e) => setDayHolidayTitle(e.target.value)}
+                      className="h-9 text-xs"
+                      disabled={isViewMode || isDayHolidaySaving}
+                    />
+                    <p className="text-[11px] text-muted-foreground">
+                      Optional title for this holiday. Leave blank to mark as a general holiday.
+                    </p>
+                  </div>
+
+                  <Button
+                    onClick={handleMarkAsHoliday}
+                    variant="default"
+                    className="w-full text-xs font-medium transition-all duration-150 active:scale-95"
+                    disabled={isViewMode || isDayHolidaySaving}
+                  >
+                    {isDayHolidaySaving ? 'Marking...' : 'Mark as Holiday'}
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDayEditOpen(false)}>
+            <Button variant="outline" onClick={() => setDayEditOpen(false)} disabled={isDayHolidaySaving}>
               Close
             </Button>
           </DialogFooter>

@@ -740,16 +740,164 @@ export const teacherService = {
 },
 
   async softDelete(schoolId: string, academicSessionId: string, id: string) {
-  const teacher = await this.getById(schoolId, academicSessionId, id);
-  return prisma.$transaction([
-    prisma.teacher.update({
-      where: { id },
-      data: { deletedAt: new Date(), status: 'INACTIVE' },
-    }),
-    prisma.user.update({
-      where: { id: teacher.userId },
-      data: { deletedAt: new Date(), status: 'INACTIVE' },
-    }),
-  ]);
-},
+    const teacher = await this.getById(schoolId, academicSessionId, id);
+    return prisma.$transaction([
+      prisma.teacher.update({
+        where: { id },
+        data: { deletedAt: new Date(), status: 'INACTIVE' },
+      }),
+      prisma.user.update({
+        where: { id: teacher.userId },
+        data: { deletedAt: new Date(), status: 'INACTIVE' },
+      }),
+    ]);
+  },
+
+  async getActivityLogs(schoolId: string, teacherId: string, limit: number = 50) {
+    const teacher = await prisma.teacher.findFirst({
+      where: withTenant(schoolId, { id: teacherId }),
+      include: {
+        user: true,
+      },
+    });
+    if (!teacher) throw new AppError('Teacher not found', 404);
+
+    // 1. Fetch from ActivityLog table
+    const allActivityLogs = await prisma.activityLog.findMany({
+      where: {
+        schoolId,
+        OR: [
+          { userId: teacher.userId },
+          { entityType: 'CHAPTER' },
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit * 2,
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+      },
+    });
+
+    const teacherLogs = allActivityLogs.filter(
+      (log) => log.userId === teacher.userId || (log.metadata as any)?.teacherId === teacherId,
+    );
+
+    // 2. Fetch ChapterProgress entries for this teacher
+    const chapterProgressList = await prisma.chapterProgress.findMany({
+      where: {
+        schoolId,
+        teacherId,
+        OR: [
+          { teachingCompleted: true },
+          { qaCompleted: true },
+          { copyChecked: true },
+          { chapterStatus: 'COMPLETED' },
+        ],
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: limit,
+      include: {
+        chapter: {
+          include: {
+            subject: {
+              include: {
+                class: true,
+              },
+            },
+          },
+        },
+        updatedBy: { select: { id: true, name: true, email: true } },
+      },
+    });
+
+    const formattedLogs: Array<{
+      id: string;
+      action: string;
+      description: string;
+      chapterTitle: string;
+      chapterNo?: number;
+      termName?: string;
+      subjectName?: string;
+      className?: string;
+      teachingCompleted: boolean;
+      qaCompleted: boolean;
+      copyChecked: boolean;
+      chapterStatus: string;
+      completionPercentage: number;
+      changes: string[];
+      userName: string;
+      createdAt: string;
+    }> = [];
+
+    const seenKeys = new Set<string>();
+
+    for (const log of teacherLogs) {
+      const meta = (log.metadata as any) || {};
+      const changes = Array.isArray(meta.changes) ? meta.changes : [];
+      let desc = changes.join(' · ');
+      if (!desc) {
+        desc = meta.chapterStatus === 'COMPLETED' ? 'Completed Chapter' : 'Updated Chapter Workflow';
+      }
+
+      formattedLogs.push({
+        id: log.id,
+        action: log.action,
+        description: desc,
+        chapterTitle: meta.chapterTitle || 'Chapter',
+        chapterNo: meta.chapterNo,
+        termName: meta.termName,
+        subjectName: meta.subjectName || undefined,
+        className: meta.className || undefined,
+        teachingCompleted: Boolean(meta.teachingCompleted),
+        qaCompleted: Boolean(meta.qaCompleted),
+        copyChecked: Boolean(meta.copyChecked),
+        chapterStatus: meta.chapterStatus || 'IN_PROGRESS',
+        completionPercentage: meta.completionPercentage ?? 0,
+        changes,
+        userName: log.user?.name || teacher.user.name,
+        createdAt: log.createdAt.toISOString(),
+      });
+
+      if (log.entityId) {
+        seenKeys.add(`${log.entityId}_${new Date(log.createdAt).toLocaleDateString()}`);
+      }
+    }
+
+    for (const cp of chapterProgressList) {
+      const key = `${cp.chapterId}_${new Date(cp.updatedAt).toLocaleDateString()}`;
+      if (!seenKeys.has(key)) {
+        seenKeys.add(key);
+        const changes: string[] = [];
+        if (cp.teachingCompleted) changes.push('Teaching: Completed');
+        if (cp.qaCompleted) changes.push('Q&A: Completed');
+        if (cp.copyChecked) changes.push('Copy Checked: Completed');
+        if (cp.chapterStatus === 'COMPLETED') changes.push('Chapter Marked Completed');
+
+        formattedLogs.push({
+          id: `cp-${cp.id}`,
+          action: 'CHAPTER_PROGRESS_UPDATED',
+          description:
+            changes.join(' · ') ||
+            (cp.chapterStatus === 'COMPLETED' ? 'Completed Chapter' : 'Updated Progress'),
+          chapterTitle: cp.chapter.title,
+          chapterNo: cp.chapter.chapterNo ?? undefined,
+          termName: cp.chapter.termName ?? undefined,
+          subjectName: cp.chapter.subject?.name,
+          className: cp.chapter.subject?.class?.name,
+          teachingCompleted: cp.teachingCompleted,
+          qaCompleted: cp.qaCompleted,
+          copyChecked: cp.copyChecked,
+          chapterStatus: cp.chapterStatus,
+          completionPercentage: cp.completionPercentage,
+          changes,
+          userName: cp.updatedBy?.name || teacher.user.name,
+          createdAt: cp.updatedAt.toISOString(),
+        });
+      }
+    }
+
+    formattedLogs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    return formattedLogs.slice(0, limit);
+  },
 };

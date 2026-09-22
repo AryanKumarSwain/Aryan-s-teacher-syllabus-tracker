@@ -1,12 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RichTextField } from './RichTextField';
 import { ImageCropModal } from './ImageCropModal';
 import { api } from '@/services/api-client';
+import { cn } from '@/lib/utils';
+import { 
+  Type, 
+  Palette, 
+  Plus, 
+  Trash2, 
+  AlertCircle, 
+  ImageIcon, 
+  Sparkles,
+  HelpCircle,
+  BookOpen,
+  Eye
+} from 'lucide-react';
 
 interface QuestionEditorProps {
   sections: any[];
@@ -14,20 +27,74 @@ interface QuestionEditorProps {
   onSaveDraft: (sections: any[], styling: { fontFamily: string; fontSize: string; color: string }) => void;
   onBack?: () => void;
   initialStyling?: { fontFamily: string; fontSize: string; color: string };
+  onDraftChange?: (sections: any[], styling: { fontFamily: string; fontSize: string; color: string }) => void;
+  onOpenPreview?: (currentSections?: any[], currentStyling?: { fontFamily: string; fontSize: string; color: string }) => void;
 }
 
-export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initialStyling }: QuestionEditorProps) {
-  const [draftSections, setDraftSections] = useState(sections);
-  const [globalStyle, setGlobalStyle] = useState(initialStyling || {
-    fontFamily: 'Times New Roman',
-    fontSize: '11pt',
-    color: '#000000'
+const FONT_OPTIONS = [
+  { label: 'Times New Roman (Standard Exam)', value: 'Times New Roman' },
+  { label: 'Arial (Clean Sans)', value: 'Arial' },
+  { label: 'Calibri (Modern)', value: 'Calibri' },
+  { label: 'Cambria (Formal Serif)', value: 'Cambria' },
+  { label: 'Georgia (Classic)', value: 'Georgia' },
+  { label: 'Verdana (High Legibility)', value: 'Verdana' },
+  { label: 'Century Gothic', value: 'Century Gothic' },
+  { label: 'Trebuchet MS', value: 'Trebuchet MS' },
+];
+
+const FONT_SIZES = (() => {
+  const seen = new Set<string>();
+  return [
+    { label: '9 pt', value: '9pt' },
+    { label: '10 pt', value: '10pt' },
+    { label: '11 pt (Standard)', value: '11pt' },
+    { label: '12 pt', value: '12pt' },
+    { label: '13 pt', value: '13pt' },
+    { label: '14 pt', value: '14pt' },
+    { label: '16 pt', value: '16pt' },
+  ].filter(item => {
+    if (seen.has(item.value)) return false;
+    seen.add(item.value);
+    return true;
   });
+})();
+
+const COLOR_PRESETS = [
+  { name: 'Black', hex: '#000000' },
+  { name: 'Slate Gray', hex: '#334155' },
+  { name: 'Navy Blue', hex: '#1e3a8a' },
+  { name: 'Dark Teal', hex: '#115e59' },
+  { name: 'Burgundy', hex: '#881337' },
+];
+
+export function QuestionEditor({ 
+  sections, 
+  onSubmit, 
+  onSaveDraft, 
+  onBack, 
+  initialStyling,
+  onDraftChange,
+  onOpenPreview
+}: QuestionEditorProps) {
+  const [draftSections, setDraftSections] = useState(sections);
+  const [globalStyle, setGlobalStyle] = useState({
+    fontFamily: initialStyling?.fontFamily || 'Times New Roman',
+    fontSize: initialStyling?.fontSize || '11pt',
+    color: initialStyling?.color || '#000000'
+  });
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState<{ src: string; sectionIndex: number; questionIndex: number } | null>(null);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
-    // Initialize questions from segments if they don't exist
+    onDraftChange?.(draftSections, globalStyle);
+  }, [draftSections, globalStyle]);
+
+  useEffect(() => {
+    if (initializedRef.current) return;
+    if (!sections || sections.length === 0) return;
+    initializedRef.current = true;
     const initializedSections = sections.map(section => {
       if (section.segments && section.segments.length > 0 && (!section.questions || section.questions.length === 0)) {
         const allQuestions = section.segments.flatMap((segment: any, segIndex: number) => {
@@ -154,6 +221,36 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
     setDraftSections(next);
   };
 
+  const updateOption = (sectionIndex: number, questionIndex: number, optionIndex: number, value: string) => {
+    const next = [...draftSections];
+    const currentOptions = next[sectionIndex].questions[questionIndex].options || [];
+    const updatedOptions = [...currentOptions];
+    if (optionIndex < updatedOptions.length) {
+      updatedOptions[optionIndex] = { ...updatedOptions[optionIndex], text: value };
+    } else {
+      updatedOptions.push({ text: value, isCorrect: optionIndex === 0 });
+    }
+    next[sectionIndex] = {
+      ...next[sectionIndex],
+      questions: next[sectionIndex].questions.map((question: any, index: number) => index === questionIndex ? { ...question, options: updatedOptions } : question),
+    };
+    setDraftSections(next);
+  };
+
+  const setCorrectOption = (sectionIndex: number, questionIndex: number, optionIndex: number) => {
+    const next = [...draftSections];
+    const currentOptions = next[sectionIndex].questions[questionIndex].options || [];
+    const updatedOptions = currentOptions.map((opt: any, idx: number) => ({
+      ...opt,
+      isCorrect: idx === optionIndex,
+    }));
+    next[sectionIndex] = {
+      ...next[sectionIndex],
+      questions: next[sectionIndex].questions.map((question: any, index: number) => index === questionIndex ? { ...question, options: updatedOptions } : question),
+    };
+    setDraftSections(next);
+  };
+
   const updateAlternativeOption = (sectionIndex: number, questionIndex: number, alternativeIndex: number, optionIndex: number, value: string) => {
     const next = [...draftSections];
     const question = next[sectionIndex].questions[questionIndex];
@@ -165,6 +262,25 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
     } else {
       updatedOptions.push({ text: value, isCorrect: optionIndex === 0 });
     }
+    alternatives[alternativeIndex] = { ...alternatives[alternativeIndex], options: updatedOptions };
+    next[sectionIndex] = {
+      ...next[sectionIndex],
+      questions: next[sectionIndex].questions.map((q: any, index: number) => 
+        index === questionIndex ? { ...q, alternatives } : q
+      ),
+    };
+    setDraftSections(next);
+  };
+
+  const setAlternativeCorrectOption = (sectionIndex: number, questionIndex: number, alternativeIndex: number, optionIndex: number) => {
+    const next = [...draftSections];
+    const question = next[sectionIndex].questions[questionIndex];
+    const alternatives = question.alternatives || [];
+    const currentOptions = alternatives[alternativeIndex].options || [];
+    const updatedOptions = currentOptions.map((opt: any, idx: number) => ({
+      ...opt,
+      isCorrect: idx === optionIndex,
+    }));
     alternatives[alternativeIndex] = { ...alternatives[alternativeIndex], options: updatedOptions };
     next[sectionIndex] = {
       ...next[sectionIndex],
@@ -203,22 +319,6 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
     setDraftSections(next);
   };
 
-  const updateOption = (sectionIndex: number, questionIndex: number, optionIndex: number, value: string) => {
-    const next = [...draftSections];
-    const currentOptions = next[sectionIndex].questions[questionIndex].options || [];
-    const updatedOptions = [...currentOptions];
-    if (optionIndex < updatedOptions.length) {
-      updatedOptions[optionIndex] = { ...updatedOptions[optionIndex], text: value };
-    } else {
-      updatedOptions.push({ text: value, isCorrect: optionIndex === 0 });
-    }
-    next[sectionIndex] = {
-      ...next[sectionIndex],
-      questions: next[sectionIndex].questions.map((question: any, index: number) => index === questionIndex ? { ...question, options: updatedOptions } : question),
-    };
-    setDraftSections(next);
-  };
-
   const handleImageUpload = async (sectionIndex: number, questionIndex: number, file: File) => {
     try {
       const reader = new FileReader();
@@ -241,11 +341,12 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
     if (!currentImage) return;
     
     try {
-      // Convert base64 to blob for upload
       const response = await fetch(croppedImageUrl);
       const blob = await response.blob();
+      const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
+      
       const formData = new FormData();
-      formData.append('image', blob, 'cropped-image.png');
+      formData.append('image', file);
       
       const uploadResponse = await api.postFormData<{ imageUrl: string }>('/exam-papers/upload-question-image', formData);
       updateQuestion(currentImage.sectionIndex, currentImage.questionIndex, { imageUrl: uploadResponse.imageUrl });
@@ -310,20 +411,21 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
         }
         
         // Check MCQ options for alternatives that have text
-        alternatives.forEach((alt: any) => {
+        for (const alt of alternatives) {
           if (alt.questionText?.trim() !== '' && alt.segmentType === 'MCQ') {
             const altOptions = alt.options || [];
             if (altOptions.length < 4 || altOptions.some((opt: any) => !opt.text || opt.text.trim() === '')) {
               return false;
             }
           }
-        });
+        }
       }
     }
     return true;
   };
 
   const handleSubmit = () => {
+    setHasAttemptedSubmit(true);
     if (!validateSections()) {
       alert('Please fill in all mandatory fields (question text and MCQ options). Image URL is optional.');
       return;
@@ -332,83 +434,142 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
   };
 
   return (
-    <div className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-      {/* Global Toolbar for text styling */}
-      <div className="flex flex-wrap gap-4 p-4 bg-gray-50 border border-gray-200 rounded-xl items-center">
-        <span className="text-sm font-semibold text-gray-700">Apply to All Questions:</span>
-        <div className="flex gap-2 items-center">
-          <Label className="text-xs">Font:</Label>
-          <select 
-            className="border border-gray-300 rounded p-1 text-sm bg-white"
-            value={globalStyle.fontFamily}
-            onChange={(e) => setGlobalStyle({...globalStyle, fontFamily: e.target.value})}
-          >
-            <optgroup label="Theme Fonts">
-              <option value="Calibri Light">Calibri Light</option>
-              <option value="Calibri">Calibri</option>
-            </optgroup>
-            <optgroup label="Recently Used">
-              <option value="Times New Roman">Times New Roman</option>
-              <option value="Cambria">Cambria</option>
-            </optgroup>
-            <optgroup label="All Fonts">
-              <option value="Agency FB">Agency FB</option>
-              <option value="Arial">Arial</option>
-              <option value="Arial Black">Arial Black</option>
-              <option value="Bahnschrift">Bahnschrift</option>
-              <option value="Georgia">Georgia</option>
-              <option value="Verdana">Verdana</option>
-            </optgroup>
-          </select>
+    <div className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
+      {/* Sleek Global Toolbar for Exam Typography & Styling */}
+      <div className="rounded-xl border border-slate-200/90 bg-linear-to-r from-slate-50 via-sky-50/20 to-indigo-50/20 p-4 shadow-2xs">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700">
+              <Type className="h-4 w-4" />
+            </div>
+            <div>
+              <h4 className="text-xs font-semibold text-slate-800 uppercase tracking-wider">Exam Typography & Styling</h4>
+              <p className="text-xs text-slate-500">Applies globally across all question text, equations, and options</p>
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Font Family Selector */}
+            <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 shadow-2xs">
+              <span className="text-xs font-medium text-slate-500">Font:</span>
+              <select 
+                value={globalStyle.fontFamily}
+                onChange={(e) => setGlobalStyle(prev => ({ ...prev, fontFamily: e.target.value }))}
+                className="text-xs font-semibold text-slate-800 bg-transparent border-0 focus:outline-none cursor-pointer"
+              >
+                {FONT_OPTIONS.map(f => (
+                  <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Font Size Selector */}
+            <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 shadow-2xs">
+              <span className="text-xs font-medium text-slate-500">Size:</span>
+              <select 
+                value={globalStyle.fontSize}
+                onChange={(e) => setGlobalStyle(prev => ({ ...prev, fontSize: e.target.value }))}
+                className="text-xs font-semibold text-slate-800 bg-transparent border-0 focus:outline-none cursor-pointer"
+              >
+                {FONT_SIZES.map(s => (
+                  <option key={s.value} value={s.value}>{s.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Color Selector */}
+            <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 shadow-2xs">
+              <Palette className="h-3.5 w-3.5 text-slate-500" />
+              <div className="flex items-center gap-1">
+                {COLOR_PRESETS.map(c => (
+                  <button
+                    key={c.hex}
+                    type="button"
+                    title={c.name}
+                    onClick={() => setGlobalStyle(prev => ({ ...prev, color: c.hex }))}
+                    className={cn(
+                      "h-4 w-4 rounded-full border transition-transform",
+                      globalStyle.color.toLowerCase() === c.hex.toLowerCase() 
+                        ? 'scale-125 ring-2 ring-blue-500 ring-offset-1 border-white' 
+                        : 'border-slate-300 hover:scale-110'
+                    )}
+                    style={{ backgroundColor: c.hex }}
+                  />
+                ))}
+              </div>
+              <input 
+                type="color" 
+                title="Custom color"
+                value={globalStyle.color}
+                onChange={(e) => setGlobalStyle(prev => ({ ...prev, color: e.target.value }))}
+                className="h-5 w-5 cursor-pointer border-0 p-0 bg-transparent rounded"
+              />
+            </div>
+          </div>
         </div>
-        <div className="flex gap-2 items-center">
-          <Label className="text-xs">Size:</Label>
-          <select 
-            className="border border-gray-300 rounded p-1 text-sm bg-white w-16"
-            value={globalStyle.fontSize}
-            onChange={(e) => setGlobalStyle({...globalStyle, fontSize: e.target.value})}
-          >
-            <option value="10pt">10</option>
-            <option value="11pt">11</option>
-            <option value="12pt">12</option>
-            <option value="14pt">14</option>
-            <option value="16pt">16</option>
-          </select>
-        </div>
-        <div className="flex gap-2 items-center">
-          <Label className="text-xs">Color:</Label>
-          <input 
-            type="color" 
-            value={globalStyle.color}
-            onChange={(e) => setGlobalStyle({...globalStyle, color: e.target.value})}
-            className="h-8 w-8 cursor-pointer border-0 p-0 bg-transparent rounded"
-          />
+
+        {/* Live Typography Preview Pill & Paper Preview Button */}
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 pt-2.5 border-t border-slate-200/60 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="text-slate-400 font-medium">Live Preview:</span>
+            <span 
+              className="rounded bg-white/90 px-3 py-1 border border-slate-200/80 shadow-2xs"
+              style={{ fontFamily: globalStyle.fontFamily, fontSize: globalStyle.fontSize, color: globalStyle.color }}
+            >
+              Sample: If 2x + 5 = 15, then x = ? &nbsp;•&nbsp; (A) 5 &nbsp; (B) 10
+            </span>
+          </div>
+
+          {onOpenPreview && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => onOpenPreview(draftSections, globalStyle)}
+              className="bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800 text-xs flex items-center gap-1.5 font-semibold"
+            >
+              <Eye className="w-3.5 h-3.5 text-indigo-600" />
+              Preview Full Paper
+            </Button>
+          )}
         </div>
       </div>
 
-      <div style={{ fontFamily: globalStyle.fontFamily, fontSize: globalStyle.fontSize, color: globalStyle.color }}>
+      {/* Sections and Questions */}
+      <div>
         {draftSections.map((section, sectionIndex) => (
-          <div key={`${section.label}-${sectionIndex}`} className="space-y-3 rounded-xl border border-gray-100 p-4 mb-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-gray-800" style={{ fontFamily: 'sans-serif' }}>{section.label}</h3>
-              <span className="text-sm text-gray-500" style={{ fontFamily: 'sans-serif' }}>{section.questions.length} questions</span>
+          <div key={`${section.label}-${sectionIndex}`} className="space-y-4 rounded-xl border border-slate-200/80 bg-slate-50/50 p-5 mb-6">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-blue-600" />
+                <h3 className="font-bold text-slate-800 text-base">{section.label}</h3>
+              </div>
+              <span className="text-xs font-semibold text-slate-500 bg-white border border-slate-200 px-2.5 py-1 rounded-full shadow-2xs">
+                {section.questions.length} questions
+              </span>
             </div>
+
             {section.questions.map((question: any, questionIndex: number) => {
               const alternatives = question.alternatives || [];
               const hasAlternatives = alternatives.length > 0;
               
               return (
-                <div key={question.id || `${sectionIndex}-${questionIndex}`} className="rounded-lg border border-gray-100 p-4">
-                  <div className="flex items-center justify-between mb-2">
+                <div 
+                  key={question.id || `${sectionIndex}-${questionIndex}`} 
+                  className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs transition-colors hover:border-slate-300"
+                >
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <Label style={{ fontFamily: 'sans-serif' }}>Question {question.order !== undefined ? question.order + 1 : questionIndex + 1}</Label>
+                      <Label className="text-sm font-bold text-slate-900">
+                        Question {question.order !== undefined ? question.order + 1 : questionIndex + 1}
+                      </Label>
                       {question.segmentLabel && (
-                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-medium" style={{ fontFamily: 'sans-serif' }}>
+                        <span className="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded-md font-semibold">
                           {question.segmentLabel}
                         </span>
                       )}
                       {hasAlternatives && (
-                        <span className="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-medium" style={{ fontFamily: 'sans-serif' }}>
+                        <span className="text-xs bg-purple-50 text-purple-700 border border-purple-200 px-2.5 py-0.5 rounded-md font-semibold">
                           Internal Choice ({alternatives.length + 1} options)
                         </span>
                       )}
@@ -419,19 +580,20 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
                         variant="outline"
                         size="sm"
                         onClick={() => addAlternative(sectionIndex, questionIndex)}
-                        className="text-xs"
+                        className="text-xs font-semibold text-purple-700 border-purple-200 hover:bg-purple-50 h-8 gap-1"
                       >
-                        + Add Alternative
+                        <Plus className="h-3.5 w-3.5" />
+                        Add Alternative (OR)
                       </Button>
                     )}
                   </div>
 
-                  {/* Main Question */}
+                  {/* Question Content based on Type */}
                   {question.segmentType === 'MATCHING' ? (
                     <div className="mt-3">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label className="text-xs font-semibold mb-2 block" style={{ fontFamily: 'sans-serif' }}>Column A</Label>
+                          <Label className="text-xs font-semibold mb-2 block text-slate-700">Column A</Label>
                           <div className="space-y-2">
                             {(question.matchingPairs || []).map((pair: any, pairIndex: number) => (
                               <Input
@@ -445,7 +607,7 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
                           </div>
                         </div>
                         <div>
-                          <Label className="text-xs font-semibold mb-2 block" style={{ fontFamily: 'sans-serif' }}>Column B</Label>
+                          <Label className="text-xs font-semibold mb-2 block text-slate-700">Column B</Label>
                           <div className="space-y-2">
                             {(question.matchingPairs || []).map((pair: any, pairIndex: number) => (
                               <Input
@@ -463,88 +625,167 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
                   ) : question.segmentType === 'PASSAGE' ? (
                     <div className="mt-3 space-y-4">
                       <div>
-                        <Label className="text-xs font-semibold mb-2 block" style={{ fontFamily: 'sans-serif' }}>Passage Text</Label>
+                        <Label className="text-xs font-semibold mb-2 block text-slate-700">Passage Text</Label>
                         <RichTextField 
                           value={question.passageText || ''} 
                           onChange={(value) => updateQuestion(sectionIndex, questionIndex, { passageText: value })} 
+                          fontFamily={globalStyle.fontFamily}
+                          fontSize={globalStyle.fontSize}
+                          color={globalStyle.color}
                           required
                         />
-                        {(!question.passageText || question.passageText.trim() === '') && (
-                          <p className="text-xs text-red-500 mt-1" style={{ fontFamily: 'sans-serif' }}>Passage text is required</p>
+                        {hasAttemptedSubmit && (!question.passageText || question.passageText.trim() === '') && (
+                          <p className="text-xs font-medium text-rose-500 mt-1.5 flex items-center gap-1">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                            <span>Passage text is required</span>
+                          </p>
                         )}
                       </div>
                       <div>
-                        <Label className="text-xs font-semibold mb-2 block" style={{ fontFamily: 'sans-serif' }}>Questions based on passage</Label>
-                        <div className="space-y-2">
+                        <Label className="text-xs font-semibold mb-2 block text-slate-700">Questions based on passage</Label>
+                        <div className="space-y-2.5">
                           {(question.subQuestions || []).map((subQ: any, subQIndex: number) => (
                             <div key={subQIndex} className="flex items-start gap-2">
-                              <span className="text-xs font-medium mt-2" style={{ fontFamily: 'sans-serif' }}>
+                              <span className="text-xs font-bold mt-2 text-slate-500 shrink-0">
                                 {subQIndex + 1}.
                               </span>
-                              <RichTextField 
-                                value={subQ.text || ''} 
-                                onChange={(value) => updateSubQuestion(sectionIndex, questionIndex, subQIndex, value)} 
-                                required
-                              />
+                              <div className="flex-1">
+                                <RichTextField 
+                                  value={subQ.text || ''} 
+                                  onChange={(value) => updateSubQuestion(sectionIndex, questionIndex, subQIndex, value)} 
+                                  fontFamily={globalStyle.fontFamily}
+                                  fontSize={globalStyle.fontSize}
+                                  color={globalStyle.color}
+                                  required
+                                />
+                                {hasAttemptedSubmit && (!subQ.text || subQ.text.trim() === '') && (
+                                  <p className="text-xs font-medium text-rose-500 mt-1 flex items-center gap-1">
+                                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Sub-question {subQIndex + 1} text is required</span>
+                                  </p>
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>
                       </div>
                     </div>
                   ) : question.segmentType === 'ASSERTION_REASONING' ? (
-                    <div className="mt-3 space-y-3">
+                    <div className="mt-3 space-y-4">
                       <div>
-                        <Label className="text-xs font-semibold mb-2 block" style={{ fontFamily: 'sans-serif' }}>Assertion</Label>
+                        <Label className="text-xs font-semibold mb-2 block text-slate-700">Assertion</Label>
                         <RichTextField 
                           value={question.assertion || ''} 
                           onChange={(value) => updateQuestion(sectionIndex, questionIndex, { assertion: value })} 
+                          fontFamily={globalStyle.fontFamily}
+                          fontSize={globalStyle.fontSize}
+                          color={globalStyle.color}
                           required
                         />
-                        {(!question.assertion || question.assertion.trim() === '') && (
-                          <p className="text-xs text-red-500 mt-1" style={{ fontFamily: 'sans-serif' }}>Assertion is required</p>
+                        {hasAttemptedSubmit && (!question.assertion || question.assertion.trim() === '') && (
+                          <p className="text-xs font-medium text-rose-500 mt-1.5 flex items-center gap-1">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                            <span>Assertion statement is required</span>
+                          </p>
                         )}
                       </div>
                       <div>
-                        <Label className="text-xs font-semibold mb-2 block" style={{ fontFamily: 'sans-serif' }}>Reason</Label>
+                        <Label className="text-xs font-semibold mb-2 block text-slate-700">Reason</Label>
                         <RichTextField 
                           value={question.reason || ''} 
                           onChange={(value) => updateQuestion(sectionIndex, questionIndex, { reason: value })} 
+                          fontFamily={globalStyle.fontFamily}
+                          fontSize={globalStyle.fontSize}
+                          color={globalStyle.color}
                           required
                         />
-                        {(!question.reason || question.reason.trim() === '') && (
-                          <p className="text-xs text-red-500 mt-1" style={{ fontFamily: 'sans-serif' }}>Reason is required</p>
+                        {hasAttemptedSubmit && (!question.reason || question.reason.trim() === '') && (
+                          <p className="text-xs font-medium text-rose-500 mt-1.5 flex items-center gap-1">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                            <span>Reason statement is required</span>
+                          </p>
                         )}
                       </div>
                     </div>
                   ) : (
                     <>
-                      <div className="mt-2" style={{ color: globalStyle.color }}>
+                      <div className="mt-2">
                         <RichTextField 
                           value={question.questionText || ''} 
                           onChange={(value) => updateQuestion(sectionIndex, questionIndex, { questionText: value })} 
+                          fontFamily={globalStyle.fontFamily}
+                          fontSize={globalStyle.fontSize}
+                          color={globalStyle.color}
                           required
                         />
-                        {(!question.questionText || question.questionText.trim() === '') && !hasAlternatives && (
-                          <p className="text-xs text-red-500 mt-1" style={{ fontFamily: 'sans-serif' }}>Question text is required</p>
+                        {hasAttemptedSubmit && (!question.questionText || question.questionText.trim() === '') && !hasAlternatives && (
+                          <p className="text-xs font-medium text-rose-500 mt-1.5 flex items-center gap-1">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                            <span>Question text is required</span>
+                          </p>
                         )}
                       </div>
 
+                      {/* Styled MCQ Options with Badges and Correct Selection */}
                       {question.segmentType === 'MCQ' ? (
-                        <div className="mt-3 space-y-2">
-                          {Array.from({ length: 4 }).map((_, optionIndex) => (
-                            <div key={optionIndex}>
-                              <Input 
-                                placeholder={`Option ${optionIndex + 1}`} 
-                                value={question.options?.[optionIndex]?.text || ''}
-                                onChange={(e) => updateOption(sectionIndex, questionIndex, optionIndex, e.target.value)} 
-                                style={{ fontFamily: globalStyle.fontFamily, fontSize: globalStyle.fontSize, color: globalStyle.color }}
-                                required
-                              />
-                              {(!question.options?.[optionIndex]?.text || question.options[optionIndex].text.trim() === '') && question.questionText?.trim() !== '' && (
-                                <p className="text-xs text-red-500 mt-1" style={{ fontFamily: 'sans-serif' }}>Option {optionIndex + 1} is required</p>
-                              )}
-                            </div>
-                          ))}
+                        <div className="mt-4 space-y-2.5">
+                          <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+                            <span>Multiple Choice Options:</span>
+                            <span className="text-[11px] text-slate-400">Click a badge (A/B/C/D) to select the correct answer</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                            {Array.from({ length: 4 }).map((_, optionIndex) => {
+                              const option = question.options?.[optionIndex] || { text: '', isCorrect: optionIndex === 0 };
+                              const optionLabel = ['A', 'B', 'C', 'D'][optionIndex];
+                              const isCorrect = option.isCorrect ?? (optionIndex === 0);
+
+                              return (
+                                <div 
+                                  key={optionIndex}
+                                  className={cn(
+                                    "flex items-center gap-2.5 p-2 rounded-xl border transition-all",
+                                    isCorrect 
+                                      ? "bg-emerald-50/40 border-emerald-300 ring-1 ring-emerald-400/30" 
+                                      : "bg-white border-slate-200 hover:border-slate-300"
+                                  )}
+                                >
+                                  <button
+                                    type="button"
+                                    onClick={() => setCorrectOption(sectionIndex, questionIndex, optionIndex)}
+                                    title={isCorrect ? "Correct answer" : "Click to mark as correct answer"}
+                                    className={cn(
+                                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold transition-all",
+                                      isCorrect 
+                                        ? "bg-emerald-600 text-white shadow-2xs" 
+                                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                    )}
+                                  >
+                                    {optionLabel}
+                                  </button>
+
+                                  <Input 
+                                    placeholder={`Option ${optionLabel} text...`} 
+                                    value={option.text || ''}
+                                    onChange={(e) => updateOption(sectionIndex, questionIndex, optionIndex, e.target.value)} 
+                                    style={{ fontFamily: globalStyle.fontFamily, fontSize: globalStyle.fontSize, color: globalStyle.color }}
+                                    className="border-0 shadow-none bg-transparent focus-visible:ring-1 focus-visible:ring-blue-500 text-sm"
+                                  />
+
+                                  {isCorrect && (
+                                    <span className="shrink-0 text-[10px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+                                      Correct
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                          {hasAttemptedSubmit && question.questionText?.trim() !== '' && (question.options || []).some((opt: any) => !opt?.text || opt.text.trim() === '') && (
+                            <p className="text-xs font-medium text-rose-500 mt-1 flex items-center gap-1">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                              <span>All 4 MCQ options must be filled</span>
+                            </p>
+                          )}
                         </div>
                       ) : null}
                     </>
@@ -552,8 +793,12 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
 
                   {question.segmentType !== 'MATCHING' && (
                     <>
-                      <div className="mt-3">
-                        <Label style={{ fontFamily: 'sans-serif' }}>Image (optional)</Label>
+                      {/* Image Upload Area */}
+                      <div className="mt-4 pt-3 border-t border-slate-100">
+                        <Label className="text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1">
+                          <ImageIcon className="h-3.5 w-3.5 text-slate-500" />
+                          <span>Question Image (optional)</span>
+                        </Label>
                         <div className="flex gap-2">
                           <Input 
                             type="file"
@@ -564,24 +809,22 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
                                 handleImageUpload(sectionIndex, questionIndex, file);
                               }
                             }}
-                            style={{ fontFamily: 'sans-serif', fontSize: '0.875rem' }}
-                            className="flex-1"
+                            className="flex-1 text-xs file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                           />
-                          <span className="text-xs text-gray-500 self-center">or</span>
+                          <span className="text-xs text-slate-400 self-center">or</span>
                           <Input 
                             value={question.imageUrl || ''} 
                             onChange={(e) => updateQuestion(sectionIndex, questionIndex, { imageUrl: e.target.value })} 
-                            style={{ fontFamily: 'sans-serif', fontSize: '0.875rem' }}
-                            placeholder="https://example.com/image.png"
-                            className="flex-1"
+                            placeholder="https://example.com/diagram.png"
+                            className="flex-1 text-xs"
                           />
                         </div>
                         {question.imageUrl && (
-                          <div className="mt-2">
+                          <div className="mt-2.5">
                             <img 
                               src={question.imageUrl} 
                               alt="Question preview" 
-                              className="max-w-full h-auto max-h-32 rounded border border-gray-200"
+                              className="max-w-full h-auto max-h-36 rounded-lg border border-slate-200 shadow-2xs"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).style.display = 'none';
                               }}
@@ -590,80 +833,133 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
                         )}
                       </div>
 
-                      <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {/* Subject and Hint Optional Fields */}
+                      <div className="mt-3.5 grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
-                          <Label style={{ fontFamily: 'sans-serif' }}>Subject / Topic (optional)</Label>
+                          <Label className="text-xs font-semibold text-slate-700 mb-1 block">Subject / Topic (optional)</Label>
                           <Input 
                             value={question.subject || ''} 
                             onChange={(e) => updateQuestion(sectionIndex, questionIndex, { subject: e.target.value })} 
-                            style={{ fontFamily: 'sans-serif', fontSize: '0.875rem' }}
-                            placeholder="e.g. Algebra, Calculus"
+                            placeholder="e.g. Linear Equations, Geometry"
+                            className="text-xs"
                           />
                         </div>
                         <div>
-                          <Label style={{ fontFamily: 'sans-serif' }}>Hint (optional)</Label>
+                          <Label className="text-xs font-semibold text-slate-700 mb-1 block">Hint / Marking Scheme (optional)</Label>
                           <Input 
                             value={question.hint || ''} 
                             onChange={(e) => updateQuestion(sectionIndex, questionIndex, { hint: e.target.value })} 
-                            style={{ fontFamily: 'sans-serif', fontSize: '0.875rem' }}
-                            placeholder="e.g. Use formula x²"
+                            placeholder="e.g. Step marks for correct formula"
+                            className="text-xs"
                           />
                         </div>
                       </div>
                     </>
                   )}
 
-                  {/* Alternative Questions */}
+                  {/* Alternative Questions (OR choices) */}
                   {alternatives.map((alt: any, altIndex: number) => (
-                    <div key={altIndex} className="mt-4 pt-4 border-t border-gray-200">
-                      <div className="flex items-center justify-between mb-2">
+                    <div key={altIndex} className="mt-5 pt-4 border-t-2 border-dashed border-purple-200 bg-purple-50/20 rounded-lg p-3.5">
+                      <div className="flex items-center justify-between mb-2.5">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-purple-700" style={{ fontFamily: 'sans-serif' }}>OR</span>
-                          <span className="text-xs text-gray-500" style={{ fontFamily: 'sans-serif' }}>Alternative {altIndex + 1}</span>
+                          <span className="text-xs font-extrabold text-purple-700 bg-purple-100 px-2 py-0.5 rounded">OR</span>
+                          <span className="text-xs font-semibold text-slate-600">Alternative Choice {altIndex + 1}</span>
                         </div>
                         <Button
                           type="button"
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
                           onClick={() => removeAlternative(sectionIndex, questionIndex, altIndex)}
-                          className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-7 gap-1"
                         >
+                          <Trash2 className="h-3 w-3" />
                           Remove
                         </Button>
                       </div>
                       
-                      <div className="mt-2" style={{ color: globalStyle.color }}>
+                      <div className="mt-2">
                         <RichTextField 
                           value={alt.questionText || ''} 
                           onChange={(value) => updateAlternative(sectionIndex, questionIndex, altIndex, { questionText: value })} 
+                          fontFamily={globalStyle.fontFamily}
+                          fontSize={globalStyle.fontSize}
+                          color={globalStyle.color}
                           required
                         />
-                        {(!alt.questionText || alt.questionText.trim() === '') && (
-                          <p className="text-xs text-red-500 mt-1" style={{ fontFamily: 'sans-serif' }}>Alternative question text is required</p>
+                        {hasAttemptedSubmit && (!alt.questionText || alt.questionText.trim() === '') && (
+                          <p className="text-xs font-medium text-rose-500 mt-1.5 flex items-center gap-1">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                            <span>Alternative question text is required</span>
+                          </p>
                         )}
                       </div>
 
+                      {/* Alternative MCQ Options */}
                       {alt.segmentType === 'MCQ' ? (
-                        <div className="mt-3 space-y-2">
-                          {Array.from({ length: 4 }).map((_, optionIndex) => (
-                            <div key={optionIndex}>
-                              <Input 
-                                placeholder={`Option ${optionIndex + 1}`} 
-                                value={alt.options?.[optionIndex]?.text || ''}
-                                onChange={(e) => updateAlternativeOption(sectionIndex, questionIndex, altIndex, optionIndex, e.target.value)} 
-                                style={{ fontFamily: globalStyle.fontFamily, fontSize: globalStyle.fontSize, color: globalStyle.color }}
-                                required
-                              />
-                              {(!alt.options?.[optionIndex]?.text || alt.options[optionIndex].text.trim() === '') && alt.questionText?.trim() !== '' && (
-                                <p className="text-xs text-red-500 mt-1" style={{ fontFamily: 'sans-serif' }}>Option {optionIndex + 1} is required</p>
-                              )}
-                            </div>
-                          ))}
+                        <div className="mt-4 space-y-2.5">
+                          <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+                            <span>Alternative Multiple Choice Options:</span>
+                            <span className="text-[11px] text-slate-400">Click a badge to select correct answer</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                            {Array.from({ length: 4 }).map((_, optionIndex) => {
+                              const option = alt.options?.[optionIndex] || { text: '', isCorrect: optionIndex === 0 };
+                              const optionLabel = ['A', 'B', 'C', 'D'][optionIndex];
+                              const isCorrect = option.isCorrect ?? (optionIndex === 0);
+
+                              return (
+                                <div 
+                                  key={optionIndex}
+                                  className={cn(
+                                    "flex items-center gap-2.5 p-2 rounded-xl border transition-all",
+                                    isCorrect 
+                                      ? "bg-emerald-50/40 border-emerald-300 ring-1 ring-emerald-400/30" 
+                                      : "bg-white border-slate-200 hover:border-slate-300"
+                                  )}
+                                >
+                                  <button
+                                    type="button"
+                                    onClick={() => setAlternativeCorrectOption(sectionIndex, questionIndex, altIndex, optionIndex)}
+                                    title={isCorrect ? "Correct answer" : "Click to mark as correct answer"}
+                                    className={cn(
+                                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold transition-all",
+                                      isCorrect 
+                                        ? "bg-emerald-600 text-white shadow-2xs" 
+                                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                    )}
+                                  >
+                                    {optionLabel}
+                                  </button>
+
+                                  <Input 
+                                    placeholder={`Option ${optionLabel} text...`} 
+                                    value={option.text || ''}
+                                    onChange={(e) => updateAlternativeOption(sectionIndex, questionIndex, altIndex, optionIndex, e.target.value)} 
+                                    style={{ fontFamily: globalStyle.fontFamily, fontSize: globalStyle.fontSize, color: globalStyle.color }}
+                                    className="border-0 shadow-none bg-transparent focus-visible:ring-1 focus-visible:ring-blue-500 text-sm"
+                                  />
+
+                                  {isCorrect && (
+                                    <span className="shrink-0 text-[10px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+                                      Correct
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                          {hasAttemptedSubmit && alt.questionText?.trim() !== '' && (alt.options || []).some((opt: any) => !opt?.text || opt.text.trim() === '') && (
+                            <p className="text-xs font-medium text-rose-500 mt-1 flex items-center gap-1">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                              <span>All 4 alternative MCQ options must be filled</span>
+                            </p>
+                          )}
                         </div>
                       ) : null}
 
-                      <div className="mt-3">
-                        <Label style={{ fontFamily: 'sans-serif' }}>Image (optional)</Label>
+                      {/* Alternative Image */}
+                      <div className="mt-3.5">
+                        <Label className="text-xs font-semibold text-slate-700 mb-1 block">Image (optional)</Label>
                         <div className="flex gap-2">
                           <Input 
                             type="file"
@@ -674,16 +970,14 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
                                 handleImageUpload(sectionIndex, questionIndex, file);
                               }
                             }}
-                            style={{ fontFamily: 'sans-serif', fontSize: '0.875rem' }}
-                            className="flex-1"
+                            className="flex-1 text-xs file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                           />
-                          <span className="text-xs text-gray-500 self-center">or</span>
+                          <span className="text-xs text-slate-400 self-center">or</span>
                           <Input 
                             value={alt.imageUrl || ''} 
                             onChange={(e) => updateAlternative(sectionIndex, questionIndex, altIndex, { imageUrl: e.target.value })} 
-                            style={{ fontFamily: 'sans-serif', fontSize: '0.875rem' }}
-                            placeholder="https://example.com/image.png"
-                            className="flex-1"
+                            placeholder="https://example.com/diagram.png"
+                            className="flex-1 text-xs"
                           />
                         </div>
                         {alt.imageUrl && (
@@ -691,7 +985,7 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
                             <img 
                               src={alt.imageUrl} 
                               alt="Alternative question preview" 
-                              className="max-w-full h-auto max-h-32 rounded border border-gray-200"
+                              className="max-w-full h-auto max-h-32 rounded border border-slate-200"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).style.display = 'none';
                               }}
@@ -700,23 +994,24 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
                         )}
                       </div>
 
+                      {/* Alternative Subject & Hint */}
                       <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
-                          <Label style={{ fontFamily: 'sans-serif' }}>Subject / Topic (optional)</Label>
+                          <Label className="text-xs font-semibold text-slate-700 mb-1 block">Subject / Topic (optional)</Label>
                           <Input 
                             value={alt.subject || ''} 
                             onChange={(e) => updateAlternative(sectionIndex, questionIndex, altIndex, { subject: e.target.value })} 
-                            style={{ fontFamily: 'sans-serif', fontSize: '0.875rem' }}
                             placeholder="e.g. Algebra, Calculus"
+                            className="text-xs"
                           />
                         </div>
                         <div>
-                          <Label style={{ fontFamily: 'sans-serif' }}>Hint (optional)</Label>
+                          <Label className="text-xs font-semibold text-slate-700 mb-1 block">Hint / Marking Scheme (optional)</Label>
                           <Input 
                             value={alt.hint || ''} 
                             onChange={(e) => updateAlternative(sectionIndex, questionIndex, altIndex, { hint: e.target.value })} 
-                            style={{ fontFamily: 'sans-serif', fontSize: '0.875rem' }}
-                            placeholder="e.g. Use formula x²"
+                            placeholder="e.g. Step marks for formula"
+                            className="text-xs"
                           />
                         </div>
                       </div>
@@ -729,10 +1024,23 @@ export function QuestionEditor({ sections, onSubmit, onSaveDraft, onBack, initia
         ))}
       </div>
       
-      <div className="flex gap-3 mt-6">
-        {onBack && <Button type="button" variant="outline" onClick={onBack}>Back</Button>}
-        <Button type="button" variant="outline" onClick={handleSaveDraft}>Save as Draft</Button>
-        <Button type="button" onClick={handleSubmit}>Submit Paper</Button>
+      {/* Bottom Step Actions */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-200">
+        <div>
+          {onBack && (
+            <Button type="button" variant="outline" onClick={onBack} className="text-slate-600">
+              ← Back
+            </Button>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          <Button type="button" variant="outline" onClick={handleSaveDraft} className="border-slate-300 text-slate-700">
+            Save as Draft
+          </Button>
+          <Button type="button" onClick={handleSubmit} className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5">
+            Proceed to Instructions →
+          </Button>
+        </div>
       </div>
 
       <ImageCropModal

@@ -8,12 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { api } from '@/services/api-client';
-import { cn } from '@/lib/utils';
+import { cn, getTermBadgeStyle } from '@/lib/utils';
 import { toast } from 'sonner';
+import { broadcastProgressUpdate } from '@/lib/realtime-sync';
 
 interface ChapterWorkflowCardProps {
   chapterId: string;
   title: string;
+  termName?: string;
   progress: {
     teachingCompleted: boolean;
     qaCompleted: boolean;
@@ -30,7 +32,7 @@ const steps = [
   { key: 'copyChecked' as const, label: 'Copy Checked' },
 ];
 
-export function ChapterWorkflowCard({ chapterId, title, progress, invalidateQueryKeys = [] }: ChapterWorkflowCardProps) {
+export function ChapterWorkflowCard({ chapterId, title, termName, progress, invalidateQueryKeys = [] }: ChapterWorkflowCardProps) {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -44,27 +46,48 @@ export function ChapterWorkflowCard({ chapterId, title, progress, invalidateQuer
 
           const updateChapter = (item: any) => {
             if (item?.id === chapterId) {
+              const currentProgress = item.chapterProgress?.[0] ?? {};
+              const tc = data.teachingCompleted ?? currentProgress.teachingCompleted ?? false;
+              const qc = data.qaCompleted ?? currentProgress.qaCompleted ?? false;
+              const cc = data.copyChecked ?? currentProgress.copyChecked ?? false;
+              const count = (tc ? 1 : 0) + (qc ? 1 : 0) + (cc ? 1 : 0);
+              const chapterStatus = count === 3 ? 'COMPLETED' : count > 0 ? 'IN_PROGRESS' : 'PENDING';
+              const completionPercentage = Math.round((count / 3) * 100);
+              const completedAt = chapterStatus === 'COMPLETED' ? new Date().toISOString() : null;
+
               return {
                 ...item,
                 chapterProgress: [
                   {
-                    ...(item.chapterProgress?.[0] ?? {}),
-                    ...{
-                      teachingCompleted: data.teachingCompleted ?? item.chapterProgress?.[0]?.teachingCompleted,
-                      qaCompleted: data.qaCompleted ?? item.chapterProgress?.[0]?.qaCompleted,
-                      copyChecked: data.copyChecked ?? item.chapterProgress?.[0]?.copyChecked,
-                    },
+                    ...currentProgress,
+                    teachingCompleted: tc,
+                    qaCompleted: qc,
+                    copyChecked: cc,
+                    chapterStatus,
+                    completionPercentage,
+                    completedAt,
                   },
                 ],
               };
             }
             if (Array.isArray(item.subjects)) {
+              const updatedSubjects = item.subjects.map((subject: any) => ({
+                ...subject,
+                chapters: subject.chapters?.map(updateChapter),
+              }));
+
+              const allChapters = updatedSubjects.flatMap((s: any) => s.chapters || []);
+              const completedChapters = allChapters.filter(
+                (c: any) => c.chapterProgress?.[0]?.chapterStatus === 'COMPLETED',
+              ).length;
+              const overallProgress =
+                allChapters.length > 0 ? Math.round((completedChapters / allChapters.length) * 100) : 0;
+
               return {
                 ...item,
-                subjects: item.subjects.map((subject: any) => ({
-                  ...subject,
-                  chapters: subject.chapters?.map(updateChapter),
-                })),
+                subjects: updatedSubjects,
+                completedChapters,
+                overallProgress,
               };
             }
             return item;
@@ -83,6 +106,12 @@ export function ChapterWorkflowCard({ chapterId, title, progress, invalidateQuer
     onSuccess: () => {
       invalidateQueryKeys.forEach((key) => queryClient.invalidateQueries({ queryKey: key }));
       queryClient.invalidateQueries({ queryKey: ['teacher-progress'] });
+      queryClient.invalidateQueries({ queryKey: ['teacher-classes'] });
+      queryClient.invalidateQueries({ queryKey: ['teacher-timeline-progress'] });
+      queryClient.invalidateQueries({ queryKey: ['teacher'] });
+      queryClient.invalidateQueries({ queryKey: ['teacher-activity-logs'] });
+      queryClient.invalidateQueries({ queryKey: ['school-stats'] });
+      broadcastProgressUpdate({ chapterId });
       toast.success('Progress updated');
     },
     onError: (_, __, context) => {
@@ -109,7 +138,19 @@ export function ChapterWorkflowCard({ chapterId, title, progress, invalidateQuer
     <Card className={cn(isCompleted && 'border-emerald-500/30 bg-emerald-500/5')}>
       <CardHeader className="flex flex-row items-start justify-between">
         <div>
-          <CardTitle className="text-base">{title}</CardTitle>
+          <div className="flex items-center gap-2 flex-wrap">
+            <CardTitle className="text-base">{title}</CardTitle>
+            {termName && (
+              <span
+                className={cn(
+                  'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset',
+                  getTermBadgeStyle(termName),
+                )}
+              >
+                {termName}
+              </span>
+            )}
+          </div>
           <div className="mt-2 flex items-center gap-2">
             <Badge variant={isCompleted ? 'success' : progress?.chapterStatus === 'IN_PROGRESS' ? 'warning' : 'destructive'}>
               {isCompleted ? 'Completed' : progress?.chapterStatus ?? 'Pending'}

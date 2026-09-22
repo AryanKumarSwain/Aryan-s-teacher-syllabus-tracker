@@ -12,11 +12,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/empty-state';
 import { api } from '@/services/api-client';
 import { ChapterWorkflowCard } from '@/features/chapters/components/chapter-workflow-card';
-import { cn } from '@/lib/utils';
+import { cn, getTermBadgeStyle } from '@/lib/utils';
+import { useRealtimeSync } from '@/lib/realtime-sync';
 
 interface ChapterItem {
   id: string;
   title: string;
+  chapterNo?: number;
+  termName?: string;
   chapterProgress?: {
     teachingCompleted: boolean;
     qaCompleted: boolean;
@@ -48,9 +51,12 @@ export default function TeacherClassDetailPage({ params }: { params: Promise<{ i
   const { id } = use(params);
   const [expandedSubjects, setExpandedSubjects] = useState<Record<string, boolean>>({});
 
+  useRealtimeSync([['teacher-class', id], ['teacher-classes']]);
+
   const { data, isLoading } = useQuery({
     queryKey: ['teacher-class', id],
     queryFn: () => api.get<ClassDetails>(`/syllabus/classes/${id}`),
+    refetchInterval: 5000,
   });
 
   const toggleSubject = (subjectId: string) =>
@@ -235,6 +241,7 @@ export default function TeacherClassDetailPage({ params }: { params: Promise<{ i
                         <div className="animate-in slide-in-from-top-2 space-y-3 border-t bg-gray-50/50 px-5 pb-5 pt-4 duration-200">
                           {subject.chapters.map((chapter) => {
                             const status = chapter.chapterProgress?.[0]?.chapterStatus;
+                            const term = chapter.termName || (chapter as any).term_name;
                             return (
                               <div
                                 key={chapter.id}
@@ -244,7 +251,19 @@ export default function TeacherClassDetailPage({ params }: { params: Promise<{ i
                                 )}
                               >
                                 <div className="mb-3 flex items-center justify-between">
-                                  <h4 className="text-sm font-medium">{chapter.title}</h4>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <h4 className="text-sm font-medium">{chapter.title}</h4>
+                                    {term && (
+                                      <span
+                                        className={cn(
+                                          'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset',
+                                          getTermBadgeStyle(term),
+                                        )}
+                                      >
+                                        {term}
+                                      </span>
+                                    )}
+                                  </div>
                                   {status === 'COMPLETED' && (
                                     <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
                                       <CheckCircle2 className="h-3 w-3" /> Done
@@ -254,6 +273,7 @@ export default function TeacherClassDetailPage({ params }: { params: Promise<{ i
                                 <ChapterWorkflowCard
                                   chapterId={chapter.id}
                                   title={chapter.title}
+                                  termName={term}
                                   progress={chapter.chapterProgress?.[0] ?? null}
                                   invalidateQueryKeys={[['teacher-class', id], ['teacher-classes']]}
                                 />

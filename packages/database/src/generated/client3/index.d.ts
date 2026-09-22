@@ -27075,6 +27075,7 @@ export namespace Prisma {
     startDate: Date | null
     endDate: Date | null
     organizedBy: string | null
+    resourcePerson: string | null
     locationOrPlatform: string | null
     isAcademicActivity: boolean | null
     academicActivityKey: string | null
@@ -27100,6 +27101,7 @@ export namespace Prisma {
     startDate: Date | null
     endDate: Date | null
     organizedBy: string | null
+    resourcePerson: string | null
     locationOrPlatform: string | null
     isAcademicActivity: boolean | null
     academicActivityKey: string | null
@@ -27125,6 +27127,7 @@ export namespace Prisma {
     startDate: number
     endDate: number
     organizedBy: number
+    resourcePerson: number
     locationOrPlatform: number
     isAcademicActivity: number
     academicActivityKey: number
@@ -27160,6 +27163,7 @@ export namespace Prisma {
     startDate?: true
     endDate?: true
     organizedBy?: true
+    resourcePerson?: true
     locationOrPlatform?: true
     isAcademicActivity?: true
     academicActivityKey?: true
@@ -27185,6 +27189,7 @@ export namespace Prisma {
     startDate?: true
     endDate?: true
     organizedBy?: true
+    resourcePerson?: true
     locationOrPlatform?: true
     isAcademicActivity?: true
     academicActivityKey?: true
@@ -27210,6 +27215,7 @@ export namespace Prisma {
     startDate?: true
     endDate?: true
     organizedBy?: true
+    resourcePerson?: true
     locationOrPlatform?: true
     isAcademicActivity?: true
     academicActivityKey?: true
@@ -27322,6 +27328,7 @@ export namespace Prisma {
     startDate: Date | null
     endDate: Date | null
     organizedBy: string | null
+    resourcePerson: string | null
     locationOrPlatform: string | null
     isAcademicActivity: boolean
     academicActivityKey: string | null
@@ -27366,6 +27373,7 @@ export namespace Prisma {
     startDate?: boolean
     endDate?: boolean
     organizedBy?: boolean
+    resourcePerson?: boolean
     locationOrPlatform?: boolean
     isAcademicActivity?: boolean
     academicActivityKey?: boolean
@@ -27395,6 +27403,7 @@ export namespace Prisma {
     startDate?: boolean
     endDate?: boolean
     organizedBy?: boolean
+    resourcePerson?: boolean
     locationOrPlatform?: boolean
     isAcademicActivity?: boolean
     academicActivityKey?: boolean
@@ -27433,6 +27442,7 @@ export namespace Prisma {
       startDate: Date | null
       endDate: Date | null
       organizedBy: string | null
+      resourcePerson: string | null
       locationOrPlatform: string | null
       isAcademicActivity: boolean
       academicActivityKey: string | null
@@ -27827,6 +27837,7 @@ export namespace Prisma {
     readonly startDate: FieldRef<"TeacherTrainingRecord", 'DateTime'>
     readonly endDate: FieldRef<"TeacherTrainingRecord", 'DateTime'>
     readonly organizedBy: FieldRef<"TeacherTrainingRecord", 'String'>
+    readonly resourcePerson: FieldRef<"TeacherTrainingRecord", 'String'>
     readonly locationOrPlatform: FieldRef<"TeacherTrainingRecord", 'String'>
     readonly isAcademicActivity: FieldRef<"TeacherTrainingRecord", 'Boolean'>
     readonly academicActivityKey: FieldRef<"TeacherTrainingRecord", 'String'>
@@ -28552,6 +28563,7 @@ export namespace Prisma {
     startDate: 'startDate',
     endDate: 'endDate',
     organizedBy: 'organizedBy',
+    resourcePerson: 'resourcePerson',
     locationOrPlatform: 'locationOrPlatform',
     isAcademicActivity: 'isAcademicActivity',
     academicActivityKey: 'academicActivityKey',
@@ -30922,6 +30934,7 @@ export namespace Prisma {
     startDate?: DateTimeNullableFilter<"TeacherTrainingRecord"> | Date | string | null
     endDate?: DateTimeNullableFilter<"TeacherTrainingRecord"> | Date | string | null
     organizedBy?: StringNullableFilter<"TeacherTrainingRecord"> | string | null
+    resourcePerson?: StringNullableFilter<"TeacherTrainingRecord"> | string | null
     locationOrPlatform?: StringNullableFilter<"TeacherTrainingRecord"> | string | null
     isAcademicActivity?: BoolFilter<"TeacherTrainingRecord"> | boolean
     academicActivityKey?: StringNullableFilter<"TeacherTrainingRecord"> | string | null
@@ -30950,6 +30963,7 @@ export namespace Prisma {
     startDate?: SortOrderInput | SortOrder
     endDate?: SortOrderInput | SortOrder
     organizedBy?: SortOrderInput | SortOrder
+    resourcePerson?: SortOrderInput | SortOrder
     locationOrPlatform?: SortOrderInput | SortOrder
     isAcademicActivity?: SortOrder
     academicActivityKey?: SortOrderInput | SortOrder
@@ -30981,6 +30995,7 @@ export namespace Prisma {
     startDate?: DateTimeNullableFilter<"TeacherTrainingRecord"> | Date | string | null
     endDate?: DateTimeNullableFilter<"TeacherTrainingRecord"> | Date | string | null
     organizedBy?: StringNullableFilter<"TeacherTrainingRecord"> | string | null
+    resourcePerson?: StringNullableFilter<"TeacherTrainingRecord"> | string | null
     locationOrPlatform?: StringNullableFilter<"TeacherTrainingRecord"> | string | null
     isAcademicActivity?: BoolFilter<"TeacherTrainingRecord"> | boolean
     academicActivityKey?: StringNullableFilter<"TeacherTrainingRecord"> | string | null
@@ -31009,6 +31024,7 @@ export namespace Prisma {
     startDate?: SortOrderInput | SortOrder
     endDate?: SortOrderInput | SortOrder
     organizedBy?: SortOrderInput | SortOrder
+    resourcePerson?: SortOrderInput | SortOrder
     locationOrPlatform?: SortOrderInput | SortOrder
     isAcademicActivity?: SortOrder
     academicActivityKey?: SortOrderInput | SortOrder
@@ -31042,6 +31058,7 @@ export namespace Prisma {
     startDate?: DateTimeNullableWithAggregatesFilter<"TeacherTrainingRecord"> | Date | string | null
     endDate?: DateTimeNullableWithAggregatesFilter<"TeacherTrainingRecord"> | Date | string | null
     organizedBy?: StringNullableWithAggregatesFilter<"TeacherTrainingRecord"> | string | null
+    resourcePerson?: StringNullableWithAggregatesFilter<"TeacherTrainingRecord"> | string | null
     locationOrPlatform?: StringNullableWithAggregatesFilter<"TeacherTrainingRecord"> | string | null
     isAcademicActivity?: BoolWithAggregatesFilter<"TeacherTrainingRecord"> | boolean
     academicActivityKey?: StringNullableWithAggregatesFilter<"TeacherTrainingRecord"> | string | null
@@ -33365,6 +33382,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     organizedBy?: string | null
+    resourcePerson?: string | null
     locationOrPlatform?: string | null
     isAcademicActivity?: boolean
     academicActivityKey?: string | null
@@ -33393,6 +33411,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     organizedBy?: string | null
+    resourcePerson?: string | null
     locationOrPlatform?: string | null
     isAcademicActivity?: boolean
     academicActivityKey?: string | null
@@ -33415,6 +33434,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    resourcePerson?: NullableStringFieldUpdateOperationsInput | string | null
     locationOrPlatform?: NullableStringFieldUpdateOperationsInput | string | null
     isAcademicActivity?: BoolFieldUpdateOperationsInput | boolean
     academicActivityKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33443,6 +33463,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    resourcePerson?: NullableStringFieldUpdateOperationsInput | string | null
     locationOrPlatform?: NullableStringFieldUpdateOperationsInput | string | null
     isAcademicActivity?: BoolFieldUpdateOperationsInput | boolean
     academicActivityKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33468,6 +33489,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     organizedBy?: string | null
+    resourcePerson?: string | null
     locationOrPlatform?: string | null
     isAcademicActivity?: boolean
     academicActivityKey?: string | null
@@ -33490,6 +33512,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    resourcePerson?: NullableStringFieldUpdateOperationsInput | string | null
     locationOrPlatform?: NullableStringFieldUpdateOperationsInput | string | null
     isAcademicActivity?: BoolFieldUpdateOperationsInput | boolean
     academicActivityKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33515,6 +33538,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    resourcePerson?: NullableStringFieldUpdateOperationsInput | string | null
     locationOrPlatform?: NullableStringFieldUpdateOperationsInput | string | null
     isAcademicActivity?: BoolFieldUpdateOperationsInput | boolean
     academicActivityKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35413,6 +35437,7 @@ export namespace Prisma {
     startDate?: SortOrder
     endDate?: SortOrder
     organizedBy?: SortOrder
+    resourcePerson?: SortOrder
     locationOrPlatform?: SortOrder
     isAcademicActivity?: SortOrder
     academicActivityKey?: SortOrder
@@ -35442,6 +35467,7 @@ export namespace Prisma {
     startDate?: SortOrder
     endDate?: SortOrder
     organizedBy?: SortOrder
+    resourcePerson?: SortOrder
     locationOrPlatform?: SortOrder
     isAcademicActivity?: SortOrder
     academicActivityKey?: SortOrder
@@ -35467,6 +35493,7 @@ export namespace Prisma {
     startDate?: SortOrder
     endDate?: SortOrder
     organizedBy?: SortOrder
+    resourcePerson?: SortOrder
     locationOrPlatform?: SortOrder
     isAcademicActivity?: SortOrder
     academicActivityKey?: SortOrder
@@ -40356,6 +40383,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     organizedBy?: string | null
+    resourcePerson?: string | null
     locationOrPlatform?: string | null
     isAcademicActivity?: boolean
     academicActivityKey?: string | null
@@ -40382,6 +40410,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     organizedBy?: string | null
+    resourcePerson?: string | null
     locationOrPlatform?: string | null
     isAcademicActivity?: boolean
     academicActivityKey?: string | null
@@ -40851,6 +40880,7 @@ export namespace Prisma {
     startDate?: DateTimeNullableFilter<"TeacherTrainingRecord"> | Date | string | null
     endDate?: DateTimeNullableFilter<"TeacherTrainingRecord"> | Date | string | null
     organizedBy?: StringNullableFilter<"TeacherTrainingRecord"> | string | null
+    resourcePerson?: StringNullableFilter<"TeacherTrainingRecord"> | string | null
     locationOrPlatform?: StringNullableFilter<"TeacherTrainingRecord"> | string | null
     isAcademicActivity?: BoolFilter<"TeacherTrainingRecord"> | boolean
     academicActivityKey?: StringNullableFilter<"TeacherTrainingRecord"> | string | null
@@ -41352,6 +41382,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     organizedBy?: string | null
+    resourcePerson?: string | null
     locationOrPlatform?: string | null
     isAcademicActivity?: boolean
     academicActivityKey?: string | null
@@ -41378,6 +41409,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     organizedBy?: string | null
+    resourcePerson?: string | null
     locationOrPlatform?: string | null
     isAcademicActivity?: boolean
     academicActivityKey?: string | null
@@ -42241,6 +42273,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     organizedBy?: string | null
+    resourcePerson?: string | null
     locationOrPlatform?: string | null
     isAcademicActivity?: boolean
     academicActivityKey?: string | null
@@ -42267,6 +42300,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     organizedBy?: string | null
+    resourcePerson?: string | null
     locationOrPlatform?: string | null
     isAcademicActivity?: boolean
     academicActivityKey?: string | null
@@ -48171,6 +48205,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     organizedBy?: string | null
+    resourcePerson?: string | null
     locationOrPlatform?: string | null
     isAcademicActivity?: boolean
     academicActivityKey?: string | null
@@ -48806,6 +48841,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    resourcePerson?: NullableStringFieldUpdateOperationsInput | string | null
     locationOrPlatform?: NullableStringFieldUpdateOperationsInput | string | null
     isAcademicActivity?: BoolFieldUpdateOperationsInput | boolean
     academicActivityKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48832,6 +48868,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    resourcePerson?: NullableStringFieldUpdateOperationsInput | string | null
     locationOrPlatform?: NullableStringFieldUpdateOperationsInput | string | null
     isAcademicActivity?: BoolFieldUpdateOperationsInput | boolean
     academicActivityKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48856,6 +48893,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    resourcePerson?: NullableStringFieldUpdateOperationsInput | string | null
     locationOrPlatform?: NullableStringFieldUpdateOperationsInput | string | null
     isAcademicActivity?: BoolFieldUpdateOperationsInput | boolean
     academicActivityKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49021,6 +49059,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     organizedBy?: string | null
+    resourcePerson?: string | null
     locationOrPlatform?: string | null
     isAcademicActivity?: boolean
     academicActivityKey?: string | null
@@ -49500,6 +49539,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    resourcePerson?: NullableStringFieldUpdateOperationsInput | string | null
     locationOrPlatform?: NullableStringFieldUpdateOperationsInput | string | null
     isAcademicActivity?: BoolFieldUpdateOperationsInput | boolean
     academicActivityKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49526,6 +49566,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    resourcePerson?: NullableStringFieldUpdateOperationsInput | string | null
     locationOrPlatform?: NullableStringFieldUpdateOperationsInput | string | null
     isAcademicActivity?: BoolFieldUpdateOperationsInput | boolean
     academicActivityKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49550,6 +49591,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    resourcePerson?: NullableStringFieldUpdateOperationsInput | string | null
     locationOrPlatform?: NullableStringFieldUpdateOperationsInput | string | null
     isAcademicActivity?: BoolFieldUpdateOperationsInput | boolean
     academicActivityKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49672,6 +49714,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     organizedBy?: string | null
+    resourcePerson?: string | null
     locationOrPlatform?: string | null
     isAcademicActivity?: boolean
     academicActivityKey?: string | null
@@ -49870,6 +49913,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    resourcePerson?: NullableStringFieldUpdateOperationsInput | string | null
     locationOrPlatform?: NullableStringFieldUpdateOperationsInput | string | null
     isAcademicActivity?: BoolFieldUpdateOperationsInput | boolean
     academicActivityKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49896,6 +49940,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    resourcePerson?: NullableStringFieldUpdateOperationsInput | string | null
     locationOrPlatform?: NullableStringFieldUpdateOperationsInput | string | null
     isAcademicActivity?: BoolFieldUpdateOperationsInput | boolean
     academicActivityKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49920,6 +49965,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    resourcePerson?: NullableStringFieldUpdateOperationsInput | string | null
     locationOrPlatform?: NullableStringFieldUpdateOperationsInput | string | null
     isAcademicActivity?: BoolFieldUpdateOperationsInput | boolean
     academicActivityKey?: NullableStringFieldUpdateOperationsInput | string | null

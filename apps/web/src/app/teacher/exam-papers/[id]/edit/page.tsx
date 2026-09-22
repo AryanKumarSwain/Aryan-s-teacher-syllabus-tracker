@@ -1,14 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
+import { Eye } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
 import { PaperSetupForm } from '@/features/exam-papers/components/PaperSetupForm';
 import { SectionSegmentForm } from '@/features/exam-papers/components/SectionSegmentForm';
 import { QuestionEditor } from '@/features/exam-papers/components/QuestionEditor';
 import { InstructionsForm } from '@/features/exam-papers/components/InstructionsForm';
+import { ExamPaperLivePreview, ExamPaperPreviewModal } from '@/features/exam-papers/components/ExamPaperLivePreview';
 import { api } from '@/services/api-client';
 import { generateExamPaperPdf, generateBulkExamPapersZip } from '@/features/exam-papers/utils/pdf-generator';
 
@@ -33,6 +35,43 @@ export default function EditExamPaperPage() {
   const [step, setStep] = useState(1);
   const [studentCount, setStudentCount] = useState(30);
   const [paperLoaded, setPaperLoaded] = useState(false);
+  
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const draftPreviewRef = useRef<{
+    sections?: any[];
+    styleFontFamily?: string;
+    styleFontSize?: string;
+    styleColor?: string;
+    instructions?: string;
+  }>({});
+
+  const [previewSnapshot, setPreviewSnapshot] = useState<{
+    sections: any[];
+    instructions: string;
+    paperDetails: any;
+  } | null>(null);
+
+  const handleOpenPreviewModal = (explicitSections?: any[], explicitStyling?: any, explicitInstructions?: string) => {
+    const currentSections = explicitSections || draftPreviewRef.current.sections || sections;
+    const currentInstructions = explicitInstructions !== undefined ? explicitInstructions : (draftPreviewRef.current.instructions ?? instructions);
+    const styling = explicitStyling || {
+      fontFamily: draftPreviewRef.current.styleFontFamily || paperDetails.styleFontFamily,
+      fontSize: draftPreviewRef.current.styleFontSize || paperDetails.styleFontSize,
+      color: draftPreviewRef.current.styleColor || paperDetails.styleColor,
+    };
+
+    setPreviewSnapshot({
+      sections: currentSections,
+      instructions: currentInstructions,
+      paperDetails: {
+        ...paperDetails,
+        styleFontFamily: styling.fontFamily,
+        styleFontSize: styling.fontSize,
+        styleColor: styling.color,
+      }
+    });
+    setPreviewModalOpen(true);
+  };
   
   // State to store paper setup details for Step 1, 2 & PDF generation metadata
   const [paperDetails, setPaperDetails] = useState({
@@ -296,11 +335,25 @@ export default function EditExamPaperPage() {
             <h2 className="text-xl font-semibold">Step {step} of {totalSteps}</h2>
             <p className="text-sm text-gray-500">Edit your exam paper configuration.</p>
           </div>
-          {step > 1 && (
-            <div className="text-sm font-medium text-gray-700 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
-              Duration: {formatDuration(paperDetails.duration)} | Total Marks: {paperDetails.totalMarks}
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            {step >= 2 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleOpenPreviewModal()}
+                className="bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 text-xs flex items-center gap-1.5 font-semibold"
+              >
+                <Eye className="w-4 h-4 text-indigo-600" />
+                Live Paper Preview
+              </Button>
+            )}
+            {step > 1 && (
+              <div className="text-sm font-medium text-gray-700 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
+                Duration: {formatDuration(paperDetails.duration)} | Total Marks: {paperDetails.totalMarks}
+              </div>
+            )}
+          </div>
         </div>
         
         {step === 1 ? (
@@ -324,6 +377,10 @@ export default function EditExamPaperPage() {
             onSubmit={handleSegmentsReady} 
             onBack={handleBack} 
             initialSections={sections}
+            onSectionsChange={(next) => {
+              draftPreviewRef.current.sections = next;
+            }}
+            onOpenPreview={(currentSections) => handleOpenPreviewModal(currentSections)}
           />
         ) : null}
         
@@ -338,6 +395,13 @@ export default function EditExamPaperPage() {
               fontSize: paperDetails.styleFontSize,
               color: paperDetails.styleColor
             }}
+            onDraftChange={(draft, styling) => {
+              draftPreviewRef.current.sections = draft;
+              draftPreviewRef.current.styleFontFamily = styling.fontFamily;
+              draftPreviewRef.current.styleFontSize = styling.fontSize;
+              draftPreviewRef.current.styleColor = styling.color;
+            }}
+            onOpenPreview={(currentSections, styling) => handleOpenPreviewModal(currentSections, styling)}
           />
         ) : null}
 
@@ -347,15 +411,40 @@ export default function EditExamPaperPage() {
             onBack={handleBack} 
             initialValue={instructions}
             sections={sections}
+            onInstructionsChange={(next) => {
+              draftPreviewRef.current.instructions = next;
+            }}
+            onOpenPreview={(currentInstructions) => handleOpenPreviewModal(undefined, undefined, currentInstructions)}
           />
         ) : null}
         
         {step === 5 ? (
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800">Review & Generate Exam Sheets</h3>
-              <p className="text-sm text-gray-500">Your exam paper has been fully configured. Review the download options below before submitting.</p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">Review & Generate Exam Sheets</h3>
+                <p className="text-sm text-gray-500">Your exam paper has been fully configured. Review the live paper preview and download options below.</p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleOpenPreviewModal()}
+                className="bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 text-xs flex items-center gap-1.5 font-semibold"
+              >
+                <Eye className="w-3.5 h-3.5 text-indigo-600" />
+                Fullscreen Preview
+              </Button>
             </div>
+
+            {/* Embedded Live Paper Preview in Step 5 */}
+            <ExamPaperLivePreview 
+              paperDetails={paperDetails}
+              sections={sections}
+              instructions={instructions}
+              step={5}
+              onDownloadPdf={handleDownloadSinglePdf}
+            />
 
             <div className="border border-gray-100 rounded-xl p-4 bg-gray-50 space-y-4">
               <h4 className="font-semibold text-sm text-gray-700">Exam Details Summary</h4>
@@ -416,6 +505,17 @@ export default function EditExamPaperPage() {
             </div>
           </div>
         ) : null}
+
+        {/* Fullscreen Preview Modal */}
+        <ExamPaperPreviewModal
+          isOpen={previewModalOpen}
+          onClose={() => setPreviewModalOpen(false)}
+          paperDetails={previewSnapshot?.paperDetails || paperDetails}
+          sections={previewSnapshot?.sections || sections}
+          instructions={previewSnapshot?.instructions ?? instructions}
+          step={step}
+          onDownloadPdf={handleDownloadSinglePdf}
+        />
       </div>
     </DashboardShell>
   );

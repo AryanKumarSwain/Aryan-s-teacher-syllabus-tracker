@@ -2,7 +2,7 @@
 
 import { use, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, Eye } from 'lucide-react';
+import { Plus, Trash2, Eye, Activity, Clock, CheckCircle2, RotateCw } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,12 +17,32 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { api, ApiError } from '@/services/api-client';
-import { formatPercent, cn } from '@/lib/utils';
+import { formatPercent, cn, getTermBadgeStyle } from '@/lib/utils';
+import { useRealtimeSync, formatActivityDateTime, formatRelativeTime } from '@/lib/realtime-sync';
 import { toast } from 'sonner';
 import { syllabusKeys } from '@/features/syllabus/query-keys';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { getTeacherColorStyles } from '@/features/teachers/utils/teacher-styles';
+
+interface TeacherActivityLogItem {
+  id: string;
+  action: string;
+  description: string;
+  chapterTitle: string;
+  chapterNo?: number;
+  termName?: string;
+  subjectName?: string;
+  className?: string;
+  teachingCompleted: boolean;
+  qaCompleted: boolean;
+  copyChecked: boolean;
+  chapterStatus: string;
+  completionPercentage: number;
+  changes: string[];
+  userName: string;
+  createdAt: string;
+}
 
 interface TeacherProfile {
   id: string;
@@ -54,13 +74,26 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
   const [selectedClassIds, setSelectedClassIds] = useState<string[]>([]);
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([]);
 
+  useRealtimeSync([['teacher', id], ['teacher-activity-logs', id]]);
+
   const { data: teacher, isLoading } = useQuery({
     queryKey: ['teacher', id, school?.currentAcademicSessionId],
     queryFn: () =>
       api.get<TeacherProfile>(`/teachers/${id}`, {
         ...(school?.currentAcademicSessionId && { academicSessionId: school.currentAcademicSessionId }),
       }),
-    refetchInterval: 30000, // Refetch every 30 seconds to get updated progress
+    refetchInterval: 5000,
+  });
+
+  const {
+    data: activityLogs = [],
+    isLoading: logsLoading,
+    isFetching: logsFetching,
+    refetch: refetchLogs,
+  } = useQuery({
+    queryKey: ['teacher-activity-logs', id],
+    queryFn: () => api.get<TeacherActivityLogItem[]>(`/teachers/${id}/activity-logs`),
+    refetchInterval: 5000,
   });
 
   const completed = teacher?.completedChapters ?? 0;
@@ -97,7 +130,7 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
       if (selectedClassIds.length === 0) return [];
 
       const requests = selectedClassIds.map((classId) =>
-        api.get<SubjectItem[]>('/syllabus/subjects', { 
+        api.get<SubjectItem[]>('/syllabus/subjects', {
           classId,
           ...(school?.currentAcademicSessionId && { academicSessionId: school.currentAcademicSessionId }),
         }),
@@ -255,7 +288,7 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
             {!isViewMode ? (
               <Button onClick={() => setAssignOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
-                Add assignment
+                Add
               </Button>
             ) : (
               <span className="text-xs font-semibold text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-xs">
@@ -297,6 +330,174 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
             )}
           </CardContent>
         </Card>
+
+        {/* Teacher Activity Log Card */}
+        <Card className="lg:col-span-3 overflow-hidden border shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between border-b bg-gray-50/60 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="rounded-lg bg-blue-100 p-2 text-blue-700">
+                <Activity className="h-4 w-4" />
+              </div>
+              <div>
+                <CardTitle className="text-base font-semibold">Teacher Activity Log</CardTitle>
+                <p className="text-muted-foreground text-xs">
+                  Real-time timeline of syllabus updates, teaching steps, and chapter completions
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                </span>
+                Live Updates
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetchLogs()}
+                disabled={logsFetching}
+                className="h-8 gap-1.5 text-xs"
+              >
+                <RotateCw className={cn('h-3.5 w-3.5', logsFetching && 'animate-spin')} />
+                Refresh
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-4">
+            {logsLoading ? (
+              <div className="space-y-3">
+                <Skeleton className="h-16 w-full rounded-xl" />
+                <Skeleton className="h-16 w-full rounded-xl" />
+                <Skeleton className="h-16 w-full rounded-xl" />
+              </div>
+            ) : activityLogs.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <div className="rounded-full bg-blue-50 p-3 text-blue-500">
+                  <Clock className="h-6 w-6" />
+                </div>
+                <h4 className="mt-3 text-sm font-semibold">No activity recorded yet</h4>
+                <p className="text-muted-foreground mt-1 max-w-sm text-xs">
+                  When this teacher updates chapters, marks teaching, Q&amp;A, or copy checking on the portal, activity will appear here with live timestamps.
+                </p>
+              </div>
+            ) : (
+              <div className="relative pl-6 before:absolute before:bottom-3 before:left-2.5 before:top-3 before:w-[2px] before:bg-slate-200">
+                <div className="space-y-4">
+                  {activityLogs.map((log, idx) => {
+                    const isDone = log.chapterStatus === 'COMPLETED';
+                    return (
+                      <div key={log.id || idx} className="relative group">
+                        {/* Timeline dot */}
+                        <div
+                          className={cn(
+                            'absolute -left-6 top-2 h-3.5 w-3.5 rounded-full border-2 border-white shadow-xs transition-transform group-hover:scale-125',
+                            isDone
+                              ? 'bg-emerald-500 ring-2 ring-emerald-100'
+                              : 'bg-blue-500 ring-2 ring-blue-100',
+                          )}
+                        />
+
+                        {/* Activity Card */}
+                        <div className="rounded-xl border bg-white p-3.5 shadow-2xs transition-all hover:border-slate-300 hover:shadow-xs">
+                          <div className="flex flex-wrap items-start justify-between gap-2">
+                            <div className="space-y-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="text-sm font-semibold text-slate-900">
+                                  {log.chapterTitle}
+                                </span>
+                                {log.termName && (
+                                  <span
+                                    className={cn(
+                                      'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset',
+                                      getTermBadgeStyle(log.termName),
+                                    )}
+                                  >
+                                    {log.termName}
+                                  </span>
+                                )}
+                                {(log.subjectName || log.className) && (
+                                  <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
+                                    {[log.subjectName, log.className].filter(Boolean).join(' · ')}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-slate-600 font-medium">
+                                {log.description}
+                              </p>
+                            </div>
+
+                            {/* Timestamp */}
+                            <div className="flex flex-col items-end gap-0.5">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
+                                <Clock className="h-3 w-3 text-slate-500" />
+                                {formatRelativeTime(log.createdAt)}
+                              </span>
+                              <span className="text-[11px] text-muted-foreground">
+                                {formatActivityDateTime(log.createdAt)}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Steps badges */}
+                          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t pt-2.5">
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span
+                                className={cn(
+                                  'inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium',
+                                  log.teachingCompleted
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    : 'bg-slate-50 text-slate-400 border border-slate-200',
+                                )}
+                              >
+                                {log.teachingCompleted && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
+                                Teaching
+                              </span>
+                              <span
+                                className={cn(
+                                  'inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium',
+                                  log.qaCompleted
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    : 'bg-slate-50 text-slate-400 border border-slate-200',
+                                )}
+                              >
+                                {log.qaCompleted && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
+                                Q&amp;A
+                              </span>
+                              <span
+                                className={cn(
+                                  'inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium',
+                                  log.copyChecked
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    : 'bg-slate-50 text-slate-400 border border-slate-200',
+                                )}
+                              >
+                                {log.copyChecked && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
+                                Copy Checked
+                              </span>
+                            </div>
+
+                            <span
+                              className={cn(
+                                'rounded-full px-2.5 py-0.5 text-[11px] font-semibold',
+                                isDone
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : 'bg-blue-100 text-blue-800',
+                              )}
+                            >
+                              {isDone ? '✓ Chapter Completed' : `${log.completionPercentage}% Done`}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Multi-Selection Dialog */}
@@ -312,7 +513,7 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
       >
         <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Add assignment</DialogTitle>
+            <DialogTitle>Add</DialogTitle>
             <DialogDescription>
               Assign multiple subjects and classes simultaneously for this teacher.
             </DialogDescription>
@@ -340,11 +541,10 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
                       key={c.id}
                       type="button"
                       onClick={() => handleToggleClass(c.id)}
-                      className={`rounded-md border px-3 py-1 text-sm font-medium transition-all ${
-                        isSelected
-                          ? 'border-primary bg-primary text-primary-foreground shadow-sm'
-                          : 'hover:border-muted-foreground bg-background'
-                      }`}
+                      className={`rounded-md border px-3 py-1 text-sm font-medium transition-all ${isSelected
+                        ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+                        : 'hover:border-muted-foreground bg-background'
+                        }`}
                     >
                       {c.name}
                     </button>
@@ -381,11 +581,10 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
                         key={s.id}
                         type="button"
                         onClick={() => handleToggleSubject(s.id)}
-                        className={`rounded-md border px-3 py-1 text-sm font-medium transition-all ${
-                          isSelected
-                            ? 'border-primary bg-primary text-primary-foreground shadow-sm'
-                            : 'hover:border-muted-foreground bg-background'
-                        }`}
+                        className={`rounded-md border px-3 py-1 text-sm font-medium transition-all ${isSelected
+                          ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+                          : 'hover:border-muted-foreground bg-background'
+                          }`}
                       >
                         {s.name}{' '}
                         <span className="text-xs font-normal opacity-60">({parentClassName})</span>

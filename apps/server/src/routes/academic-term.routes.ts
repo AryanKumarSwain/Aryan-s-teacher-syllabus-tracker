@@ -32,6 +32,7 @@ router.post(
   academicTermController.addVacationDay,
 );
 router.delete('/:id/vacation-days/:vacationId', academicTermController.removeVacationDay);
+router.patch('/:id/vacation-days/:vacationId', academicTermController.updateVacationDay);
 
 // Calculation endpoint
 router.get('/:id/calculate', academicTermController.calculateAvailableDays);

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,13 +12,28 @@ interface InstructionsFormProps {
   onBack?: () => void;
   initialValue?: string;
   sections?: any[];
+  onInstructionsChange?: (instructions: string) => void;
+  onOpenPreview?: (currentInstructions?: string) => void;
 }
 
-export function InstructionsForm({ onSubmit, onBack, initialValue = '', sections = [] }: InstructionsFormProps) {
+export function InstructionsForm({ 
+  onSubmit, 
+  onBack, 
+  initialValue = '', 
+  sections = [],
+  onInstructionsChange,
+  onOpenPreview
+}: InstructionsFormProps) {
   const [instructions, setInstructions] = useState(initialValue);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
-    if (!initialValue && sections.length > 0) {
+    onInstructionsChange?.(instructions);
+  }, [instructions]);
+
+  useEffect(() => {
+    if (!initializedRef.current && !initialValue && sections.length > 0) {
+      initializedRef.current = true;
       // Generate dynamic default instructions based on sections
       const sectionLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
       const sectionNames = sections.slice(0, 8).map((_, i) => sectionLabels[i]).join(', ');
@@ -41,9 +57,23 @@ export function InstructionsForm({ onSubmit, onBack, initialValue = '', sections
 
   return (
     <div className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-      <div>
-        <h3 className="font-semibold text-gray-800">Exam Instructions & Section Separation</h3>
-        <p className="text-sm text-gray-500">Add instructions and review section separation for the exam paper.</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="font-semibold text-gray-800">Exam Instructions & Section Separation</h3>
+          <p className="text-sm text-gray-500">Add instructions and review section separation for the exam paper.</p>
+        </div>
+        {onOpenPreview && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onOpenPreview(instructions)}
+            className="bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 text-xs flex items-center gap-1.5 font-semibold"
+          >
+            <Eye className="w-3.5 h-3.5 text-indigo-600" />
+            Preview Paper
+          </Button>
+        )}
       </div>
 
       {sections.length > 0 && (

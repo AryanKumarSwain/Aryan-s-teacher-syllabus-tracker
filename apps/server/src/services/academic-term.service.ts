@@ -337,6 +337,27 @@ export const academicTermService = {
     return { message: 'Vacation day removed' };
   },
 
+  async updateVacationDay(termId: string, vacationId: string, data: { reason?: string }) {
+    await this.getById(termId);
+
+    const vacationDay = await prisma.vacationDay.findFirst({
+      where: { id: vacationId, academicTermId: termId },
+    });
+
+    if (!vacationDay) {
+      throw new AppError('Vacation day not found', 404);
+    }
+
+    const updated = await prisma.vacationDay.update({
+      where: { id: vacationId },
+      data: {
+        reason: data.reason !== undefined ? data.reason : vacationDay.reason,
+      },
+    });
+
+    return updated;
+  },
+
   async calculateAvailableDays(termId: string) {
     const term = await this.getById(termId);
     const weeklyHolidays = JSON.parse(term.weeklyHolidays as string);

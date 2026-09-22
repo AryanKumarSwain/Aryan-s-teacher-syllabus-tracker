@@ -22,6 +22,13 @@ export const progressService = {
   ) {
     const chapter = await prisma.chapter.findFirst({
       where: withTenant(schoolId, { id: chapterId, academicSessionId }),
+      include: {
+        subject: {
+          include: {
+            class: true,
+          },
+        },
+      },
     });
     if (!chapter) throw new AppError('Chapter not found', 404);
 
@@ -41,7 +48,7 @@ export const progressService = {
     const completionPercentage = computeCompletionPercentage(flags);
     const completedAt = chapterStatus === 'COMPLETED' ? new Date() : null;
 
-    return prisma.chapterProgress.upsert({
+    const updated = await prisma.chapterProgress.upsert({
       where: {
         schoolId_chapterId_teacherId_academicSessionId: { schoolId, chapterId, teacherId, academicSessionId },
       },
@@ -65,6 +72,50 @@ export const progressService = {
       },
       include: { chapter: true },
     });
+
+    const changes: string[] = [];
+    if (data.teachingCompleted !== undefined) {
+      changes.push(`Teaching: ${data.teachingCompleted ? 'Completed' : 'Pending'}`);
+    }
+    if (data.qaCompleted !== undefined) {
+      changes.push(`Q&A: ${data.qaCompleted ? 'Completed' : 'Pending'}`);
+    }
+    if (data.copyChecked !== undefined) {
+      changes.push(`Copy Checked: ${data.copyChecked ? 'Completed' : 'Pending'}`);
+    }
+    if (chapterStatus === 'COMPLETED' && existing?.chapterStatus !== 'COMPLETED') {
+      changes.push('Chapter Marked as Completed');
+    }
+
+    try {
+      await prisma.activityLog.create({
+        data: {
+          schoolId,
+          userId,
+          action: 'CHAPTER_PROGRESS_UPDATED',
+          entityType: 'CHAPTER',
+          entityId: chapterId,
+          metadata: {
+            teacherId,
+            chapterTitle: chapter.title,
+            chapterNo: chapter.chapterNo,
+            subjectName: chapter.subject?.name ?? null,
+            className: chapter.subject?.class?.name ?? null,
+            teachingCompleted: flags.teachingCompleted,
+            qaCompleted: flags.qaCompleted,
+            copyChecked: flags.copyChecked,
+            chapterStatus,
+            completionPercentage,
+            completedAt: completedAt?.toISOString() ?? null,
+            changes,
+          },
+        },
+      });
+    } catch (logErr) {
+      console.error('[progressService.updateChapterProgress] Failed to create activity log', logErr);
+    }
+
+    return updated;
   },
 
   async getSchoolDashboardStats(schoolId: string, academicSessionId?: string) {

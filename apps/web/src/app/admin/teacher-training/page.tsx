@@ -16,6 +16,9 @@ import {
 import {
   useTeacherTrainingList,
   useSchoolCpdStats,
+  usePendingTrainingApprovals,
+  useApproveTraining,
+  useRejectTraining,
   TeacherCpdItem,
 } from '@/features/teacher-training/hooks/use-teacher-training';
 import { CbseGuidelinesModal } from '@/features/teacher-training/components/cbse-guidelines-modal';
@@ -36,6 +39,12 @@ import {
   Users,
   AlertCircle,
   ExternalLink,
+  Bell,
+  Check,
+  X,
+  Building,
+  Laptop,
+  User,
 } from 'lucide-react';
 
 export default function AdminTeacherTrainingPage() {
@@ -51,6 +60,9 @@ export default function AdminTeacherTrainingPage() {
   // Queries
   const { data: teachers = [], isLoading } = useTeacherTrainingList({ search });
   const { data: stats } = useSchoolCpdStats();
+  const { data: pendingApprovals = [] } = usePendingTrainingApprovals();
+  const approveTraining = useApproveTraining();
+  const rejectTraining = useRejectTraining();
 
   // Filtered teachers
   const filteredTeachers = useMemo(() => {
@@ -263,6 +275,112 @@ export default function AdminTeacherTrainingPage() {
             </div>
           </div>
         </div>
+
+        {/* Pending Teacher Training Approvals Section */}
+        {pendingApprovals.length > 0 && (
+          <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50/70 to-orange-50/30 p-4 shadow-sm space-y-3">
+            <div className="flex items-center justify-between border-b border-amber-200/60 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 text-white shadow-xs">
+                  <Bell className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                    Pending Training Approvals
+                    <Badge className="bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0">
+                      {pendingApprovals.length} {pendingApprovals.length === 1 ? 'Request' : 'Requests'}
+                    </Badge>
+                  </h3>
+                  <p className="text-[11px] text-gray-500">
+                    Teachers logged these trainings. Once approved, the hours will be credited to their mandatory 50h CPD progress.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2.5 max-h-96 overflow-y-auto pr-1">
+              {pendingApprovals.map((req: any) => (
+                <div
+                  key={req.id}
+                  className="flex flex-col md:flex-row md:items-center justify-between p-3.5 rounded-xl border border-amber-200/80 bg-white hover:border-amber-300 shadow-xs transition-colors gap-3"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold text-gray-900">{req.title}</span>
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-300 text-amber-800 bg-amber-50">
+                        {req.hours}h • {req.provider}
+                      </Badge>
+                      {req.annexure && (
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-gray-600">
+                          {req.annexure.replace('_', ' ')}
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-500">
+                      <span className="font-semibold text-gray-800">Teacher: {req.teacherName}</span>
+                      {req.teacherEmail && <span>({req.teacherEmail})</span>}
+                      <span>•</span>
+                      <span className="flex items-center gap-1">
+                        <Laptop className="h-3 w-3" />
+                        {req.trainingMode}
+                      </span>
+                      {req.organizedBy && (
+                        <>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <Building className="h-3 w-3" />
+                            {req.organizedBy}
+                          </span>
+                        </>
+                      )}
+                      {req.resourcePerson && (
+                        <>
+                          <span>•</span>
+                          <span className="flex items-center gap-1 text-indigo-600 font-medium">
+                            <User className="h-3 w-3" />
+                            RP: {req.resourcePerson}
+                          </span>
+                        </>
+                      )}
+                      {req.startDate && (
+                        <>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(req.startDate).toLocaleDateString()}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+                    <Button
+                      size="sm"
+                      onClick={() => approveTraining.mutate(req.id)}
+                      disabled={approveTraining.isPending || rejectTraining.isPending}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8 px-3 flex items-center gap-1 shadow-xs"
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                      Approve
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => rejectTraining.mutate(req.id)}
+                      disabled={approveTraining.isPending || rejectTraining.isPending}
+                      className="border-red-200 text-red-600 hover:bg-red-50 text-xs h-8 px-3 flex items-center gap-1"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                      Reject
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Search & Filter Controls */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm">

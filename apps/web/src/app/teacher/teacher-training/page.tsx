@@ -26,6 +26,7 @@ import {
   Building,
   Trash2,
   AlertTriangle,
+  User,
 } from 'lucide-react';
 
 export default function TeacherTrainingPage() {
@@ -91,6 +92,16 @@ export default function TeacherTrainingPage() {
     document.body.removeChild(link);
   };
 
+  const effectiveTotal =
+    myCpd?.effectiveTotalHours ??
+    Math.min(
+      50,
+      Math.min(25, myCpd?.cbseHours || 0) + Math.min(25, myCpd?.schoolHours || 0),
+    );
+  const rawTotal = myCpd?.totalHours || 0;
+  const hoursRemaining = myCpd?.hoursRemaining ?? Math.max(0, 50 - effectiveTotal);
+  const totalProgress =
+    myCpd?.totalProgress ?? Math.min(100, Math.round((effectiveTotal / 50) * 100));
   const isCompliant = myCpd?.complianceStatus === 'COMPLIANT';
 
   return (
@@ -145,42 +156,50 @@ export default function TeacherTrainingPage() {
           </div>
         </div>
 
-        {/* Hero Progress Banner */}
-        <div className="rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-500 via-indigo-600 to-[#1a73e8] p-6 text-white shadow-md">
+        {/* Hero Progress Banner (Yellow / Amber Gradient) */}
+        <div className="rounded-2xl border border-amber-400 bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 p-6 text-white shadow-md">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="space-y-2 max-w-xl">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full backdrop-blur-sm">
+                <span className="text-xs font-bold uppercase tracking-wider bg-black/20 text-white px-2.5 py-0.5 rounded-full backdrop-blur-sm">
                   Annual 50-Hour Target
                 </span>
-                <span className="text-xs text-blue-100">
+                <span className="text-xs text-amber-100 font-medium">
                   Academic Session 2025-26
                 </span>
               </div>
-              <h2 className="text-3xl font-black">
-                {myCpd?.totalHours || 0} <span className="text-xl font-normal text-blue-100">/ 50 Hours Completed</span>
+              <h2 className="text-3xl font-black text-white">
+                {effectiveTotal}{' '}
+                <span className="text-xl font-normal text-amber-100">
+                  / 50 Hours Completed
+                </span>
               </h2>
-              <p className="text-xs text-blue-100 leading-relaxed">
+              {rawTotal > effectiveTotal && (
+                <p className="text-xs text-amber-100 font-medium">
+                  ({rawTotal}h total logged across CBSE & School)
+                </p>
+              )}
+              <p className="text-xs text-amber-50 leading-relaxed font-medium">
                 {isCompliant
                   ? '🎉 Congratulations! You have successfully completed your mandatory 50 CPD hours for this academic year.'
-                  : `You need ${myCpd?.hoursRemaining || 50} more hours to meet the CBSE Affiliation mandate (Clause 12.2.9).`}
+                  : `You need ${hoursRemaining} more hours to meet the CBSE Affiliation mandate (25h CBSE + 25h School required).`}
               </p>
             </div>
 
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 min-w-[260px] text-right">
-              <div className="flex items-center justify-between text-xs font-semibold mb-1.5 text-blue-100">
+            <div className="bg-black/20 backdrop-blur-md rounded-xl p-4 border border-white/25 min-w-[260px] text-right">
+              <div className="flex items-center justify-between text-xs font-semibold mb-1.5 text-amber-100">
                 <span>Overall Completion</span>
-                <span className="text-white text-sm font-bold">{myCpd?.totalProgress || 0}%</span>
+                <span className="text-white text-sm font-bold">{totalProgress}%</span>
               </div>
               <DomainStackedProgressBar
                 domain1Hours={myCpd?.domain1Hours || 0}
                 domain2Hours={myCpd?.domain2Hours || 0}
                 domain3Hours={myCpd?.domain3Hours || 0}
-                totalHours={myCpd?.totalHours || 0}
+                totalHours={effectiveTotal}
                 targetHours={50}
-                className="bg-white/25"
+                className="bg-black/25"
               />
-              <div className="flex items-center justify-between text-[11px] text-blue-100 mt-2">
+              <div className="flex items-center justify-between text-[11px] text-amber-100 mt-2">
                 <span>Status:</span>
                 <span className="font-bold text-white uppercase">
                   {myCpd?.complianceStatus?.replace('_', ' ') || 'NOT STARTED'}
@@ -380,6 +399,15 @@ export default function TeacherTrainingPage() {
                             </span>
                           </>
                         )}
+                        {rec.resourcePerson && (
+                          <>
+                            <span>•</span>
+                            <span className="flex items-center gap-1 text-gray-700">
+                              <User className="h-3 w-3 text-gray-400" />
+                              RP: {rec.resourcePerson}
+                            </span>
+                          </>
+                        )}
                         {rec.certificateNumber && (
                           <>
                             <span>•</span>
@@ -395,16 +423,18 @@ export default function TeacherTrainingPage() {
                     <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
                       <div className="text-right">
                         <span className="text-sm font-black text-gray-900">{Number(rec.hours)}h</span>
-                        <p className="text-[10px] text-emerald-600 font-medium">Verified</p>
+                        {rec.status === 'SUBMITTED' ? (
+                          <p className="text-[10px] text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                            Pending Approval
+                          </p>
+                        ) : rec.status === 'REJECTED' ? (
+                          <p className="text-[10px] text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded-full border border-red-200">
+                            Rejected
+                          </p>
+                        ) : (
+                          <p className="text-[10px] text-emerald-600 font-medium">Verified</p>
+                        )}
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(rec.id)}
-                        className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
                     </div>
                   </div>
                 );

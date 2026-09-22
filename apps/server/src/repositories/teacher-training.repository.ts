@@ -15,6 +15,7 @@ export const teacherTrainingRepository = {
     startDate?: Date;
     endDate?: Date;
     organizedBy?: string;
+    resourcePerson?: string;
     locationOrPlatform?: string;
     isAcademicActivity?: boolean;
     academicActivityKey?: string;
@@ -37,6 +38,7 @@ export const teacherTrainingRepository = {
         startDate: data.startDate,
         endDate: data.endDate,
         organizedBy: data.organizedBy,
+        resourcePerson: data.resourcePerson,
         locationOrPlatform: data.locationOrPlatform,
         isAcademicActivity: data.isAcademicActivity ?? false,
         academicActivityKey: data.academicActivityKey,
@@ -71,6 +73,7 @@ export const teacherTrainingRepository = {
       startDate?: Date;
       endDate?: Date;
       organizedBy?: string;
+      resourcePerson?: string;
       locationOrPlatform?: string;
       isAcademicActivity?: boolean;
       academicActivityKey?: string;
@@ -93,6 +96,7 @@ export const teacherTrainingRepository = {
       startDate: item.startDate,
       endDate: item.endDate,
       organizedBy: item.organizedBy,
+      resourcePerson: item.resourcePerson,
       locationOrPlatform: item.locationOrPlatform,
       isAcademicActivity: item.isAcademicActivity ?? false,
       academicActivityKey: item.academicActivityKey,
@@ -135,6 +139,7 @@ export const teacherTrainingRepository = {
       startDate?: Date;
       endDate?: Date;
       organizedBy?: string;
+      resourcePerson?: string;
       locationOrPlatform?: string;
       isAcademicActivity?: boolean;
       academicActivityKey?: string;
@@ -156,6 +161,7 @@ export const teacherTrainingRepository = {
         ...(data.startDate !== undefined && { startDate: data.startDate }),
         ...(data.endDate !== undefined && { endDate: data.endDate }),
         ...(data.organizedBy !== undefined && { organizedBy: data.organizedBy }),
+        ...(data.resourcePerson !== undefined && { resourcePerson: data.resourcePerson }),
         ...(data.locationOrPlatform !== undefined && { locationOrPlatform: data.locationOrPlatform }),
         ...(data.isAcademicActivity !== undefined && { isAcademicActivity: data.isAcademicActivity }),
         ...(data.academicActivityKey !== undefined && { academicActivityKey: data.academicActivityKey }),
