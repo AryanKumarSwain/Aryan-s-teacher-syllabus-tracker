@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Subscript from '@tiptap/extension-subscript';
@@ -28,6 +28,24 @@ interface RichTextFieldProps {
   color?: string;
 }
 
+const tiptapExtensions = [
+  StarterKit.configure({
+    bulletList: {
+      keepMarks: true,
+      keepAttributes: false,
+    },
+  }),
+  Underline,
+  Subscript,
+  Superscript,
+  Mathematics.configure({
+    katexOptions: {
+      displayMode: false,
+      throwOnError: false,
+    },
+  }),
+];
+
 export function RichTextField({
   value,
   onChange,
@@ -38,49 +56,101 @@ export function RichTextField({
 }: RichTextFieldProps) {
   const [mathModalOpen, setMathModalOpen] = useState(false);
 
+  // Instant local active marks state to eliminate button toggling lag
+  const [activeMarks, setActiveMarks] = useState({
+    bold: false,
+    italic: false,
+    underline: false,
+    strike: false,
+    superscript: false,
+    subscript: false,
+    bulletList: false,
+  });
+
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const latestHtmlRef = useRef<string>(value || '');
+
+  const syncMarks = useCallback((ed: Editor) => {
+    setActiveMarks({
+      bold: ed.isActive('bold'),
+      italic: ed.isActive('italic'),
+      underline: ed.isActive('underline'),
+      strike: ed.isActive('strike'),
+      superscript: ed.isActive('superscript'),
+      subscript: ed.isActive('subscript'),
+      bulletList: ed.isActive('bulletList'),
+    });
+  }, []);
+
+  const flushChange = useCallback(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    if (latestHtmlRef.current !== value) {
+      onChange(latestHtmlRef.current);
+    }
+  }, [onChange, value]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
   const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        bulletList: {
-          keepMarks: true,
-          keepAttributes: false,
-        },
-      }),
-      Underline,
-      Subscript,
-      Superscript,
-      Mathematics.configure({
-        katexOptions: {
-          displayMode: false,
-          throwOnError: false,
-        },
-      }),
-    ],
+    extensions: tiptapExtensions,
+    immediatelyRender: false,
     content: value || '',
     editorProps: {
       attributes: {
         class:
           'min-h-[120px] rounded-b-xl border border-t-0 border-slate-200 bg-white p-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 leading-relaxed',
       },
+      handleDOMEvents: {
+        blur: () => {
+          flushChange();
+          return false;
+        },
+      },
     },
-    onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
+    onTransaction: ({ editor: ed }) => {
+      syncMarks(ed);
+    },
+    onSelectionUpdate: ({ editor: ed }) => {
+      syncMarks(ed);
+    },
+    onUpdate: ({ editor: ed }) => {
+      syncMarks(ed);
+      const html = ed.getHTML();
       const cleaned = html
         .replace(/\r?\n/g, '')
         .replace(/\\n/g, '')
         .replace(/<p>\s*<\/p>/g, '')
         .replace(/<p>&nbsp;<\/p>/g, '')
         .trim();
-      onChange(cleaned);
+      latestHtmlRef.current = cleaned;
+
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      debounceTimerRef.current = setTimeout(() => {
+        onChange(cleaned);
+        debounceTimerRef.current = null;
+      }, 200);
     },
   });
 
-  // Sync content when value changes externally
+  // Sync content when value changes externally (and editor is not actively focused/edited)
   useEffect(() => {
     if (editor && value !== undefined && value !== editor.getHTML() && !editor.isFocused) {
+      latestHtmlRef.current = value;
       editor.commands.setContent(value);
+      syncMarks(editor);
     }
-  }, [value, editor]);
+  }, [value, editor, syncMarks]);
 
   const handleInsertMath = (latex: string) => {
     if (!editor) return;
@@ -114,7 +184,7 @@ export function RichTextField({
           title="Bold (Ctrl+B)"
           className={cn(
             'flex h-7 items-center gap-1 rounded-md px-2 text-xs font-semibold transition-all',
-            editor?.isActive('bold')
+            activeMarks.bold
               ? 'bg-blue-600 text-white shadow-2xs'
               : 'text-slate-700 hover:bg-slate-200/80',
           )}
@@ -132,7 +202,7 @@ export function RichTextField({
           title="Italic (Ctrl+I)"
           className={cn(
             'flex h-7 items-center gap-1 rounded-md px-2 text-xs font-semibold transition-all',
-            editor?.isActive('italic')
+            activeMarks.italic
               ? 'bg-blue-600 text-white shadow-2xs'
               : 'text-slate-700 hover:bg-slate-200/80',
           )}
@@ -150,7 +220,7 @@ export function RichTextField({
           title="Underline (Ctrl+U)"
           className={cn(
             'flex h-7 items-center gap-1 rounded-md px-2 text-xs font-semibold transition-all',
-            editor?.isActive('underline')
+            activeMarks.underline
               ? 'bg-blue-600 text-white shadow-2xs'
               : 'text-slate-700 hover:bg-slate-200/80',
           )}
@@ -168,7 +238,7 @@ export function RichTextField({
           title="Strikethrough"
           className={cn(
             'flex h-7 items-center gap-1 rounded-md px-2 text-xs font-semibold transition-all',
-            editor?.isActive('strike')
+            activeMarks.strike
               ? 'bg-blue-600 text-white shadow-2xs'
               : 'text-slate-700 hover:bg-slate-200/80',
           )}
@@ -188,7 +258,7 @@ export function RichTextField({
           title="Superscript (e.g. x²)"
           className={cn(
             'flex h-7 items-center gap-1 rounded-md px-2 text-xs font-semibold transition-all',
-            editor?.isActive('superscript')
+            activeMarks.superscript
               ? 'bg-blue-600 text-white shadow-2xs'
               : 'text-slate-700 hover:bg-slate-200/80',
           )}
@@ -206,7 +276,7 @@ export function RichTextField({
           title="Subscript (e.g. x₂)"
           className={cn(
             'flex h-7 items-center gap-1 rounded-md px-2 text-xs font-semibold transition-all',
-            editor?.isActive('subscript')
+            activeMarks.subscript
               ? 'bg-blue-600 text-white shadow-2xs'
               : 'text-slate-700 hover:bg-slate-200/80',
           )}
@@ -224,7 +294,7 @@ export function RichTextField({
           title="Bullet List"
           className={cn(
             'flex h-7 items-center gap-1 rounded-md px-2 text-xs font-semibold transition-all',
-            editor?.isActive('bulletList')
+            activeMarks.bulletList
               ? 'bg-blue-600 text-white shadow-2xs'
               : 'text-slate-700 hover:bg-slate-200/80',
           )}

@@ -20,6 +20,15 @@ export interface TeacherCpdSummary {
   domain1Hours: number; // Core Values & Ethics (out of 12)
   domain2Hours: number; // Knowledge & Practice (out of 24)
   domain3Hours: number; // Professional Growth (out of 14)
+  effectiveD1Hours?: number;
+  effectiveD2Hours?: number;
+  effectiveD3Hours?: number;
+  effectiveDomainHours?: number;
+  isCbseSatisfied?: boolean;
+  isSchoolSatisfied?: boolean;
+  isD1Satisfied?: boolean;
+  isD2Satisfied?: boolean;
+  isD3Satisfied?: boolean;
   academicActivityHours: number;
   offlineHours: number;
   onlineHours: number;
@@ -84,9 +93,23 @@ function computeCpdSummary(teacher: any): TeacherCpdSummary {
 
   // CBSE and School quotas each contribute up to 25 hours towards the 50-hour mandatory target.
   // Excess hours in either category do NOT count towards the other quota or the 50h progress.
-  const effectiveCbseHours = Math.min(25, cbseHours);
-  const effectiveSchoolHours = Math.min(25, schoolHours);
-  const effectiveTotalHours = Number((effectiveCbseHours + effectiveSchoolHours).toFixed(1));
+  const effectiveCbseHours = Math.min(CPD_STANDARDS.CBSE_HOURS_REQUIRED, cbseHours);
+  const effectiveSchoolHours = Math.min(CPD_STANDARDS.SCHOOL_HOURS_REQUIRED, schoolHours);
+  const effectiveProviderHours = Number((effectiveCbseHours + effectiveSchoolHours).toFixed(1));
+
+  // Domains 1, 2, and 3 quotas:
+  // D1 (Core Values & Ethics): 12 hours
+  // D2 (Knowledge & Practice): 24 hours
+  // D3 (Professional Growth): 14 hours
+  // Total = 12 + 24 + 14 = 50 hours
+  const effectiveD1Hours = Math.min(CPD_STANDARDS.DOMAINS.CORE_VALUES_ETHICS.totalRequired, domain1Hours);
+  const effectiveD2Hours = Math.min(CPD_STANDARDS.DOMAINS.KNOWLEDGE_PRACTICE.totalRequired, domain2Hours);
+  const effectiveD3Hours = Math.min(CPD_STANDARDS.DOMAINS.PROFESSIONAL_GROWTH.totalRequired, adjustedDomain3Hrs);
+  const effectiveDomainHours = Number((effectiveD1Hours + effectiveD2Hours + effectiveD3Hours).toFixed(1));
+
+  // A teacher must satisfy BOTH provider quotas (25h CBSE + 25h School) AND domain quotas (12h D1 + 24h D2 + 14h D3).
+  // Total progress cannot reach 100% unless all three domains AND both provider quotas are satisfied.
+  const effectiveTotalHours = Number(Math.min(effectiveProviderHours, effectiveDomainHours).toFixed(1));
 
   const totalProgress = Math.min(100, Math.round((effectiveTotalHours / CPD_STANDARDS.TOTAL_HOURS_REQUIRED) * 100));
   const cbseProgress = Math.min(100, Math.round((effectiveCbseHours / CPD_STANDARDS.CBSE_HOURS_REQUIRED) * 100));
@@ -95,14 +118,22 @@ function computeCpdSummary(teacher: any): TeacherCpdSummary {
   const domain2Progress = Math.min(100, Math.round((domain2Hours / CPD_STANDARDS.DOMAINS.KNOWLEDGE_PRACTICE.totalRequired) * 100));
   const domain3Progress = Math.min(100, Math.round((adjustedDomain3Hrs / CPD_STANDARDS.DOMAINS.PROFESSIONAL_GROWTH.totalRequired) * 100));
 
+  const isCbseSatisfied = cbseHours >= CPD_STANDARDS.CBSE_HOURS_REQUIRED;
+  const isSchoolSatisfied = schoolHours >= CPD_STANDARDS.SCHOOL_HOURS_REQUIRED;
+  const isD1Satisfied = domain1Hours >= CPD_STANDARDS.DOMAINS.CORE_VALUES_ETHICS.totalRequired;
+  const isD2Satisfied = domain2Hours >= CPD_STANDARDS.DOMAINS.KNOWLEDGE_PRACTICE.totalRequired;
+  const isD3Satisfied = adjustedDomain3Hrs >= CPD_STANDARDS.DOMAINS.PROFESSIONAL_GROWTH.totalRequired;
+
+  const isCompliant = isCbseSatisfied && isSchoolSatisfied && isD1Satisfied && isD2Satisfied && isD3Satisfied;
+
   let complianceStatus: 'COMPLIANT' | 'IN_PROGRESS' | 'NOT_STARTED' = 'NOT_STARTED';
-  if (cbseHours >= 25 && schoolHours >= 25) {
+  if (isCompliant) {
     complianceStatus = 'COMPLIANT';
   } else if (totalHours > 0) {
     complianceStatus = 'IN_PROGRESS';
   }
 
-  const hoursRemaining = Math.max(0, Number((50 - effectiveTotalHours).toFixed(1)));
+  const hoursRemaining = Math.max(0, Number((CPD_STANDARDS.TOTAL_HOURS_REQUIRED - effectiveTotalHours).toFixed(1)));
 
   const subjectNames = Array.from(
     new Set(
@@ -137,6 +168,15 @@ function computeCpdSummary(teacher: any): TeacherCpdSummary {
     domain1Hours: Number(domain1Hours.toFixed(1)),
     domain2Hours: Number(domain2Hours.toFixed(1)),
     domain3Hours: Number(adjustedDomain3Hrs.toFixed(1)),
+    effectiveD1Hours: Number(effectiveD1Hours.toFixed(1)),
+    effectiveD2Hours: Number(effectiveD2Hours.toFixed(1)),
+    effectiveD3Hours: Number(effectiveD3Hours.toFixed(1)),
+    effectiveDomainHours,
+    isCbseSatisfied,
+    isSchoolSatisfied,
+    isD1Satisfied,
+    isD2Satisfied,
+    isD3Satisfied,
     academicActivityHours: Number(effectiveAcademicHrs.toFixed(1)),
     offlineHours: Number(offlineHours.toFixed(1)),
     onlineHours: Number(onlineHours.toFixed(1)),

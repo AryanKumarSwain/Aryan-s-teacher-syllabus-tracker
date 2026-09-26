@@ -43,6 +43,15 @@ export interface TeacherCpdItem {
   domain1Hours: number; // Core Values & Ethics (out of 12)
   domain2Hours: number; // Knowledge & Practice (out of 24)
   domain3Hours: number; // Professional Growth (out of 14)
+  effectiveD1Hours?: number;
+  effectiveD2Hours?: number;
+  effectiveD3Hours?: number;
+  effectiveDomainHours?: number;
+  isCbseSatisfied?: boolean;
+  isSchoolSatisfied?: boolean;
+  isD1Satisfied?: boolean;
+  isD2Satisfied?: boolean;
+  isD3Satisfied?: boolean;
   academicActivityHours: number;
   offlineHours: number;
   onlineHours: number;

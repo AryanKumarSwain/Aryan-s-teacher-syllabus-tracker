@@ -178,7 +178,7 @@ const SECTION_GAP = 2;          // gap left after a whole section
 const SEGMENT_HEADER_GAP = 7;   // gap after a segment header line before Q1
 const SECTION_LABEL_GAP = 7;    // gap after section label before Q1
 
-const IMAGE_TEXT_GAP = 4;        // 4mm margin between text and image box
+const IMAGE_TEXT_GAP = 5;        // 5mm margin between text and image box
 const IMAGE_RIGHT_MARGIN = 3;    // 3mm margin between image box and column right edge
 
 interface FormattedTextSegment {
@@ -202,11 +202,12 @@ interface FormattedTextSegment {
 interface OptionRenderData {
   prefix: string;
   prefixWidth: number;
-  lines: string[];
+  segments: FormattedTextSegment[];
+  height: number;
 }
 
 function convertLatexToFallbackUnicode(latex: string): string {
-  let text = latex;
+  let text = latex.replace(/\$/g, '');
   text = text.replace(/\\cdot/g, '·');
   text = text.replace(/\\times/g, '×');
   text = text.replace(/\\div/g, '÷');
@@ -264,7 +265,7 @@ async function renderMathToImage(
   const trimmed = latex.trim();
   if (!trimmed) return null;
 
-  const cacheKey = `${trimmed}_${color}_${fontSizePt}`;
+  const cacheKey = `v6_${trimmed}_${color}_${fontSizePt}`;
   if (mathImageCache.has(cacheKey)) {
     return mathImageCache.get(cacheKey)!;
   }
@@ -293,23 +294,163 @@ async function renderMathToImage(
 
     const mathSpan = document.createElement('span');
     mathSpan.style.display = 'inline-block';
-    // Generous padding — prevents radical vinculum and fraction bars from being clipped
-    // at the top/bottom edges of the canvas
-    mathSpan.style.padding = '8px 6px';
+    // Generous padding prevents tall operators (\int, \sum, \sqrt, fractions)
+    // from being clipped at the top/bottom edges of the canvas by html2canvas
+    mathSpan.style.padding = '22px 10px';
     mathSpan.style.color = color;
     mathSpan.style.backgroundColor = 'transparent';
     mathSpan.style.fontSize = '24px';
-    mathSpan.style.lineHeight = '1.4';
+    mathSpan.style.lineHeight = 'normal';
+    mathSpan.style.overflow = 'visible';
 
     katex.render(trimmed, mathSpan, {
       throwOnError: false,
       displayMode: false,
+      minRuleThickness: 0.06,
+      output: 'html',
     });
 
     flexWrap.appendChild(zeroAnchor);
     flexWrap.appendChild(mathSpan);
     container.appendChild(flexWrap);
     document.body.appendChild(container);
+
+    // 1. Transform KaTeX fractions (\frac) from KaTeX's broken table/vlist coordinates
+    // to a clean flex column layout so html2canvas renders numerator, fraction bar, and denominator with zero overlap
+    Array.from(mathSpan.querySelectorAll<HTMLElement>('.mfrac')).reverse().forEach(mfrac => {
+      const fracLine = mfrac.querySelector<HTMLElement>('.frac-line');
+      if (!fracLine) return;
+
+      const fracLineContainer = fracLine.parentElement;
+      const vlist = fracLineContainer?.parentElement;
+      if (!vlist || !fracLineContainer) return;
+
+      const children = Array.from(vlist.children) as HTMLElement[];
+      const fracLineIdx = children.indexOf(fracLineContainer);
+      if (fracLineIdx === -1) return;
+
+      // In KaTeX vlist:
+      // children before fracLine is denominator (index 0)
+      // children after fracLine is numerator (index 2)
+      const denomContainers = children.slice(0, fracLineIdx);
+      const numContainers = children.slice(fracLineIdx + 1);
+
+      // Clean denominator container
+      denomContainers.forEach(c => {
+        c.style.position = 'static';
+        c.style.top = '0';
+        c.style.height = 'auto';
+        c.style.display = 'block';
+        c.style.textAlign = 'center';
+        c.style.lineHeight = '1';
+        c.style.paddingTop = '1px';
+        c.querySelectorAll<HTMLElement>('.pstrut').forEach(p => (p.style.display = 'none'));
+      });
+
+      // Clean numerator container
+      numContainers.forEach(c => {
+        c.style.position = 'static';
+        c.style.top = '0';
+        c.style.height = 'auto';
+        c.style.display = 'block';
+        c.style.textAlign = 'center';
+        c.style.lineHeight = '1';
+        c.style.paddingBottom = '1px';
+        c.querySelectorAll<HTMLElement>('.pstrut').forEach(p => (p.style.display = 'none'));
+      });
+
+      // Format fraction bar
+      fracLineContainer.style.position = 'static';
+      fracLineContainer.style.top = '0';
+      fracLineContainer.style.height = 'auto';
+      fracLineContainer.style.display = 'block';
+      fracLineContainer.style.width = '100%';
+      fracLineContainer.style.padding = '0';
+      fracLineContainer.style.margin = '2px 0';
+      fracLineContainer.style.lineHeight = '0';
+      fracLineContainer.querySelectorAll<HTMLElement>('.pstrut').forEach(p => (p.style.display = 'none'));
+
+      fracLine.style.display = 'block';
+      fracLine.style.width = '100%';
+      fracLine.style.minWidth = '12px';
+      fracLine.style.borderBottom = `1.5px solid ${color}`;
+      fracLine.style.borderTop = 'none';
+      fracLine.style.borderLeft = 'none';
+      fracLine.style.borderRight = 'none';
+      fracLine.style.height = '0';
+      fracLine.style.minHeight = '0';
+      fracLine.style.margin = '0';
+      fracLine.style.background = 'transparent';
+
+      // Create pure flex column: Numerator on top, bar in middle, denominator on bottom
+      const flexWrapper = document.createElement('span');
+      flexWrapper.style.display = 'inline-flex';
+      flexWrapper.style.flexDirection = 'column';
+      flexWrapper.style.verticalAlign = 'middle';
+      flexWrapper.style.alignItems = 'stretch';
+      flexWrapper.style.justifyContent = 'center';
+      flexWrapper.style.padding = '0 3px';
+      flexWrapper.style.margin = '0 1px';
+
+      // 1. Numerator on top
+      numContainers.forEach(c => flexWrapper.appendChild(c));
+      // 2. Fraction line in middle
+      flexWrapper.appendChild(fracLineContainer);
+      // 3. Denominator on bottom
+      denomContainers.forEach(c => flexWrapper.appendChild(c));
+
+      mfrac.innerHTML = '';
+      mfrac.style.display = 'inline-block';
+      mfrac.style.verticalAlign = 'middle';
+      mfrac.appendChild(flexWrapper);
+    });
+
+    // Fallback for any standalone frac-line
+    mathSpan.querySelectorAll<HTMLElement>('.frac-line').forEach(el => {
+      el.style.borderBottom = `1.5px solid ${color}`;
+      el.style.borderTop = 'none';
+      el.style.borderLeft = 'none';
+      el.style.borderRight = 'none';
+      el.style.height = '0';
+      el.style.minHeight = '0';
+      el.style.background = 'transparent';
+    });
+
+    // 2. Fix square roots (\sqrt) and radical overline
+    mathSpan.querySelectorAll<HTMLElement>('.mord.sqrt').forEach(sqrtEl => {
+      const svgAlign = sqrtEl.querySelector<HTMLElement>('.svg-align');
+      const radicand = svgAlign?.querySelector<HTMLElement>('.mord');
+      if (radicand) {
+        radicand.style.borderTop = `1.5px solid ${color}`;
+        radicand.style.display = 'inline-block';
+        radicand.style.paddingTop = '1px';
+      }
+
+      const hideTail = sqrtEl.querySelector<HTMLElement>('.hide-tail');
+      const svg = hideTail?.querySelector<SVGElement>('svg');
+      if (hideTail && svg) {
+        svg.setAttribute('fill', color);
+        svg.setAttribute('stroke', color);
+        svg.style.fill = color;
+        svg.style.stroke = color;
+        svg.querySelectorAll('path').forEach(p => {
+          p.setAttribute('fill', color);
+          p.style.fill = color;
+        });
+      }
+    });
+
+    // 3. Ensure all SVGs and path elements have explicit fill and stroke
+    mathSpan.querySelectorAll('svg').forEach(svg => {
+      svg.setAttribute('fill', color);
+      svg.setAttribute('stroke', color);
+      svg.style.fill = color;
+      svg.style.stroke = color;
+      svg.querySelectorAll('path').forEach(path => {
+        path.setAttribute('fill', color);
+        path.style.fill = color;
+      });
+    });
 
     // Use scale:4 for sharper output; html2canvas renders at device scale
     const CANVAS_SCALE = 4;
@@ -331,11 +472,9 @@ async function renderMathToImage(
     const pixelWidth = canvas.width / CANVAS_SCALE;
     const pixelHeight = canvas.height / CANVAS_SCALE;
 
-    // Distance from top of mathSpan to typographic baseline
+    // Distance from top of mathSpan (including top padding) to typographic baseline
     const baselinePx = anchorRect.bottom - rect.top;
-    // Add the top padding (8px) offset since canvas includes it
-    const baselinePxWithPadding = baselinePx + 8;
-    const baselineRatio = Math.max(0.20, Math.min(0.85, baselinePxWithPadding / (pixelHeight || 1)));
+    const baselineRatio = Math.max(0.15, Math.min(0.85, baselinePx / (pixelHeight || 1)));
 
     // Scaling to match PDF font size:
     // In DOM, font size is 24px. 1pt = 0.35278mm.
@@ -557,13 +696,19 @@ function estimateSegmentsHeight(
     }
 
     if (seg.isMath && seg.mathWidth) {
-      if (currentLineWidth + seg.mathWidth > width && currentLineWidth > 0) {
+      let mWidth = seg.mathWidth;
+      let mHeight = seg.mathHeight || 0;
+      if (mWidth > width) {
+        const scale = width / mWidth;
+        mWidth = width;
+        mHeight = mHeight * scale;
+      }
+      if (currentLineWidth + mWidth > width && currentLineWidth > 0) {
         wrapLine();
       }
-      currentLineWidth += seg.mathWidth + spaceWidth * 0.3;
-      if (seg.mathHeight && seg.mathHeight > currentLineHeight) {
-        // Add generous buffer (4mm) to account for tall radicals/fractions and padding
-        currentLineHeight = Math.max(currentLineHeight, seg.mathHeight + 4.0);
+      currentLineWidth += mWidth + spaceWidth * 0.3;
+      if (mHeight && mHeight > currentLineHeight) {
+        currentLineHeight = Math.max(currentLineHeight, mHeight + 3.0);
       }
       return;
     }
@@ -630,21 +775,28 @@ function renderFormattedText(
   segments.forEach(segment => {
     // If it's a rendered math formula image
     if (segment.isMath && segment.mathImg && segment.mathWidth && segment.mathHeight) {
-      const mWidth = segment.mathWidth;
-      const mHeight = segment.mathHeight;
+      let mWidth = segment.mathWidth;
+      let mHeight = segment.mathHeight;
       const bRatio = segment.baselineRatio ?? 0.55;
 
+      // 1. If formula does not fit on current line and we have already drawn something on this line, wrap
       if (currentX > x && currentX + mWidth > rightEdge) {
         currentY += Math.max(lineHeight, maxDescender + (lineHeight * 0.6));
         currentX = x;
         maxDescender = Math.max(lineHeight * 0.25, 1.0);
       }
 
+      // 2. If formula is wider than the allowed text width (maxWidth), scale it down proportionally
+      // so it never spills over past rightEdge and never overlaps question images or page margins
+      if (mWidth > maxWidth) {
+        const scale = maxWidth / mWidth;
+        mWidth = maxWidth;
+        mHeight = mHeight * scale;
+      }
+
       // Draw image so that the baseline of the math aligns with the text baseline (currentY).
-      // yDraw = top of image = currentY - (portion above baseline)
-      // We clamp so image top is never above current Y minus line height (prevents page-edge clipping)
       const aboveBaseline = mHeight * bRatio;
-      const yDraw = Math.max(currentY - aboveBaseline, currentY - Math.max(lineHeight * 1.5, mHeight));
+      const yDraw = currentY - aboveBaseline;
       try {
         doc.addImage(segment.mathImg, 'PNG', currentX, yDraw, mWidth, mHeight);
       } catch (e) {
@@ -661,7 +813,6 @@ function renderFormattedText(
       const imageTop = yDraw;
       const spaceAboveBaseline = currentY - imageTop;
       if (spaceAboveBaseline > lineHeight) {
-        // The image is taller than normal line height — update maxDescender to account for full height
         maxDescender = Math.max(maxDescender, mHeight - lineHeight * 0.5);
       }
 
@@ -771,48 +922,195 @@ function buildSuffixSegments(question: { subject?: string; hint?: string }): For
   return suffixSegments;
 }
 
-function buildOptionRenderData(
+async function buildOptionRenderData(
   doc: typeof jsPDF.prototype,
   options: Array<{ text: string; isCorrect?: boolean } | string>,
   availableWidth: number,
   activeFont: string,
-  fontSize: number
-): OptionRenderData[] {
-  doc.setFont(activeFont, 'normal');
+  fontSize: number,
+  lineHeight: number,
+  fontColor: string
+): Promise<OptionRenderData[]> {
+  doc.setFont(activeFont, 'bold');
   doc.setFontSize(fontSize);
-  return options.map((opt, oIndex) => {
+
+  const results: OptionRenderData[] = [];
+  for (let oIndex = 0; oIndex < options.length; oIndex++) {
+    const opt = options[oIndex];
+    if (!opt) continue;
+
     const optPrefix = `${String.fromCharCode(97 + oIndex)}) `;
-    const rawText = typeof opt === 'string' ? opt : (opt.text || '');
-    const optText = convertLatexToFallbackUnicode(rawText);
     const prefixWidth = doc.getTextWidth(optPrefix);
-    const lines = doc.splitTextToSize(optText, Math.max(availableWidth - prefixWidth, 10));
-    return { prefix: optPrefix, prefixWidth, lines };
-  });
+    let rawText = typeof opt === 'string' ? opt : (opt.text || '');
+
+    // If text contains LaTeX commands without dollar delimiters, wrap them in $...$
+    if (!rawText.includes('$') && /\\[a-zA-Z]+/.test(rawText)) {
+      rawText = rawText.replace(/(\\[a-zA-Z]+(?:\{[^{}]*\}|\[[^[\]]*\])*)/g, '$$$1$$');
+    }
+
+    const segments = parseHtmlToFormattedText(rawText);
+    await resolveMathSegments(segments, fontColor, fontSize);
+
+    const contentWidth = Math.max(availableWidth - prefixWidth, 10);
+    const height = estimateSegmentsHeight(doc, segments, contentWidth, lineHeight);
+
+    results.push({
+      prefix: optPrefix,
+      prefixWidth,
+      segments,
+      height,
+    });
+  }
+  return results;
 }
 
-function renderOptionColumn(
+function render2ColOptions(
   doc: typeof jsPDF.prototype,
   options: OptionRenderData[],
   x: number,
   startY: number,
+  optColWidth: number,
+  colGap: number,
   lineHeight: number,
   activeFont: string,
+  rgb: { r: number; g: number; b: number },
   fontSize: number
 ): number {
-  doc.setFont(activeFont, 'normal');
-  doc.setFontSize(fontSize);
+  const optA = options[0];
+  const optB = options[1];
+  const optC = options[2];
+  const optD = options[3];
+
+  const col1X = x;
+  const col2X = x + optColWidth + colGap;
+
   let currentY = startY;
+
+  // Row 1: Option A (col 1) and Option C (col 2)
+  let row1NewY = currentY;
+  if (optA) {
+    doc.setFont(activeFont, 'bold');
+    doc.setFontSize(fontSize);
+    doc.setTextColor(rgb.r, rgb.g, rgb.b);
+    doc.text(optA.prefix, col1X, currentY);
+
+    const { newY } = renderFormattedText(
+      doc,
+      optA.segments,
+      col1X + optA.prefixWidth,
+      currentY,
+      Math.max(optColWidth - optA.prefixWidth, 10),
+      lineHeight,
+      activeFont,
+      rgb,
+      fontSize
+    );
+    row1NewY = Math.max(row1NewY, newY);
+  }
+
+  if (optC) {
+    doc.setFont(activeFont, 'bold');
+    doc.setFontSize(fontSize);
+    doc.setTextColor(rgb.r, rgb.g, rgb.b);
+    doc.text(optC.prefix, col2X, currentY);
+
+    const { newY } = renderFormattedText(
+      doc,
+      optC.segments,
+      col2X + optC.prefixWidth,
+      currentY,
+      Math.max(optColWidth - optC.prefixWidth, 10),
+      lineHeight,
+      activeFont,
+      rgb,
+      fontSize
+    );
+    row1NewY = Math.max(row1NewY, newY);
+  }
+
+  const row1Height = Math.max(optA?.height || 0, optC?.height || 0, row1NewY - currentY);
+  currentY = Math.max(row1NewY, currentY + row1Height) + 1.2;
+
+  // Row 2: Option B (col 1) and Option D (col 2)
+  let row2NewY = currentY;
+  if (optB) {
+    doc.setFont(activeFont, 'bold');
+    doc.setFontSize(fontSize);
+    doc.setTextColor(rgb.r, rgb.g, rgb.b);
+    doc.text(optB.prefix, col1X, currentY);
+
+    const { newY } = renderFormattedText(
+      doc,
+      optB.segments,
+      col1X + optB.prefixWidth,
+      currentY,
+      Math.max(optColWidth - optB.prefixWidth, 10),
+      lineHeight,
+      activeFont,
+      rgb,
+      fontSize
+    );
+    row2NewY = Math.max(row2NewY, newY);
+  }
+
+  if (optD) {
+    doc.setFont(activeFont, 'bold');
+    doc.setFontSize(fontSize);
+    doc.setTextColor(rgb.r, rgb.g, rgb.b);
+    doc.text(optD.prefix, col2X, currentY);
+
+    const { newY } = renderFormattedText(
+      doc,
+      optD.segments,
+      col2X + optD.prefixWidth,
+      currentY,
+      Math.max(optColWidth - optD.prefixWidth, 10),
+      lineHeight,
+      activeFont,
+      rgb,
+      fontSize
+    );
+    row2NewY = Math.max(row2NewY, newY);
+  }
+
+  const row2Height = Math.max(optB?.height || 0, optD?.height || 0, row2NewY - currentY);
+  return Math.max(row2NewY, currentY + row2Height);
+}
+
+function renderSingleColOptions(
+  doc: typeof jsPDF.prototype,
+  options: OptionRenderData[],
+  x: number,
+  startY: number,
+  maxWidth: number,
+  lineHeight: number,
+  activeFont: string,
+  rgb: { r: number; g: number; b: number },
+  fontSize: number
+): number {
+  let currentY = startY;
+
   options.forEach((opt) => {
-    opt.lines.forEach((line, lineIdx) => {
-      if (lineIdx === 0) {
-        doc.text(opt.prefix + line, x, currentY);
-      } else {
-        doc.text(line, x + opt.prefixWidth, currentY);
-      }
-      currentY += lineHeight;
-    });
-    currentY += 1.0;
+    doc.setFont(activeFont, 'bold');
+    doc.setFontSize(fontSize);
+    doc.setTextColor(rgb.r, rgb.g, rgb.b);
+    doc.text(opt.prefix, x, currentY);
+
+    const { newY } = renderFormattedText(
+      doc,
+      opt.segments,
+      x + opt.prefixWidth,
+      currentY,
+      Math.max(maxWidth - opt.prefixWidth, 10),
+      lineHeight,
+      activeFont,
+      rgb,
+      fontSize
+    );
+
+    currentY = Math.max(newY, currentY + opt.height) + 1.2;
   });
+
   return currentY;
 }
 
@@ -957,7 +1255,7 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
     if (y + requiredHeight > 297 - bottomMargin) {
       if (paper.templateType === 'SPLIT' && currentColumn === 0) {
         currentColumn = 1;
-        y = pageContentStartY[currentPage] ?? 16; 
+        y = pageContentStartY[currentPage] ?? 24; 
       } else {
         doc.addPage();
         currentPage++;
@@ -972,8 +1270,8 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
         doc.line(15, 14, 195, 14);
 
         currentColumn = 0;
-        y = 16; 
-        pageContentStartY[currentPage] = 16;
+        y = 24; 
+        pageContentStartY[currentPage] = 24;
       }
     }
   };
@@ -1025,7 +1323,7 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
 
   const drawMiddleSplitLineForPage = (pageNum: number) => {
     if (paper.templateType !== 'SPLIT') return;
-    const startY = pageContentStartY[pageNum] ?? 16;
+    const startY = pageNum === 1 ? (pageContentStartY[1] ?? 72) : 18;
     doc.setPage(pageNum);
     doc.setLineWidth(0.2);
     doc.setDrawColor(200, 200, 200);
@@ -1037,7 +1335,9 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
     const section = paper.sections[sIndex];
     if (!section) continue;
 
-    await advanceCursor(12);
+    // Ensure enough room for section title + segment header + first question (~26mm)
+    // to prevent orphaned section headers or overlap near the bottom of a page
+    await advanceCursor(26);
 
     doc.setFont(activeFont, 'bold');
     doc.setFontSize(Math.max(baseFontSize + 1, 10.5));
@@ -1313,25 +1613,50 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
             }
           }
 
-          const formattedSegments = parseHtmlToFormattedText(question.questionText)
-            .concat(buildSuffixSegments(question));
+          const formattedSegments = parseHtmlToFormattedText(question.questionText);
           await resolveMathSegments(formattedSegments, fontColor, baseFontSize);
 
           const totalHeight = estimateSegmentsHeight(doc, formattedSegments, textAreaWidth, LINE_HEIGHT);
 
-          let optionsData: OptionRenderData[] = [];
-          let totalOptionsHeight = 0;
-          const isMCQ = segment.type === 'MCQ' || question.segmentType === 'MCQ';
+          // Topic & Hint metadata
+          const metaParts: string[] = [];
+          if (question.subject?.trim()) metaParts.push(`Topic: ${question.subject.trim()}`);
+          if (question.hint?.trim()) metaParts.push(`Hint: ${question.hint.trim()}`);
 
-          if (isMCQ && question.options && question.options.length > 0) {
-            optionsData = buildOptionRenderData(doc, question.options, colWidth / 2 - 5, activeFont, optFontSize);
-            const leftLines = (optionsData[0]?.lines.length || 0) + (optionsData[1]?.lines.length || 0);
-            const rightLines = (optionsData[2]?.lines.length || 0) + (optionsData[3]?.lines.length || 0);
-            totalOptionsHeight = Math.max(leftLines, rightLines) * optLineHeight + 4;
+          let topicHeight = 0;
+          const metaFontSize = Math.max(baseFontSize - 2.5, 7.5);
+          const metaLineHeight = Math.max(metaFontSize * 0.3528 * 1.15, 3.0);
+          let metaLines: string[] = [];
+          if (metaParts.length > 0) {
+            const metaText = metaParts.map(p => `[${p}]`).join('   ');
+            doc.setFont(activeFont, 'italic');
+            doc.setFontSize(metaFontSize);
+            metaLines = doc.splitTextToSize(metaText, textAreaWidth);
+            topicHeight = metaLines.length * metaLineHeight + 0.8;
           }
 
-          const textAndImageHeight = Math.max(totalHeight, (hasImage && scaledHeight > 0) ? scaledHeight - 3 : 0);
-          const requiredHeight = textAndImageHeight + totalOptionsHeight + QUESTION_GAP;
+          const isMCQ = segment.type === 'MCQ' || question.segmentType === 'MCQ' || (!!question.options && question.options.length > 0);
+          let optionsData: OptionRenderData[] = [];
+          let totalOptionsHeight = 0;
+          const availableLeftWidth = hasImage ? (colWidth - scaledWidth - IMAGE_RIGHT_MARGIN - IMAGE_TEXT_GAP) : colWidth;
+          const useSingleColOptions = hasImage && availableLeftWidth < 65;
+          const optColWidth = useSingleColOptions ? (availableLeftWidth - 2) : (availableLeftWidth / 2 - 4);
+
+          if (isMCQ && question.options && question.options.length > 0) {
+            optionsData = await buildOptionRenderData(doc, question.options, optColWidth, activeFont, optFontSize, optLineHeight, fontColor);
+            if (useSingleColOptions) {
+              totalOptionsHeight = optionsData.reduce((acc, o) => acc + o.height + 1.2, 0) + 1.0;
+            } else {
+              const row1 = Math.max(optionsData[0]?.height || 0, optionsData[2]?.height || 0);
+              const row2 = Math.max(optionsData[1]?.height || 0, optionsData[3]?.height || 0);
+              totalOptionsHeight = row1 + row2 + 2.5;
+            }
+          }
+
+          const requiredHeight = Math.max(
+            totalHeight + topicHeight + totalOptionsHeight,
+            hasImage ? (scaledHeight - 3) : 0
+          ) + QUESTION_GAP;
 
           await advanceCursor(requiredHeight);
 
@@ -1352,28 +1677,45 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
             rgb,
             baseFontSize
           );
-          y = afterQuestionY;
 
           // Render image on right side if present
+          let imgBottomY = questionStartY;
           if (hasImage && imgBase64 && scaledWidth > 0 && scaledHeight > 0) {
             try {
               const imgX = getX() + colWidth - IMAGE_RIGHT_MARGIN - scaledWidth;
               doc.addImage(imgBase64, 'PNG', imgX, questionStartY - 3, scaledWidth, scaledHeight);
-              y = Math.max(y, questionStartY - 3 + scaledHeight);
+              imgBottomY = questionStartY - 3 + scaledHeight;
             } catch (e) {
               console.warn('Failed to render question image:', e);
             }
           }
 
-          if (isMCQ && optionsData.length > 0) {
-            const halfColWidth = colWidth / 2;
-            const startY = y + 2.5;
-
-            const leftY = renderOptionColumn(doc, optionsData.slice(0, 2), getX(), startY, optLineHeight, activeFont, optFontSize);
-            const rightY = renderOptionColumn(doc, optionsData.slice(2, 4), getX() + halfColWidth, startY, optLineHeight, activeFont, optFontSize);
-
-            y = Math.max(leftY, rightY);
+          // Render Topic & Hint line cleanly below question text without gap
+          let afterTopicY = afterQuestionY;
+          if (metaParts.length > 0 && metaLines.length > 0) {
+            doc.setFont(activeFont, 'italic');
+            doc.setFontSize(metaFontSize);
+            doc.setTextColor(100, 116, 139);
+            const metaStartY = afterQuestionY - 0.5;
+            metaLines.forEach((mLine: string, mIdx: number) => {
+              doc.text(mLine, getX() + qPrefixWidth, metaStartY + (mIdx * metaLineHeight));
+            });
+            afterTopicY = metaStartY + (metaLines.length * metaLineHeight) + 0.8;
+            doc.setTextColor(rgb.r, rgb.g, rgb.b);
           }
+
+          let afterOptionsY = afterTopicY;
+          if (isMCQ && optionsData.length > 0) {
+            const startY = afterTopicY + 1.0;
+
+            if (useSingleColOptions) {
+              afterOptionsY = renderSingleColOptions(doc, optionsData, getX(), startY, optColWidth, optLineHeight, activeFont, rgb, optFontSize);
+            } else {
+              afterOptionsY = render2ColOptions(doc, optionsData, getX(), startY, optColWidth, 8, optLineHeight, activeFont, rgb, optFontSize);
+            }
+          }
+
+          y = Math.max(afterOptionsY, hasImage ? imgBottomY : afterOptionsY);
 
           y += QUESTION_GAP;
 
@@ -1381,28 +1723,6 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
           const alternatives = question.alternatives || [];
           for (const alt of alternatives) {
             if (!alt.questionText) continue;
-
-            // Render OR separator
-            doc.setFont(activeFont, 'bold');
-            doc.setFontSize(baseFontSize);
-            doc.text('OR', getX(), y);
-            y += LINE_HEIGHT;
-
-            const altFormattedSegments = parseHtmlToFormattedText(alt.questionText);
-            await resolveMathSegments(altFormattedSegments, fontColor, baseFontSize);
-
-            const altTotalHeight = estimateSegmentsHeight(doc, altFormattedSegments, textAreaWidth, LINE_HEIGHT);
-
-            let altOptionsData: OptionRenderData[] = [];
-            let altTotalOptionsHeight = 0;
-            const altIsMCQ = segment.type === 'MCQ' || question.segmentType === 'MCQ';
-
-            if (altIsMCQ && alt.options && alt.options.length > 0) {
-              altOptionsData = buildOptionRenderData(doc, alt.options, colWidth / 2 - 5, activeFont, optFontSize);
-              const altLeftLines = (altOptionsData[0]?.lines.length || 0) + (altOptionsData[1]?.lines.length || 0);
-              const altRightLines = (altOptionsData[2]?.lines.length || 0) + (altOptionsData[3]?.lines.length || 0);
-              altTotalOptionsHeight = Math.max(altLeftLines, altRightLines) * optLineHeight + 4;
-            }
 
             const altHasImage = !!alt.imageUrl;
             let altImgBase64: string | null = null;
@@ -1423,8 +1743,55 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
               }
             }
 
-            const altTextAndImageHeight = Math.max(altTotalHeight, (altHasImage && altScaledHeight > 0) ? altScaledHeight - 3 : 0);
-            const altRequiredHeight = altTextAndImageHeight + altTotalOptionsHeight + QUESTION_GAP;
+            const altIsMCQ = segment.type === 'MCQ' || (alt as any).segmentType === 'MCQ' || (!!alt.options && alt.options.length > 0);
+
+            // Render OR separator
+            doc.setFont(activeFont, 'bold');
+            doc.setFontSize(baseFontSize);
+            doc.text('OR', getX(), y);
+            y += LINE_HEIGHT;
+
+            const altFormattedSegments = parseHtmlToFormattedText(alt.questionText);
+            await resolveMathSegments(altFormattedSegments, fontColor, baseFontSize);
+
+            const altTotalHeight = estimateSegmentsHeight(doc, altFormattedSegments, textAreaWidth, LINE_HEIGHT);
+
+            // Alternative Topic & Hint metadata
+            const altMetaParts: string[] = [];
+            if (alt.subject?.trim()) altMetaParts.push(`Topic: ${alt.subject.trim()}`);
+            if (alt.hint?.trim()) altMetaParts.push(`Hint: ${alt.hint.trim()}`);
+
+            let altTopicHeight = 0;
+            let altMetaLines: string[] = [];
+            if (altMetaParts.length > 0) {
+              const altMetaText = altMetaParts.map(p => `[${p}]`).join('   ');
+              doc.setFont(activeFont, 'italic');
+              doc.setFontSize(metaFontSize);
+              altMetaLines = doc.splitTextToSize(altMetaText, textAreaWidth);
+              altTopicHeight = altMetaLines.length * metaLineHeight + 0.8;
+            }
+
+            let altOptionsData: OptionRenderData[] = [];
+            let altTotalOptionsHeight = 0;
+            const altAvailableLeftWidth = altHasImage ? (colWidth - altScaledWidth - IMAGE_RIGHT_MARGIN - IMAGE_TEXT_GAP) : colWidth;
+            const altUseSingleColOptions = altHasImage && altAvailableLeftWidth < 65;
+            const altOptColWidth = altUseSingleColOptions ? (altAvailableLeftWidth - 2) : (altAvailableLeftWidth / 2 - 4);
+
+            if (altIsMCQ && alt.options && alt.options.length > 0) {
+              altOptionsData = await buildOptionRenderData(doc, alt.options, altOptColWidth, activeFont, optFontSize, optLineHeight, fontColor);
+              if (altUseSingleColOptions) {
+                altTotalOptionsHeight = altOptionsData.reduce((acc, o) => acc + o.height + 1.2, 0) + 1.0;
+              } else {
+                const row1 = Math.max(altOptionsData[0]?.height || 0, altOptionsData[2]?.height || 0);
+                const row2 = Math.max(altOptionsData[1]?.height || 0, altOptionsData[3]?.height || 0);
+                altTotalOptionsHeight = row1 + row2 + 2.5;
+              }
+            }
+
+            const altRequiredHeight = Math.max(
+              altTotalHeight + altTopicHeight + altTotalOptionsHeight,
+              altHasImage ? (altScaledHeight - 3) : 0
+            ) + QUESTION_GAP;
 
             await advanceCursor(altRequiredHeight);
 
@@ -1441,27 +1808,44 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
               rgb,
               baseFontSize
             );
-            y = afterAltQuestionY;
 
+            let altImgBottomY = altQuestionStartY;
             if (altHasImage && altImgBase64 && altScaledWidth > 0 && altScaledHeight > 0) {
               try {
                 const imgX = getX() + colWidth - IMAGE_RIGHT_MARGIN - altScaledWidth;
                 doc.addImage(altImgBase64, 'PNG', imgX, altQuestionStartY - 3, altScaledWidth, altScaledHeight);
-                y = Math.max(y, altQuestionStartY - 3 + altScaledHeight);
+                altImgBottomY = altQuestionStartY - 3 + altScaledHeight;
               } catch (e) {
                 console.warn('Failed to render alternative question image:', e);
               }
             }
 
-            if (altIsMCQ && altOptionsData.length > 0) {
-              const halfColWidth = colWidth / 2;
-              const startY = y + 2.5;
-
-              const leftY = renderOptionColumn(doc, altOptionsData.slice(0, 2), getX(), startY, optLineHeight, activeFont, optFontSize);
-              const rightY = renderOptionColumn(doc, altOptionsData.slice(2, 4), getX() + halfColWidth, startY, optLineHeight, activeFont, optFontSize);
-
-              y = Math.max(leftY, rightY);
+            // Render Alt Topic & Hint
+            let afterAltTopicY = afterAltQuestionY;
+            if (altMetaParts.length > 0 && altMetaLines.length > 0) {
+              doc.setFont(activeFont, 'italic');
+              doc.setFontSize(metaFontSize);
+              doc.setTextColor(100, 116, 139);
+              const altMetaStartY = afterAltQuestionY - 0.5;
+              altMetaLines.forEach((mLine: string, mIdx: number) => {
+                doc.text(mLine, getX() + qPrefixWidth, altMetaStartY + (mIdx * metaLineHeight));
+              });
+              afterAltTopicY = altMetaStartY + (altMetaLines.length * metaLineHeight) + 0.8;
+              doc.setTextColor(rgb.r, rgb.g, rgb.b);
             }
+
+            let afterAltOptionsY = afterAltTopicY;
+            if (altIsMCQ && altOptionsData.length > 0) {
+              const startY = afterAltTopicY + 1.0;
+
+              if (altUseSingleColOptions) {
+                afterAltOptionsY = renderSingleColOptions(doc, altOptionsData, getX(), startY, altOptColWidth, optLineHeight, activeFont, rgb, optFontSize);
+              } else {
+                afterAltOptionsY = render2ColOptions(doc, altOptionsData, getX(), startY, altOptColWidth, 8, optLineHeight, activeFont, rgb, optFontSize);
+              }
+            }
+
+            y = Math.max(afterAltOptionsY, altHasImage ? altImgBottomY : afterAltOptionsY);
 
             y += QUESTION_GAP;
           } 
@@ -1502,25 +1886,50 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
           }
         }
 
-        const formattedSegments = parseHtmlToFormattedText(question.questionText)
-          .concat(buildSuffixSegments(question));
+        const formattedSegments = parseHtmlToFormattedText(question.questionText);
         await resolveMathSegments(formattedSegments, fontColor, baseFontSize);
 
         const totalHeight = estimateSegmentsHeight(doc, formattedSegments, textAreaWidth, LINE_HEIGHT);
 
-        let optionsData: OptionRenderData[] = [];
-        let totalOptionsHeight = 0;
-        const isMCQ = section.type === 'MCQ' || question.segmentType === 'MCQ';
+        // Topic & Hint metadata
+        const metaParts: string[] = [];
+        if (question.subject?.trim()) metaParts.push(`Topic: ${question.subject.trim()}`);
+        if (question.hint?.trim()) metaParts.push(`Hint: ${question.hint.trim()}`);
 
-        if (isMCQ && question.options && question.options.length > 0) {
-          optionsData = buildOptionRenderData(doc, question.options, colWidth / 2 - 5, activeFont, optFontSize);
-          const leftLines = (optionsData[0]?.lines.length || 0) + (optionsData[1]?.lines.length || 0);
-          const rightLines = (optionsData[2]?.lines.length || 0) + (optionsData[3]?.lines.length || 0);
-          totalOptionsHeight = Math.max(leftLines, rightLines) * optLineHeight + 4;
+        let topicHeight = 0;
+        const metaFontSize = Math.max(baseFontSize - 2.5, 7.5);
+        const metaLineHeight = Math.max(metaFontSize * 0.3528 * 1.15, 3.0);
+        let metaLines: string[] = [];
+        if (metaParts.length > 0) {
+          const metaText = metaParts.map(p => `[${p}]`).join('   ');
+          doc.setFont(activeFont, 'italic');
+          doc.setFontSize(metaFontSize);
+          metaLines = doc.splitTextToSize(metaText, textAreaWidth);
+          topicHeight = metaLines.length * metaLineHeight + 0.8;
         }
 
-        const textAndImageHeight = Math.max(totalHeight, (hasImage && scaledHeight > 0) ? scaledHeight - 3 : 0);
-        const requiredHeight = textAndImageHeight + totalOptionsHeight + QUESTION_GAP;
+        const isMCQ = (question as any).type === 'MCQ' || question.segmentType === 'MCQ' || (!!question.options && question.options.length > 0);
+        let optionsData: OptionRenderData[] = [];
+        let totalOptionsHeight = 0;
+        const availableLeftWidth = hasImage ? (colWidth - scaledWidth - IMAGE_RIGHT_MARGIN - IMAGE_TEXT_GAP) : colWidth;
+        const useSingleColOptions = hasImage && availableLeftWidth < 65;
+        const optColWidth = useSingleColOptions ? (availableLeftWidth - 2) : (availableLeftWidth / 2 - 4);
+
+        if (isMCQ && question.options && question.options.length > 0) {
+          optionsData = await buildOptionRenderData(doc, question.options, optColWidth, activeFont, optFontSize, optLineHeight, fontColor);
+          if (useSingleColOptions) {
+            totalOptionsHeight = optionsData.reduce((acc, o) => acc + o.height + 1.2, 0) + 1.0;
+          } else {
+            const row1 = Math.max(optionsData[0]?.height || 0, optionsData[2]?.height || 0);
+            const row2 = Math.max(optionsData[1]?.height || 0, optionsData[3]?.height || 0);
+            totalOptionsHeight = row1 + row2 + 2.5;
+          }
+        }
+
+        const requiredHeight = Math.max(
+          totalHeight + topicHeight + totalOptionsHeight,
+          hasImage ? (scaledHeight - 3) : 0
+        ) + QUESTION_GAP;
 
         await advanceCursor(requiredHeight);
 
@@ -1541,28 +1950,45 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
           rgb,
           baseFontSize
         );
-        y = afterQuestionY;
 
         // Render image on right side if present
+        let imgBottomY = questionStartY;
         if (hasImage && imgBase64 && scaledWidth > 0 && scaledHeight > 0) {
           try {
             const imgX = getX() + colWidth - IMAGE_RIGHT_MARGIN - scaledWidth;
             doc.addImage(imgBase64, 'PNG', imgX, questionStartY - 3, scaledWidth, scaledHeight);
-            y = Math.max(y, questionStartY - 3 + scaledHeight);
+            imgBottomY = questionStartY - 3 + scaledHeight;
           } catch (e) {
             console.warn('Failed to render question image:', e);
           }
         }
 
-        if (isMCQ && optionsData.length > 0) {
-          const halfColWidth = colWidth / 2;
-          const startY = y + 1.0;
-
-          const leftY = renderOptionColumn(doc, optionsData.slice(0, 2), getX(), startY, optLineHeight, activeFont, optFontSize);
-          const rightY = renderOptionColumn(doc, optionsData.slice(2, 4), getX() + halfColWidth, startY, optLineHeight, activeFont, optFontSize);
-
-          y = Math.max(leftY, rightY);
+        // Render Topic & Hint line cleanly below question text without gap
+        let afterTopicY = afterQuestionY;
+        if (metaParts.length > 0 && metaLines.length > 0) {
+          doc.setFont(activeFont, 'italic');
+          doc.setFontSize(metaFontSize);
+          doc.setTextColor(100, 116, 139);
+          const metaStartY = afterQuestionY - 0.5;
+          metaLines.forEach((mLine: string, mIdx: number) => {
+            doc.text(mLine, getX() + qPrefixWidth, metaStartY + (mIdx * metaLineHeight));
+          });
+          afterTopicY = metaStartY + (metaLines.length * metaLineHeight) + 0.8;
+          doc.setTextColor(rgb.r, rgb.g, rgb.b);
         }
+
+        let afterOptionsY = afterTopicY;
+        if (isMCQ && optionsData.length > 0) {
+          const startY = afterTopicY + 1.0;
+
+          if (useSingleColOptions) {
+            afterOptionsY = renderSingleColOptions(doc, optionsData, getX(), startY, optColWidth, optLineHeight, activeFont, rgb, optFontSize);
+          } else {
+            afterOptionsY = render2ColOptions(doc, optionsData, getX(), startY, optColWidth, 8, optLineHeight, activeFont, rgb, optFontSize);
+          }
+        }
+
+        y = Math.max(afterOptionsY, hasImage ? imgBottomY : afterOptionsY);
 
         y += QUESTION_GAP;
 
@@ -1570,28 +1996,6 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
         const alternatives = question.alternatives || [];
         for (const alt of alternatives) {
           if (!alt.questionText) continue;
-
-          // Render OR separator
-          doc.setFont(activeFont, 'bold');
-          doc.setFontSize(baseFontSize);
-          doc.text('OR', getX(), y);
-          y += LINE_HEIGHT;
-
-          const altFormattedSegments = parseHtmlToFormattedText(alt.questionText);
-          await resolveMathSegments(altFormattedSegments, fontColor, baseFontSize);
-
-          const altTotalHeight = estimateSegmentsHeight(doc, altFormattedSegments, textAreaWidth, LINE_HEIGHT);
-
-          let altOptionsData: OptionRenderData[] = [];
-          let altTotalOptionsHeight = 0;
-          const altIsMCQ = section.type === 'MCQ' || question.segmentType === 'MCQ';
-
-          if (altIsMCQ && alt.options && alt.options.length > 0) {
-            altOptionsData = buildOptionRenderData(doc, alt.options, colWidth / 2 - 5, activeFont, optFontSize);
-            const altLeftLines = (altOptionsData[0]?.lines.length || 0) + (altOptionsData[1]?.lines.length || 0);
-            const altRightLines = (altOptionsData[2]?.lines.length || 0) + (altOptionsData[3]?.lines.length || 0);
-            altTotalOptionsHeight = Math.max(altLeftLines, altRightLines) * optLineHeight + 4;
-          }
 
           const altHasImage = !!alt.imageUrl;
           let altImgBase64: string | null = null;
@@ -1612,8 +2016,55 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
             }
           }
 
-          const altTextAndImageHeight = Math.max(altTotalHeight, (altHasImage && altScaledHeight > 0) ? altScaledHeight - 3 : 0);
-          const altRequiredHeight = altTextAndImageHeight + altTotalOptionsHeight + QUESTION_GAP;
+          const altIsMCQ = (alt as any).type === 'MCQ' || (alt as any).segmentType === 'MCQ' || (!!alt.options && alt.options.length > 0);
+
+          // Render OR separator
+          doc.setFont(activeFont, 'bold');
+          doc.setFontSize(baseFontSize);
+          doc.text('OR', getX(), y);
+          y += LINE_HEIGHT;
+
+          const altFormattedSegments = parseHtmlToFormattedText(alt.questionText);
+          await resolveMathSegments(altFormattedSegments, fontColor, baseFontSize);
+
+          const altTotalHeight = estimateSegmentsHeight(doc, altFormattedSegments, textAreaWidth, LINE_HEIGHT);
+
+          // Alternative Topic & Hint metadata
+          const altMetaParts: string[] = [];
+          if (alt.subject?.trim()) altMetaParts.push(`Topic: ${alt.subject.trim()}`);
+          if (alt.hint?.trim()) altMetaParts.push(`Hint: ${alt.hint.trim()}`);
+
+          let altTopicHeight = 0;
+          let altMetaLines: string[] = [];
+          if (altMetaParts.length > 0) {
+            const altMetaText = altMetaParts.map(p => `[${p}]`).join('   ');
+            doc.setFont(activeFont, 'italic');
+            doc.setFontSize(metaFontSize);
+            altMetaLines = doc.splitTextToSize(altMetaText, textAreaWidth);
+            altTopicHeight = altMetaLines.length * metaLineHeight + 0.8;
+          }
+
+          let altOptionsData: OptionRenderData[] = [];
+          let altTotalOptionsHeight = 0;
+          const altAvailableLeftWidth = altHasImage ? (colWidth - altScaledWidth - IMAGE_RIGHT_MARGIN - IMAGE_TEXT_GAP) : colWidth;
+          const altUseSingleColOptions = altHasImage && altAvailableLeftWidth < 65;
+          const altOptColWidth = altUseSingleColOptions ? (altAvailableLeftWidth - 2) : (altAvailableLeftWidth / 2 - 4);
+
+          if (altIsMCQ && alt.options && alt.options.length > 0) {
+            altOptionsData = await buildOptionRenderData(doc, alt.options, altOptColWidth, activeFont, optFontSize, optLineHeight, fontColor);
+            if (altUseSingleColOptions) {
+              altTotalOptionsHeight = altOptionsData.reduce((acc, o) => acc + o.height + 1.2, 0) + 1.0;
+            } else {
+              const row1 = Math.max(altOptionsData[0]?.height || 0, altOptionsData[2]?.height || 0);
+              const row2 = Math.max(altOptionsData[1]?.height || 0, altOptionsData[3]?.height || 0);
+              altTotalOptionsHeight = row1 + row2 + 2.5;
+            }
+          }
+
+          const altRequiredHeight = Math.max(
+            altTotalHeight + altTopicHeight + altTotalOptionsHeight,
+            altHasImage ? (altScaledHeight - 3) : 0
+          ) + QUESTION_GAP;
 
           await advanceCursor(altRequiredHeight);
 
@@ -1630,27 +2081,44 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
             rgb,
             baseFontSize
           );
-          y = afterAltQuestionY;
 
+          let altImgBottomY = altQuestionStartY;
           if (altHasImage && altImgBase64 && altScaledWidth > 0 && altScaledHeight > 0) {
             try {
               const imgX = getX() + colWidth - IMAGE_RIGHT_MARGIN - altScaledWidth;
               doc.addImage(altImgBase64, 'PNG', imgX, altQuestionStartY - 3, altScaledWidth, altScaledHeight);
-              y = Math.max(y, altQuestionStartY - 3 + altScaledHeight);
+              altImgBottomY = altQuestionStartY - 3 + altScaledHeight;
             } catch (e) {
               console.warn('Failed to render alternative question image:', e);
             }
           }
 
-          if (altIsMCQ && altOptionsData.length > 0) {
-            const halfColWidth = colWidth / 2;
-            const startY = y + 1.0;
-
-            const leftY = renderOptionColumn(doc, altOptionsData.slice(0, 2), getX(), startY, optLineHeight, activeFont, optFontSize);
-            const rightY = renderOptionColumn(doc, altOptionsData.slice(2, 4), getX() + halfColWidth, startY, optLineHeight, activeFont, optFontSize);
-
-            y = Math.max(leftY, rightY);
+          // Render Alt Topic & Hint
+          let afterAltTopicY = afterAltQuestionY;
+          if (altMetaParts.length > 0 && altMetaLines.length > 0) {
+            doc.setFont(activeFont, 'italic');
+            doc.setFontSize(metaFontSize);
+            doc.setTextColor(100, 116, 139);
+            const altMetaStartY = afterAltQuestionY - 0.5;
+            altMetaLines.forEach((mLine: string, mIdx: number) => {
+              doc.text(mLine, getX() + qPrefixWidth, altMetaStartY + (mIdx * metaLineHeight));
+            });
+            afterAltTopicY = altMetaStartY + (altMetaLines.length * metaLineHeight) + 0.8;
+            doc.setTextColor(rgb.r, rgb.g, rgb.b);
           }
+
+          let afterAltOptionsY = afterAltTopicY;
+          if (altIsMCQ && altOptionsData.length > 0) {
+            const startY = afterAltTopicY + 1.0;
+
+            if (altUseSingleColOptions) {
+              afterAltOptionsY = renderSingleColOptions(doc, altOptionsData, getX(), startY, altOptColWidth, optLineHeight, activeFont, rgb, optFontSize);
+            } else {
+              afterAltOptionsY = render2ColOptions(doc, altOptionsData, getX(), startY, altOptColWidth, 8, optLineHeight, activeFont, rgb, optFontSize);
+            }
+          }
+
+          y = Math.max(afterAltOptionsY, altHasImage ? altImgBottomY : afterAltOptionsY);
 
           y += QUESTION_GAP;
         } 

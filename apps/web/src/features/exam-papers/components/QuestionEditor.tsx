@@ -8,6 +8,8 @@ import { RichTextField } from './RichTextField';
 import { ImageCropModal } from './ImageCropModal';
 import { api } from '@/services/api-client';
 import { cn } from '@/lib/utils';
+import katex from 'katex';
+import { MathEquationDialog } from './MathEquationDialog';
 import { 
   Type, 
   Palette, 
@@ -18,8 +20,38 @@ import {
   Sparkles,
   HelpCircle,
   BookOpen,
-  Eye
+  Eye,
+  Sigma
 } from 'lucide-react';
+
+function renderOptionMathPreview(text: string): string | null {
+  if (!text) return null;
+  const hasDollarMath = /\$([^\$]+)\$/.test(text);
+  const hasLatexCommands = /\\[a-zA-Z]+/.test(text);
+  if (!hasDollarMath && !hasLatexCommands) return null;
+
+  try {
+    let result = text;
+    if (hasDollarMath) {
+      result = result.replace(/\$([^\$]+)\$/g, (_, eq) => {
+        try {
+          return katex.renderToString(eq, { throwOnError: false, displayMode: false });
+        } catch {
+          return eq;
+        }
+      });
+    } else if (hasLatexCommands) {
+      try {
+        result = katex.renderToString(text, { throwOnError: false, displayMode: false });
+      } catch {
+        return null;
+      }
+    }
+    return result;
+  } catch {
+    return null;
+  }
+}
 
 interface QuestionEditorProps {
   sections: any[];
@@ -85,7 +117,48 @@ export function QuestionEditor({
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState<{ src: string; sectionIndex: number; questionIndex: number } | null>(null);
+  const [optionMathTarget, setOptionMathTarget] = useState<{
+    sectionIndex: number;
+    questionIndex: number;
+    altIndex?: number;
+    optionIndex: number;
+  } | null>(null);
   const initializedRef = useRef(false);
+
+  const handleInsertOptionMath = (latex: string) => {
+    if (!optionMathTarget) return;
+    const { sectionIndex, questionIndex, altIndex, optionIndex } = optionMathTarget;
+    const mathSnippet = `$${latex}$`;
+
+    if (altIndex !== undefined) {
+      const currentText = draftSections[sectionIndex]?.questions[questionIndex]?.alternatives?.[altIndex]?.options?.[optionIndex]?.text || '';
+      const newText = currentText ? `${currentText} ${mathSnippet}` : mathSnippet;
+      updateAlternativeOption(sectionIndex, questionIndex, altIndex, optionIndex, newText);
+    } else {
+      const currentText = draftSections[sectionIndex]?.questions[questionIndex]?.options?.[optionIndex]?.text || '';
+      const newText = currentText ? `${currentText} ${mathSnippet}` : mathSnippet;
+      updateOption(sectionIndex, questionIndex, optionIndex, newText);
+    }
+    setOptionMathTarget(null);
+  };
+
+  const handleQuickInsertOptionMath = (
+    sectionIndex: number,
+    questionIndex: number,
+    altIndex: number | undefined,
+    optionIndex: number,
+    snippet: string
+  ) => {
+    if (altIndex !== undefined) {
+      const currentText = draftSections[sectionIndex]?.questions[questionIndex]?.alternatives?.[altIndex]?.options?.[optionIndex]?.text || '';
+      const newText = currentText ? `${currentText} ${snippet}` : snippet;
+      updateAlternativeOption(sectionIndex, questionIndex, altIndex, optionIndex, newText);
+    } else {
+      const currentText = draftSections[sectionIndex]?.questions[questionIndex]?.options?.[optionIndex]?.text || '';
+      const newText = currentText ? `${currentText} ${snippet}` : snippet;
+      updateOption(sectionIndex, questionIndex, optionIndex, newText);
+    }
+  };
 
   useEffect(() => {
     onDraftChange?.(draftSections, globalStyle);
@@ -726,11 +799,14 @@ export function QuestionEditor({
                         )}
                       </div>
 
-                      {/* Styled MCQ Options with Badges and Correct Selection */}
+                      {/* Styled MCQ Options with Badges, Math formula features, and Correct Selection */}
                       {question.segmentType === 'MCQ' ? (
                         <div className="mt-4 space-y-2.5">
                           <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-                            <span>Multiple Choice Options:</span>
+                            <span className="flex items-center gap-1.5 font-semibold text-slate-700">
+                              <span>Multiple Choice Options:</span>
+                              <span className="text-[11px] font-normal text-slate-400">(Supports text & LaTeX math formulas)</span>
+                            </span>
                             <span className="text-[11px] text-slate-400">Click a badge (A/B/C/D) to select the correct answer</span>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
@@ -738,44 +814,123 @@ export function QuestionEditor({
                               const option = question.options?.[optionIndex] || { text: '', isCorrect: optionIndex === 0 };
                               const optionLabel = ['A', 'B', 'C', 'D'][optionIndex];
                               const isCorrect = option.isCorrect ?? (optionIndex === 0);
+                              const mathPreviewHtml = renderOptionMathPreview(option.text || '');
 
                               return (
                                 <div 
                                   key={optionIndex}
                                   className={cn(
-                                    "flex items-center gap-2.5 p-2 rounded-xl border transition-all",
+                                    "flex flex-col gap-1.5 p-2.5 rounded-xl border transition-all",
                                     isCorrect 
                                       ? "bg-emerald-50/40 border-emerald-300 ring-1 ring-emerald-400/30" 
                                       : "bg-white border-slate-200 hover:border-slate-300"
                                   )}
                                 >
-                                  <button
-                                    type="button"
-                                    onClick={() => setCorrectOption(sectionIndex, questionIndex, optionIndex)}
-                                    title={isCorrect ? "Correct answer" : "Click to mark as correct answer"}
-                                    className={cn(
-                                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold transition-all",
-                                      isCorrect 
-                                        ? "bg-emerald-600 text-white shadow-2xs" 
-                                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => setCorrectOption(sectionIndex, questionIndex, optionIndex)}
+                                      title={isCorrect ? "Correct answer" : "Click to mark as correct answer"}
+                                      className={cn(
+                                        "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold transition-all",
+                                        isCorrect 
+                                          ? "bg-emerald-600 text-white shadow-2xs" 
+                                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                      )}
+                                    >
+                                      {optionLabel}
+                                    </button>
+
+                                    <Input 
+                                      placeholder={`Option ${optionLabel} text or formula...`} 
+                                      value={option.text || ''}
+                                      onChange={(e) => updateOption(sectionIndex, questionIndex, optionIndex, e.target.value)} 
+                                      style={{ fontFamily: globalStyle.fontFamily, fontSize: globalStyle.fontSize, color: globalStyle.color }}
+                                      className="border-0 shadow-none bg-transparent focus-visible:ring-1 focus-visible:ring-blue-500 text-sm flex-1 min-w-0"
+                                    />
+
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setOptionMathTarget({ sectionIndex, questionIndex, optionIndex })}
+                                        className="h-7 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50/80 flex items-center gap-1 border-blue-200 rounded-lg shadow-2xs"
+                                        title={`Insert Math formula / LaTeX into Option ${optionLabel}`}
+                                      >
+                                        <Sigma className="w-3.5 h-3.5 text-blue-600" />
+                                        <span className="font-semibold text-[11px]">Math</span>
+                                      </Button>
+
+                                      {isCorrect && (
+                                        <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+                                          Correct
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {/* Quick math symbol shortcuts + Live Math Formula Preview */}
+                                  <div className="flex flex-wrap items-center justify-between gap-1.5 pt-1 border-t border-slate-100/90 text-[11px]">
+                                    <div className="flex items-center gap-1 text-slate-500">
+                                      <span className="text-[10px] text-slate-400 font-medium mr-0.5">Quick:</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleQuickInsertOptionMath(sectionIndex, questionIndex, undefined, optionIndex, '$\\frac{a}{b}$')}
+                                        className="px-1.5 py-0.5 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-mono text-[10px] border border-slate-200 transition-colors"
+                                        title="Fraction a/b"
+                                      >
+                                        a/b
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleQuickInsertOptionMath(sectionIndex, questionIndex, undefined, optionIndex, '$\\sqrt{x}$')}
+                                        className="px-1.5 py-0.5 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-mono text-[10px] border border-slate-200 transition-colors"
+                                        title="Square Root √x"
+                                      >
+                                        √x
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleQuickInsertOptionMath(sectionIndex, questionIndex, undefined, optionIndex, '$x^{2}$')}
+                                        className="px-1.5 py-0.5 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-mono text-[10px] border border-slate-200 transition-colors"
+                                        title="Square x²"
+                                      >
+                                        x²
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleQuickInsertOptionMath(sectionIndex, questionIndex, undefined, optionIndex, '$x_{1}$')}
+                                        className="px-1.5 py-0.5 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-mono text-[10px] border border-slate-200 transition-colors"
+                                        title="Subscript x₁"
+                                      >
+                                        x₁
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleQuickInsertOptionMath(sectionIndex, questionIndex, undefined, optionIndex, '$\\pm$')}
+                                        className="px-1.5 py-0.5 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-mono text-[10px] border border-slate-200 transition-colors"
+                                        title="Plus/Minus ±"
+                                      >
+                                        ±
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleQuickInsertOptionMath(sectionIndex, questionIndex, undefined, optionIndex, '$\\pi$')}
+                                        className="px-1.5 py-0.5 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-mono text-[10px] border border-slate-200 transition-colors"
+                                        title="Pi π"
+                                      >
+                                        π
+                                      </button>
+                                    </div>
+
+                                    {mathPreviewHtml && (
+                                      <div className="flex items-center gap-1.5 px-2 py-0.5 bg-blue-50/70 border border-blue-200/60 rounded text-slate-800 ml-auto overflow-x-auto max-w-full">
+                                        <span className="text-[9px] font-bold text-blue-600 uppercase tracking-wider shrink-0">Preview:</span>
+                                        <span dangerouslySetInnerHTML={{ __html: mathPreviewHtml }} className="text-xs" />
+                                      </div>
                                     )}
-                                  >
-                                    {optionLabel}
-                                  </button>
-
-                                  <Input 
-                                    placeholder={`Option ${optionLabel} text...`} 
-                                    value={option.text || ''}
-                                    onChange={(e) => updateOption(sectionIndex, questionIndex, optionIndex, e.target.value)} 
-                                    style={{ fontFamily: globalStyle.fontFamily, fontSize: globalStyle.fontSize, color: globalStyle.color }}
-                                    className="border-0 shadow-none bg-transparent focus-visible:ring-1 focus-visible:ring-blue-500 text-sm"
-                                  />
-
-                                  {isCorrect && (
-                                    <span className="shrink-0 text-[10px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
-                                      Correct
-                                    </span>
-                                  )}
+                                  </div>
                                 </div>
                               );
                             })}
@@ -894,11 +1049,14 @@ export function QuestionEditor({
                         )}
                       </div>
 
-                      {/* Alternative MCQ Options */}
+                      {/* Alternative MCQ Options with Math formula features */}
                       {alt.segmentType === 'MCQ' ? (
                         <div className="mt-4 space-y-2.5">
                           <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-                            <span>Alternative Multiple Choice Options:</span>
+                            <span className="flex items-center gap-1.5 font-semibold text-slate-700">
+                              <span>Alternative Multiple Choice Options:</span>
+                              <span className="text-[11px] font-normal text-slate-400">(Supports text & LaTeX math formulas)</span>
+                            </span>
                             <span className="text-[11px] text-slate-400">Click a badge to select correct answer</span>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
@@ -906,44 +1064,123 @@ export function QuestionEditor({
                               const option = alt.options?.[optionIndex] || { text: '', isCorrect: optionIndex === 0 };
                               const optionLabel = ['A', 'B', 'C', 'D'][optionIndex];
                               const isCorrect = option.isCorrect ?? (optionIndex === 0);
+                              const mathPreviewHtml = renderOptionMathPreview(option.text || '');
 
                               return (
                                 <div 
                                   key={optionIndex}
                                   className={cn(
-                                    "flex items-center gap-2.5 p-2 rounded-xl border transition-all",
+                                    "flex flex-col gap-1.5 p-2.5 rounded-xl border transition-all",
                                     isCorrect 
                                       ? "bg-emerald-50/40 border-emerald-300 ring-1 ring-emerald-400/30" 
                                       : "bg-white border-slate-200 hover:border-slate-300"
                                   )}
                                 >
-                                  <button
-                                    type="button"
-                                    onClick={() => setAlternativeCorrectOption(sectionIndex, questionIndex, altIndex, optionIndex)}
-                                    title={isCorrect ? "Correct answer" : "Click to mark as correct answer"}
-                                    className={cn(
-                                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold transition-all",
-                                      isCorrect 
-                                        ? "bg-emerald-600 text-white shadow-2xs" 
-                                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => setAlternativeCorrectOption(sectionIndex, questionIndex, altIndex, optionIndex)}
+                                      title={isCorrect ? "Correct answer" : "Click to mark as correct answer"}
+                                      className={cn(
+                                        "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold transition-all",
+                                        isCorrect 
+                                          ? "bg-emerald-600 text-white shadow-2xs" 
+                                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                      )}
+                                    >
+                                      {optionLabel}
+                                    </button>
+
+                                    <Input 
+                                      placeholder={`Option ${optionLabel} text or formula...`} 
+                                      value={option.text || ''}
+                                      onChange={(e) => updateAlternativeOption(sectionIndex, questionIndex, altIndex, optionIndex, e.target.value)} 
+                                      style={{ fontFamily: globalStyle.fontFamily, fontSize: globalStyle.fontSize, color: globalStyle.color }}
+                                      className="border-0 shadow-none bg-transparent focus-visible:ring-1 focus-visible:ring-blue-500 text-sm flex-1 min-w-0"
+                                    />
+
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setOptionMathTarget({ sectionIndex, questionIndex, altIndex, optionIndex })}
+                                        className="h-7 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50/80 flex items-center gap-1 border-blue-200 rounded-lg shadow-2xs"
+                                        title={`Insert Math formula / LaTeX into Alternative Option ${optionLabel}`}
+                                      >
+                                        <Sigma className="w-3.5 h-3.5 text-blue-600" />
+                                        <span className="font-semibold text-[11px]">Math</span>
+                                      </Button>
+
+                                      {isCorrect && (
+                                        <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+                                          Correct
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {/* Quick math symbol shortcuts + Live Math Formula Preview */}
+                                  <div className="flex flex-wrap items-center justify-between gap-1.5 pt-1 border-t border-slate-100/90 text-[11px]">
+                                    <div className="flex items-center gap-1 text-slate-500">
+                                      <span className="text-[10px] text-slate-400 font-medium mr-0.5">Quick:</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleQuickInsertOptionMath(sectionIndex, questionIndex, altIndex, optionIndex, '$\\frac{a}{b}$')}
+                                        className="px-1.5 py-0.5 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-mono text-[10px] border border-slate-200 transition-colors"
+                                        title="Fraction a/b"
+                                      >
+                                        a/b
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleQuickInsertOptionMath(sectionIndex, questionIndex, altIndex, optionIndex, '$\\sqrt{x}$')}
+                                        className="px-1.5 py-0.5 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-mono text-[10px] border border-slate-200 transition-colors"
+                                        title="Square Root √x"
+                                      >
+                                        √x
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleQuickInsertOptionMath(sectionIndex, questionIndex, altIndex, optionIndex, '$x^{2}$')}
+                                        className="px-1.5 py-0.5 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-mono text-[10px] border border-slate-200 transition-colors"
+                                        title="Square x²"
+                                      >
+                                        x²
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleQuickInsertOptionMath(sectionIndex, questionIndex, altIndex, optionIndex, '$x_{1}$')}
+                                        className="px-1.5 py-0.5 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-mono text-[10px] border border-slate-200 transition-colors"
+                                        title="Subscript x₁"
+                                      >
+                                        x₁
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleQuickInsertOptionMath(sectionIndex, questionIndex, altIndex, optionIndex, '$\\pm$')}
+                                        className="px-1.5 py-0.5 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-mono text-[10px] border border-slate-200 transition-colors"
+                                        title="Plus/Minus ±"
+                                      >
+                                        ±
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleQuickInsertOptionMath(sectionIndex, questionIndex, altIndex, optionIndex, '$\\pi$')}
+                                        className="px-1.5 py-0.5 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-mono text-[10px] border border-slate-200 transition-colors"
+                                        title="Pi π"
+                                      >
+                                        π
+                                      </button>
+                                    </div>
+
+                                    {mathPreviewHtml && (
+                                      <div className="flex items-center gap-1.5 px-2 py-0.5 bg-blue-50/70 border border-blue-200/60 rounded text-slate-800 ml-auto overflow-x-auto max-w-full">
+                                        <span className="text-[9px] font-bold text-blue-600 uppercase tracking-wider shrink-0">Preview:</span>
+                                        <span dangerouslySetInnerHTML={{ __html: mathPreviewHtml }} className="text-xs" />
+                                      </div>
                                     )}
-                                  >
-                                    {optionLabel}
-                                  </button>
-
-                                  <Input 
-                                    placeholder={`Option ${optionLabel} text...`} 
-                                    value={option.text || ''}
-                                    onChange={(e) => updateAlternativeOption(sectionIndex, questionIndex, altIndex, optionIndex, e.target.value)} 
-                                    style={{ fontFamily: globalStyle.fontFamily, fontSize: globalStyle.fontSize, color: globalStyle.color }}
-                                    className="border-0 shadow-none bg-transparent focus-visible:ring-1 focus-visible:ring-blue-500 text-sm"
-                                  />
-
-                                  {isCorrect && (
-                                    <span className="shrink-0 text-[10px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
-                                      Correct
-                                    </span>
-                                  )}
+                                  </div>
                                 </div>
                               );
                             })}
@@ -1048,6 +1285,14 @@ export function QuestionEditor({
         onClose={() => setCropModalOpen(false)}
         onCropComplete={handleCropComplete}
         imageSrc={currentImage?.src || ''}
+      />
+
+      <MathEquationDialog
+        open={Boolean(optionMathTarget)}
+        onOpenChange={(open) => {
+          if (!open) setOptionMathTarget(null);
+        }}
+        onInsert={handleInsertOptionMath}
       />
     </div>
   );

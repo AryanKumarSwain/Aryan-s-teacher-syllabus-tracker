@@ -2,7 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import type { PaginatedResponse } from '@school-syllabus/types';
 import { api } from '@/services/api-client';
 import { examPaperSetupSchema } from '@/features/exam-papers/schemas/exam-paper.schema';
@@ -11,8 +11,38 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuthStore } from '@/store/auth-store';
 
+function formatToDateInput(date?: string | null): string {
+  if (!date) return new Date().toISOString().slice(0, 10);
+  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}/.test(date)) {
+    return date.slice(0, 10);
+  }
+  try {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return new Date().toISOString().slice(0, 10);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  } catch {
+    return new Date().toISOString().slice(0, 10);
+  }
+}
+
 interface PaperSetupFormProps {
-  onSubmitSuccess: (paperId: string, details: { duration: number; totalMarks: number; templateType: string }) => void;
+  onSubmitSuccess: (
+    paperId: string, 
+    details: { 
+      duration: number; 
+      totalMarks: number; 
+      templateType: string;
+      examName?: string;
+      examDate?: string;
+      classId?: string;
+      className?: string;
+      subjectId?: string;
+      subjectName?: string;
+    }
+  ) => void;
   initialData?: {
     examName?: string;
     examDate?: string;
@@ -33,9 +63,10 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
   const user = useAuthStore((s) => s.user);
   const [classes, setClasses] = useState<ClassOption[]>([]);
   const [subjects, setSubjects] = useState<SubjectOption[]>([]);
+  const isFirstLoadRef = useRef(true);
 
   const defaultValues = initialData ? {
-    examDate: initialData.examDate || new Date().toISOString().slice(0, 10),
+    examDate: formatToDateInput(initialData.examDate),
     totalMarks: initialData.totalMarks || 50,
     durationHours: Math.floor((initialData.duration || 60) / 60),
     durationMinutes: (initialData.duration || 60) % 60,
@@ -48,43 +79,100 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
     totalMarks: 50,
     durationHours: 1,
     durationMinutes: 0,
-    templateType: 'SINGLE'
+    templateType: 'SINGLE',
+    examName: '',
+    classId: '',
+    subjectId: ''
   };
 
   const form = useForm({ resolver: zodResolver(examPaperSetupSchema), defaultValues });
   const selectedClassId = form.watch('classId');
   const selectedTemplate = form.watch('templateType');
 
+  // Sync initialData changes when paper finishes loading from parent
   useEffect(() => {
+    if (!initialData) return;
+    const formattedDate = formatToDateInput(initialData.examDate);
+    const hours = Math.floor((initialData.duration || 60) / 60);
+    const minutes = (initialData.duration || 60) % 60;
+
+    form.reset({
+      examDate: formattedDate,
+      totalMarks: initialData.totalMarks ?? 50,
+      durationHours: hours,
+      durationMinutes: minutes,
+      templateType: initialData.templateType || 'SINGLE',
+      examName: initialData.examName || '',
+      classId: initialData.classId || '',
+      subjectId: initialData.subjectId || '',
+    });
+  }, [
+    initialData?.examName,
+    initialData?.examDate,
+    initialData?.totalMarks,
+    initialData?.duration,
+    initialData?.templateType,
+    initialData?.classId,
+    initialData?.subjectId,
+    form,
+  ]);
+
+  useEffect(() => {
+    let isActive = true;
     async function loadClasses() {
-      const classData = await api.get<PaginatedResponse<ClassOption>>('/syllabus/classes', {
-        ...(user?.school?.currentAcademicSessionId && { academicSessionId: user.school.currentAcademicSessionId }),
-      });
-      setClasses(classData?.items ?? []);
+      try {
+        const classData = await api.get<PaginatedResponse<ClassOption>>('/syllabus/classes', {
+          ...(user?.school?.currentAcademicSessionId && { academicSessionId: user.school.currentAcademicSessionId }),
+        });
+        if (isActive) {
+          const items = classData?.items ?? [];
+          setClasses(items);
+          if (initialData?.classId && items.some(c => c.id === initialData.classId)) {
+            form.setValue('classId', initialData.classId);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load classes:', err);
+      }
     }
     loadClasses();
-  }, [user?.school?.currentAcademicSessionId]);
+    return () => {
+      isActive = false;
+    };
+  }, [user?.school?.currentAcademicSessionId, initialData?.classId, form]);
 
   useEffect(() => {
     if (!selectedClassId) {
       setSubjects([]);
-      form.setValue('subjectId', '', { shouldDirty: true, shouldValidate: true });
+      if (!isFirstLoadRef.current) {
+        form.setValue('subjectId', '', { shouldDirty: true, shouldValidate: true });
+      }
       return;
     }
 
     let isActive = true;
     async function loadSubjects() {
-      const subjectData = await api.get<SubjectOption[]>('/syllabus/subjects', {
-        classId: selectedClassId,
-        ...(user?.school?.currentAcademicSessionId && { academicSessionId: user.school.currentAcademicSessionId }),
-      });
-      if (isActive) {
+      try {
+        const subjectData = await api.get<SubjectOption[]>('/syllabus/subjects', {
+          classId: selectedClassId,
+          ...(user?.school?.currentAcademicSessionId && { academicSessionId: user.school.currentAcademicSessionId }),
+        });
+        if (!isActive) return;
         const items = subjectData ?? [];
         setSubjects(items);
-        const firstItem = items[0];
-        if (items.length === 1 && firstItem && !form.getValues('subjectId')) {
-          form.setValue('subjectId', firstItem.id, { shouldDirty: true, shouldValidate: true });
+
+        // Retain initialData.subjectId if present and valid, or keep current form value
+        const targetSubjectId = (isFirstLoadRef.current ? initialData?.subjectId : null) || form.getValues('subjectId');
+        if (targetSubjectId && items.some((s) => s.id === targetSubjectId)) {
+          form.setValue('subjectId', targetSubjectId, { shouldValidate: true });
+        } else if (items.length === 1 && items[0]) {
+          form.setValue('subjectId', items[0].id, { shouldValidate: true });
+        } else if (!isFirstLoadRef.current) {
+          form.setValue('subjectId', '', { shouldValidate: true });
         }
+        isFirstLoadRef.current = false;
+      } catch (err) {
+        console.error('Failed to load subjects:', err);
       }
     }
 
@@ -92,10 +180,25 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
     return () => {
       isActive = false;
     };
-  }, [selectedClassId, form, user?.school?.currentAcademicSessionId]);
+  }, [selectedClassId, form, user?.school?.currentAcademicSessionId, initialData?.subjectId]);
 
   const handleSubmit = async (values: any) => {
     const totalDuration = (Number(values.durationHours) * 60) + Number(values.durationMinutes);
+    const selectedClass = classes.find((c) => c.id === values.classId);
+    const selectedSubject = subjects.find((s) => s.id === values.subjectId);
+
+    const detailPayload = {
+      duration: totalDuration,
+      totalMarks: Number(values.totalMarks),
+      templateType: values.templateType,
+      examName: values.examName,
+      examDate: values.examDate,
+      classId: values.classId,
+      className: selectedClass ? `${selectedClass.name}${selectedClass.grade ? ` - ${selectedClass.grade}` : ''}${selectedClass.section ? ` ${selectedClass.section}` : ''}` : undefined,
+      subjectId: values.subjectId,
+      subjectName: selectedSubject?.name,
+    };
+
     if (isEdit && paperId) {
       // Update existing paper
       await api.patch(`/exam-papers/${paperId}`, {
@@ -107,7 +210,7 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
         classId: values.classId,
         subjectId: values.subjectId,
       });
-      onSubmitSuccess(paperId, { duration: totalDuration, totalMarks: Number(values.totalMarks), templateType: values.templateType });
+      onSubmitSuccess(paperId, detailPayload);
     } else {
       // Create new paper
       const paper = await api.post<{ id: string }>('/exam-papers', {
@@ -116,7 +219,7 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
         duration: totalDuration,
         schoolId: user?.schoolId,
       });
-      onSubmitSuccess(paper.id, { duration: totalDuration, totalMarks: Number(values.totalMarks), templateType: values.templateType });
+      onSubmitSuccess(paper.id, detailPayload);
     }
   };
 
@@ -154,7 +257,7 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
           <Input
             type="date"
             {...form.register('examDate')}
-            min={new Date().toISOString().slice(0, 10)}
+            min={isEdit ? undefined : new Date().toISOString().slice(0, 10)}
           />
           {form.formState.errors.examDate && (
             <p className="text-xs text-red-500 mt-1">

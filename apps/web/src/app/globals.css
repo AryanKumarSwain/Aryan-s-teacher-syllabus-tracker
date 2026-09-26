@@ -35,3 +35,14 @@
     @apply bg-background text-foreground font-sans;
   }
 }
+
+/* KaTeX Math typography & fraction rendering fixes */
+.katex,
+.katex * {
+  border-color: currentColor;
+}
+
+.katex .mfrac .frac-line {
+  border-bottom-color: currentColor !important;
+  border-bottom-style: solid !important;
+}

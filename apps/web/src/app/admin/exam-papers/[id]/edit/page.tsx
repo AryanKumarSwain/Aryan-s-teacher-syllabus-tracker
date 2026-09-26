@@ -46,7 +46,9 @@ export default function AdminEditExamPaperPage() {
     styleColor: '#000000',
     schoolName: '',
     className: '',
+    classId: '',
     subjectName: '',
+    subjectId: '',
     examName: '',
     examDate: '',
     logoUrl: '',
@@ -65,7 +67,9 @@ export default function AdminEditExamPaperPage() {
         styleColor: paper.styleColor || '#000000',
         schoolName: paper.school?.name || '',
         className: paper.class?.name || '',
+        classId: paper.classId || paper.class?.id || '',
         subjectName: paper.subject?.name || '',
+        subjectId: paper.subjectId || paper.subject?.id || '',
         examName: paper.examName || '',
         examDate: paper.examDate || '',
         logoUrl: paper.school?.examPaperTemplates?.[0]?.logoUrl || '',
@@ -89,9 +93,10 @@ export default function AdminEditExamPaperPage() {
     });
   }, [params.id]);
 
-  const handleSetupSuccess = async (id: string, details: { duration: number; totalMarks: number; templateType: string }) => {
+  const handleSetupSuccess = async (id: string, details: any) => {
     setPaperDetails(prev => ({
       ...prev,
+      ...details,
       duration: details.duration,
       totalMarks: details.totalMarks,
       templateType: details.templateType
@@ -277,8 +282,14 @@ export default function AdminEditExamPaperPage() {
           </div>
         </div>
         
-        {step === 1 ? (
+        {!paperLoaded ? (
+          <div className="flex flex-col items-center justify-center p-12 bg-white rounded-2xl border border-gray-200 space-y-3">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-r-transparent"></div>
+            <p className="text-sm font-medium text-gray-500">Loading exam paper setup...</p>
+          </div>
+        ) : step === 1 ? (
           <PaperSetupForm 
+            key={params.id}
             onSubmitSuccess={handleSetupSuccess} 
             initialData={{
               examName: paperDetails.examName,
@@ -286,6 +297,8 @@ export default function AdminEditExamPaperPage() {
               totalMarks: paperDetails.totalMarks,
               duration: paperDetails.duration,
               templateType: paperDetails.templateType,
+              classId: paperDetails.classId,
+              subjectId: paperDetails.subjectId,
             }}
             isEdit={true}
             paperId={params.id}

@@ -22,12 +22,7 @@ export const examPaperSetupSchema = z.object({
   classId: z.string().min(1, 'Class is required'),
   subjectId: z.string().min(1, 'Subject is required'),
   examName: z.string().min(1, 'Exam name is required'),
-  examDate: z.string().min(1, 'Exam date is required').refine((val) => {
-    if (!val) return false;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return new Date(val) >= today;
-  }, { message: 'Exam date cannot be in the past' }),
+  examDate: z.string().min(1, 'Exam date is required'),
   totalMarks: z.coerce.number().int().min(1).optional(),
   durationHours: z.coerce.number().int().min(0).default(0),
   durationMinutes: z.coerce.number().int().min(0).max(59).default(0),

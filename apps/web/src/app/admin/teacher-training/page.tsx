@@ -447,8 +447,15 @@ export default function AdminTeacherTrainingPage() {
                   </tr>
                 ) : (
                   filteredTeachers.map((t) => {
-                    const isCompliant = t.complianceStatus === 'COMPLIANT';
-                    const isInProgress = t.complianceStatus === 'IN_PROGRESS';
+                    const isAllSatisfied =
+                      t.complianceStatus === 'COMPLIANT' &&
+                      t.cbseHours >= 25 &&
+                      t.schoolHours >= 25 &&
+                      t.domain1Hours >= 12 &&
+                      t.domain2Hours >= 24 &&
+                      t.domain3Hours >= 14;
+                    const isCompliant = isAllSatisfied;
+                    const isInProgress = !isCompliant && (t.totalHours > 0 || t.complianceStatus === 'IN_PROGRESS');
 
                     return (
                       <tr
@@ -490,14 +497,24 @@ export default function AdminTeacherTrainingPage() {
                           </div>
                         </td>
 
-                        {/* Column 2: Total Hours Progress (Strict 25h CBSE + 25h School Quota) */}
+                        {/* Column 2: Total Hours Progress (Strict 25h CBSE + 25h School + Domains D1/D2/D3 Quota) */}
                         <td className="py-3 px-4 min-w-[200px]">
                           {(() => {
                             const effectiveCbse = Math.min(25, t.cbseHours);
                             const effectiveSchool = Math.min(25, t.schoolHours);
-                            const effectiveTotal = t.effectiveTotalHours ?? Number((effectiveCbse + effectiveSchool).toFixed(1));
+                            const effectiveD1 = Math.min(12, t.domain1Hours);
+                            const effectiveD2 = Math.min(24, t.domain2Hours);
+                            const effectiveD3 = Math.min(14, t.domain3Hours);
+                            const effectiveDomainTotal = effectiveD1 + effectiveD2 + effectiveD3;
+                            const effectiveProviderTotal = effectiveCbse + effectiveSchool;
+                            const effectiveTotal = t.effectiveTotalHours ?? Number(Math.min(effectiveProviderTotal, effectiveDomainTotal).toFixed(1));
                             const remaining = t.hoursRemaining ?? Math.max(0, Number((50 - effectiveTotal).toFixed(1)));
                             const progress = t.totalProgress ?? Math.min(100, Math.round((effectiveTotal / 50) * 100));
+
+                            const isD1Satisfied = t.domain1Hours >= 12;
+                            const isD2Satisfied = t.domain2Hours >= 24;
+                            const isD3Satisfied = t.domain3Hours >= 14;
+                            const isTeacherAllSatisfied = isD1Satisfied && isD2Satisfied && isD3Satisfied && effectiveCbse >= 25 && effectiveSchool >= 25;
 
                             return (
                               <>
@@ -518,12 +535,13 @@ export default function AdminTeacherTrainingPage() {
                                   schoolHours={t.schoolHours}
                                   targetCbse={25}
                                   targetSchool={25}
+                                  effectiveTotalHours={effectiveTotal}
                                 />
                                 <div className="flex items-center justify-between text-[10px] text-gray-400 mt-1">
                                   <span>
-                                    {remaining > 0
-                                      ? `${remaining}h remaining`
-                                      : 'Target Achieved!'}
+                                    {isTeacherAllSatisfied && remaining === 0
+                                      ? 'Target Achieved!'
+                                      : `${remaining}h remaining`}
                                   </span>
                                   <span className="flex items-center gap-1.5 font-medium">
                                     <span className="text-[#1a73e8]">CBSE: {effectiveCbse}/25h</span>
@@ -567,15 +585,36 @@ export default function AdminTeacherTrainingPage() {
                           <div className="space-y-1">
                             <div className="flex items-center gap-1.5 text-[11px]">
                               <span className="text-gray-500">D1 (Ethics):</span>
-                              <span className="font-semibold text-gray-800">{t.domain1Hours}/12h</span>
+                              <span className={`font-semibold ${t.domain1Hours >= 12 ? 'text-gray-800' : 'text-amber-700'}`}>
+                                {t.domain1Hours}/12h
+                              </span>
+                              {t.domain1Hours >= 12 ? (
+                                <Check className="h-3 w-3 text-emerald-600 inline" />
+                              ) : (
+                                <span className="text-[10px] text-amber-600 font-medium">({12 - t.domain1Hours}h left)</span>
+                              )}
                             </div>
                             <div className="flex items-center gap-1.5 text-[11px]">
                               <span className="text-gray-500">D2 (Practice):</span>
-                              <span className="font-semibold text-gray-800">{t.domain2Hours}/24h</span>
+                              <span className={`font-semibold ${t.domain2Hours >= 24 ? 'text-gray-800' : 'text-amber-700'}`}>
+                                {t.domain2Hours}/24h
+                              </span>
+                              {t.domain2Hours >= 24 ? (
+                                <Check className="h-3 w-3 text-emerald-600 inline" />
+                              ) : (
+                                <span className="text-[10px] text-amber-600 font-medium">({24 - t.domain2Hours}h left)</span>
+                              )}
                             </div>
                             <div className="flex items-center gap-1.5 text-[11px]">
                               <span className="text-gray-500">D3 (Growth):</span>
-                              <span className="font-semibold text-gray-800">{t.domain3Hours}/14h</span>
+                              <span className={`font-semibold ${t.domain3Hours >= 14 ? 'text-gray-800' : 'text-amber-700'}`}>
+                                {t.domain3Hours}/14h
+                              </span>
+                              {t.domain3Hours >= 14 ? (
+                                <Check className="h-3 w-3 text-emerald-600 inline" />
+                              ) : (
+                                <span className="text-[10px] text-amber-600 font-medium">({14 - t.domain3Hours}h left)</span>
+                              )}
                             </div>
                           </div>
                         </td>

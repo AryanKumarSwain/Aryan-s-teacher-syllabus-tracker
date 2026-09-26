@@ -51,6 +51,10 @@ export const examPaperRepository = {
       where: withTenant(schoolId, { id }),
       select: {
         id: true,
+        classId: true,
+        subjectId: true,
+        teacherId: true,
+        academicSessionId: true,
         examName: true,
         examDate: true,
         totalMarks: true,

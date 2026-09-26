@@ -113,15 +113,20 @@ export function TeacherCpdDrawer({
                   <Award className="h-4 w-4 text-blue-600" />
                 </div>
                 <div className="flex items-baseline gap-1.5 mt-1">
-                  <span className="text-2xl font-black text-blue-900">{teacher.totalHours}</span>
+                  <span className="text-2xl font-black text-blue-900">{teacher.effectiveTotalHours ?? teacher.totalHours}</span>
                   <span className="text-xs text-blue-700">/ 50 Hours</span>
+                  {teacher.effectiveTotalHours !== undefined && teacher.totalHours > teacher.effectiveTotalHours && (
+                    <span className="text-[11px] text-blue-600 font-medium">
+                      ({teacher.totalHours}h logged)
+                    </span>
+                  )}
                 </div>
                 <div className="mt-2.5">
                   <DomainStackedProgressBar
                     domain1Hours={teacher.domain1Hours}
                     domain2Hours={teacher.domain2Hours}
                     domain3Hours={teacher.domain3Hours}
-                    totalHours={teacher.totalHours}
+                    totalHours={teacher.effectiveTotalHours ?? teacher.totalHours}
                     targetHours={50}
                   />
                 </div>

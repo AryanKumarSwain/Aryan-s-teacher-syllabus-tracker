@@ -92,17 +92,22 @@ export default function TeacherTrainingPage() {
     document.body.removeChild(link);
   };
 
+  const effectiveCbse = Math.min(25, myCpd?.cbseHours || 0);
+  const effectiveSchool = Math.min(25, myCpd?.schoolHours || 0);
+  const effectiveD1 = Math.min(12, myCpd?.domain1Hours || 0);
+  const effectiveD2 = Math.min(24, myCpd?.domain2Hours || 0);
+  const effectiveD3 = Math.min(14, myCpd?.domain3Hours || 0);
+  const effectiveDomainTotal = effectiveD1 + effectiveD2 + effectiveD3;
+  const effectiveProviderTotal = effectiveCbse + effectiveSchool;
+
   const effectiveTotal =
     myCpd?.effectiveTotalHours ??
-    Math.min(
-      50,
-      Math.min(25, myCpd?.cbseHours || 0) + Math.min(25, myCpd?.schoolHours || 0),
-    );
+    Math.min(50, Math.min(effectiveProviderTotal, effectiveDomainTotal));
   const rawTotal = myCpd?.totalHours || 0;
   const hoursRemaining = myCpd?.hoursRemaining ?? Math.max(0, 50 - effectiveTotal);
   const totalProgress =
     myCpd?.totalProgress ?? Math.min(100, Math.round((effectiveTotal / 50) * 100));
-  const isCompliant = myCpd?.complianceStatus === 'COMPLIANT';
+  const isCompliant = myCpd?.complianceStatus === 'COMPLIANT' && effectiveTotal >= 50;
 
   return (
     <DashboardShell title="My CPD Training">

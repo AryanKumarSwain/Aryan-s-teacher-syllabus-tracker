@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import katex from 'katex';
 import { 
   Eye, 
@@ -9,13 +9,15 @@ import {
   ZoomOut, 
   Maximize2, 
   X, 
-  Columns, 
-  AlignJustify,
   FileText,
-  Sparkles
+  Sparkles,
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
+import { generateExamPaperPdf } from '../utils/pdf-generator';
 
 export interface ExamPaperPreviewDetails {
   examName?: string;
@@ -430,42 +432,45 @@ function PreviewQuestionItem({
           <span className="font-bold shrink-0">Q{questionNumber}.</span>
           <div className="flex-1 space-y-1.5">
             <div className="flex items-start justify-between gap-3">
-              <div 
-                className="flex-1 leading-normal"
-                dangerouslySetInnerHTML={{ __html: formattedText || `<span class="text-slate-300 italic">[Empty Question]</span>` }} 
-              />
+              <div className="flex-1 min-w-0 space-y-1.5">
+                <div 
+                  className="leading-normal overflow-x-auto"
+                  dangerouslySetInnerHTML={{ __html: formattedText || `<span class="text-slate-300 italic">[Empty Question]</span>` }} 
+                />
+
+                {/* Topic & Hint badges */}
+                {(question.subject || question.hint) && (
+                  <div className="flex items-center gap-2 text-[10px] text-slate-500 italic pt-0.5">
+                    {question.subject && <span>[Topic: {question.subject}]</span>}
+                    {question.hint && <span>[Hint: {question.hint}]</span>}
+                  </div>
+                )}
+
+                {/* MCQ Options - rendered immediately below question text without gap */}
+                {isMCQ && question.options && question.options.length > 0 && (
+                  <div className="grid grid-flow-col grid-rows-2 gap-x-6 gap-y-1 pt-1 text-[11px]">
+                    {question.options.map((opt: any, oIdx: number) => {
+                      const optText = typeof opt === 'string' ? opt : (opt.text || '');
+                      const formattedOpt = formatContentWithMath(optText);
+                      return (
+                        <div key={oIdx} className="flex items-start gap-1">
+                          <span className="font-semibold shrink-0">{String.fromCharCode(97 + oIdx)})</span>
+                          <span dangerouslySetInnerHTML={{ __html: formattedOpt }} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
               {question.imageUrl && (
                 <img 
                   src={question.imageUrl} 
                   alt="Question Diagram" 
-                  className="w-24 h-20 object-contain rounded border border-slate-200 bg-white p-1 shrink-0" 
+                  className="w-28 max-h-24 object-contain rounded border border-slate-200 bg-white p-1 shrink-0 ml-2" 
                 />
               )}
             </div>
-
-            {/* Topic & Hint badges */}
-            {(question.subject || question.hint) && (
-              <div className="flex items-center gap-2 text-[10px] text-slate-500 italic pt-0.5">
-                {question.subject && <span>[Topic: {question.subject}]</span>}
-                {question.hint && <span>[Hint: {question.hint}]</span>}
-              </div>
-            )}
-
-            {/* MCQ Options - 2 columns matching PDF order (Col 1: a, b; Col 2: c, d) */}
-            {isMCQ && question.options && question.options.length > 0 && (
-              <div className="grid grid-flow-col grid-rows-2 gap-x-6 gap-y-1 pt-1.5 text-[11px]">
-                {question.options.map((opt: any, oIdx: number) => {
-                  const optText = typeof opt === 'string' ? opt : (opt.text || '');
-                  const formattedOpt = formatContentWithMath(optText);
-                  return (
-                    <div key={oIdx} className="flex items-start gap-1">
-                      <span className="font-semibold shrink-0">{String.fromCharCode(97 + oIdx)})</span>
-                      <span dangerouslySetInnerHTML={{ __html: formattedOpt }} />
-                    </div>
-                  );
-                })}
-              </div>
-            )}
 
             {/* Alternatives (OR choice) */}
             {question.alternatives && question.alternatives.length > 0 && question.alternatives.map((alt: any, aIdx: number) => {
@@ -474,25 +479,29 @@ function PreviewQuestionItem({
                 <div key={aIdx} className="pt-2 space-y-1 border-t border-slate-100">
                   <span className="font-bold block text-center text-slate-600 text-[11px]">OR</span>
                   <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1" dangerouslySetInnerHTML={{ __html: altFormatted }} />
+                    <div className="flex-1 min-w-0 space-y-1.5">
+                      <div className="leading-normal overflow-x-auto" dangerouslySetInnerHTML={{ __html: altFormatted }} />
+
+                      {alt.options && alt.options.length > 0 && (
+                        <div className="grid grid-flow-col grid-rows-2 gap-x-6 gap-y-1 pt-1 text-[11px]">
+                          {alt.options.map((o: any, oIdx: number) => (
+                            <div key={oIdx} className="flex items-start gap-1">
+                              <span className="font-semibold">{String.fromCharCode(97 + oIdx)})</span>
+                              <span dangerouslySetInnerHTML={{ __html: formatContentWithMath(typeof o === 'string' ? o : o.text || '') }} />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
                     {alt.imageUrl && (
                       <img 
                         src={alt.imageUrl} 
                         alt="Alternative diagram" 
-                        className="w-24 h-20 object-contain rounded border border-slate-200 bg-white p-1 shrink-0" 
+                        className="w-28 max-h-24 object-contain rounded border border-slate-200 bg-white p-1 shrink-0 ml-2" 
                       />
                     )}
                   </div>
-                  {alt.options && alt.options.length > 0 && (
-                    <div className="grid grid-flow-col grid-rows-2 gap-x-6 gap-y-1 pt-1.5 text-[11px]">
-                      {alt.options.map((o: any, oIdx: number) => (
-                        <div key={oIdx} className="flex items-start gap-1">
-                          <span className="font-semibold">{String.fromCharCode(97 + oIdx)})</span>
-                          <span dangerouslySetInnerHTML={{ __html: formatContentWithMath(typeof o === 'string' ? o : o.text || '') }} />
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
               );
             })}
@@ -501,6 +510,84 @@ function PreviewQuestionItem({
       )}
     </div>
   );
+}
+
+function useGeneratedPdfBlob(
+  paperDetails: ExamPaperPreviewDetails,
+  sections: any[],
+  instructions?: string
+) {
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const currentBlobRef = useRef<string | null>(null);
+
+  const generate = useCallback(async () => {
+    // If no sections or questions, don't attempt to generate PDF
+    if (!sections || sections.length === 0) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      const pdfData = {
+        schoolName: paperDetails.schoolName || '',
+        examName: paperDetails.examName || '',
+        className: paperDetails.className || '',
+        subjectName: paperDetails.subjectName || '',
+        examDate: paperDetails.examDate || '',
+        totalMarks: paperDetails.totalMarks || 0,
+        duration: paperDetails.duration || 0,
+        instructions: instructions || '',
+        templateType: (paperDetails.templateType as 'SINGLE' | 'SPLIT') || 'SINGLE',
+        styleFontFamily: paperDetails.styleFontFamily || 'Times New Roman',
+        styleFontSize: paperDetails.styleFontSize || '11pt',
+        styleColor: paperDetails.styleColor || '#000000',
+        logoUrl: paperDetails.logoUrl,
+        teacherName: paperDetails.teacherName,
+        sections: sections,
+      };
+
+      const blob = await generateExamPaperPdf(pdfData as any);
+      const url = URL.createObjectURL(blob);
+      if (currentBlobRef.current) {
+        URL.revokeObjectURL(currentBlobRef.current);
+      }
+      currentBlobRef.current = url;
+      setPdfUrl(url);
+    } catch (err: any) {
+      console.warn('PDF preview generation error:', err);
+      setError(err?.message || 'Could not generate PDF');
+    } finally {
+      setLoading(false);
+    }
+  }, [
+    paperDetails.schoolName,
+    paperDetails.examName,
+    paperDetails.className,
+    paperDetails.subjectName,
+    paperDetails.examDate,
+    paperDetails.totalMarks,
+    paperDetails.duration,
+    paperDetails.templateType,
+    paperDetails.styleFontFamily,
+    paperDetails.styleFontSize,
+    paperDetails.styleColor,
+    paperDetails.logoUrl,
+    paperDetails.teacherName,
+    instructions,
+    sections,
+  ]);
+
+  useEffect(() => {
+    generate();
+    return () => {
+      if (currentBlobRef.current) {
+        URL.revokeObjectURL(currentBlobRef.current);
+      }
+    };
+  }, [generate]);
+
+  return { pdfUrl, loading, error, regenerate: generate };
 }
 
 export function ExamPaperPreviewModal({
@@ -520,93 +607,56 @@ export function ExamPaperPreviewModal({
   step?: number;
   onDownloadPdf?: () => void;
 }) {
-  const [zoom, setZoom] = useState(100);
-  const [activeTemplate, setActiveTemplate] = useState<'SINGLE' | 'SPLIT'>(
-    (paperDetails.templateType as 'SINGLE' | 'SPLIT') || 'SINGLE'
-  );
+  const { pdfUrl, loading, regenerate } = useGeneratedPdfBlob(paperDetails, sections, instructions);
 
   if (!isOpen) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="max-w-5xl h-[92vh] p-0 flex flex-col gap-0 bg-slate-900 border-slate-800 text-white overflow-hidden rounded-2xl">
-        <DialogTitle className="sr-only">Live Exam Paper Preview</DialogTitle>
-        <DialogDescription className="sr-only">Preview your exam paper formatting and layout in real time</DialogDescription>
+      <DialogContent className="max-w-6xl h-[94vh] p-0 flex flex-col gap-0 bg-slate-900 border-slate-800 text-white overflow-hidden rounded-2xl">
+        <DialogTitle className="sr-only">Live Exam Paper Printable PDF Preview</DialogTitle>
+        <DialogDescription className="sr-only">Exact printable PDF document preview matching the exported file</DialogDescription>
 
         {/* Modal Toolbar */}
-        <div className="px-6 py-3.5 bg-slate-800/90 border-b border-slate-700/80 flex flex-wrap items-center justify-between gap-4 shrink-0">
+        <div className="px-6 py-3 bg-slate-800/90 border-b border-slate-700/80 flex flex-wrap items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
               <FileText className="h-4 w-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-sm tracking-wide text-white">Live Exam Paper Preview</span>
+                <span className="font-bold text-sm tracking-wide text-white">Printable PDF Preview</span>
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Live Sync
+                  100% Print Match
                 </span>
               </div>
               <p className="text-[11px] text-slate-400">
-                Step {step} • {paperDetails.examName || 'Exam Paper'} • Font: {paperDetails.styleFontFamily || 'Times New Roman'} ({paperDetails.styleFontSize || '11pt'})
+                {paperDetails.examName || 'Exam Paper'} • {paperDetails.subjectName || ''} • Exactly what will print
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Template Switcher */}
-            <div className="flex items-center bg-slate-900/90 border border-slate-700 rounded-lg p-0.5 text-xs">
-              <button
-                type="button"
-                onClick={() => setActiveTemplate('SINGLE')}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-colors ${
-                  activeTemplate === 'SINGLE' ? 'bg-indigo-600 text-white font-medium' : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <AlignJustify className="w-3.5 h-3.5" />
-                Single
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTemplate('SPLIT')}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-colors ${
-                  activeTemplate === 'SPLIT' ? 'bg-indigo-600 text-white font-medium' : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <Columns className="w-3.5 h-3.5" />
-                Split 2-Col
-              </button>
-            </div>
-
-            {/* Zoom Controls */}
-            <div className="flex items-center bg-slate-900/90 border border-slate-700 rounded-lg px-1 text-xs">
-              <button
-                type="button"
-                onClick={() => setZoom(prev => Math.max(prev - 10, 60))}
-                className="p-1 text-slate-400 hover:text-white"
-                title="Zoom Out"
-              >
-                <ZoomOut className="w-3.5 h-3.5" />
-              </button>
-              <span className="px-2 font-mono text-[11px] text-slate-300 min-w-[40px] text-center">
-                {zoom}%
-              </span>
-              <button
-                type="button"
-                onClick={() => setZoom(prev => Math.min(prev + 10, 150))}
-                className="p-1 text-slate-400 hover:text-white"
-                title="Zoom In"
-              >
-                <ZoomIn className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={regenerate}
+              disabled={loading}
+              className="text-xs text-slate-300 hover:text-white hover:bg-slate-700 flex items-center gap-1.5"
+              title="Refresh PDF"
+            >
+              <RefreshCw className={cn("w-3.5 h-3.5", loading && "animate-spin")} />
+              Refresh
+            </Button>
 
             {onDownloadPdf && (
               <Button
                 type="button"
                 size="sm"
                 onClick={onDownloadPdf}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs flex items-center gap-1.5"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs flex items-center gap-1.5 font-medium"
               >
                 <Download className="w-3.5 h-3.5" />
                 Download PDF
@@ -623,20 +673,25 @@ export function ExamPaperPreviewModal({
           </div>
         </div>
 
-        {/* Scrollable Viewport */}
-        <div className="flex-1 overflow-auto bg-slate-950/90 p-6 flex justify-center items-start">
-          <div 
-            className="transition-transform origin-top"
-            style={{ transform: `scale(${zoom / 100})` }}
-          >
-            <ExamPaperLivePreviewSheet 
-              paperDetails={paperDetails}
-              sections={sections}
-              instructions={instructions}
-              step={step}
-              overrideTemplate={activeTemplate}
+        {/* Scrollable Viewport with Real PDF */}
+        <div className="flex-1 w-full h-full bg-slate-950 overflow-hidden relative">
+          {loading && (
+            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs flex flex-col items-center justify-center gap-3 z-10 text-white">
+              <Loader2 className="w-7 h-7 animate-spin text-indigo-400" />
+              <span className="text-xs font-medium text-slate-300">Generating printable PDF document...</span>
+            </div>
+          )}
+          {pdfUrl ? (
+            <iframe
+              src={`${pdfUrl}#toolbar=1&navpanes=0&view=FitH`}
+              className="w-full h-full border-0"
+              title="Fullscreen Printable Exam Paper PDF"
             />
-          </div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-slate-400 text-sm">
+              Failed to load PDF preview
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
@@ -653,6 +708,8 @@ export function ExamPaperLivePreview({
   showCardWrapper = true
 }: ExamPaperLivePreviewProps) {
   const [modalOpen, setModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'PDF' | 'SHEET'>('PDF');
+  const { pdfUrl, loading, error, regenerate } = useGeneratedPdfBlob(paperDetails, sections, instructions);
 
   return (
     <div className={`space-y-3 ${className}`}>
@@ -667,30 +724,73 @@ export function ExamPaperLivePreview({
                 <h4 className="font-bold text-sm text-slate-800 flex items-center gap-2">
                   Paper Preview
                   <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.2 rounded-full">
-                    A4 Sheet View
+                    {viewMode === 'PDF' ? 'Exact Printable PDF' : 'A4 Sheet View'}
                   </span>
                 </h4>
-                <p className="text-xs text-slate-500">Live rendering matching the generated PDF document.</p>
+                <p className="text-xs text-slate-500">
+                  {viewMode === 'PDF' 
+                    ? '100% exact multi-page rendering matching the printed PDF output.' 
+                    : 'Interactive draft sheet view.'}
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
+              {/* Toggle between Exact PDF and Draft Sheet */}
+              <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('PDF')}
+                  className={cn(
+                    "px-2.5 py-1 rounded-md font-medium transition-colors",
+                    viewMode === 'PDF' ? "bg-white text-indigo-700 shadow-2xs font-semibold" : "text-slate-600 hover:text-slate-900"
+                  )}
+                >
+                  Print PDF View
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('SHEET')}
+                  className={cn(
+                    "px-2.5 py-1 rounded-md font-medium transition-colors",
+                    viewMode === 'SHEET' ? "bg-white text-indigo-700 shadow-2xs font-semibold" : "text-slate-600 hover:text-slate-900"
+                  )}
+                >
+                  Sheet View
+                </button>
+              </div>
+
+              {viewMode === 'PDF' && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={regenerate}
+                  disabled={loading}
+                  className="text-xs text-slate-600 hover:text-slate-900 h-8 px-2"
+                  title="Refresh PDF"
+                >
+                  <RefreshCw className={cn("w-3.5 h-3.5", loading && "animate-spin")} />
+                </Button>
+              )}
+
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => setModalOpen(true)}
-                className="text-xs flex items-center gap-1.5 border-slate-300 hover:bg-slate-50"
+                className="text-xs flex items-center gap-1.5 border-slate-300 hover:bg-slate-50 font-medium"
               >
                 <Maximize2 className="w-3.5 h-3.5 text-slate-600" />
-                Fullscreen Preview
+                Fullscreen
               </Button>
+
               {onDownloadPdf && (
                 <Button
                   type="button"
                   size="sm"
                   onClick={onDownloadPdf}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs flex items-center gap-1.5"
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs flex items-center gap-1.5 font-medium"
                 >
                   <Download className="w-3.5 h-3.5" />
                   PDF
@@ -699,25 +799,63 @@ export function ExamPaperLivePreview({
             </div>
           </div>
 
-          {/* Embedded Scrollable Sheet View */}
-          <div className="max-h-[600px] overflow-auto bg-slate-100/70 p-4 rounded-xl border border-slate-200/80 flex justify-center">
-            <div className="scale-[0.85] sm:scale-95 origin-top transition-transform">
-              <ExamPaperLivePreviewSheet 
-                paperDetails={paperDetails}
-                sections={sections}
-                instructions={instructions}
-                step={step}
-              />
+          {/* View Content */}
+          {viewMode === 'PDF' ? (
+            <div className="w-full h-[680px] rounded-xl border border-slate-200 overflow-hidden bg-slate-100 flex items-center justify-center relative shadow-inner">
+              {loading && (
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-xs flex flex-col items-center justify-center gap-2 z-10">
+                  <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
+                  <span className="text-xs font-medium text-slate-600">Generating live printable PDF preview...</span>
+                </div>
+              )}
+              {pdfUrl ? (
+                <iframe
+                  src={`${pdfUrl}#toolbar=0&navpanes=0&view=FitH`}
+                  className="w-full h-full border-0"
+                  title="Exam Paper PDF Preview"
+                />
+              ) : error ? (
+                <div className="text-center p-6 text-slate-500 text-xs">
+                  Could not generate PDF preview. <Button variant="link" size="sm" onClick={regenerate}>Retry</Button>
+                </div>
+              ) : null}
             </div>
-          </div>
+          ) : (
+            <div className="max-h-[600px] overflow-auto bg-slate-100/70 p-4 rounded-xl border border-slate-200/80 flex justify-center">
+              <div className="scale-[0.85] sm:scale-95 origin-top transition-transform">
+                <ExamPaperLivePreviewSheet 
+                  paperDetails={paperDetails}
+                  sections={sections}
+                  instructions={instructions}
+                  step={step}
+                />
+              </div>
+            </div>
+          )}
         </div>
       ) : (
-        <ExamPaperLivePreviewSheet 
-          paperDetails={paperDetails}
-          sections={sections}
-          instructions={instructions}
-          step={step}
-        />
+        <div className="w-full h-[680px] rounded-xl border border-slate-200 overflow-hidden bg-slate-100 relative">
+          {loading && (
+            <div className="absolute inset-0 bg-white/80 backdrop-blur-xs flex flex-col items-center justify-center gap-2 z-10">
+              <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
+              <span className="text-xs font-medium text-slate-600">Generating live printable PDF preview...</span>
+            </div>
+          )}
+          {pdfUrl ? (
+            <iframe
+              src={`${pdfUrl}#toolbar=0&navpanes=0&view=FitH`}
+              className="w-full h-full border-0"
+              title="Exam Paper PDF Preview"
+            />
+          ) : (
+            <ExamPaperLivePreviewSheet 
+              paperDetails={paperDetails}
+              sections={sections}
+              instructions={instructions}
+              step={step}
+            />
+          )}
+        </div>
       )}
 
       {/* Fullscreen Preview Modal */}
