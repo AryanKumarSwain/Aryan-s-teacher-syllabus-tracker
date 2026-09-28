@@ -59,5 +59,5 @@ export const templateSchema = z.object({
   headerHtml: z.string().default(''),
   footerHtml: z.string().optional(),
   instructions: z.string().optional(),
-  logoUrl: z.string().optional(),
+  logoUrl: z.string().nullable().optional(),
 });

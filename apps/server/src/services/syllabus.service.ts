@@ -494,12 +494,289 @@ export const syllabusService = {
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
       include: {
         class: true,
+        teacherClasses: {
+          where: academicSessionId ? { academicSessionId } : undefined,
+          include: {
+            teacher: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    avatar: true,
+                    phone: true,
+                  },
+                },
+              },
+            },
+          },
+        },
         _count: { select: { chapters: true, teacherClasses: true } },
       },
     });
 
-    console.log('[listSubjects] Found subjects:', subjects.length);
-    return subjects;
+    const subjectIds = subjects.map((s) => s.id);
+
+    // Fast lean aggregation query for completed chapter counts:
+    // Only selects chapter id, subjectId, and at most 1 completed chapterProgress record
+    const chapterStats =
+      subjectIds.length > 0
+        ? await prisma.chapter.findMany({
+            where: {
+              schoolId,
+              academicSessionId,
+              deletedAt: null,
+              subjectId: { in: subjectIds },
+            },
+            select: {
+              id: true,
+              subjectId: true,
+              chapterProgress: {
+                where: {
+                  schoolId,
+                  academicSessionId,
+                  chapterStatus: 'COMPLETED',
+                },
+                select: { id: true },
+                take: 1,
+              },
+            },
+          })
+        : [];
+
+    const progressMap = new Map<string, { total: number; completed: number }>();
+    for (const ch of chapterStats) {
+      const current = progressMap.get(ch.subjectId) || { total: 0, completed: 0 };
+      current.total += 1;
+      if (ch.chapterProgress && ch.chapterProgress.length > 0) {
+        current.completed += 1;
+      }
+      progressMap.set(ch.subjectId, current);
+    }
+
+    const result = subjects.map((subject) => {
+      // Map and deduplicate teachers assigned to this subject
+      const teacherMap = new Map<string, any>();
+      (subject.teacherClasses || []).forEach((tc) => {
+        if (tc.teacher && tc.teacher.deletedAt === null && tc.teacher.user) {
+          teacherMap.set(tc.teacher.id, {
+            id: tc.teacher.id,
+            name: tc.teacher.user.name,
+            email: tc.teacher.user.email,
+            phone: tc.teacher.user.phone,
+            avatar: tc.teacher.user.avatar,
+            user: tc.teacher.user,
+          });
+        }
+      });
+      const teachers = Array.from(teacherMap.values());
+
+      const stat = progressMap.get(subject.id) || {
+        total: subject._count?.chapters || 0,
+        completed: 0,
+      };
+      const totalChapters = stat.total;
+      const completedChaptersCount = stat.completed;
+      const progressPercentage =
+        totalChapters > 0 ? Math.round((completedChaptersCount / totalChapters) * 100) : 0;
+
+      const { teacherClasses: _, ...subjectClean } = subject;
+
+      return {
+        ...subjectClean,
+        teachers,
+        totalChapters,
+        completedChapters: completedChaptersCount,
+        progressPercentage,
+        progress: {
+          totalChapters,
+          completedChapters: completedChaptersCount,
+          percentage: progressPercentage,
+        },
+      };
+    });
+
+    console.log('[listSubjects] Found subjects:', result.length);
+    return result;
+  },
+
+  async getSubjectById(schoolId: string, subjectId: string, academicSessionId?: string) {
+    if (!academicSessionId) {
+      throw new AppError('Academic session ID is required', 400);
+    }
+
+    const subject = await prisma.subject.findFirst({
+      where: withTenant(schoolId, {
+        id: subjectId,
+        academicSessionId,
+        ...softDeleteFilter(),
+      }),
+      include: {
+        class: true,
+        teacherClasses: {
+          where: { academicSessionId },
+          include: {
+            teacher: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    avatar: true,
+                    phone: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        chapters: {
+          where: {
+            deletedAt: null,
+            academicSessionId,
+          },
+          orderBy: [{ sortOrder: 'asc' }, { chapterNo: 'asc' }],
+          include: {
+            chapterProgress: {
+              where: {
+                schoolId,
+                academicSessionId,
+              },
+              include: {
+                teacher: {
+                  include: {
+                    user: {
+                      select: {
+                        name: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            topics: {
+              where: {
+                deletedAt: null,
+              },
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+          },
+        },
+        _count: { select: { chapters: true, teacherClasses: true } },
+      },
+    });
+
+    if (!subject) {
+      throw new AppError('Subject not found', 404);
+    }
+
+    // Deduplicate teachers
+    const teacherMap = new Map<string, any>();
+    (subject.teacherClasses || []).forEach((tc) => {
+      if (tc.teacher && tc.teacher.deletedAt === null && tc.teacher.user) {
+        teacherMap.set(tc.teacher.id, {
+          id: tc.teacher.id,
+          name: tc.teacher.user.name,
+          email: tc.teacher.user.email,
+          phone: tc.teacher.user.phone,
+          avatar: tc.teacher.user.avatar,
+          user: tc.teacher.user,
+        });
+      }
+    });
+    const teachers = Array.from(teacherMap.values());
+
+    let completedChaptersCount = 0;
+    let inProgressChaptersCount = 0;
+    let teachingCompletedCount = 0;
+    let qaCompletedCount = 0;
+    let copyCheckedCount = 0;
+
+    const chapters = (subject.chapters || []).map((ch) => {
+      const progressList = ch.chapterProgress || [];
+      const isCompleted = progressList.some(
+        (cp) => cp.chapterStatus === 'COMPLETED' || cp.completionPercentage === 100,
+      );
+      const isInProgress =
+        !isCompleted &&
+        progressList.some(
+          (cp) =>
+            cp.chapterStatus === 'IN_PROGRESS' ||
+            (cp.completionPercentage && cp.completionPercentage > 0),
+        );
+
+      const hasTeaching = progressList.some((cp) => cp.teachingCompleted);
+      const hasQa = progressList.some((cp) => cp.qaCompleted);
+      const hasCopy = progressList.some((cp) => cp.copyChecked);
+
+      if (isCompleted) completedChaptersCount++;
+      else if (isInProgress) inProgressChaptersCount++;
+
+      if (hasTeaching) teachingCompletedCount++;
+      if (hasQa) qaCompletedCount++;
+      if (hasCopy) copyCheckedCount++;
+
+      const maxPercentage = progressList.reduce(
+        (max, cp) => Math.max(max, cp.completionPercentage || 0),
+        0,
+      );
+
+      const completedTeacher = progressList.find(
+        (cp) => cp.chapterStatus === 'COMPLETED',
+      )?.teacher?.user?.name;
+
+      return {
+        id: ch.id,
+        title: ch.title,
+        chapterNo: ch.chapterNo,
+        termName: ch.termName,
+        sortOrder: ch.sortOrder,
+        estimatedTeachingDays: ch.estimatedTeachingDays,
+        topicsCount: ch.topics?.length || 0,
+        status: isCompleted ? 'COMPLETED' : isInProgress ? 'IN_PROGRESS' : 'PENDING',
+        completionPercentage: isCompleted ? 100 : maxPercentage,
+        teachingCompleted: hasTeaching,
+        qaCompleted: hasQa,
+        copyChecked: hasCopy,
+        completedByTeacher: completedTeacher || null,
+      };
+    });
+
+    const totalChapters = chapters.length;
+    const pendingChaptersCount = Math.max(
+      0,
+      totalChapters - completedChaptersCount - inProgressChaptersCount,
+    );
+    const progressPercentage =
+      totalChapters > 0 ? Math.round((completedChaptersCount / totalChapters) * 100) : 0;
+
+    const { teacherClasses: _, ...subjectClean } = subject;
+
+    return {
+      ...subjectClean,
+      teachers,
+      totalChapters,
+      completedChapters: completedChaptersCount,
+      inProgressChapters: inProgressChaptersCount,
+      pendingChapters: pendingChaptersCount,
+      progressPercentage,
+      progress: {
+        totalChapters,
+        completedChapters: completedChaptersCount,
+        inProgressChapters: inProgressChaptersCount,
+        pendingChapters: pendingChaptersCount,
+        percentage: progressPercentage,
+        teachingCompletedCount,
+        qaCompletedCount,
+        copyCheckedCount,
+      },
+      chapters,
+    };
   },
 
   async createSubject(

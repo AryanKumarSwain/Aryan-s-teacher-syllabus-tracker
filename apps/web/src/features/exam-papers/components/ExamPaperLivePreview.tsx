@@ -33,6 +33,7 @@ export interface ExamPaperPreviewDetails {
   styleColor?: string;
   logoUrl?: string;
   teacherName?: string;
+  showTeacherName?: boolean;
 }
 
 interface ExamPaperLivePreviewProps {
@@ -143,7 +144,7 @@ export function ExamPaperLivePreviewSheet({
           {paperDetails.examName || 'EXAMINATION QUESTION PAPER'}
         </h2>
         <div className="text-xs text-slate-700 mt-1.5 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 font-normal">
-          <span>Class: {paperDetails.className || 'N/A'}</span>
+          <span>{(paperDetails.className || 'N/A').trim().replace(/^class:\s*/i, '')}</span>
           <span>|</span>
           <span>Subject: {paperDetails.subjectName || 'N/A'}</span>
           {dateStr && (
@@ -152,7 +153,7 @@ export function ExamPaperLivePreviewSheet({
               <span>Date: {dateStr}</span>
             </>
           )}
-          {paperDetails.teacherName && (
+          {paperDetails.showTeacherName !== false && paperDetails.teacherName && (
             <>
               <span>|</span>
               <span>Teacher: {paperDetails.teacherName}</span>
@@ -223,14 +224,14 @@ export function ExamPaperLivePreviewSheet({
                         if (segmentQuestions.length === 0) return null;
 
                         return (
-                          <div key={segIdx} className="space-y-2.5">
-                            <div className="text-xs font-bold text-slate-800 my-1.5 pl-0.5">
+                          <div key={segIdx} className={cn(segIdx > 0 ? "pt-3.5" : "")}>
+                            <div className="text-xs font-bold text-slate-800 mb-2 pl-0.5">
                               {segment.label} ({segmentQuestions.length} questions × {segment.marksEach} marks = {segmentQuestions.length * segment.marksEach} marks)
                             </div>
 
                             {/* Assertion Reasoning Instructions Key */}
                             {segment.type === 'ASSERTION_REASONING' && (
-                              <div className="text-xs bg-slate-50 border border-slate-200 rounded p-2.5 space-y-1 text-slate-600">
+                              <div className="text-xs bg-slate-50 border border-slate-200 rounded p-2.5 mb-2 space-y-1 text-slate-600">
                                 <p className="font-bold text-slate-800">Direction: For each question, select the correct option:</p>
                                 <p>(A) Both (A) and (R) are true and (R) is correct explanation of (A).</p>
                                 <p>(B) Both (A) and (R) are true but (R) is not correct explanation.</p>
@@ -240,14 +241,16 @@ export function ExamPaperLivePreviewSheet({
                             )}
 
                             {/* Questions */}
-                            {segmentQuestions.map((question: any, qIdx: number) => (
-                              <PreviewQuestionItem 
-                                key={question.id || qIdx}
-                                question={question}
-                                questionNumber={qIdx + 1}
-                                isMCQ={segment.type === 'MCQ' || question.segmentType === 'MCQ'}
-                              />
-                            ))}
+                            <div className="space-y-2">
+                              {segmentQuestions.map((question: any, qIdx: number) => (
+                                <PreviewQuestionItem 
+                                  key={question.id || qIdx}
+                                  question={question}
+                                  questionNumber={qIdx + 1}
+                                  isMCQ={segment.type === 'MCQ' || question.segmentType === 'MCQ'}
+                                />
+                              ))}
+                            </div>
                           </div>
                         );
                       })
@@ -544,6 +547,7 @@ function useGeneratedPdfBlob(
         styleColor: paperDetails.styleColor || '#000000',
         logoUrl: paperDetails.logoUrl,
         teacherName: paperDetails.teacherName,
+        showTeacherName: paperDetails.showTeacherName,
         sections: sections,
       };
 
@@ -574,6 +578,7 @@ function useGeneratedPdfBlob(
     paperDetails.styleColor,
     paperDetails.logoUrl,
     paperDetails.teacherName,
+    paperDetails.showTeacherName,
     instructions,
     sections,
   ]);

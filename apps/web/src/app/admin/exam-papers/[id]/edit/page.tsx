@@ -52,13 +52,15 @@ export default function AdminEditExamPaperPage() {
     examName: '',
     examDate: '',
     logoUrl: '',
-    teacherName: ''
+    teacherName: '',
+    showTeacherName: typeof window !== 'undefined' ? localStorage.getItem('admin_show_teacher_name_paper') !== 'false' : true
   });
 
   useEffect(() => {
     if (!params.id) return;
     api.get<any>(`/exam-papers/${params.id}`).then((paper) => {
-      setPaperDetails({
+      setPaperDetails((prev) => ({
+        ...prev,
         duration: paper.duration || 0,
         totalMarks: paper.totalMarks || 0,
         templateType: paper.templateType || 'SINGLE',
@@ -74,7 +76,7 @@ export default function AdminEditExamPaperPage() {
         examDate: paper.examDate || '',
         logoUrl: paper.school?.examPaperTemplates?.[0]?.logoUrl || '',
         teacherName: paper.teacher?.user?.name || ''
-      });
+      }));
       // Store full sections with questions for later steps
       const fullSectionsData = paper.sections || [];
       setFullSections(fullSectionsData);
@@ -186,6 +188,7 @@ export default function AdminEditExamPaperPage() {
         styleColor: paperDetails.styleColor,
         logoUrl: paperDetails.logoUrl,
         teacherName: paperDetails.teacherName,
+        showTeacherName: paperDetails.showTeacherName,
         sections: sections
       };
       
@@ -219,6 +222,7 @@ export default function AdminEditExamPaperPage() {
         styleColor: paperDetails.styleColor,
         logoUrl: paperDetails.logoUrl,
         teacherName: paperDetails.teacherName,
+        showTeacherName: paperDetails.showTeacherName,
         sections: sections
       };
 

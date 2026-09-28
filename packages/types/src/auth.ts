@@ -23,6 +23,7 @@ export interface AuthUser {
     id: string;
     name: string;
     currentAcademicSessionId: string | null;
+    logo?: string | null;
   };
 }
 

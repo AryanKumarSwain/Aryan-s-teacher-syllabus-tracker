@@ -1,7 +1,8 @@
 'use client';
 
-import { LogOut } from 'lucide-react';
+import { LogOut, Building2 } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/auth-store';
 import { api } from '@/services/api-client';
@@ -18,6 +19,15 @@ export function Navbar({ title }: { title: string }) {
   const { school } = useSchool();
   const { sessions } = useAcademicSessions();
 
+  const { data: template } = useQuery({
+    queryKey: ['exam-paper-template'],
+    queryFn: () => api.get<{ id?: string; logoUrl?: string | null }>('/exam-papers/template'),
+    staleTime: 60000,
+  });
+
+  const schoolLogo = template?.logoUrl || (school as any)?.logo || null;
+  const schoolName = school?.name || '';
+
   const handleLogout = async () => {
     try {
       await api.post('/auth/logout');
@@ -32,8 +42,32 @@ export function Navbar({ title }: { title: string }) {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6">
-      {/* Left — workspace + page title */}
-      <div className="flex items-center gap-3">
+      {/* Left — school brand (logo + name) + workspace title */}
+      <div className="flex items-center gap-3 sm:gap-4">
+        {(schoolName || schoolLogo) && (
+          <div className="flex items-center gap-2.5 pr-3 sm:pr-4 border-r border-gray-200">
+            {schoolLogo ? (
+              <img
+                src={schoolLogo}
+                alt={schoolName || 'School Logo'}
+                className="h-9 w-9 rounded-lg object-contain border border-gray-200 bg-white p-0.5 shadow-2xs shrink-0"
+              />
+            ) : (
+              <div className="h-9 w-9 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm shrink-0 shadow-2xs">
+                {schoolName ? schoolName.charAt(0).toUpperCase() : <Building2 className="h-4 w-4" />}
+              </div>
+            )}
+            <div className="hidden md:block leading-tight">
+              <span className="block text-xs font-bold text-gray-900 truncate max-w-[180px] lg:max-w-[240px]">
+                {schoolName || 'School Portal'}
+              </span>
+              <span className="block text-[10px] text-gray-500 font-medium">
+                {isAdminRoute ? 'Admin Workspace' : isTeacherRoute ? 'Teacher Portal' : 'Academic Portal'}
+              </span>
+            </div>
+          </div>
+        )}
+
         <div>
           <p className="text-xs font-medium text-gray-400">Workspace</p>
           <h1 className="text-base font-semibold tracking-tight text-gray-800 sm:text-lg">

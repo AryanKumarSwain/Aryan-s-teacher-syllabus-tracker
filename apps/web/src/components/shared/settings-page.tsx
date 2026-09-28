@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/auth-store';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,6 +18,7 @@ import { env } from '@/config/env';
 type PasswordStep = 'idle' | 'otp-sent' | 'done';
 
 export function SettingsPageContent() {
+  const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
   const setAuth = useAuthStore((s) => s.setAuth);
   const accessToken = useAuthStore((s) => s.accessToken);
@@ -131,6 +132,19 @@ export function SettingsPageContent() {
       const data = await response.json();
       if (response.ok && data.success) {
         setLogoUrl(data.data.logoUrl);
+        queryClient.invalidateQueries({ queryKey: ['exam-paper-template'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-exam-papers'] });
+        if (user) {
+          setAuth({
+            ...user,
+            school: {
+              id: user.school?.id || '',
+              name: user.school?.name || '',
+              currentAcademicSessionId: user.school?.currentAcademicSessionId ?? null,
+              logo: data.data.logoUrl,
+            }
+          }, accessToken!);
+        }
         toast.success('Logo uploaded successfully');
       } else {
         throw new Error(data.error || 'Upload failed');

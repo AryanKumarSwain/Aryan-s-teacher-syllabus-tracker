@@ -249,6 +249,27 @@ export const syllabusController = {
     }
   },
 
+  async getSubjectById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const schoolId = getTenantId(req);
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      const activeSessionId = school?.currentAcademicSessionId || undefined;
+      const academicSessionId = (req.query.academicSessionId as string) || activeSessionId;
+
+      const item = await syllabusService.getSubjectById(
+        schoolId,
+        req.params.id as string,
+        academicSessionId,
+      );
+      sendSuccess(res, item);
+    } catch (err) {
+      next(err);
+    }
+  },
+
   async createSubject(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = getTenantId(req);

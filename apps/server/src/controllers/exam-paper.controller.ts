@@ -100,6 +100,12 @@ export const examPaperController = {
     try {
       const schoolId = getTenantId(req);
       const template = await examPaperService.saveTemplate(schoolId, req.body);
+      if (req.body.logoUrl !== undefined) {
+        await prisma.school.update({
+          where: { id: schoolId },
+          data: { logo: req.body.logoUrl || null },
+        });
+      }
       sendSuccess(res, template);
     } catch (error) {
       next(error);
@@ -127,6 +133,10 @@ export const examPaperController = {
       const logoUrl = await uploadImage(req.file.buffer, 'school-logos');
       
       const template = await examPaperService.saveTemplate(schoolId, { logoUrl });
+      await prisma.school.update({
+        where: { id: schoolId },
+        data: { logo: logoUrl },
+      });
       sendSuccess(res, template);
     } catch (error) {
       next(error);

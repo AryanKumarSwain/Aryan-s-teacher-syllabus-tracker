@@ -262,14 +262,28 @@ export const authController = {
         return res.status(404).json({ success: false, error: 'User not found' });
       }
 
-      let school: { id: string; name: string; currentAcademicSessionId: string | null } | undefined;
+      let school: { id: string; name: string; currentAcademicSessionId: string | null; logo?: string | null } | undefined;
       if (user.schoolId) {
         const schoolData = await prisma.school.findUnique({
           where: { id: user.schoolId },
-          select: { id: true, name: true, currentAcademicSessionId: true },
+          select: {
+            id: true,
+            name: true,
+            logo: true,
+            currentAcademicSessionId: true,
+            examPaperTemplates: {
+              select: { logoUrl: true },
+              take: 1,
+            },
+          },
         });
         if (schoolData) {
-          school = schoolData;
+          school = {
+            id: schoolData.id,
+            name: schoolData.name,
+            currentAcademicSessionId: schoolData.currentAcademicSessionId,
+            logo: schoolData.logo || schoolData.examPaperTemplates?.[0]?.logoUrl || null,
+          };
         }
       }
 

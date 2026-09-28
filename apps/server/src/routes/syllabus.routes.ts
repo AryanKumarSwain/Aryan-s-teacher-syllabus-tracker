@@ -91,6 +91,12 @@ syllabusRoutes.delete(
 
 // Subjects
 syllabusRoutes.get('/subjects', ...schoolAdmin, syllabusController.listSubjects);
+syllabusRoutes.get(
+  '/subjects/:id',
+  ...schoolAdmin,
+  validateParams(idParamSchema),
+  syllabusController.getSubjectById,
+);
 syllabusRoutes.post(
   '/subjects',
   ...schoolAdminOnly,

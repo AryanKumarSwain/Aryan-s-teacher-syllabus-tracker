@@ -27,6 +27,20 @@ export default function AdminExamPaperReviewPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [studentCount, setStudentCount] = useState(30);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [showTeacherName, setShowTeacherName] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('admin_show_teacher_name_paper');
+      return saved !== null ? saved === 'true' : true;
+    }
+    return true;
+  });
+
+  const handleToggleShowTeacherName = (checked: boolean) => {
+    setShowTeacherName(checked);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('admin_show_teacher_name_paper', String(checked));
+    }
+  };
 
   useEffect(() => {
     if (!params.id) return;
@@ -60,6 +74,7 @@ export default function AdminExamPaperReviewPage() {
         styleColor: paper.styleColor || '#000000',
         logoUrl: paper.school?.examPaperTemplates?.[0]?.logoUrl || '',
         teacherName: paper.teacher?.user?.name || '',
+        showTeacherName: showTeacherName,
         sections: paper.sections || []
       };
       
@@ -93,6 +108,7 @@ export default function AdminExamPaperReviewPage() {
         styleColor: paper.styleColor || '#000000',
         logoUrl: paper.school?.examPaperTemplates?.[0]?.logoUrl || '',
         teacherName: paper.teacher?.user?.name || '',
+        showTeacherName: showTeacherName,
         sections: paper.sections || []
       };
 
@@ -178,6 +194,27 @@ export default function AdminExamPaperReviewPage() {
             </div>
           </div>
 
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+            <div>
+              <h4 className="font-semibold text-sm text-gray-800">Exam Paper Export Preferences</h4>
+              <p className="text-xs text-gray-500">Configure what details are included in the generated question paper.</p>
+            </div>
+            <label className="inline-flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-2xs hover:bg-gray-50 transition-colors select-none">
+              <input
+                type="checkbox"
+                checked={showTeacherName}
+                onChange={(e) => handleToggleShowTeacherName(e.target.checked)}
+                className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+              />
+              <span className="text-xs font-medium text-gray-700">
+                Show Teacher Name on Paper
+              </span>
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${showTeacherName ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+                {showTeacherName ? 'Visible' : 'Hidden'}
+              </span>
+            </label>
+          </div>
+
           <div className="border border-gray-200 rounded-xl p-5 bg-blue-50/50 flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="flex-1">
               <h4 className="font-semibold text-sm text-blue-900">Standard Exam Sheet</h4>
@@ -247,6 +284,7 @@ export default function AdminExamPaperReviewPage() {
           styleColor: paper.styleColor || '#000000',
           logoUrl: paper.school?.examPaperTemplates?.[0]?.logoUrl || '',
           teacherName: paper.teacher?.user?.name || '',
+          showTeacherName: showTeacherName,
         }}
         sections={paper.sections || []}
         instructions={paper.instructions || ''}

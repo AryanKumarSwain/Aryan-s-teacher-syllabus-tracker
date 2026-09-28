@@ -40,7 +40,7 @@ export const examPaperRepository = {
         class: { select: { id: true, name: true, grade: true, section: true } },
         subject: { select: { id: true, name: true } },
         teacher: { select: { id: true, user: { select: { id: true, name: true } } } },
-        sections: { include: { questions: { orderBy: { order: 'asc' } } }, orderBy: { order: 'asc' } },
+        _count: { select: { sections: true } },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -113,7 +113,26 @@ export const examPaperRepository = {
   },
 
   async getTemplate(schoolId: string) {
-    return prisma.examPaperTemplate.findUnique({ where: { schoolId } });
+    let template = await prisma.examPaperTemplate.findUnique({ where: { schoolId } });
+    if (!template) {
+      const school = await prisma.school.findUnique({ where: { id: schoolId }, select: { logo: true } });
+      template = await prisma.examPaperTemplate.create({
+        data: {
+          schoolId,
+          headerHtml: '',
+          logoUrl: school?.logo || null,
+        },
+      });
+    } else if (!template.logoUrl) {
+      const school = await prisma.school.findUnique({ where: { id: schoolId }, select: { logo: true } });
+      if (school?.logo) {
+        template = await prisma.examPaperTemplate.update({
+          where: { schoolId },
+          data: { logoUrl: school.logo },
+        });
+      }
+    }
+    return template;
   },
 
   async createSection(data: Prisma.ExamSectionCreateInput) {

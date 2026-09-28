@@ -138,6 +138,7 @@ interface PdfPaperData {
   styleColor: string;
   logoUrl?: string;
   teacherName?: string;
+  showTeacherName?: boolean;
   sections: Array<{
     label: string;
     type: string;
@@ -175,8 +176,9 @@ interface PdfPaperData {
 const LINE_HEIGHT = 4.0;        // height of a single wrapped text line
 const QUESTION_GAP = 0.3;       // gap left after a question before the next one
 const SECTION_GAP = 2;          // gap left after a whole section
-const SEGMENT_HEADER_GAP = 7;   // gap after a segment header line before Q1
-const SECTION_LABEL_GAP = 7;    // gap after section label before Q1
+const SEGMENT_HEADER_GAP = 5.0; // comfortable gap after a segment header line before Q1
+const SEGMENT_BEFORE_GAP = 6.0; // gap before subsequent segment headers to separate from previous questions
+const SECTION_LABEL_GAP = 5;    // gap after section label before Q1
 
 const IMAGE_TEXT_GAP = 5;        // 5mm margin between text and image box
 const IMAGE_RIGHT_MARGIN = 3;    // 3mm margin between image box and column right edge
@@ -1229,8 +1231,11 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
     pDoc.setFont(activeFont, 'normal');
     pDoc.setFontSize(9);
     const dateStr = paper.examDate ? new Date(paper.examDate).toLocaleDateString() : null;
-    const teacherNameStr = paper.teacherName ? `Teacher: ${paper.teacherName}` : '';
-    const infoParts = [`Class: ${paper.className || 'N/A'}`, `Subject: ${paper.subjectName || 'N/A'}`];
+    const shouldShowTeacher = paper.showTeacherName !== false && Boolean(paper.teacherName);
+    const teacherNameStr = shouldShowTeacher ? `Teacher: ${paper.teacherName}` : '';
+    const rawClass = (paper.className || 'N/A').trim();
+    const classDisplay = rawClass.replace(/^class:\s*/i, '');
+    const infoParts = [classDisplay, `Subject: ${paper.subjectName || 'N/A'}`];
     if (dateStr) infoParts.push(`Date: ${dateStr}`);
     if (teacherNameStr) infoParts.push(teacherNameStr);
     pDoc.text(infoParts.join('    |    '), 105 + logoOffset / 2, 35, { align: 'center' });
@@ -1345,6 +1350,7 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
     y += (section.segments && section.segments.length > 0) ? 5 : SECTION_LABEL_GAP;
 
     if (section.segments && section.segments.length > 0) {
+      let isFirstRenderedSegment = true;
       for (const segment of section.segments) {
         // Find questions belonging to this segment
         const segmentQuestions = section.questions.filter((q: any) => q.segmentType === segment.type);
@@ -1352,7 +1358,14 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
         // SKIP EMPTY SEGMENTS (Fixes overlapping segment headers)
         if (segmentQuestions.length === 0) continue;
 
-        await advanceCursor(8);
+        if (!isFirstRenderedSegment) {
+          await advanceCursor(SEGMENT_BEFORE_GAP + 10);
+          y += SEGMENT_BEFORE_GAP;
+        } else {
+          await advanceCursor(10);
+        }
+        isFirstRenderedSegment = false;
+
         doc.setFont(activeFont, 'bold');
         doc.setFontSize(Math.max(baseFontSize - 0.5, 9));
         const segmentLabel = `${segment.label} (${segment.questionCount} questions × ${segment.marksEach} marks = ${segment.questionCount * segment.marksEach} marks)`;
