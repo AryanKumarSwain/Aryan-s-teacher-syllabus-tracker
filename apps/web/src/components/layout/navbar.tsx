@@ -11,6 +11,7 @@ import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { useAcademicSessions } from '@/features/syllabus/hooks/use-academic-sessions';
 
 export function Navbar({ title }: { title: string }) {
+  const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const router = useRouter();
   const pathname = usePathname();
@@ -27,8 +28,8 @@ export function Navbar({ title }: { title: string }) {
     enabled: !isSuperAdminRoute,
   });
 
-  const schoolLogo = template?.logoUrl || (school as any)?.logo || null;
-  const schoolName = school?.name || '';
+  const schoolLogo = template?.logoUrl || (school as any)?.logo || (user?.school as any)?.logo || null;
+  const schoolName = school?.name || user?.school?.name || '';
 
   const handleLogout = async () => {
     try {

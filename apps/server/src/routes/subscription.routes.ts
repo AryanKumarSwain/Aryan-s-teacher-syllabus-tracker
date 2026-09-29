@@ -9,6 +9,7 @@ subscriptionRoutes.use(authenticate);
 
 // Admin current subscription & checkout
 subscriptionRoutes.get('/current', subscriptionController.getCurrentSubscription);
+subscriptionRoutes.get('/history', subscriptionController.getSubscriptionHistory);
 subscriptionRoutes.post('/create-order', subscriptionController.createRazorpayOrder);
 subscriptionRoutes.post('/verify-payment', subscriptionController.verifyPayment);
 

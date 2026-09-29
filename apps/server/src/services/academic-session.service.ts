@@ -298,12 +298,26 @@ export const academicSessionService = {
     });
 
     if (sourceClasses.length === 0) {
-      throw new AppError('No classes found in source session', 404);
+      return {
+        message: 'No classes found in source session',
+        count: 0,
+      };
     }
 
-    const createdClasses = await Promise.all(
-      sourceClasses.map((srcClass) =>
-        prisma.class.create({
+    let createdCount = 0;
+    for (const srcClass of sourceClasses) {
+      const existing = await prisma.class.findFirst({
+        where: {
+          schoolId: srcClass.schoolId,
+          academicSessionId: targetSessionId,
+          name: srcClass.name,
+          section: srcClass.section ?? null,
+          deletedAt: null,
+        },
+      });
+
+      if (!existing) {
+        await prisma.class.create({
           data: {
             schoolId: srcClass.schoolId,
             academicSessionId: targetSessionId,
@@ -313,13 +327,16 @@ export const academicSessionService = {
             description: srcClass.description,
             sortOrder: srcClass.sortOrder,
           },
-        }),
-      ),
-    );
+        });
+        createdCount++;
+      } else {
+        createdCount++;
+      }
+    }
 
     return {
-      message: `Successfully imported ${createdClasses.length} classes`,
-      count: createdClasses.length,
+      message: `Successfully imported ${createdCount} classes`,
+      count: createdCount,
     };
   },
 
@@ -339,48 +356,83 @@ export const academicSessionService = {
     });
 
     if (sourceSubjects.length === 0) {
-      throw new AppError('No subjects found in source session', 404);
+      return {
+        message: 'No subjects found in source session',
+        count: 0,
+      };
     }
 
-    // Map old class IDs to new class IDs if they exist in target session
+    // Map old class IDs to new class IDs in target session
     const sourceClasses = await prisma.class.findMany({
-      where: { academicSessionId: sourceSessionId },
+      where: { academicSessionId: sourceSessionId, deletedAt: null },
     });
 
-    const targetClasses = await prisma.class.findMany({
-      where: { academicSessionId: targetSessionId },
+    let targetClasses = await prisma.class.findMany({
+      where: { academicSessionId: targetSessionId, deletedAt: null },
     });
 
     const classMapping: Record<string, string> = {};
-    sourceClasses.forEach((src) => {
-      const matching = targetClasses.find(
-        (tgt) => tgt.name === src.name && tgt.section === src.section,
+    for (const src of sourceClasses) {
+      let matching = targetClasses.find(
+        (tgt) =>
+          tgt.name.toLowerCase() === src.name.toLowerCase() &&
+          (tgt.section || '') === (src.section || ''),
       );
-      if (matching) {
-        classMapping[src.id] = matching.id;
-      }
-    });
 
-    const createdSubjects = await Promise.all(
-      sourceSubjects.map((srcSubject) =>
-        prisma.subject.create({
+      // If class doesn't exist in target session yet, auto-create it
+      if (!matching) {
+        matching = await prisma.class.create({
+          data: {
+            schoolId: src.schoolId,
+            academicSessionId: targetSessionId,
+            name: src.name,
+            grade: src.grade,
+            section: src.section,
+            description: src.description,
+            sortOrder: src.sortOrder,
+          },
+        });
+        targetClasses.push(matching);
+      }
+      classMapping[src.id] = matching.id;
+    }
+
+    let createdCount = 0;
+    for (const srcSubject of sourceSubjects) {
+      const targetClassId = srcSubject.classId ? classMapping[srcSubject.classId] || null : null;
+
+      const existing = await prisma.subject.findFirst({
+        where: {
+          schoolId: srcSubject.schoolId,
+          academicSessionId: targetSessionId,
+          classId: targetClassId,
+          name: srcSubject.name,
+          deletedAt: null,
+        },
+      });
+
+      if (!existing) {
+        await prisma.subject.create({
           data: {
             schoolId: srcSubject.schoolId,
             academicSessionId: targetSessionId,
-            classId: srcSubject.classId ? classMapping[srcSubject.classId] || null : null,
+            classId: targetClassId,
             name: srcSubject.name,
             code: srcSubject.code,
             description: srcSubject.description,
             color: srcSubject.color,
             sortOrder: srcSubject.sortOrder,
           },
-        }),
-      ),
-    );
+        });
+        createdCount++;
+      } else {
+        createdCount++;
+      }
+    }
 
     return {
-      message: `Successfully imported ${createdSubjects.length} subjects`,
-      count: createdSubjects.length,
+      message: `Successfully imported ${createdCount} subjects`,
+      count: createdCount,
     };
   },
 
@@ -392,114 +444,133 @@ export const academicSessionService = {
       throw new AppError('Sessions must belong to the same school', 400);
     }
 
-    // Get teachers belonging to source session
-    let sourceTeachers = await prisma.teacher.findMany({
+    // 1. Find all active teachers in this school
+    const schoolTeachers = await prisma.teacher.findMany({
       where: {
-        academicSessionId: sourceSessionId,
         schoolId: sourceSession.schoolId,
         deletedAt: null,
       },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+      },
     });
 
-    // If no teachers specifically tagged with sourceSessionId, look up active teachers in this school
-    if (sourceTeachers.length === 0) {
-      sourceTeachers = await prisma.teacher.findMany({
-        where: {
-          schoolId: sourceSession.schoolId,
-          deletedAt: null,
-        },
-      });
+    if (schoolTeachers.length === 0) {
+      return {
+        message: 'No teachers found in school',
+        teacherCount: 0,
+        assignmentCount: 0,
+      };
     }
 
-    // Get teacher-class mappings from source session
+    // 2. Point all teachers to the target academic session so relations remain active
+    await prisma.teacher.updateMany({
+      where: {
+        schoolId: sourceSession.schoolId,
+        deletedAt: null,
+      },
+      data: {
+        academicSessionId: targetSessionId,
+      },
+    });
+
+    // 3. Get source teacher assignments
     const sourceTeacherClasses = await prisma.teacherClass.findMany({
       where: {
         academicSessionId: sourceSessionId,
       },
     });
 
-    if (sourceTeachers.length === 0 && sourceTeacherClasses.length === 0) {
-      throw new AppError('No teachers found in this school to import', 404);
-    }
-
-    // Assign teachers to the target session (only those not already in target session)
-    const teachersToUpdate = sourceTeachers.filter((t) => t.academicSessionId !== targetSessionId);
-    if (teachersToUpdate.length > 0) {
-      await prisma.teacher.updateMany({
-        where: {
-          id: { in: teachersToUpdate.map((t) => t.id) },
-          schoolId: sourceSession.schoolId,
-        },
-        data: {
-          academicSessionId: targetSessionId,
-        },
-      });
-    }
-
     let successAssignmentsCount = 0;
 
     if (sourceTeacherClasses.length > 0) {
-      // Map old IDs to new IDs
+      // Ensure target classes exist
       const sourceClasses = await prisma.class.findMany({
-        where: { academicSessionId: sourceSessionId },
+        where: { academicSessionId: sourceSessionId, deletedAt: null },
       });
-
-      const targetClasses = await prisma.class.findMany({
-        where: { academicSessionId: targetSessionId },
-      });
-
-      const sourceSubjects = await prisma.subject.findMany({
-        where: { academicSessionId: sourceSessionId },
-      });
-
-      const targetSubjects = await prisma.subject.findMany({
-        where: { academicSessionId: targetSessionId },
+      let targetClasses = await prisma.class.findMany({
+        where: { academicSessionId: targetSessionId, deletedAt: null },
       });
 
       const classMapping: Record<string, string> = {};
-      const subjectMapping: Record<string, string> = {};
-
-      sourceClasses.forEach((src) => {
-        const matching = targetClasses.find(
-          (tgt) => tgt.name === src.name && tgt.section === src.section,
+      for (const src of sourceClasses) {
+        let matching = targetClasses.find(
+          (tgt) =>
+            tgt.name.toLowerCase() === src.name.toLowerCase() &&
+            (tgt.section || '') === (src.section || ''),
         );
-        if (matching) {
-          classMapping[src.id] = matching.id;
-        }
-      });
-
-      sourceSubjects.forEach((src) => {
-        const matching = targetSubjects.find((tgt) => tgt.name === src.name);
-        if (matching) {
-          subjectMapping[src.id] = matching.id;
-        }
-      });
-
-      // Create teacher-class mappings in target session
-      const createdTeacherClasses = await Promise.all(
-        sourceTeacherClasses.map(async (srcTC) => {
-          const newClassId = classMapping[srcTC.classId];
-          const newSubjectId = srcTC.subjectId ? subjectMapping[srcTC.subjectId] : null;
-
-          if (!newClassId) {
-            return null; // Skip if class mapping not found
-          }
-
-          // Check if mapping already exists in target session to avoid unique constraint collisions
-          const existing = await prisma.teacherClass.findFirst({
-            where: {
+        if (!matching) {
+          matching = await prisma.class.create({
+            data: {
+              schoolId: src.schoolId,
               academicSessionId: targetSessionId,
-              teacherId: srcTC.teacherId,
-              classId: newClassId,
-              subjectId: newSubjectId,
-              schoolId: srcTC.schoolId,
+              name: src.name,
+              grade: src.grade,
+              section: src.section,
+              description: src.description,
+              sortOrder: src.sortOrder,
             },
           });
-          if (existing) {
-            return existing;
-          }
+          targetClasses.push(matching);
+        }
+        classMapping[src.id] = matching.id;
+      }
 
-          return prisma.teacherClass.create({
+      // Ensure target subjects exist
+      const sourceSubjects = await prisma.subject.findMany({
+        where: { academicSessionId: sourceSessionId, deletedAt: null },
+      });
+      let targetSubjects = await prisma.subject.findMany({
+        where: { academicSessionId: targetSessionId, deletedAt: null },
+      });
+
+      const subjectMapping: Record<string, string> = {};
+      for (const src of sourceSubjects) {
+        const mappedTargetClassId = src.classId ? classMapping[src.classId] || null : null;
+        let matching = targetSubjects.find((tgt) => {
+          const nameMatches = tgt.name.toLowerCase() === src.name.toLowerCase();
+          if (!nameMatches) return false;
+          if (mappedTargetClassId) return tgt.classId === mappedTargetClassId;
+          return true;
+        }) || targetSubjects.find((tgt) => tgt.name.toLowerCase() === src.name.toLowerCase());
+
+        if (!matching) {
+          matching = await prisma.subject.create({
+            data: {
+              schoolId: src.schoolId,
+              academicSessionId: targetSessionId,
+              classId: mappedTargetClassId,
+              name: src.name,
+              code: src.code,
+              description: src.description,
+              color: src.color,
+              sortOrder: src.sortOrder,
+            },
+          });
+          targetSubjects.push(matching);
+        }
+        subjectMapping[src.id] = matching.id;
+      }
+
+      // Create teacher assignments in target session
+      for (const srcTC of sourceTeacherClasses) {
+        const newClassId = classMapping[srcTC.classId];
+        const newSubjectId = srcTC.subjectId ? subjectMapping[srcTC.subjectId] : null;
+
+        if (!newClassId) continue;
+
+        const existing = await prisma.teacherClass.findFirst({
+          where: {
+            academicSessionId: targetSessionId,
+            teacherId: srcTC.teacherId,
+            classId: newClassId,
+            subjectId: newSubjectId,
+            schoolId: srcTC.schoolId,
+          },
+        });
+
+        if (!existing) {
+          await prisma.teacherClass.create({
             data: {
               schoolId: srcTC.schoolId,
               academicSessionId: targetSessionId,
@@ -508,23 +579,19 @@ export const academicSessionService = {
               subjectId: newSubjectId,
             },
           });
-        }),
-      );
-
-      successAssignmentsCount = createdTeacherClasses.filter((tc) => tc !== null).length;
+        }
+        successAssignmentsCount++;
+      }
     }
 
-    const messageParts: string[] = [];
-    if (sourceTeachers.length > 0) {
-      messageParts.push(`${sourceTeachers.length} teachers`);
-    }
+    const messageParts: string[] = [`${schoolTeachers.length} teachers`];
     if (successAssignmentsCount > 0) {
       messageParts.push(`${successAssignmentsCount} assignments`);
     }
 
     return {
       message: `Successfully imported ${messageParts.join(' and ')}`,
-      teacherCount: sourceTeachers.length,
+      teacherCount: schoolTeachers.length,
       assignmentCount: successAssignmentsCount,
     };
   },
@@ -568,7 +635,7 @@ export const academicSessionService = {
       throw new AppError('Sessions must belong to the same school', 400);
     }
 
-    // Get source chapters
+    // 1. Get source chapters with their topics
     const sourceChapters = await prisma.chapter.findMany({
       where: {
         academicSessionId: sourceSessionId,
@@ -577,62 +644,113 @@ export const academicSessionService = {
       include: {
         topics: {
           where: { deletedAt: null },
+          orderBy: { sortOrder: 'asc' },
         },
       },
+      orderBy: { sortOrder: 'asc' },
     });
 
     if (sourceChapters.length === 0) {
-      throw new AppError('No syllabus data found in source session', 404);
+      return {
+        message: 'No chapters found in source session',
+        count: 0,
+      };
     }
 
-    // Map old IDs to new IDs
+    // 2. Ensure target classes exist
     const sourceClasses = await prisma.class.findMany({
-      where: { academicSessionId: sourceSessionId },
+      where: { academicSessionId: sourceSessionId, deletedAt: null },
     });
-
-    const targetClasses = await prisma.class.findMany({
-      where: { academicSessionId: targetSessionId },
-    });
-
-    const sourceSubjects = await prisma.subject.findMany({
-      where: { academicSessionId: sourceSessionId },
-    });
-
-    const targetSubjects = await prisma.subject.findMany({
-      where: { academicSessionId: targetSessionId },
+    let targetClasses = await prisma.class.findMany({
+      where: { academicSessionId: targetSessionId, deletedAt: null },
     });
 
     const classMapping: Record<string, string> = {};
-    const subjectMapping: Record<string, string> = {};
-    const chapterMapping: Record<string, string> = {};
-
-    sourceClasses.forEach((src) => {
-      const matching = targetClasses.find(
-        (tgt) => tgt.name === src.name && tgt.section === src.section,
+    for (const src of sourceClasses) {
+      let matching = targetClasses.find(
+        (tgt) =>
+          tgt.name.toLowerCase() === src.name.toLowerCase() &&
+          (tgt.section || '') === (src.section || ''),
       );
-      if (matching) {
-        classMapping[src.id] = matching.id;
+      if (!matching) {
+        matching = await prisma.class.create({
+          data: {
+            schoolId: src.schoolId,
+            academicSessionId: targetSessionId,
+            name: src.name,
+            grade: src.grade,
+            section: src.section,
+            description: src.description,
+            sortOrder: src.sortOrder,
+          },
+        });
+        targetClasses.push(matching);
       }
+      classMapping[src.id] = matching.id;
+    }
+
+    // 3. Ensure target subjects exist
+    const sourceSubjects = await prisma.subject.findMany({
+      where: { academicSessionId: sourceSessionId, deletedAt: null },
+    });
+    let targetSubjects = await prisma.subject.findMany({
+      where: { academicSessionId: targetSessionId, deletedAt: null },
     });
 
-    sourceSubjects.forEach((src) => {
-      const matching = targetSubjects.find((tgt) => tgt.name === src.name);
-      if (matching) {
-        subjectMapping[src.id] = matching.id;
+    const subjectMapping: Record<string, string> = {};
+    for (const src of sourceSubjects) {
+      const mappedTargetClassId = src.classId ? classMapping[src.classId] || null : null;
+      let matching = targetSubjects.find((tgt) => {
+        const nameMatches = tgt.name.toLowerCase() === src.name.toLowerCase();
+        if (!nameMatches) return false;
+        if (mappedTargetClassId) return tgt.classId === mappedTargetClassId;
+        return true;
+      }) || targetSubjects.find((tgt) => tgt.name.toLowerCase() === src.name.toLowerCase());
+
+      if (!matching) {
+        matching = await prisma.subject.create({
+          data: {
+            schoolId: src.schoolId,
+            academicSessionId: targetSessionId,
+            classId: mappedTargetClassId,
+            name: src.name,
+            code: src.code,
+            description: src.description,
+            color: src.color,
+            sortOrder: src.sortOrder,
+          },
+        });
+        targetSubjects.push(matching);
       }
-    });
+      subjectMapping[src.id] = matching.id;
+    }
 
-    // Create chapters and topics
-    const createdChapters = await Promise.all(
-      sourceChapters.map(async (srcChapter) => {
-        const newClassId = classMapping[srcChapter.classId];
-        const newSubjectId = subjectMapping[srcChapter.subjectId];
+    // 4. Create chapters and topics in target session
+    let importedChapterCount = 0;
+    let importedTopicCount = 0;
 
-        if (!newClassId || !newSubjectId) {
-          return null;
-        }
+    for (const srcChapter of sourceChapters) {
+      const newClassId = classMapping[srcChapter.classId];
+      const newSubjectId = subjectMapping[srcChapter.subjectId];
 
-        const chapter = await prisma.chapter.create({
+      if (!newClassId || !newSubjectId) {
+        continue;
+      }
+
+      // Check if chapter already exists in target session
+      let targetChapter = await prisma.chapter.findFirst({
+        where: {
+          schoolId: srcChapter.schoolId,
+          academicSessionId: targetSessionId,
+          classId: newClassId,
+          subjectId: newSubjectId,
+          title: srcChapter.title,
+          deletedAt: null,
+        },
+      });
+
+      if (!targetChapter) {
+        targetChapter = await prisma.chapter.create({
           data: {
             schoolId: srcChapter.schoolId,
             academicSessionId: targetSessionId,
@@ -641,37 +759,50 @@ export const academicSessionService = {
             title: srcChapter.title,
             description: srcChapter.description,
             notes: srcChapter.notes,
+            chapterNo: srcChapter.chapterNo,
+            termName: srcChapter.termName,
             estimatedTeachingDays: srcChapter.estimatedTeachingDays,
             sortOrder: srcChapter.sortOrder,
           },
         });
+        importedChapterCount++;
+      }
 
-        chapterMapping[srcChapter.id] = chapter.id;
-
-        // Create topics for this chapter
-        if (srcChapter.topics.length > 0) {
-          await prisma.topic.createMany({
-            data: srcChapter.topics.map((srcTopic) => ({
+      // Create topics for this chapter
+      if (srcChapter.topics.length > 0) {
+        for (const srcTopic of srcChapter.topics) {
+          const existingTopic = await prisma.topic.findFirst({
+            where: {
               schoolId: srcTopic.schoolId,
               academicSessionId: targetSessionId,
-              chapterId: chapter.id,
+              chapterId: targetChapter.id,
               title: srcTopic.title,
-              description: srcTopic.description,
-              notes: srcTopic.notes,
-              sortOrder: srcTopic.sortOrder,
-            })),
+              deletedAt: null,
+            },
           });
+
+          if (!existingTopic) {
+            await prisma.topic.create({
+              data: {
+                schoolId: srcTopic.schoolId,
+                academicSessionId: targetSessionId,
+                chapterId: targetChapter.id,
+                title: srcTopic.title,
+                description: srcTopic.description,
+                notes: srcTopic.notes,
+                sortOrder: srcTopic.sortOrder,
+              },
+            });
+            importedTopicCount++;
+          }
         }
-
-        return chapter;
-      }),
-    );
-
-    const successCount = createdChapters.filter((ch) => ch !== null).length;
+      }
+    }
 
     return {
-      message: `Successfully imported ${successCount} chapters with topics`,
-      count: successCount,
+      message: `Successfully imported ${importedChapterCount} chapters and ${importedTopicCount} topics`,
+      count: importedChapterCount,
+      topicCount: importedTopicCount,
     };
   },
 };

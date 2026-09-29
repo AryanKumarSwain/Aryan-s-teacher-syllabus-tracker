@@ -121,30 +121,6 @@ export const schoolService = {
         },
       });
 
-      // Create hardcoded academic sessions for the school
-      const sessions = await Promise.all(
-        HARDCODED_SESSIONS.map((sessionName) =>
-          tx.academicSession.create({
-            data: {
-              schoolId: school.id,
-              name: sessionName,
-              status: SessionStatus.ACTIVE,
-              isArchived: false,
-            },
-          })
-        )
-      );
-
-      // Set 2026-27 as the default current session
-      const session2026 = sessions.find(s => s.name === '2026-27');
-      const targetSession = session2026 || sessions[0];
-      if (targetSession) {
-        await tx.school.update({
-          where: { id: school.id },
-          data: { currentAcademicSessionId: targetSession.id },
-        });
-      }
-
       if (data.planId) {
         await tx.subscription.create({
           data: {

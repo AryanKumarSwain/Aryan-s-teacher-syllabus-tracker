@@ -48,6 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               schoolId: me.schoolId,
               teacherId: me.teacherId,
               avatar: me.avatar,
+              phone: me.phone,
               school: me.school,
             },
             useAuthStore.getState().accessToken || 'cookie-session',
@@ -81,7 +82,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    if (isAuthenticated && user && (pathname === '/login' || pathname === '/register')) {
+    // Require profile completion for school admin / non super admin if schoolId or phone is missing
+    const needsProfileCompletion = user && user.role !== UserRole.SUPER_ADMIN && (!user.schoolId || !user.phone);
+
+    if (isAuthenticated && needsProfileCompletion && pathname !== '/complete-profile') {
+      router.replace('/complete-profile');
+      return;
+    }
+
+    if (isAuthenticated && user && !needsProfileCompletion && (pathname === '/login' || pathname === '/register' || pathname === '/complete-profile')) {
       router.replace(roleHome[user.role] ?? '/admin');
     }
   }, [ready, isAuthenticated, user, pathname, router]);

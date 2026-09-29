@@ -14,6 +14,7 @@ import {
   Info,
   Eye,
   Undo2,
+  Bookmark,
 } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
@@ -35,8 +36,9 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
-import { useAcademicSessions, AcademicSession } from '@/features/syllabus/hooks/use-academic-sessions';
+import { useAcademicSessions, AcademicSession, performSessionHardReset } from '@/features/syllabus/hooks/use-academic-sessions';
 import { ImportDataButton } from '@/components/admin/import-data-button';
+import { PostSessionImportDialog } from '@/components/admin/post-session-import-dialog';
 import { useAdminSessionStore } from '@/store/admin-session-store';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { api } from '@/services/api-client';
@@ -63,10 +65,27 @@ export default function AdminSessionsPage() {
   const sessionLimit = subData?.limits?.sessions?.max ?? 1;
   const isLimitReached = !isLoading && sessions.length >= sessionLimit;
 
+  const limits = subData?.limits || {
+    subjects: { used: 0, max: 200 },
+    classes: { used: 0, max: 100 },
+    teachers: { used: 0, max: 25 },
+    sessions: { used: sessions.length, max: sessionLimit },
+  };
+
   const [search, setSearch] = useState('');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newSessionName, setNewSessionName] = useState('');
   const [setAsActive, setSetAsActive] = useState(true);
+
+  // Post-create import wizard state
+  const [importWizard, setImportWizard] = useState<{
+    open: boolean;
+    newSessionId: string;
+    newSessionName: string;
+    sourceSessionId: string;
+    sourceSessionName: string;
+    wasSetAsActive: boolean;
+  } | null>(null);
 
   // Delete confirmation state
   const [deleteConfirmSession, setDeleteConfirmSession] = useState<AcademicSession | null>(null);
@@ -128,8 +147,12 @@ export default function AdminSessionsPage() {
       return;
     }
 
+    // Remember the current active session BEFORE creating the new one
+    // (it will become the "source" for the import wizard)
+    const previousActiveSession = sessions.find((s) => s.id === activeSessionId);
+
     try {
-      await createSession.mutateAsync({
+      const newSession = await createSession.mutateAsync({
         name: trimmed,
         setAsActive,
       });
@@ -138,8 +161,36 @@ export default function AdminSessionsPage() {
       setCreateDialogOpen(false);
       setNewSessionName('');
       resetViewSession();
+
+      // Show import wizard if there was a previous session to import from
+      if (previousActiveSession && newSession?.id) {
+        setImportWizard({
+          open: true,
+          newSessionId: newSession.id,
+          newSessionName: trimmed,
+          sourceSessionId: previousActiveSession.id,
+          sourceSessionName: previousActiveSession.name,
+          wasSetAsActive: setAsActive,
+        });
+      } else if (setAsActive) {
+        // No previous session to import from, but was set as active
+        await performSessionHardReset(queryClient);
+      }
     } catch (err: any) {
       toast.error(err.message || 'Failed to create academic session');
+    }
+  };
+
+  const handleImportWizardClose = async (open: boolean) => {
+    if (open) return;
+    // Wizard closed (either "Do it later" or "Done") — now trigger the hard reset
+    // if the new session was set as active so the UI switches to the new session cleanly.
+    const wizard = importWizard;
+    setImportWizard(null);
+    if (wizard?.wasSetAsActive) {
+      await performSessionHardReset(queryClient);
+    } else {
+      queryClient.invalidateQueries({ queryKey: ['academic-sessions'] });
     }
   };
 
@@ -252,6 +303,137 @@ export default function AdminSessionsPage() {
             </Link>
           </div>
         )}
+
+        {/* Session Resource Allowances Overview */}
+        <div className="space-y-3">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                <Bookmark className="h-4 w-4 text-indigo-600" /> Session Resource Allowances
+              </h2>
+              <p className="text-xs text-gray-500">
+                Resource quotas for subjects, classes, teachers, and sessions are allocated per academic session
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <Card className="rounded-2xl border-gray-200 bg-white shadow-2xs hover:shadow-xs transition-shadow">
+              <CardContent className="pt-4 pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                      <Bookmark className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-muted-foreground font-medium">Subjects Allowed</p>
+                      <p className="text-base font-bold text-gray-800">
+                        {limits.subjects.used} <span className="text-xs text-gray-400 font-normal">/ {limits.subjects.max} max</span>
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant={limits.subjects.used >= limits.subjects.max ? 'destructive' : 'secondary'} className="text-[11px]">
+                    {limits.subjects.used >= limits.subjects.max ? 'Limit Reached' : `${limits.subjects.max - limits.subjects.used} left`}
+                  </Badge>
+                </div>
+                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className="h-full rounded-full bg-blue-600 transition-all duration-500"
+                    style={{ width: `${Math.min(100, (limits.subjects.used / Math.max(1, limits.subjects.max)) * 100)}%` }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl border-gray-200 bg-white shadow-2xs hover:shadow-xs transition-shadow">
+              <CardContent className="pt-4 pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                      <GraduationCap className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-muted-foreground font-medium">Classes Allowed</p>
+                      <p className="text-base font-bold text-gray-800">
+                        {limits.classes.used} <span className="text-xs text-gray-400 font-normal">/ {limits.classes.max} max</span>
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant={limits.classes.used >= limits.classes.max ? 'destructive' : 'secondary'} className="text-[11px]">
+                    {limits.classes.used >= limits.classes.max ? 'Limit Reached' : `${limits.classes.max - limits.classes.used} left`}
+                  </Badge>
+                </div>
+                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className="h-full rounded-full bg-indigo-600 transition-all duration-500"
+                    style={{ width: `${Math.min(100, (limits.classes.used / Math.max(1, limits.classes.max)) * 100)}%` }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl border-gray-200 bg-white shadow-2xs hover:shadow-xs transition-shadow">
+              <CardContent className="pt-4 pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
+                      <Users className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-muted-foreground font-medium">Teachers Allowed</p>
+                      <p className="text-base font-bold text-gray-800">
+                        {limits.teachers.used} <span className="text-xs text-gray-400 font-normal">/ {limits.teachers.max} max</span>
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant={limits.teachers.used >= limits.teachers.max ? 'destructive' : 'secondary'} className="text-[11px]">
+                    {limits.teachers.used >= limits.teachers.max ? 'Limit Reached' : `${limits.teachers.max - limits.teachers.used} left`}
+                  </Badge>
+                </div>
+                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className="h-full rounded-full bg-teal-600 transition-all duration-500"
+                    style={{ width: `${Math.min(100, (limits.teachers.used / Math.max(1, limits.teachers.max)) * 100)}%` }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl border-gray-200 bg-white shadow-2xs hover:shadow-xs transition-shadow">
+              <CardContent className="pt-4 pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
+                      <CalendarRange className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-muted-foreground font-medium">Sessions Allowed</p>
+                      <p className="text-base font-bold text-gray-800">
+                        {limits.sessions?.used ?? sessions.length} <span className="text-xs text-gray-400 font-normal">/ {limits.sessions?.max ?? sessionLimit} max</span>
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant={(limits.sessions?.used ?? sessions.length) >= (limits.sessions?.max ?? sessionLimit) ? 'destructive' : 'secondary'} className="text-[11px]">
+                    {(limits.sessions?.used ?? sessions.length) >= (limits.sessions?.max ?? sessionLimit)
+                      ? 'Limit Reached'
+                      : `${(limits.sessions?.max ?? sessionLimit) - (limits.sessions?.used ?? sessions.length)} left`}
+                  </Badge>
+                </div>
+                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className="h-full rounded-full bg-purple-600 transition-all duration-500"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        (((limits.sessions?.used ?? sessions.length)) / Math.max(1, limits.sessions?.max ?? sessionLimit)) * 100,
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
         {/* Highlight & Info Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -805,6 +987,18 @@ export default function AdminSessionsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* POST-CREATE IMPORT WIZARD */}
+      {importWizard && (
+        <PostSessionImportDialog
+          open={importWizard.open}
+          onOpenChange={handleImportWizardClose}
+          newSessionId={importWizard.newSessionId}
+          newSessionName={importWizard.newSessionName}
+          sourceSessionId={importWizard.sourceSessionId}
+          sourceSessionName={importWizard.sourceSessionName}
+        />
+      )}
     </DashboardShell>
   );
 }

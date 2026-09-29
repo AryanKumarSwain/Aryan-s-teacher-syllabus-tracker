@@ -19,12 +19,15 @@ import {
   CalendarRange,
   TrendingUp,
   Award,
+  Lock,
 } from 'lucide-react';
 import { UserRole } from '@school-syllabus/types';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth-store';
 import { useUiStore } from '@/store/ui-store';
 import { Button } from '@/components/ui/button';
+import { useSubscription } from '@/features/subscription/hooks/use-subscription';
+import { toast } from 'sonner';
 
 const navByRole: Record<UserRole, { href: string; label: string; icon: React.ElementType }[]> = {
   [UserRole.SUPER_ADMIN]: [
@@ -64,6 +67,7 @@ export function Sidebar() {
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const { sidebarOpen, toggleSidebar } = useUiStore();
   const router = useRouter();
+  const { hasActivePlan, isLoading: subLoading, isFetched: subFetched } = useSubscription();
 
   const handleLogout = () => {
     clearAuth();
@@ -72,6 +76,9 @@ export function Sidebar() {
   };
 
   if (!user) return null;
+
+  const isSchoolAdmin = user.role === 'SCHOOL_ADMIN';
+  const isPlanLocked = isSchoolAdmin && subFetched && !subLoading && !hasActivePlan;
 
   const navItems = navByRole[user.role] ?? [];
 
@@ -115,20 +122,49 @@ export function Sidebar() {
         {navItems.map((item) => {
           const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;
+          const isItemLocked = isPlanLocked && item.href !== '/admin/upgrade' && item.href !== '/admin/settings';
+          const isUpgradeTab = item.href === '/admin/upgrade';
+
+          const handleClick = (e: React.MouseEvent) => {
+            if (isItemLocked) {
+              e.preventDefault();
+              toast.error(`Please subscribe to a plan to access ${item.label}`);
+              router.push('/admin/upgrade');
+            }
+          };
+
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={isItemLocked ? '/admin/upgrade' : item.href}
+              onClick={handleClick}
               className={cn(
-                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+                'group flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/30',
                 active
                   ? 'bg-[#E8EEFF] text-[#1a73e8]'
+                  : isItemLocked
+                  ? 'text-gray-400 hover:bg-gray-50 hover:text-gray-500'
                   : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700',
               )}
             >
-              <Icon className="h-4 w-4 shrink-0" />
-              {sidebarOpen && <span>{item.label}</span>}
+              <div className="flex items-center gap-3 min-w-0">
+                <Icon className={cn('h-4 w-4 shrink-0', isItemLocked && 'opacity-60')} />
+                {sidebarOpen && <span className="truncate">{item.label}</span>}
+              </div>
+              {sidebarOpen && (
+                <>
+                  {isItemLocked && (
+                    <Lock className="h-3.5 w-3.5 text-gray-300 group-hover:text-amber-500 transition-colors" />
+                  )}
+                  {isUpgradeTab && isPlanLocked && (
+                    <span className="flex h-2 w-2 relative">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600" />
+                    </span>
+                  )}
+                </>
+              )}
             </Link>
           );
         })}

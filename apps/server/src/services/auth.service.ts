@@ -121,6 +121,7 @@ export const authService = {
         schoolId: user.schoolId,
         teacherId,
         avatar: user.avatar,
+        phone: user.phone,
         school,
       },
       accessToken,

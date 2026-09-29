@@ -143,6 +143,20 @@ export const examPaperController = {
     }
   },
 
+  async removeLogo(req: Request, res: Response, next: NextFunction) {
+    try {
+      const schoolId = getTenantId(req);
+      const template = await examPaperService.saveTemplate(schoolId, { logoUrl: null as any });
+      await prisma.school.update({
+        where: { id: schoolId },
+        data: { logo: null },
+      });
+      sendSuccess(res, { message: 'School logo removed successfully', template });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async uploadQuestionImage(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.file) {

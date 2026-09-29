@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { api } from '@/services/api-client';
 import { toast } from 'sonner';
-import { CheckCircle2, Mail, KeyRound, User, Shield, Image as ImageIcon } from 'lucide-react';
+import { CheckCircle2, Mail, KeyRound, User, Shield, Image as ImageIcon, Trash2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { env } from '@/config/env';
 
@@ -28,18 +28,26 @@ export function SettingsPageContent() {
   const [schoolName, setSchoolName] = useState(user?.school?.name ?? '');
   const [logoUrl, setLogoUrl] = useState('');
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [removingLogo, setRemovingLogo] = useState(false);
   const [step, setStep] = useState<PasswordStep>('idle');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  // Sync state when user object hydrates from auth-provider / backend
+  useEffect(() => {
+    if (user?.name) setName(user.name);
+    if (user?.phone) setPhone(user.phone);
+    if (user?.school?.name) setSchoolName(user.school.name);
+  }, [user?.name, user?.phone, user?.school?.name]);
+
   useEffect(() => {
     if (user?.role === 'SCHOOL_ADMIN') {
       api.get<any>('/exam-papers/template').then((template) => {
-        setLogoUrl(template?.logoUrl ?? '');
+        setLogoUrl(template?.logoUrl ?? (user?.school as any)?.logo ?? '');
       }).catch(() => {});
     }
-  }, [user?.role]);
+  }, [user?.role, user?.school]);
 
   const profileMutation = useMutation({
     mutationFn: (data: { name?: string; phone?: string }) =>
@@ -62,17 +70,49 @@ export function SettingsPageContent() {
         {
           ...user!,
           school: {
-            id: user!.school?.id || '',
+            id: user!.school?.id || updated.id,
             name: updated.name,
             currentAcademicSessionId: user!.school?.currentAcademicSessionId ?? null,
+            logo: (user!.school as any)?.logo ?? logoUrl ?? null,
           },
         },
         accessToken!,
       );
-      toast.success('School name updated');
+      queryClient.invalidateQueries({ queryKey: ['exam-paper-template'] });
+      queryClient.invalidateQueries({ queryKey: ['school'] });
+      toast.success('School name updated successfully');
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const handleLogoRemove = async () => {
+    setRemovingLogo(true);
+    try {
+      await api.delete('/exam-papers/template/logo');
+      setLogoUrl('');
+      queryClient.invalidateQueries({ queryKey: ['exam-paper-template'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-exam-papers'] });
+      if (user) {
+        setAuth(
+          {
+            ...user,
+            school: {
+              id: user.school?.id || '',
+              name: user.school?.name || '',
+              currentAcademicSessionId: user.school?.currentAcademicSessionId ?? null,
+              logo: null,
+            },
+          },
+          accessToken!,
+        );
+      }
+      toast.success('School logo removed successfully');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to remove logo');
+    } finally {
+      setRemovingLogo(false);
+    }
+  };
 
   const sendOtpMutation = useMutation({
     mutationFn: () => api.post<{ message: string }>('/auth/me/send-otp', {}),
@@ -230,8 +270,8 @@ export function SettingsPageContent() {
           </CardContent>
         </Card>
 
-        {/* School Settings */}
-        {user?.school && (
+        {/* School Settings - Admin Only */}
+        {(user?.role === 'SCHOOL_ADMIN' || user?.school) && (
           <Card className="border shadow-sm transition-shadow duration-300 hover:shadow-md">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
@@ -240,7 +280,7 @@ export function SettingsPageContent() {
                 </div>
                 School Settings
               </CardTitle>
-              <CardDescription>Update your school name</CardDescription>
+              <CardDescription>Update your school name displayed across navigation and reports</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1.5">
@@ -251,7 +291,7 @@ export function SettingsPageContent() {
                   id="schoolName"
                   value={schoolName}
                   onChange={(e) => setSchoolName(e.target.value)}
-                  placeholder="Your school name"
+                  placeholder="e.g. WNC International School"
                   className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
                 />
               </div>
@@ -260,7 +300,14 @@ export function SettingsPageContent() {
                 disabled={schoolMutation.isPending}
                 className="w-full transition-all duration-200 active:scale-[0.99]"
               >
-                {schoolMutation.isPending ? 'Saving…' : 'Save School Name'}
+                {schoolMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving…
+                  </>
+                ) : (
+                  'Save School Name'
+                )}
               </Button>
             </CardContent>
           </Card>
@@ -276,17 +323,48 @@ export function SettingsPageContent() {
                 </div>
                 School Logo
               </CardTitle>
-              <CardDescription>Upload your school logo for exam papers and navigation</CardDescription>
+              <CardDescription>Upload or manage your school logo for exam papers and navigation</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {logoUrl && (
-                <div className="flex justify-center rounded-lg bg-gray-50 p-4">
-                  <img src={logoUrl} alt="School Logo" className="h-24 w-24 object-contain" />
+              {logoUrl ? (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl border border-gray-200 bg-gray-50/80 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white p-1.5 shadow-2xs">
+                      <img src={logoUrl} alt="School Logo" className="h-full w-full object-contain" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">{schoolName || 'School Logo'}</p>
+                      <p className="text-xs text-gray-500">Active logo used across navigation and exam papers</p>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLogoRemove}
+                    disabled={removingLogo}
+                    className="h-8 gap-1.5 border-red-200 text-xs font-medium text-red-600 hover:bg-red-50 hover:text-red-700"
+                  >
+                    {removingLogo ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-3.5 w-3.5" />
+                    )}
+                    {removingLogo ? 'Removing…' : 'Remove Logo'}
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-6 text-center">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+                    <ImageIcon className="h-5 w-5" />
+                  </div>
+                  <p className="mt-2 text-xs font-medium text-gray-500">No school logo uploaded</p>
                 </div>
               )}
+
               <div className="space-y-1.5">
                 <Label htmlFor="logo" className="text-xs font-semibold">
-                  Upload Logo
+                  {logoUrl ? 'Change Logo' : 'Upload Logo'}
                 </Label>
                 <Input
                   id="logo"
@@ -297,7 +375,9 @@ export function SettingsPageContent() {
                   className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
                 />
                 {uploadingLogo && (
-                  <p className="text-muted-foreground text-xs">Uploading...</p>
+                  <p className="text-muted-foreground text-xs flex items-center gap-1.5 mt-1">
+                    <Loader2 className="h-3 w-3 animate-spin text-blue-600" /> Uploading logo...
+                  </p>
                 )}
               </div>
             </CardContent>

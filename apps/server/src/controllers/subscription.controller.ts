@@ -10,7 +10,23 @@ export const subscriptionController = {
       if (!schoolId) {
         throw new AppError('School ID not found in session', 400);
       }
-      const data = await subscriptionService.getCurrentSubscription(schoolId);
+      const academicSessionId =
+        (req.query.academicSessionId as string) ||
+        (req as any).user?.school?.currentAcademicSessionId;
+      const data = await subscriptionService.getCurrentSubscription(schoolId, academicSessionId);
+      sendSuccess(res, data);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async getSubscriptionHistory(req: Request, res: Response, next: NextFunction) {
+    try {
+      const schoolId = (req as any).user?.schoolId;
+      if (!schoolId) {
+        throw new AppError('School ID not found in session', 400);
+      }
+      const data = await subscriptionService.getSubscriptionHistory(schoolId);
       sendSuccess(res, data);
     } catch (err) {
       next(err);

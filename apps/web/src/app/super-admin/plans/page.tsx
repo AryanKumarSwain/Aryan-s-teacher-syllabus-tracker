@@ -375,11 +375,20 @@ export default function SuperAdminPlansPage() {
                         )}
 
                         <div className="my-5 rounded-xl bg-blue-50/80 p-4 border border-blue-100">
-                          <div className="flex items-baseline gap-1">
-                            <span className="text-3xl font-extrabold text-blue-900">
-                              ₹{sessionPrice.toLocaleString()}
+                          <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-3xl font-extrabold text-blue-900">
+                                ₹{sessionPrice.toLocaleString()}
+                              </span>
+                              <span className="text-xs font-medium text-blue-700">
+                                {plan.sessionLimit && plan.sessionLimit > 1
+                                  ? `/ ${plan.sessionLimit} Sessions (Base)`
+                                  : '/ Session (Base)'}
+                              </span>
+                            </div>
+                            <span className="text-xs font-bold text-amber-900 bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-300">
+                              ₹{(sessionPrice + Math.round(sessionPrice * 0.18)).toLocaleString()} (incl. 18% GST)
                             </span>
-                            <span className="text-xs font-medium text-blue-700">/ Academic Session</span>
                           </div>
                           <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-blue-600">
                             <Calendar className="h-3.5 w-3.5" />
@@ -589,11 +598,29 @@ export default function SuperAdminPlansPage() {
 
               <div className="grid grid-cols-4 gap-3">
                 <div>
-                  <Label>Price (₹) *</Label>
+                  <Label>Base Price (₹) *</Label>
                   <Input
                     type="number"
                     value={planForm.pricePerSession}
                     onChange={(e) => setPlanForm({ ...planForm, pricePerSession: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label>Session Limit *</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    value={planForm.sessionLimit}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const num = parseInt(val, 10);
+                      const autoDuration = !isNaN(num) && num > 0 ? String(num * 365) : '365';
+                      setPlanForm({
+                        ...planForm,
+                        sessionLimit: val,
+                        sessionDurationDays: autoDuration,
+                      });
+                    }}
                   />
                 </div>
                 <div>
@@ -602,14 +629,6 @@ export default function SuperAdminPlansPage() {
                     type="number"
                     value={planForm.sessionDurationDays}
                     onChange={(e) => setPlanForm({ ...planForm, sessionDurationDays: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label>Session Limit</Label>
-                  <Input
-                    type="number"
-                    value={planForm.sessionLimit}
-                    onChange={(e) => setPlanForm({ ...planForm, sessionLimit: e.target.value })}
                   />
                 </div>
                 <div>
@@ -622,15 +641,27 @@ export default function SuperAdminPlansPage() {
                 </div>
               </div>
 
+              {/* LIVE 18% GST PRICE PREVIEW */}
+              {(() => {
+                const base = Number(planForm.pricePerSession) || 0;
+                const gst = Math.round(base * 0.18);
+                const total = base + gst;
+                return (
+                  <div className="rounded-xl bg-amber-500/10 border border-amber-300/80 p-3 text-xs text-amber-950 flex flex-wrap items-center justify-between gap-2 shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-700">Base: <strong>₹{base.toLocaleString()}</strong></span>
+                      <span className="text-gray-400">•</span>
+                      <span className="text-gray-600">GST (18%): <strong>+₹{gst.toLocaleString()}</strong></span>
+                    </div>
+                    <div className="flex items-center gap-1 font-bold text-amber-900 bg-amber-200/80 px-2.5 py-1 rounded-lg border border-amber-300">
+                      <span>Actual Price (with 18% GST):</span>
+                      <span className="text-sm font-black text-amber-950">₹{total.toLocaleString()}</span>
+                    </div>
+                  </div>
+                );
+              })()}
+
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>Monthly Price (₹) (Optional fallback)</Label>
-                  <Input
-                    type="number"
-                    value={planForm.priceMonthly}
-                    onChange={(e) => setPlanForm({ ...planForm, priceMonthly: e.target.value })}
-                  />
-                </div>
                 <div>
                   <Label>Display Sort Order</Label>
                   <Input

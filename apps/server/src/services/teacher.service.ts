@@ -35,6 +35,7 @@ async function applyTeacherAssignments(
 
 async function buildAssignments(
   schoolId: string,
+  academicSessionId: string,
   data: {
     classIds?: string[];
     assignments?: { classId: string; subjectId: string }[];
@@ -48,7 +49,7 @@ async function buildAssignments(
 
     const subjectIds = Array.from(new Set(assignments.map((a) => a.subjectId)));
     const subjects = await prisma.subject.findMany({
-      where: withTenant(schoolId, { id: { in: subjectIds }, ...softDeleteFilter() }),
+      where: withTenant(schoolId, { id: { in: subjectIds }, academicSessionId, ...softDeleteFilter() }),
       select: { id: true, classId: true },
     });
     if (subjects.length !== subjectIds.length)
@@ -64,7 +65,7 @@ async function buildAssignments(
 
     const classIds = Array.from(new Set(assignments.map((a) => a.classId)));
     const classes = await prisma.class.findMany({
-      where: withTenant(schoolId, { id: { in: classIds }, ...softDeleteFilter() }),
+      where: withTenant(schoolId, { id: { in: classIds }, academicSessionId, ...softDeleteFilter() }),
       select: { id: true },
     });
     if (classes.length !== classIds.length)
@@ -77,14 +78,14 @@ async function buildAssignments(
     const classIds = Array.from(new Set(data.classIds!));
 
     const classes = await prisma.class.findMany({
-      where: withTenant(schoolId, { id: { in: classIds }, ...softDeleteFilter() }),
+      where: withTenant(schoolId, { id: { in: classIds }, academicSessionId, ...softDeleteFilter() }),
       select: { id: true },
     });
     if (classes.length !== classIds.length)
       throw new AppError('One or more classes not found', 404);
 
     const fallbackSubject = await prisma.subject.findFirst({
-      where: withTenant(schoolId, { classId: { in: classIds }, ...softDeleteFilter() }),
+      where: withTenant(schoolId, { classId: { in: classIds }, academicSessionId, ...softDeleteFilter() }),
       select: { id: true },
     });
     if (!fallbackSubject)
@@ -124,10 +125,8 @@ export const teacherService = {
 
     const where = withTenant(schoolId, {
       ...softDeleteFilter(),
-      // Filter teachers by academicSessionId (now required in schema)
-      academicSessionId: params.academicSessionId,
-      ...(params.classId && { teacherClasses: { some: { classId: params.classId, academicSessionId: params.academicSessionId } } }),
-      ...(params.subjectId && { teacherClasses: { some: { subjectId: params.subjectId, academicSessionId: params.academicSessionId } } }),
+      ...(params.classId && { teacherClasses: { some: { classId: params.classId, ...(params.academicSessionId ? { academicSessionId: params.academicSessionId } : {}) } } }),
+      ...(params.subjectId && { teacherClasses: { some: { subjectId: params.subjectId, ...(params.academicSessionId ? { academicSessionId: params.academicSessionId } : {}) } } }),
       ...(params.search && {
         user: {
           OR: [{ name: { contains: params.search } }, { email: { contains: params.search } }],
@@ -145,6 +144,9 @@ export const teacherService = {
             select: { id: true, name: true, email: true, phone: true, avatar: true, status: true },
           },
           teacherClasses: {
+            where: {
+              ...(params.academicSessionId ? { academicSessionId: params.academicSessionId } : {}),
+            },
             include: {
               class: { select: { id: true, name: true, grade: true, section: true } },
               subject: { select: { id: true, name: true, classId: true } },
@@ -400,7 +402,7 @@ export const teacherService = {
     ) {
   const email = data.email.toLowerCase();
   const resolution = await resolveTeacherCreate(schoolId, email);
-  const assignments = await buildAssignments(schoolId, data);
+  const assignments = await buildAssignments(schoolId, academicSessionId, data);
 
   const tempPassword = authService.generateSecurePassword();
   const passwordHash = await hashPassword(tempPassword);
@@ -475,99 +477,102 @@ export const teacherService = {
 },
 
   async createAssignment(
-  schoolId: string,
-  academicSessionId: string,
-  teacherId: string,
-  data: { classId: string; subjectId: string },
-) {
-  const teacher = await prisma.teacher.findFirst({
-    where: withTenant(schoolId, { id: teacherId, academicSessionId, ...softDeleteFilter() }),
-  });
-  if (!teacher) throw new AppError('Teacher not found', 404);
-
-  const cls = await prisma.class.findFirst({
-    where: withTenant(schoolId, { id: data.classId, academicSessionId, ...softDeleteFilter() }),
-    select: { id: true },
-  });
-  if (!cls) throw new AppError('Class not found', 404);
-
-  const subject = await prisma.subject.findFirst({
-    where: withTenant(schoolId, { id: data.subjectId, academicSessionId, ...softDeleteFilter() }),
-    select: { id: true, classId: true },
-  });
-  if (!subject) throw new AppError('Subject not found', 404);
-  if (subject.classId && subject.classId !== data.classId)
-    throw new AppError('Subject does not belong to selected class', 422);
-
-  try {
-    return await prisma.teacherClass.create({
-      data: { schoolId, academicSessionId, teacherId, classId: data.classId, subjectId: data.subjectId },
-      include: {
-        class: { select: { id: true, name: true } },
-        subject: { select: { id: true, name: true } },
-      },
+    schoolId: string,
+    academicSessionId: string,
+    teacherId: string,
+    data: { classId: string; subjectId: string },
+  ) {
+    const teacher = await prisma.teacher.findFirst({
+      where: withTenant(schoolId, { id: teacherId, ...softDeleteFilter() }),
     });
-  } catch (e: any) {
-    if (e?.code === 'P2002') throw new AppError('Assignment already exists', 409);
-    throw e;
-  }
-},
+    if (!teacher) throw new AppError('Teacher not found', 404);
 
-  async deleteAssignment(schoolId: string, teacherId: string, assignmentId: string) {
-  const assignment = await prisma.teacherClass.findFirst({
-    where: withTenant(schoolId, { id: assignmentId, teacherId }),
-    select: { id: true, subjectId: true, classId: true },
-  });
-  if (!assignment) throw new AppError('Assignment not found', 404);
-
-  await prisma.$transaction(async (tx) => {
-    const chapters = await tx.chapter.findMany({
-      where: {
-        schoolId,
-        subjectId: assignment.subjectId ?? undefined,
-        classId: assignment.classId,
-      },
+    const cls = await prisma.class.findFirst({
+      where: withTenant(schoolId, { id: data.classId, academicSessionId, ...softDeleteFilter() }),
       select: { id: true },
     });
-    const chapterIds = chapters.map((c) => c.id);
+    if (!cls) throw new AppError('Class not found', 404);
 
-    if (chapterIds.length > 0) {
-      const topics = await tx.topic.findMany({
-        where: { schoolId, chapterId: { in: chapterIds } },
+    const subject = await prisma.subject.findFirst({
+      where: withTenant(schoolId, { id: data.subjectId, academicSessionId, ...softDeleteFilter() }),
+      select: { id: true, classId: true },
+    });
+    if (!subject) throw new AppError('Subject not found', 404);
+    if (subject.classId && subject.classId !== data.classId)
+      throw new AppError('Subject does not belong to selected class', 422);
+
+    try {
+      return await prisma.teacherClass.create({
+        data: { schoolId, academicSessionId, teacherId, classId: data.classId, subjectId: data.subjectId },
+        include: {
+          class: { select: { id: true, name: true } },
+          subject: { select: { id: true, name: true } },
+        },
+      });
+    } catch (e: any) {
+      if (e?.code === 'P2002') throw new AppError('Assignment already exists', 409);
+      throw e;
+    }
+  },
+
+  async deleteAssignment(schoolId: string, teacherId: string, assignmentId: string) {
+    const assignment = await prisma.teacherClass.findFirst({
+      where: withTenant(schoolId, { id: assignmentId, teacherId }),
+      select: { id: true, subjectId: true, classId: true },
+    });
+    if (!assignment) throw new AppError('Assignment not found', 404);
+
+    await prisma.$transaction(async (tx) => {
+      const chapters = await tx.chapter.findMany({
+        where: {
+          schoolId,
+          subjectId: assignment.subjectId ?? undefined,
+          classId: assignment.classId,
+        },
         select: { id: true },
       });
-      const topicIds = topics.map((t) => t.id);
+      const chapterIds = chapters.map((c) => c.id);
 
-      if (topicIds.length > 0) {
-        await tx.topicProgress.deleteMany({
-          where: { teacherId, topicId: { in: topicIds } },
+      if (chapterIds.length > 0) {
+        const topics = await tx.topic.findMany({
+          where: { schoolId, chapterId: { in: chapterIds } },
+          select: { id: true },
+        });
+        const topicIds = topics.map((t) => t.id);
+
+        if (topicIds.length > 0) {
+          await tx.topicProgress.deleteMany({
+            where: { teacherId, topicId: { in: topicIds } },
+          });
+        }
+
+        await tx.chapterProgress.deleteMany({
+          where: { teacherId, chapterId: { in: chapterIds } },
         });
       }
 
-      await tx.chapterProgress.deleteMany({
-        where: { teacherId, chapterId: { in: chapterIds } },
-      });
-    }
-
-    await tx.teacherClass.delete({ where: { id: assignmentId } });
-  });
-},
+      await tx.teacherClass.delete({ where: { id: assignmentId } });
+    });
+  },
 
   async getById(schoolId: string, academicSessionId: string, id: string, termFilter?: string) {
-  const teacher = await prisma.teacher.findFirst({
-    where: withTenant(schoolId, { id, academicSessionId, ...softDeleteFilter() }),
-    include: {
-      user: true,
-      teacherClasses: {
-        include: {
-          class: { select: { id: true, name: true, grade: true, section: true } },
-          subject: { select: { id: true, name: true } },
+    const teacher = await prisma.teacher.findFirst({
+      where: withTenant(schoolId, { id, ...softDeleteFilter() }),
+      include: {
+        user: true,
+        teacherClasses: {
+          where: {
+            ...(academicSessionId ? { academicSessionId } : {}),
+          },
+          include: {
+            class: { select: { id: true, name: true, grade: true, section: true } },
+            subject: { select: { id: true, name: true } },
+          },
+          orderBy: { createdAt: 'desc' },
         },
-        orderBy: { createdAt: 'desc' },
       },
-    },
-  });
-  if (!teacher) throw new AppError('Teacher not found', 404);
+    });
+    if (!teacher) throw new AppError('Teacher not found', 404);
 
   // Extract term name from termFilter if provided
   let filteredTermName: string | undefined;

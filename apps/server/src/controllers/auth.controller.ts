@@ -308,6 +308,7 @@ export const authController = {
         schoolId: user.schoolId,
         teacherId,
         avatar: user.avatar,
+        phone: user.phone,
         school,
       });
     } catch (err) {
@@ -453,12 +454,11 @@ export const authController = {
           const { accessToken } = await createAuthSession(res, user);
           console.log('[googleCallback] Auth session created, cookies set');
 
-          // If this user was created during the Google sign-in flow,
+          // If this user has not completed profile (missing school or phone),
           // prompt them to complete their profile (school name, phone).
-          // If the user already existed (registered), allow immediate login.
-          const isNewUser = !!info?.isNew;
-          if (isNewUser) {
-            console.log('[googleCallback] New Google user — redirecting to complete-profile');
+          const requiresProfileCompletion = user.role !== 'SUPER_ADMIN' && (!user.schoolId || !user.phone);
+          if (requiresProfileCompletion) {
+            console.log('[googleCallback] Incomplete profile (missing school/phone) — redirecting to complete-profile');
             // Include the short-lived access token in the redirect so the frontend
             // can complete the profile without relying on cross-site cookies.
             return res.redirect(
@@ -554,33 +554,6 @@ export const authController = {
         },
       });
       console.log('[completeGoogleProfile] School created:', school.id);
-
-      // Create hardcoded academic sessions for the school
-      const HARDCODED_SESSIONS = ['2026-27', '2027-28', '2028-29'];
-      const sessions = await Promise.all(
-        HARDCODED_SESSIONS.map((sessionName) =>
-          prisma.academicSession.create({
-            data: {
-              schoolId: school.id,
-              name: sessionName,
-              status: 'ACTIVE',
-              isArchived: false,
-            },
-          })
-        )
-      );
-      console.log('[completeGoogleProfile] Sessions created:', sessions.length);
-
-      // Set 2026-27 as the default current session
-      const session2026 = sessions.find(s => s.name === '2026-27');
-      const targetSession = session2026 || sessions[0];
-      if (targetSession) {
-        await prisma.school.update({
-          where: { id: school.id },
-          data: { currentAcademicSessionId: targetSession.id },
-        });
-        console.log('[completeGoogleProfile] Current session set:', targetSession.name);
-      }
 
       // Update user with phone and schoolId
       const updatedUser = await prisma.user.update({

@@ -19,37 +19,62 @@ export interface AcademicSession {
   };
 }
 
-const performSessionHardReset = async (queryClient: any) => {
+export const performSessionHardReset = async (queryClient: any) => {
   console.log('[HARD RESET] Starting hard reset for session switch');
-  
-  // Step 1: Refresh auth store to get updated school data with new currentAcademicSessionId
+
+  // Step 1: Fetch fresh user data (with updated currentAcademicSessionId) BEFORE touching localStorage
+  let freshMe: any = null;
   try {
-    const me = await api.get<any>('/auth/me');
-    const setAuth = useAuthStore.getState().setAuth;
-    setAuth(me, useAuthStore.getState().accessToken || 'cookie-session');
-    console.log('[HARD RESET] Auth store refreshed with new session ID');
+    freshMe = await api.get<any>('/auth/me');
+    console.log('[HARD RESET] Fresh /auth/me fetched, new sessionId:', freshMe?.school?.currentAcademicSessionId);
   } catch {
-    console.error('[HARD RESET] Failed to refresh auth store');
+    console.error('[HARD RESET] Failed to fetch /auth/me');
   }
 
-  // Step 2: Force clear the entire React Query cache
+  // Step 2: Build the correct auth-storage JSON NOW (before clearing anything)
+  // Zustand persist writes to localStorage asynchronously, so we must NOT read
+  // localStorage after calling setAuth — that would capture the stale old value.
+  let freshAuthStorage: string | null = null;
+  if (freshMe) {
+    try {
+      const currentState = useAuthStore.getState();
+      const freshState = {
+        state: {
+          user: freshMe,
+          accessToken: currentState.accessToken || 'cookie-session',
+          isAuthenticated: true,
+        },
+        version: 0,
+      };
+      freshAuthStorage = JSON.stringify(freshState);
+
+      // Also update the in-memory store
+      currentState.setAuth(freshMe, currentState.accessToken || 'cookie-session');
+      console.log('[HARD RESET] Auth store updated in memory');
+    } catch (err) {
+      console.error('[HARD RESET] Failed to build fresh auth storage:', err);
+    }
+  }
+
+  // Step 3: Force clear the entire React Query cache
   queryClient.clear();
   console.log('[HARD RESET] React Query cache cleared');
 
-  // Step 3: Clear ALL localStorage (except auth-storage which we just updated)
+  // Step 4: Clear ALL localStorage, then restore the FRESH auth-storage
   try {
-    const authStorage = localStorage.getItem('auth-storage');
     localStorage.clear();
-    // Restore only the auth storage with new session data
-    if (authStorage) {
-      localStorage.setItem('auth-storage', authStorage);
+    if (freshAuthStorage) {
+      localStorage.setItem('auth-storage', freshAuthStorage);
+      console.log('[HARD RESET] localStorage cleared and fresh auth-storage restored');
+    } else {
+      // Fallback: no fresh data, just clear
+      console.warn('[HARD RESET] No fresh auth data — localStorage fully cleared');
     }
-    console.log('[HARD RESET] localStorage cleared (except auth-storage)');
   } catch (err) {
     console.error('[HARD RESET] Failed to clear localStorage:', err);
   }
 
-  // Step 4: Clear ALL sessionStorage
+  // Step 5: Clear ALL sessionStorage
   try {
     sessionStorage.clear();
     console.log('[HARD RESET] sessionStorage cleared');
@@ -57,14 +82,12 @@ const performSessionHardReset = async (queryClient: any) => {
     console.error('[HARD RESET] Failed to clear sessionStorage:', err);
   }
 
-  // Step 5: Clear any cookies that might contain session data (client-side only)
+  // Step 6: Clear non-auth cookies
   try {
-    const cookies = document.cookie.split(';');
-    cookies.forEach(cookie => {
-      const eqPos = cookie.indexOf('=');
-      const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-      // Don't clear auth cookies as they're needed for the session
-      if (!name.includes('access_token') && !name.includes('refresh_token')) {
+    document.cookie.split(';').forEach(cookie => {
+      const parts = cookie.split('=');
+      const name = parts[0]?.trim();
+      if (name && !name.includes('access_token') && !name.includes('refresh_token')) {
         document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
       }
     });
@@ -73,7 +96,7 @@ const performSessionHardReset = async (queryClient: any) => {
     console.error('[HARD RESET] Failed to clear cookies:', err);
   }
 
-  // Step 6: Force a complete page reload to ensure all components remount with fresh state
+  // Step 7: Reload — now localStorage has the fresh session ID
   console.log('[HARD RESET] Triggering page reload');
   if (typeof window !== 'undefined') {
     window.location.reload();
@@ -102,12 +125,11 @@ export const useAcademicSessions = () => {
         setAsActive,
       });
     },
-    onSuccess: async (_, variables) => {
-      if (variables.setAsActive) {
-        await performSessionHardReset(queryClient);
-      } else {
-        queryClient.invalidateQueries({ queryKey: ['academic-sessions', schoolId] });
-      }
+    // NOTE: Hard reset is intentionally NOT done here.
+    // The sessions page shows the import wizard first, then reloads after the wizard closes.
+    // This gives the admin a chance to import data before the UI switches context.
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['academic-sessions', schoolId] });
     },
   });
 

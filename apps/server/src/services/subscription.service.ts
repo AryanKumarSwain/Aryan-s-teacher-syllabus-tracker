@@ -7,7 +7,7 @@ const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || 'rzp_test_TNFrLSunBdtmcv'
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'rYqvnc8Q8GqIpXT6ZSNKp7Ly';
 
 export const subscriptionService = {
-  async getCurrentSubscription(schoolId: string) {
+  async getCurrentSubscription(schoolId: string, academicSessionId?: string) {
     const subscription = await prisma.subscription.findFirst({
       where: { schoolId, status: 'ACTIVE' },
       include: { plan: true },
@@ -28,23 +28,35 @@ export const subscriptionService = {
       }
     }
 
-    // Counts for limits
+    // Resolve target session ID for per-session limits
+    let targetSessionId = academicSessionId;
+    if (!targetSessionId) {
+      const school = await prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { currentAcademicSessionId: true },
+      });
+      targetSessionId = school?.currentAcademicSessionId || undefined;
+    }
+
+    const sessionFilter = targetSessionId ? { academicSessionId: targetSessionId } : {};
+
+    // Counts for limits - scoped PER SESSION
     const [subjectCount, classCount, teacherCount, sessionCount, sessionPurchasesCount] = await Promise.all([
-      prisma.subject.count({ where: { schoolId, deletedAt: null } }),
-      prisma.class.count({ where: { schoolId, deletedAt: null } }),
-      prisma.teacher.count({ where: { schoolId, deletedAt: null, status: 'ACTIVE' } }),
+      prisma.subject.count({ where: { schoolId, deletedAt: null, ...sessionFilter } }),
+      prisma.class.count({ where: { schoolId, deletedAt: null, ...sessionFilter } }),
+      prisma.teacher.count({ where: { schoolId, deletedAt: null, status: 'ACTIVE', ...sessionFilter } }),
       prisma.academicSession.count({ where: { schoolId } }),
       prisma.paymentTransaction.count({ where: { schoolId, status: 'SUCCESS', billingCycle: 'SESSION' } }),
     ]);
 
-    const planSessionLimit = subscription?.plan?.sessionLimit ?? 1;
-    const maxAllowedSessions = Math.max(planSessionLimit, 1 + sessionPurchasesCount);
+    const planSessionLimit = subscription?.plan?.sessionLimit ?? 0;
+    const maxAllowedSessions = subscription && !isExpired ? Math.max(planSessionLimit, 1 + sessionPurchasesCount) : 0;
 
     const limits = {
-      subjects: { used: subjectCount, max: 200 },
-      classes: { used: classCount, max: 100 },
-      teachers: { used: teacherCount, max: subscription?.plan.teacherLimit || 50 },
-      sessions: { used: sessionCount, max: subscription && !isExpired ? maxAllowedSessions : 0 },
+      subjects: { used: subjectCount, max: subscription && !isExpired ? 200 : 0 },
+      classes: { used: classCount, max: subscription && !isExpired ? 100 : 0 },
+      teachers: { used: teacherCount, max: subscription && !isExpired ? (subscription?.plan?.teacherLimit || 50) : 0 },
+      sessions: { used: sessionCount, max: maxAllowedSessions },
     };
 
     return {
@@ -57,6 +69,43 @@ export const subscriptionService = {
         : null,
       limits,
       razorpayKeyId: RAZORPAY_KEY_ID,
+    };
+  },
+
+  async getSubscriptionHistory(schoolId: string) {
+    const [subscriptions, transactions, school] = await Promise.all([
+      prisma.subscription.findMany({
+        where: { schoolId },
+        include: {
+          plan: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.paymentTransaction.findMany({
+        where: { schoolId },
+        include: {
+          plan: true,
+          coupon: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.school.findUnique({
+        where: { id: schoolId },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          address: true,
+          logo: true,
+        },
+      }),
+    ]);
+
+    return {
+      subscriptions,
+      transactions,
+      school,
     };
   },
 
@@ -97,7 +146,10 @@ export const subscriptionService = {
       appliedCouponCode = couponRes.coupon.code;
     }
 
-    const finalAmount = Math.max(0, basePrice - discount);
+    const taxableAmount = Math.max(0, basePrice - discount);
+    const gstPercent = 18;
+    const gstAmount = Math.round(taxableAmount * 0.18);
+    const finalAmount = taxableAmount + gstAmount;
     const amountInPaise = Math.round(finalAmount * 100);
 
     // Call Razorpay API to create an order
@@ -120,6 +172,10 @@ export const subscriptionService = {
             planId: plan.id,
             planName: plan.name,
             billingCycle,
+            basePrice,
+            discount,
+            gstAmount,
+            finalAmount,
           },
         }),
       });
@@ -157,6 +213,11 @@ export const subscriptionService = {
 
     return {
       orderId: razorpayOrderId,
+      basePrice,
+      discount,
+      taxableAmount,
+      gstPercent,
+      gstAmount,
       amount: finalAmount,
       amountInPaise,
       currency: 'INR',
@@ -167,7 +228,6 @@ export const subscriptionService = {
         description: plan.description,
         sessionDurationDays: plan.sessionDurationDays,
       },
-      discount,
       couponCode: appliedCouponCode,
       transactionId: transaction.id,
     };
