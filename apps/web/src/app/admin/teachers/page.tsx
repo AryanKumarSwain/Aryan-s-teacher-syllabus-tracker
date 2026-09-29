@@ -216,11 +216,28 @@ export default function AdminTeachersPage() {
           <div className="flex shrink-0 items-center gap-2">
             {!isViewMode ? (
               <>
+                <span
+                  className={cn(
+                    'text-xs font-semibold px-2.5 py-1 rounded-full border',
+                    teachers.length >= 50
+                      ? 'bg-red-50 text-red-700 border-red-200'
+                      : 'bg-teal-50 text-teal-700 border-teal-200',
+                  )}
+                >
+                  {teachers.length} / 50 Teachers
+                </span>
                 <ImportDataButton type="teachers" label="Import Teachers" />
-                <Button variant="outline" onClick={() => setBulkOpen(true)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setBulkOpen(true)}
+                  disabled={teachers.length >= 50}
+                >
                   <Upload className="mr-2 h-4 w-4" /> Bulk import
                 </Button>
-                <Button onClick={() => setDialogOpen(true)}>
+                <Button
+                  onClick={() => setDialogOpen(true)}
+                  disabled={teachers.length >= 50}
+                >
                   <Plus className="mr-2 h-4 w-4" /> Add teacher
                 </Button>
               </>

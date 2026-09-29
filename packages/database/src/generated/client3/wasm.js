@@ -179,6 +179,8 @@ exports.Prisma.SubscriptionPlanScalarFieldEnum = {
   description: 'description',
   priceMonthly: 'priceMonthly',
   priceYearly: 'priceYearly',
+  pricePerSession: 'pricePerSession',
+  sessionDurationDays: 'sessionDurationDays',
   teacherLimit: 'teacherLimit',
   features: 'features',
   isActive: 'isActive',
@@ -195,6 +197,46 @@ exports.Prisma.SubscriptionScalarFieldEnum = {
   status: 'status',
   startDate: 'startDate',
   endDate: 'endDate',
+  queuedDays: 'queuedDays',
+  queuedPlanId: 'queuedPlanId',
+  queuedPlanName: 'queuedPlanName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CouponScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  description: 'description',
+  discountPercent: 'discountPercent',
+  discountAmount: 'discountAmount',
+  minOrderAmount: 'minOrderAmount',
+  maxDiscount: 'maxDiscount',
+  validUntil: 'validUntil',
+  maxUses: 'maxUses',
+  timesUsed: 'timesUsed',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+};
+
+exports.Prisma.PaymentTransactionScalarFieldEnum = {
+  id: 'id',
+  schoolId: 'schoolId',
+  planId: 'planId',
+  couponId: 'couponId',
+  couponCode: 'couponCode',
+  razorpayOrderId: 'razorpayOrderId',
+  razorpayPaymentId: 'razorpayPaymentId',
+  razorpaySignature: 'razorpaySignature',
+  amount: 'amount',
+  discount: 'discount',
+  currency: 'currency',
+  status: 'status',
+  billingCycle: 'billingCycle',
+  planName: 'planName',
+  queuedDays: 'queuedDays',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -442,7 +484,6 @@ exports.Prisma.TeacherTrainingRecordScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   organizedBy: 'organizedBy',
-  resourcePerson: 'resourcePerson',
   locationOrPlatform: 'locationOrPlatform',
   isAcademicActivity: 'isAcademicActivity',
   academicActivityKey: 'academicActivityKey',
@@ -583,6 +624,8 @@ exports.Prisma.ModelName = {
   AcademicSession: 'AcademicSession',
   SubscriptionPlan: 'SubscriptionPlan',
   Subscription: 'Subscription',
+  Coupon: 'Coupon',
+  PaymentTransaction: 'PaymentTransaction',
   Teacher: 'Teacher',
   Class: 'Class',
   Subject: 'Subject',

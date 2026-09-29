@@ -438,9 +438,25 @@ export default function AdminSubjectsPage() {
           </select>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          {data && (
+            <span
+              className={cn(
+                'text-xs font-semibold px-2.5 py-1 rounded-full border',
+                data.length >= 200
+                  ? 'bg-red-50 text-red-700 border-red-200'
+                  : 'bg-blue-50 text-blue-700 border-blue-200',
+              )}
+            >
+              {data.length} / 200 Subjects
+            </span>
+          )}
           {!isViewMode ? (
-            <Button onClick={handleCreateClick} className="shrink-0 shadow-sm">
+            <Button
+              onClick={handleCreateClick}
+              disabled={!!data && data.length >= 200}
+              className="shrink-0 shadow-sm"
+            >
               <Plus className="mr-2 h-4 w-4" /> Add subject
             </Button>
           ) : (

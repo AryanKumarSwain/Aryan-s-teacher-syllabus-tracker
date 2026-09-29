@@ -11,6 +11,8 @@ import academicSessionRoutes from './academic-session.routes.js';
 import progressionRoutes from './progression.routes.js';
 import { examPaperRoutes } from './exam-paper.routes.js';
 import { teacherTrainingRoutes } from './teacher-training.routes.js';
+import { subscriptionRoutes } from './subscription.routes.js';
+import { couponRoutes } from './coupon.routes.js';
 
 export const apiRouter = Router();
 
@@ -21,6 +23,8 @@ apiRouter.use('/syllabus', syllabusRoutes);
 apiRouter.use('/dashboard', dashboardRoutes);
 apiRouter.use('/progress', progressRoutes);
 apiRouter.use('/plans', planRoutes);
+apiRouter.use('/subscriptions', subscriptionRoutes);
+apiRouter.use('/coupons', couponRoutes);
 apiRouter.use('/academic-terms', academicTermRoutes);
 apiRouter.use('/academic-sessions', academicSessionRoutes);
 apiRouter.use('/progression', progressionRoutes);

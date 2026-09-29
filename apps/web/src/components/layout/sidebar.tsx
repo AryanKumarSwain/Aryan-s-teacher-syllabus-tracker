@@ -44,6 +44,7 @@ const navByRole: Record<UserRole, { href: string; label: string; icon: React.Ele
     { href: '/admin/exam-papers', label: 'Exam Papers', icon: BookOpen },
     { href: '/admin/teacher-training', label: 'Teacher Training', icon: Award },
     { href: '/admin/sessions', label: 'Sessions', icon: CalendarRange },
+    { href: '/admin/upgrade', label: 'Upgrade & Plans', icon: CreditCard },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ],
   [UserRole.TEACHER]: [

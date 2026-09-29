@@ -33,11 +33,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/empty-state';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { useAcademicSessions, AcademicSession } from '@/features/syllabus/hooks/use-academic-sessions';
 import { ImportDataButton } from '@/components/admin/import-data-button';
 import { useAdminSessionStore } from '@/store/admin-session-store';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
+import { api } from '@/services/api-client';
 
 export default function AdminSessionsPage() {
   const { school, activeSessionId, isViewMode, viewSessionId } = useSchool();
@@ -51,6 +53,15 @@ export default function AdminSessionsPage() {
     deleteSession,
     switchSession,
   } = useAcademicSessions();
+
+  // Subscription & Plan Limits
+  const { data: subData } = useQuery({
+    queryKey: ['admin', 'current-subscription'],
+    queryFn: () => api.get<any>('/subscriptions/current'),
+  });
+
+  const sessionLimit = subData?.limits?.sessions?.max ?? 1;
+  const isLimitReached = !isLoading && sessions.length >= sessionLimit;
 
   const [search, setSearch] = useState('');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -177,22 +188,70 @@ export default function AdminSessionsPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <span
+              className={cn(
+                'h-9 inline-flex items-center gap-2 whitespace-nowrap text-xs font-semibold px-3.5 rounded-lg border shrink-0 shadow-2xs',
+                isLimitReached
+                  ? 'bg-red-50 text-red-700 border-red-200'
+                  : 'bg-blue-50 text-blue-700 border-blue-200',
+              )}
+            >
+              <span className={cn('h-2 w-2 rounded-full shrink-0', isLimitReached ? 'bg-red-500 animate-pulse' : 'bg-blue-500')} />
+              <span>{sessions.length} / {sessionLimit} Sessions Allowed</span>
+            </span>
             <ImportDataButton type="structure" label="Import Structure" />
             <Button
               id="create-session-button"
               onClick={() => {
+                if (isLimitReached) {
+                  toast.error(
+                    `Session limit reached (${sessions.length}/${sessionLimit}). Please upgrade your plan to create more academic sessions.`,
+                  );
+                  return;
+                }
                 setNewSessionName(yearSuggestions[0] || '');
                 setSetAsActive(true);
                 setCreateDialogOpen(true);
               }}
-              className="bg-blue-600 text-white shadow-md hover:bg-blue-700"
+              disabled={isLimitReached}
+              className={cn(
+                'shadow-md',
+                isLimitReached
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300'
+                  : 'bg-blue-600 text-white hover:bg-blue-700',
+              )}
             >
               <Plus className="mr-2 h-4 w-4" />
               Create New Session
             </Button>
           </div>
         </div>
+
+        {/* Plan Limit Warning Banner */}
+        {isLimitReached && (
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-amber-900 shadow-2xs">
+            <div className="flex items-start gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+                <CalendarRange className="h-5 w-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold flex items-center gap-2">
+                  Academic Session Limit Reached ({sessions.length} / {sessionLimit})
+                  <Badge variant="destructive" className="text-[10px] py-0 px-2 font-semibold">Upgrade Required</Badge>
+                </h4>
+                <p className="text-xs text-amber-800/90 mt-0.5">
+                  Your current subscription plan &quot;{subData?.subscription?.plan?.name || 'Active Plan'}&quot; allows up to <strong>{sessionLimit} academic session(s)</strong>. To create and manage new sessions for upcoming academic years, please upgrade your subscription plan.
+                </p>
+              </div>
+            </div>
+            <Link href="/admin/upgrade">
+              <Button size="sm" className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shrink-0 text-xs shadow-sm font-semibold">
+                <Sparkles className="mr-1.5 h-3.5 w-3.5" /> Upgrade Plan
+              </Button>
+            </Link>
+          </div>
+        )}
 
         {/* Highlight & Info Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

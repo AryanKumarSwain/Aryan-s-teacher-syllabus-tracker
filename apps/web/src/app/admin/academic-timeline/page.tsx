@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Calendar,
@@ -15,6 +15,8 @@ import {
   LayoutGrid,
   Landmark,
   Sparkles,
+  AlertCircle,
+  CheckCircle2,
 } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
@@ -383,6 +385,33 @@ export default function AcademicTimelinePage() {
   const [yearName, setYearName] = useState(savedState?.yearName || '');
   const [yearStartDate, setYearStartDate] = useState(savedState?.yearStartDate || '');
   const [yearEndDate, setYearEndDate] = useState(savedState?.yearEndDate || '');
+
+  // Session date range constraints (Max 1 academic year = 380 days, Min 30 days)
+  const sessionDaysDiff = useMemo(() => {
+    if (!yearStartDate || !yearEndDate) return null;
+    const s = new Date(yearStartDate);
+    const e = new Date(yearEndDate);
+    return Math.round((e.getTime() - s.getTime()) / 86400000);
+  }, [yearStartDate, yearEndDate]);
+
+  const maxAllowedEndDate = useMemo(() => {
+    if (!yearStartDate) return undefined;
+    const d = new Date(yearStartDate);
+    d.setDate(d.getDate() + 380);
+    return d.toISOString().split('T')[0];
+  }, [yearStartDate]);
+
+  const minAllowedEndDate = useMemo(() => {
+    if (!yearStartDate) return undefined;
+    const d = new Date(yearStartDate);
+    d.setDate(d.getDate() + 30);
+    return d.toISOString().split('T')[0];
+  }, [yearStartDate]);
+
+  const isDateRangeInvalid = useMemo(() => {
+    if (sessionDaysDiff === null) return false;
+    return sessionDaysDiff <= 0 || sessionDaysDiff < 30 || sessionDaysDiff > 380;
+  }, [sessionDaysDiff]);
   const [terms, setTerms] = useState<Term[]>(savedState?.terms || []);
   const [weeklyHolidays, setWeeklyHolidays] = useState<number[]>(savedState?.weeklyHolidays || [0]);
   const [newVacationDay, setNewVacationDay] = useState<VacationDay>({
@@ -570,6 +599,22 @@ export default function AcademicTimelinePage() {
       if (!yearName || !yearStartDate || !yearEndDate)
         throw new Error('Fill in all required fields');
       if (!schoolId) throw new Error('School ID is required');
+
+      const s = new Date(yearStartDate);
+      const e = new Date(yearEndDate);
+      const diff = Math.round((e.getTime() - s.getTime()) / 86400000);
+      if (diff <= 0) {
+        throw new Error('End date must be after start date');
+      }
+      if (diff < 30) {
+        throw new Error('Academic session duration must be at least 30 days');
+      }
+      if (diff > 380) {
+        throw new Error(
+          `Academic session duration cannot exceed 380 days (~1 academic year). Currently selected: ${diff} days. For subsequent years, please create a separate academic session.`,
+        );
+      }
+
       const formattedTerms = terms.map((t, i) => ({
         name: t.name || `Term ${i + 1}`,
         startDate: t.startDate || yearStartDate,
@@ -607,6 +652,22 @@ export default function AcademicTimelinePage() {
       if (isViewMode) {
         throw new Error('Viewing mode is read-only. Cannot edit academic year.');
       }
+
+      const s = new Date(yearStartDate);
+      const e = new Date(yearEndDate);
+      const diff = Math.round((e.getTime() - s.getTime()) / 86400000);
+      if (diff <= 0) {
+        throw new Error('End date must be after start date');
+      }
+      if (diff < 30) {
+        throw new Error('Academic session duration must be at least 30 days');
+      }
+      if (diff > 380) {
+        throw new Error(
+          `Academic session duration cannot exceed 380 days (~1 academic year). Currently selected: ${diff} days. For subsequent years, please create a separate academic session.`,
+        );
+      }
+
       return api.patch<AcademicYear>(`/academic-terms/${id}`, {
         name: yearName,
         startDate: yearStartDate,
@@ -640,6 +701,16 @@ export default function AcademicTimelinePage() {
   const handleSubmit = () => {
     if (isViewMode) {
       toast.error('Viewing mode is read-only.');
+      return;
+    }
+    if (isDateRangeInvalid) {
+      if (sessionDaysDiff !== null && sessionDaysDiff > 380) {
+        toast.error(`Academic session duration cannot exceed 380 days (~1 academic year). Currently selected: ${sessionDaysDiff} days.`);
+      } else if (sessionDaysDiff !== null && sessionDaysDiff < 30) {
+        toast.error('Academic session duration must be at least 30 days.');
+      } else {
+        toast.error('Invalid date range. End date must be after start date.');
+      }
       return;
     }
     if (editingYear) updateMutation.mutate(editingYear.id);
@@ -938,6 +1009,25 @@ export default function AcademicTimelinePage() {
     }
   });
 
+  // If no terms or vacations are configured yet, create a default full-session section so days are always shown!
+  if (
+    timelineSections.length === 0 &&
+    selectedTerm?.startDate &&
+    selectedTerm?.endDate &&
+    monthGroups.length > 0
+  ) {
+    timelineSections.push({
+      id: 'full-session-term',
+      type: 'term',
+      name: `${selectedTerm.name || 'Academic Session'} — Full Timeline`,
+      startDate: selectedTerm.startDate.split('T')[0]!,
+      endDate: selectedTerm.endDate.split('T')[0]!,
+      termIndex: 0,
+      termColor: TERM_COLORS[0]!,
+      monthGroups: monthGroups,
+    });
+  }
+
   // Sort sections chronologically
   timelineSections.sort((a, b) => a.startDate.localeCompare(b.startDate));
 
@@ -957,9 +1047,9 @@ export default function AcademicTimelinePage() {
         if (isTodayInSec) hasActiveSection = true;
       });
 
-      // Always keep vacation break sections expanded so user sees vacation days immediately
+      // Always keep vacation break or full session sections expanded so user sees days immediately
       timelineSections.forEach((sec, idx) => {
-        if (sec.type === 'vacation') {
+        if (sec.type === 'vacation' || sec.id === 'full-session-term') {
           initialCollapsed[sec.id] = false;
         } else if (!hasActiveSection && idx === 0) {
           initialCollapsed[sec.id] = false;
@@ -1063,18 +1153,7 @@ export default function AcademicTimelinePage() {
             <Button onClick={handleCreateClick}>
               <Plus className="mr-2 h-4 w-4" /> Create Timeline
             </Button>
-          ) : (
-            <div className="inline-flex items-center rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
-              <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span>To start a new year, please go to the dashboard and create a new session.</span>
-            </div>
-          )}
+          ) : null}
         </div>
 
 
@@ -1389,6 +1468,26 @@ export default function AcademicTimelinePage() {
                               </button>
                               {!isCollapsed && (
                                 <div className="border-t px-4 py-4">
+                                  {sec.id === 'full-session-term' && (
+                                    <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 rounded-xl bg-blue-50/90 px-4 py-3 text-xs text-blue-900 border border-blue-200">
+                                      <div className="flex items-center gap-2">
+                                        <Sparkles className="h-4 w-4 text-blue-600 shrink-0" />
+                                        <span>
+                                          Showing all <strong>{teachingDays.length} Teaching Days</strong> across <strong>{monthGroups.length} Months</strong>. Terms or vacation breaks are not configured yet — you can divide this into Term 1, Term 2, or add Vacation breaks anytime!
+                                        </span>
+                                      </div>
+                                      {!isViewMode && (
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="h-7 text-xs border-blue-300 bg-white text-blue-700 hover:bg-blue-50 shrink-0 shadow-2xs font-semibold"
+                                          onClick={() => handleEditClick(selectedTerm)}
+                                        >
+                                          <Pencil className="h-3 w-3 mr-1" /> Configure Terms & Breaks
+                                        </Button>
+                                      )}
+                                    </div>
+                                  )}
                                   {sec.monthGroups.length === 0 ? (
                                     <p className="text-muted-foreground py-3 text-center text-xs">
                                       Set a start and end date for this term to see its calendar.
@@ -1447,9 +1546,67 @@ export default function AcademicTimelinePage() {
                             </div>
                           );
                         })
+                      ) : monthGroups.length > 0 ? (
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between rounded-xl bg-blue-50/90 px-4 py-3 text-xs text-blue-900 border border-blue-200">
+                            <span className="flex items-center gap-2">
+                              <Sparkles className="h-4 w-4 text-blue-600 shrink-0" />
+                              <span>Showing complete session calendar with all <strong>{teachingDays.length} Teaching Days</strong>.</span>
+                            </span>
+                            {!isViewMode && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 text-xs border-blue-300 bg-white text-blue-700 hover:bg-blue-50 shrink-0"
+                                onClick={() => handleEditClick(selectedTerm)}
+                              >
+                                <Pencil className="h-3 w-3 mr-1" /> Configure Terms & Breaks
+                              </Button>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            {monthGroups.map(({ monthKey, year, month, cells }) => {
+                              const rows: (TimelineDay | null)[][] = [];
+                              for (let i = 0; i < cells.length; i += 7)
+                                rows.push(cells.slice(i, i + 7));
+                              return (
+                                <div
+                                  key={monthKey}
+                                  className="rounded-xl border bg-card p-3 shadow-2xs"
+                                >
+                                  <div className="text-foreground mb-2 text-center text-sm font-bold">
+                                    {monthNames[month]} {year}
+                                  </div>
+                                  <div className="mb-1 grid grid-cols-7 gap-0.5">
+                                    {dayAbbr.map((d) => (
+                                      <div
+                                        key={d}
+                                        className="text-muted-foreground text-center text-[10px] font-semibold"
+                                      >
+                                        {d}
+                                      </div>
+                                    ))}
+                                  </div>
+                                  <div className="space-y-0.5">
+                                    {rows.map((row, rowIdx) => (
+                                      <div
+                                        key={rowIdx}
+                                        className="grid grid-cols-7 gap-0.5"
+                                      >
+                                        {row.map((day, colIdx) =>
+                                          renderDayCell(day, colIdx),
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
                       ) : (
                         <p className="text-muted-foreground py-4 text-center text-xs">
-                          No terms or vacation breaks configured yet.
+                          No dates configured yet for this academic year. Please set a start and end date.
                         </p>
                       )
                     ) : (
@@ -1767,11 +1924,45 @@ export default function AcademicTimelinePage() {
                     <Input
                       type="date"
                       value={yearEndDate}
+                      min={minAllowedEndDate}
+                      max={maxAllowedEndDate}
                       onChange={(e) => setYearEndDate(e.target.value)}
-                      className="h-9 text-sm"
+                      className={cn(
+                        'h-9 text-sm',
+                        isDateRangeInvalid && sessionDaysDiff !== null && sessionDaysDiff > 380 && 'border-red-500 text-red-700 focus-visible:ring-red-400',
+                      )}
                     />
                   </div>
                 </div>
+
+                {/* Session Date Range Alert / Guidance */}
+                {yearStartDate && yearEndDate && sessionDaysDiff !== null && (
+                  <div className="mt-1">
+                    {sessionDaysDiff <= 0 ? (
+                      <p className="text-xs text-red-600 font-medium flex items-center gap-1.5">
+                        <AlertCircle className="h-3.5 w-3.5 shrink-0" /> End date must be after start date.
+                      </p>
+                    ) : sessionDaysDiff < 30 ? (
+                      <p className="text-xs text-amber-600 font-medium flex items-center gap-1.5">
+                        <AlertCircle className="h-3.5 w-3.5 shrink-0" /> Academic session duration must be at least 30 days (Currently: {sessionDaysDiff} days).
+                      </p>
+                    ) : sessionDaysDiff > 380 ? (
+                      <div className="rounded-xl border border-red-200 bg-red-50/90 p-2.5 text-xs text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
+                        <div className="flex items-center gap-1.5 font-bold text-red-700 dark:text-red-400">
+                          <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
+                          <span>Academic Session Date Range Limit Exceeded ({sessionDaysDiff} days)</span>
+                        </div>
+                        <p className="mt-1 text-[11px] text-red-700/90 dark:text-red-300 leading-relaxed">
+                          An academic session calendar can span at most <strong>380 days (~1 academic year)</strong>. You have selected {sessionDaysDiff} days (approx. {(sessionDaysDiff / 365).toFixed(1)} years). For subsequent academic years, please create a separate academic session.
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-emerald-600 font-medium flex items-center gap-1.5">
+                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0" /> Valid 1-Year Academic Session: {sessionDaysDiff} days
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 {/* Weekly Holidays */}
                 <div className="space-y-1.5 rounded-xl border border-gray-100 bg-gray-50/50 p-3 dark:border-gray-800 dark:bg-gray-900/30">
@@ -2060,14 +2251,17 @@ export default function AcademicTimelinePage() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <div className="rounded-lg bg-white p-2 border text-center dark:bg-gray-950 dark:border-gray-800">
                       <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Duration</p>
-                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                        {(() => {
-                          if (!yearStartDate || !yearEndDate) return '—';
-                          const s = new Date(yearStartDate);
-                          const e = new Date(yearEndDate);
-                          const d = Math.round((e.getTime() - s.getTime()) / 86400000) + 1;
-                          return d > 0 ? `${d}d` : '—';
-                        })()}
+                      <p
+                        className={cn(
+                          'text-sm font-bold',
+                          sessionDaysDiff !== null && (sessionDaysDiff > 380 || sessionDaysDiff <= 0)
+                            ? 'text-red-600 dark:text-red-400'
+                            : sessionDaysDiff !== null && sessionDaysDiff < 30
+                            ? 'text-amber-600 dark:text-amber-400'
+                            : 'text-gray-900 dark:text-gray-100',
+                        )}
+                      >
+                        {sessionDaysDiff !== null && sessionDaysDiff > 0 ? `${sessionDaysDiff}d` : '—'}
                       </p>
                     </div>
                     <div className="rounded-lg bg-white p-2 border text-center dark:bg-gray-950 dark:border-gray-800">
@@ -2112,12 +2306,16 @@ export default function AcademicTimelinePage() {
             </Button>
             <Button
               size="sm"
-              className="text-xs px-5 transition-all duration-150 active:scale-95"
+              className={cn(
+                'text-xs px-5 transition-all duration-150 active:scale-95',
+                isDateRangeInvalid && 'opacity-60 cursor-not-allowed',
+              )}
               onClick={handleSubmit}
               disabled={
                 !yearName.trim() ||
                 !yearStartDate ||
                 !yearEndDate ||
+                isDateRangeInvalid ||
                 createMutation.isPending ||
                 updateMutation.isPending
               }

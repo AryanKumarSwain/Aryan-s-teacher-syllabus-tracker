@@ -624,7 +624,6 @@ model TeacherTrainingRecord {
   startDate           DateTime?       @map("start_date")
   endDate             DateTime?       @map("end_date")
   organizedBy         String?         @map("organized_by") @db.VarChar(191)
-  resourcePerson      String?         @map("resource_person") @db.VarChar(191)
   locationOrPlatform  String?         @map("location_or_platform") @db.VarChar(191)
   isAcademicActivity  Boolean         @default(false) @map("is_academic_activity")
   academicActivityKey String?         @map("academic_activity_key") @db.VarChar(100)

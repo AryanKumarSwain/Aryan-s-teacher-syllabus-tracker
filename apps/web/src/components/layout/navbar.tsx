@@ -16,6 +16,7 @@ export function Navbar({ title }: { title: string }) {
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith('/admin');
   const isTeacherRoute = pathname?.startsWith('/teacher');
+  const isSuperAdminRoute = pathname?.startsWith('/super-admin');
   const { school } = useSchool();
   const { sessions } = useAcademicSessions();
 
@@ -23,6 +24,7 @@ export function Navbar({ title }: { title: string }) {
     queryKey: ['exam-paper-template'],
     queryFn: () => api.get<{ id?: string; logoUrl?: string | null }>('/exam-papers/template'),
     staleTime: 60000,
+    enabled: !isSuperAdminRoute,
   });
 
   const schoolLogo = template?.logoUrl || (school as any)?.logo || null;

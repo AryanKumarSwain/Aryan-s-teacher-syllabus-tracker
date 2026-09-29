@@ -420,12 +420,31 @@ export default function AdminClassesPage() {
             />
           </div>
           {!isViewMode ? (
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
+              <span
+                className={cn(
+                  'text-xs font-semibold px-2.5 py-1 rounded-full border',
+                  rawClassesList.length >= 100
+                    ? 'bg-red-50 text-red-700 border-red-200'
+                    : 'bg-indigo-50 text-indigo-700 border-indigo-200',
+                )}
+              >
+                {rawClassesList.length} / 100 Classes
+              </span>
               <ImportDataButton type="classes" label="Import Classes" />
-              <Button onClick={() => setBulkUploadOpen(true)} variant="outline" size="sm">
+              <Button
+                onClick={() => setBulkUploadOpen(true)}
+                variant="outline"
+                size="sm"
+                disabled={rawClassesList.length >= 100}
+              >
                 <Upload className="mr-2 h-4 w-4" /> Bulk Upload
               </Button>
-              <Button onClick={handleCreateClick} size="sm">
+              <Button
+                onClick={handleCreateClick}
+                size="sm"
+                disabled={rawClassesList.length >= 100}
+              >
                 <Plus className="mr-2 h-4 w-4" /> Add Class
               </Button>
             </div>

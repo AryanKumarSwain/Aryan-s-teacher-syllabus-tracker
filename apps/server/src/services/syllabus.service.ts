@@ -182,6 +182,22 @@ export const syllabusService = {
       throw new AppError('Academic session not found or does not belong to this school', 400);
     }
 
+    const currentClassCount = await prisma.class.count({
+      where: { schoolId, deletedAt: null },
+    });
+    if (currentClassCount >= 100) {
+      throw new AppError('Maximum limit of 100 classes reached for this school', 400);
+    }
+
+    if (data.subjects?.length) {
+      const currentSubjectCount = await prisma.subject.count({
+        where: { schoolId, deletedAt: null },
+      });
+      if (currentSubjectCount + data.subjects.length > 200) {
+        throw new AppError(`Cannot add ${data.subjects.length} subjects. Maximum limit of 200 subjects reached (Currently: ${currentSubjectCount}/200).`, 400);
+      }
+    }
+
     return prisma.class.create({
       data: {
         schoolId,
@@ -783,6 +799,13 @@ export const syllabusService = {
     schoolId: string,
     data: { academicSessionId: string; classId?: string; name: string; code?: string; description?: string; color?: string },
   ) {
+    const currentSubjectCount = await prisma.subject.count({
+      where: { schoolId, deletedAt: null },
+    });
+    if (currentSubjectCount >= 200) {
+      throw new AppError('Maximum limit of 200 subjects reached for this school (Limit: 200)', 400);
+    }
+
     return prisma.subject.create({
       data: {
         schoolId,

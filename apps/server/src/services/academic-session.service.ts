@@ -97,6 +97,44 @@ export const academicSessionService = {
       throw new AppError('Session name is required', 400);
     }
 
+    // 1. Check active subscription and plan limits
+    const activeSubscription = await prisma.subscription.findFirst({
+      where: { schoolId, status: 'ACTIVE' },
+      include: { plan: true },
+      orderBy: { endDate: 'desc' },
+    });
+
+    if (!activeSubscription) {
+      throw new AppError(
+        'No active subscription plan found. Please upgrade or purchase a plan to create academic sessions.',
+        403,
+      );
+    }
+
+    const now = new Date();
+    if (new Date(activeSubscription.endDate) < now) {
+      throw new AppError(
+        'Your subscription plan has expired. Please renew or upgrade your plan to create academic sessions.',
+        403,
+      );
+    }
+
+    // 2. Count existing sessions vs allowed sessions by plan
+    const [currentSessionsCount, sessionPurchasesCount] = await Promise.all([
+      prisma.academicSession.count({ where: { schoolId } }),
+      prisma.paymentTransaction.count({ where: { schoolId, status: 'SUCCESS', billingCycle: 'SESSION' } }),
+    ]);
+
+    const planSessionLimit = activeSubscription.plan.sessionLimit ?? 1;
+    const allowedSessions = Math.max(planSessionLimit, 1 + sessionPurchasesCount);
+
+    if (currentSessionsCount >= allowedSessions) {
+      throw new AppError(
+        `Academic session limit reached (${currentSessionsCount}/${allowedSessions}). Your current plan "${activeSubscription.plan.name}" allows up to ${allowedSessions} session(s). Please upgrade your plan to create more sessions.`,
+        403,
+      );
+    }
+
     // Check if session with name already exists for this school
     const existing = await prisma.academicSession.findUnique({
       where: {

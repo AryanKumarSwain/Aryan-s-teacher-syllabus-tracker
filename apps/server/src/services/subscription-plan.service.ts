@@ -3,10 +3,13 @@ import { AppError } from '../middleware/error-handler.js';
 import { softDeleteFilter } from '../repositories/base.repository.js';
 
 export const subscriptionPlanService = {
-  async list() {
+  async list(onlyActive = false) {
     return prisma.subscriptionPlan.findMany({
-      where: softDeleteFilter(),
-      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+      where: {
+        ...softDeleteFilter(),
+        ...(onlyActive ? { isActive: true } : {}),
+      },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
       include: { _count: { select: { subscriptions: true } } },
     });
   },
@@ -21,16 +24,30 @@ export const subscriptionPlanService = {
 
   async create(data: {
     name: string;
-    slug: string;
+    slug?: string;
     description?: string;
-    priceMonthly: number;
-    priceYearly: number;
-    teacherLimit: number;
+    priceMonthly?: number;
+    priceYearly?: number;
+    pricePerSession?: number;
+    sessionDurationDays?: number;
+    sessionLimit?: number;
+    teacherLimit?: number;
     features?: string[];
+    sortOrder?: number;
   }) {
+    const slug = data.slug || data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now();
     return prisma.subscriptionPlan.create({
       data: {
-        ...data,
+        name: data.name,
+        slug,
+        description: data.description,
+        priceMonthly: data.priceMonthly ?? 0,
+        priceYearly: data.priceYearly ?? 0,
+        pricePerSession: data.pricePerSession ?? data.priceYearly ?? 0,
+        sessionDurationDays: data.sessionDurationDays ?? 365,
+        sessionLimit: data.sessionLimit ?? 1,
+        teacherLimit: data.teacherLimit ?? 50,
+        sortOrder: data.sortOrder ?? 0,
         features: data.features ?? [],
       },
     });
@@ -43,6 +60,9 @@ export const subscriptionPlanService = {
       description: string;
       priceMonthly: number;
       priceYearly: number;
+      pricePerSession: number;
+      sessionDurationDays: number;
+      sessionLimit: number;
       teacherLimit: number;
       features: string[];
       isActive: boolean;

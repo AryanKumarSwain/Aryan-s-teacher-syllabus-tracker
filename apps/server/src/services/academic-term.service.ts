@@ -90,6 +90,20 @@ export const academicTermService = {
       throw new AppError('Academic session not found or does not belong to this school', 400);
     }
 
+    const start = new Date(data.startDate);
+    const end = new Date(data.endDate);
+    const diffDays = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 380) {
+      throw new AppError(
+        `Academic session date range cannot exceed 380 days (~1 academic year). Currently selected: ${diffDays} days. Please create separate academic sessions for subsequent years.`,
+        400,
+      );
+    }
+    if (diffDays < 30) {
+      throw new AppError('Academic session duration must be at least 30 days.', 400);
+    }
+
     const weeklyHolidays = data.weeklyHolidays || [0]; // Default to Sunday
 
     // Validate terms date constraints
@@ -179,6 +193,21 @@ export const academicTermService = {
         : JSON.parse(term.weeklyHolidays as string);
     const startDate = data.startDate || term.startDate;
     const endDate = data.endDate || term.endDate;
+
+    if (data.startDate || data.endDate) {
+      const s = new Date(startDate);
+      const e = new Date(endDate);
+      const diffDays = Math.round((e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24));
+      if (diffDays > 380) {
+        throw new AppError(
+          `Academic session date range cannot exceed 380 days (~1 academic year). Currently selected: ${diffDays} days. Please create separate academic sessions for subsequent years.`,
+          400,
+        );
+      }
+      if (diffDays < 30) {
+        throw new AppError('Academic session duration must be at least 30 days.', 400);
+      }
+    }
 
     // Validate terms date constraints if provided
     if (data.terms && data.terms.length > 0) {

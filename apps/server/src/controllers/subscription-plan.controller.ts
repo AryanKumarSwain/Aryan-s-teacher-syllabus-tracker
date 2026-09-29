@@ -3,9 +3,10 @@ import { subscriptionPlanService } from '../services/subscription-plan.service.j
 import { sendSuccess } from '../utils/api-response.js';
 
 export const subscriptionPlanController = {
-  async list(_req: Request, res: Response, next: NextFunction) {
+  async list(req: Request, res: Response, next: NextFunction) {
     try {
-      const plans = await subscriptionPlanService.list();
+      const isSuperAdmin = (req as any).user?.role === 'SUPER_ADMIN';
+      const plans = await subscriptionPlanService.list(!isSuperAdmin);
       sendSuccess(res, plans);
     } catch (err) {
       next(err);

@@ -45,12 +45,61 @@ export const schoolService = {
     const school = await prisma.school.findFirst({
       where: { id, ...softDeleteFilter() },
       include: {
-        subscriptions: { include: { plan: true }, orderBy: { createdAt: 'desc' }, take: 1 },
+        subscriptions: {
+          include: { plan: true },
+          orderBy: { createdAt: 'desc' },
+        },
+        academicSessions: {
+          orderBy: { createdAt: 'asc' },
+          select: { id: true, name: true, status: true, createdAt: true, isArchived: true },
+        },
         _count: { select: { teachers: true, classes: true, subjects: true } },
       },
     });
     if (!school) throw new AppError('School not found', 404);
-    return school;
+
+    // Compute per-session counts for teachers, classes, subjects
+    const sessionIds = school.academicSessions.map((s) => s.id);
+    const [teacherCounts, classCounts, subjectCounts] = await Promise.all([
+      prisma.teacher.groupBy({
+        by: ['academicSessionId'],
+        where: { schoolId: id, academicSessionId: { in: sessionIds }, deletedAt: null },
+        _count: { id: true },
+      }),
+      prisma.class.groupBy({
+        by: ['academicSessionId'],
+        where: { schoolId: id, academicSessionId: { in: sessionIds }, deletedAt: null },
+        _count: { id: true },
+      }),
+      prisma.subject.groupBy({
+        by: ['academicSessionId'],
+        where: { schoolId: id, academicSessionId: { in: sessionIds }, deletedAt: null },
+        _count: { id: true },
+      }),
+    ]);
+
+    const sessionStats = school.academicSessions.map((s) => ({
+      ...s,
+      teacherCount: teacherCounts.find((t) => t.academicSessionId === s.id)?._count.id ?? 0,
+      classCount: classCounts.find((c) => c.academicSessionId === s.id)?._count.id ?? 0,
+      subjectCount: subjectCounts.find((c) => c.academicSessionId === s.id)?._count.id ?? 0,
+    }));
+
+    // Determine ongoing & upcoming subscriptions
+    const now = new Date();
+    const ongoingSubscription = school.subscriptions.find(
+      (s) => s.status === 'ACTIVE' && s.startDate <= now && s.endDate >= now,
+    );
+    const upcomingSubscription = school.subscriptions.find(
+      (s) => s.status === 'ACTIVE' && s.startDate > now,
+    );
+
+    return {
+      ...school,
+      academicSessions: sessionStats,
+      ongoingSubscription,
+      upcomingSubscription,
+    };
   },
 
   async create(data: {

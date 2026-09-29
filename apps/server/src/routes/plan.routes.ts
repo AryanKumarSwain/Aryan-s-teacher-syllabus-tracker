@@ -5,10 +5,11 @@ import { authenticate, authorize } from '../middleware/auth.js';
 
 export const planRoutes = Router();
 
-planRoutes.use(authenticate, authorize(UserRole.SUPER_ADMIN));
+planRoutes.use(authenticate);
 planRoutes.get('/', subscriptionPlanController.list);
 planRoutes.get('/:id', subscriptionPlanController.getById);
-planRoutes.post('/', subscriptionPlanController.create);
-planRoutes.patch('/:id', subscriptionPlanController.update);
-planRoutes.patch('/:id/toggle', subscriptionPlanController.toggleActive);
-planRoutes.delete('/:id', subscriptionPlanController.delete);
+
+planRoutes.post('/', authorize(UserRole.SUPER_ADMIN), subscriptionPlanController.create);
+planRoutes.patch('/:id', authorize(UserRole.SUPER_ADMIN), subscriptionPlanController.update);
+planRoutes.patch('/:id/toggle', authorize(UserRole.SUPER_ADMIN), subscriptionPlanController.toggleActive);
+planRoutes.delete('/:id', authorize(UserRole.SUPER_ADMIN), subscriptionPlanController.delete);

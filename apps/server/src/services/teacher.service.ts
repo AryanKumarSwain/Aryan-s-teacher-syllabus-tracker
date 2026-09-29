@@ -264,8 +264,26 @@ export const teacherService = {
       warning?: string;
     }[] = [];
 
+    const initialTeacherCount = await prisma.teacher.count({
+      where: { schoolId, deletedAt: null, status: 'ACTIVE' },
+    });
+    if (initialTeacherCount >= 50) {
+      throw new AppError('Maximum limit of 50 teachers reached for this school', 400);
+    }
+    let currentTeacherTotal = initialTeacherCount;
+
     for (const data of teachers) {
       try {
+        if (currentTeacherTotal >= 50) {
+          results.push({
+            success: false,
+            name: data.name || '',
+            email: data.email || '',
+            error: 'Maximum limit of 50 teachers reached for this school',
+          });
+          continue;
+        }
+
         if (!data.name || !data.email) {
           results.push({
             success: false,
@@ -347,6 +365,7 @@ export const teacherService = {
           tempPassword,
         });
 
+        currentTeacherTotal++;
         results.push({
           success: true,
           name: data.name,
@@ -389,6 +408,15 @@ export const teacherService = {
   if (!school) throw new AppError('School not found', 404);
 
   const restored = resolution.action === 'restore';
+
+  if (!restored) {
+    const currentTeacherCount = await prisma.teacher.count({
+      where: { schoolId, deletedAt: null, status: 'ACTIVE' },
+    });
+    if (currentTeacherCount >= 50) {
+      throw new AppError('Maximum limit of 50 teachers reached for this school (Limit: 50)', 400);
+    }
+  }
 
   const teacher = await prisma.$transaction(async (tx) => {
     if (restored) {

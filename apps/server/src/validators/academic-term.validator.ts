@@ -29,7 +29,29 @@ export const createAcademicTermSchema = z
   })
   .refine((data) => data.endDate > data.startDate, {
     message: 'End date must be after start date',
-  });
+  })
+  .refine(
+    (data) => {
+      const diffDays = Math.round(
+        (data.endDate.getTime() - data.startDate.getTime()) / (1000 * 60 * 60 * 24),
+      );
+      return diffDays <= 380;
+    },
+    {
+      message: 'Academic session date range cannot exceed 380 days (~1 academic year). For subsequent years, please create a separate academic session.',
+    },
+  )
+  .refine(
+    (data) => {
+      const diffDays = Math.round(
+        (data.endDate.getTime() - data.startDate.getTime()) / (1000 * 60 * 60 * 24),
+      );
+      return diffDays >= 30;
+    },
+    {
+      message: 'Academic session date range must be at least 30 days.',
+    },
+  );
 
 export const updateAcademicTermSchema = z
   .object({
@@ -60,6 +82,34 @@ export const updateAcademicTermSchema = z
     },
     {
       message: 'End date must be after start date',
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.startDate && data.endDate) {
+        const diffDays = Math.round(
+          (data.endDate.getTime() - data.startDate.getTime()) / (1000 * 60 * 60 * 24),
+        );
+        return diffDays <= 380;
+      }
+      return true;
+    },
+    {
+      message: 'Academic session date range cannot exceed 380 days (~1 academic year). For subsequent years, please create a separate academic session.',
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.startDate && data.endDate) {
+        const diffDays = Math.round(
+          (data.endDate.getTime() - data.startDate.getTime()) / (1000 * 60 * 60 * 24),
+        );
+        return diffDays >= 30;
+      }
+      return true;
+    },
+    {
+      message: 'Academic session date range must be at least 30 days.',
     },
   );
 
