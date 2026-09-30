@@ -1,0 +1,10 @@
+DirectoryIndex disabled
+RewriteEngine On
+RewriteBase /
+
+# API requests to Backend (Port 4000)
+RewriteRule ^api/(.*)$ http://127.0.0.1:4000/api/$1 [P,L]
+RewriteRule ^api$ http://127.0.0.1:4000/api [P,L]
+
+# Frontend requests to Next.js (Port 3010)
+RewriteRule ^(.*)$ http://127.0.0.1:3010/$1 [P,L]

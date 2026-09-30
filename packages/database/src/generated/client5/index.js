@@ -627,7 +627,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Aryan wnc\\Aryan-s-teacher-syllabus-tracker\\packages\\database\\src\\generated\\client5",
+      "value": "/home/webncode/public_html/syllabus-tracker/packages/database/src/generated/client5",
       "fromEnvVar": null
     },
     "config": {
@@ -636,16 +636,16 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "rhel-openssl-1.0.x",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Aryan wnc\\Aryan-s-teacher-syllabus-tracker\\packages\\database\\prisma\\schema.prisma",
+    "sourceFilePath": "/home/webncode/public_html/syllabus-tracker/packages/database/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../../.env",
+    "rootEnvPath": null,
     "schemaEnvPath": "../../../.env"
   },
   "relativePath": "../../../prisma",
@@ -655,7 +655,6 @@ const config = {
     "db"
   ],
   "activeProvider": "mysql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -703,8 +702,8 @@ exports.PrismaClient = PrismaClient
 Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
-path.join(__dirname, "query_engine-windows.dll.node");
-path.join(process.cwd(), "src/generated/client5/query_engine-windows.dll.node")
+path.join(__dirname, "libquery_engine-rhel-openssl-1.0.x.so.node");
+path.join(process.cwd(), "src/generated/client5/libquery_engine-rhel-openssl-1.0.x.so.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
 path.join(process.cwd(), "src/generated/client5/schema.prisma")
