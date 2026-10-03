@@ -19,6 +19,7 @@ import {
   Award,
   Minus,
   Calendar,
+  CalendarRange,
   Info,
   ArrowUp,
   ArrowDown,
@@ -29,10 +30,13 @@ import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { api } from '@/services/api-client';
 import type { DashboardStats } from '@school-syllabus/types';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
+import { useAcademicSessions } from '@/features/syllabus/hooks/use-academic-sessions';
 import { formatPercent } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/shared/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   BarChart,
   Bar,
@@ -70,115 +74,6 @@ function velocityFromPct(pct: number, target: number): 'behind' | 'onpace' | 'ah
   return 'onpace';
 }
 
-interface StatCardProps {
-  title: string;
-  value: React.ReactNode;
-  icon: React.ElementType;
-  iconBg: string;
-  iconColor?: string;
-  cardBg?: string;
-  borderColor?: string;
-  accentBar?: string;
-  glowColor?: string;
-  sub?: string;
-  badge?: string;
-  badgeColor?: string;
-  progress?: number;
-}
-
-function StatCard({
-  title,
-  value,
-  icon: Icon,
-  iconBg,
-  iconColor = 'text-white',
-  cardBg = 'bg-white',
-  borderColor = 'border-slate-200',
-  accentBar,
-  glowColor,
-  sub,
-  badge,
-  badgeColor,
-  progress,
-}: StatCardProps) {
-  return (
-    <div
-      className={cn(
-        'group relative flex flex-col justify-between overflow-hidden rounded-2xl border p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-lg',
-        borderColor,
-        cardBg,
-      )}
-    >
-      {/* Top accent gradient line */}
-      {accentBar && (
-        <div className={cn('absolute inset-x-0 top-0 h-1 bg-gradient-to-r', accentBar)} />
-      )}
-      {/* Corner colorful blur glow */}
-      {glowColor && (
-        <div
-          className={cn(
-            'pointer-events-none absolute -right-6 -top-6 h-28 w-28 rounded-full blur-2xl transition-opacity duration-300 group-hover:scale-125',
-            glowColor,
-          )}
-        />
-      )}
-
-      {/* Top Row: Title on Left, Icon on Right */}
-      <div className="relative z-10 flex items-center justify-between gap-2">
-        <p className="text-[11px] font-black uppercase tracking-wider text-[#434655] truncate">
-          {title}
-        </p>
-        <div
-          className={cn(
-            'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm transition-transform duration-300 group-hover:scale-105',
-            iconBg,
-          )}
-        >
-          <Icon className={cn('h-5 w-5', iconColor)} />
-        </div>
-      </div>
-
-      {/* Middle Row: Value + Badge */}
-      <div className="relative z-10 mt-2 mb-3 flex items-baseline gap-2">
-        <span className="text-3xl font-black leading-none tracking-tight text-[#0b1c30]">
-          {value}
-        </span>
-        {badge && (
-          <span
-            className={cn(
-              'rounded-md px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider shrink-0',
-              badgeColor || 'bg-slate-100 text-slate-700',
-            )}
-          >
-            {badge}
-          </span>
-        )}
-      </div>
-
-      {/* Bottom Row: Subtext & Progress Track (Aligned across all cards) */}
-      <div className="relative z-10 pt-2.5 border-t border-slate-200/50">
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-[11px] font-bold text-emerald-700">
-            <span className="truncate">{sub}</span>
-            {progress !== undefined && (
-              <span className="font-black text-emerald-700 shrink-0 ml-1">{progress}%</span>
-            )}
-          </div>
-          <div className="h-1.5 w-full rounded-full bg-slate-100/80 overflow-hidden">
-            {progress !== undefined ? (
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 transition-all duration-700"
-                style={{ width: `${Math.min(progress, 100)}%` }}
-              />
-            ) : (
-              <div className="h-full rounded-full bg-transparent" />
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function Section({
   title,
@@ -194,17 +89,17 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-all duration-300 hover:shadow-md">
-      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-5 py-4">
-        <div className="flex items-center gap-3">
-          <div className={`flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br ${iconGradient} text-white shadow-sm`}>
-            <Icon className="h-4 w-4 text-white" />
+    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xs transition-all duration-200 hover:shadow-xs">
+      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-4 py-3 sm:px-5 sm:py-3">
+        <div className="flex items-center gap-2.5">
+          <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br ${iconGradient} text-white shadow-xs`}>
+            <Icon className="h-3.5 w-3.5 text-white" />
           </div>
-          <h3 className="text-sm font-extrabold tracking-wide text-[#0b1c30]">{title}</h3>
+          <h3 className="text-sm font-black tracking-tight text-[#0b1c30]">{title}</h3>
         </div>
         {extra && <div className="flex items-center">{extra}</div>}
       </div>
-      <div className="p-6">{children}</div>
+      <div className="p-4 sm:p-5">{children}</div>
     </div>
   );
 }
@@ -213,25 +108,25 @@ const velocityStyles = {
   behind: {
     label: 'Behind',
     color: 'text-rose-700',
-    cardBg: 'bg-gradient-to-br from-rose-50 via-red-50/40 to-white',
-    border: 'border-rose-200/90',
-    iconBg: 'bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-md shadow-rose-500/25',
+    cardBg: 'bg-gradient-to-br from-rose-50/40 via-white to-slate-50/30',
+    border: 'border-rose-200/80',
+    iconBg: 'bg-gradient-to-br from-rose-500 to-red-600',
     icon: TrendingDown,
   },
   onpace: {
     label: 'On Pace',
     color: 'text-amber-700',
-    cardBg: 'bg-gradient-to-br from-amber-50 via-yellow-50/40 to-white',
-    border: 'border-amber-200/90',
-    iconBg: 'bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/25',
+    cardBg: 'bg-gradient-to-br from-amber-50/40 via-white to-slate-50/30',
+    border: 'border-amber-200/80',
+    iconBg: 'bg-gradient-to-br from-amber-500 to-orange-500',
     icon: Minus,
   },
   ahead: {
     label: 'Ahead',
     color: 'text-emerald-700',
-    cardBg: 'bg-gradient-to-br from-emerald-50 via-teal-50/40 to-white',
-    border: 'border-emerald-200/90',
-    iconBg: 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25',
+    cardBg: 'bg-gradient-to-br from-emerald-50/40 via-white to-slate-50/30',
+    border: 'border-emerald-200/80',
+    iconBg: 'bg-gradient-to-br from-emerald-500 to-teal-600',
     icon: TrendingUp,
   },
 };
@@ -277,6 +172,8 @@ function CountUp({ end, duration = 1000 }: { end: number; duration?: number }) {
 
 export default function AdminDashboardPage() {
   const { school, isViewMode } = useSchool();
+  const { sessions } = useAcademicSessions();
+  const currentSession = sessions.find((s) => s.id === school?.currentAcademicSessionId);
   const [selectedClass, setSelectedClass] = useState<string>('all');
   const [classSortDir, setClassSortDir] = useState<SortDirection>('desc');
   const [selectedTeacher, setSelectedTeacher] = useState<string | null>(null);
@@ -594,188 +491,246 @@ export default function AdminDashboardPage() {
 
   return (
     <DashboardShell title="Dashboard">
-      <div className="animate-in fade-in space-y-6 pb-8 duration-300">
-        {/* Executive Welcome & Status Banner */}
-        <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-6 shadow-xs">
-          <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-emerald-400/10 blur-3xl" />
-          <div className="pointer-events-none absolute -left-16 -bottom-16 h-48 w-48 rounded-full bg-blue-400/10 blur-3xl" />
-          
-          <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100/90 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-300/40">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Live Academic Coverage
-                </span>
-                <span className="text-[11px] font-semibold text-slate-500">
-                  {school?.name || 'Academic Operations'}
-                </span>
+      <div className="animate-in fade-in space-y-4 pb-8 duration-300">
+        {/* Executive Welcome & Status Banner (Matching Sessions page) */}
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-4 sm:p-5 shadow-xs">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-emerald-400/10 blur-3xl" />
+          <div className="pointer-events-none absolute -left-16 -bottom-16 h-36 w-36 rounded-full bg-blue-400/10 blur-3xl" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 ring-2 ring-emerald-500/15">
+                <BarChart3 className="h-5 w-5 text-white" />
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#0b1c30]">
-                Academic Operations Dashboard
-              </h1>
-              <p className="text-xs sm:text-sm font-medium text-slate-600 max-w-2xl">
-                Real-time syllabus completion analytics, faculty pacing velocities, and institutional coverage metrics.
-              </p>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#0b1c30]">
+                    Academic Operations Dashboard
+                  </h1>
+                  <Badge className="border-none bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5 gap-1.5 shadow-2xs">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                    </span>
+                    Live: {currentSession?.name || '2025-26'}
+                  </Badge>
+                </div>
+                <p className="text-xs text-slate-500 font-medium">
+                  Real-time syllabus completion analytics, faculty pacing velocities, and institutional coverage metrics.
+                </p>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2.5 shrink-0">
-              <div className="hidden md:flex flex-col items-end text-right mr-1">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Current Pacing</span>
-                <span className={cn(
-                  'text-xs font-black',
-                  velocityBreakdown.behind > velocityBreakdown.ahead ? 'text-rose-600' : 'text-emerald-700'
-                )}>
-                  {velocityBreakdown.ahead >= velocityBreakdown.behind ? '✓ On Schedule' : '⚠ Pacing Review Needed'}
-                </span>
-              </div>
-              <Link
-                href="/admin/academic-timeline"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition-colors"
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <span
+                className={cn(
+                  'h-9 inline-flex items-center gap-2 whitespace-nowrap text-xs font-bold px-3 rounded-lg border shrink-0 shadow-2xs',
+                  velocityBreakdown.behind > velocityBreakdown.ahead
+                    ? 'bg-amber-50 text-amber-800 border-amber-200'
+                    : 'bg-emerald-50 text-emerald-800 border-emerald-200',
+                )}
               >
-                <Calendar className="h-3.5 w-3.5 text-slate-500" />
-                Timeline
+                <span
+                  className={cn(
+                    'h-2 w-2 rounded-full shrink-0',
+                    velocityBreakdown.behind > velocityBreakdown.ahead ? 'bg-amber-500' : 'bg-emerald-500 animate-pulse',
+                  )}
+                />
+                <span>{velocityBreakdown.ahead >= velocityBreakdown.behind ? 'On Schedule' : 'Pacing Review Needed'}</span>
+              </span>
+              <Link href="/admin/academic-timeline">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 text-xs font-bold border-slate-200 text-slate-700 bg-white hover:bg-slate-50 gap-1.5 shadow-2xs"
+                >
+                  <Calendar className="h-3.5 w-3.5 text-slate-500" />
+                  Timeline
+                </Button>
               </Link>
-              <Link
-                href="/admin/classes"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:from-emerald-700 hover:to-teal-700 transition-colors"
-              >
-                <GraduationCap className="h-3.5 w-3.5" />
-                Classes
+              <Link href="/admin/sessions">
+                <Button
+                  size="sm"
+                  className="h-9 font-bold text-xs shadow-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-600/20 px-3.5 gap-1.5"
+                >
+                  <CalendarRange className="h-3.5 w-3.5" />
+                  Sessions
+                </Button>
               </Link>
             </div>
           </div>
         </div>
 
-        {/* System Overview Stat Cards */}
-        <Section title="System Overview" icon={Sparkles} iconGradient="from-indigo-600 to-blue-600">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard
-              title="Total Teachers"
-              value={<CountUp end={stats?.totalTeachers ?? 0} duration={800} />}
-              icon={Users}
-              iconBg="bg-gradient-to-br from-blue-600 to-indigo-600 shadow-blue-500/30"
-              iconColor="text-white"
-              cardBg="bg-gradient-to-br from-blue-50/70 via-indigo-50/20 to-white"
-              borderColor="border-blue-200/80"
-              accentBar="from-blue-600 to-indigo-600"
-              glowColor="bg-blue-500/15"
-              badge="Faculty"
-              badgeColor="bg-blue-100 text-blue-800"
-              sub={`${stats?.totalTeachers ?? 0} active assigned`}
-            />
-            <StatCard
-              title="Active Classes"
-              value={<CountUp end={stats?.totalClasses ?? 0} duration={800} />}
-              icon={GraduationCap}
-              iconBg="bg-gradient-to-br from-teal-600 to-emerald-600 shadow-teal-500/30"
-              iconColor="text-white"
-              cardBg="bg-gradient-to-br from-teal-50/70 via-emerald-50/20 to-white"
-              borderColor="border-teal-200/80"
-              accentBar="from-teal-500 to-emerald-600"
-              glowColor="bg-teal-500/15"
-              badge="Enrolled"
-              badgeColor="bg-teal-100 text-teal-800"
-              sub="Across all grades"
-            />
-            <StatCard
-              title="Syllabus Chapters"
-              value={<CountUp end={stats?.totalChapters ?? 0} duration={800} />}
-              icon={BookOpen}
-              iconBg="bg-gradient-to-br from-amber-500 to-orange-500 shadow-amber-500/30"
-              iconColor="text-white"
-              cardBg="bg-gradient-to-br from-amber-50/70 via-orange-50/20 to-white"
-              borderColor="border-amber-200/80"
-              accentBar="from-amber-500 to-orange-500"
-              glowColor="bg-amber-500/15"
-              badge="Curriculum"
-              badgeColor="bg-amber-100 text-amber-800"
-              sub={`${stats?.completedChapters ?? 0} completed`}
-            />
-            <StatCard
-              title="Overall Progress"
-              value={<><CountUp end={Math.round(overallPct)} duration={800} />%</>}
-              icon={CheckCircle2}
-              iconBg="bg-gradient-to-br from-emerald-600 to-teal-600 shadow-emerald-500/30"
-              iconColor="text-white"
-              cardBg="bg-gradient-to-br from-emerald-50/70 via-green-50/20 to-white"
-              borderColor="border-emerald-200/80"
-              accentBar="from-emerald-500 to-teal-500"
-              glowColor="bg-emerald-500/15"
-              badge="Target 100%"
-              badgeColor="bg-emerald-100 text-emerald-800"
-              sub={`${stats?.completedChapters ?? 0} / ${stats?.totalChapters ?? 0} chapters`}
-              progress={Math.round(overallPct)}
-            />
+        {/* Concise Academic Overview Strip (Matching Sessions page styling) */}
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+          {/* Teachers Card - Blue */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-blue-200/80 bg-gradient-to-br from-blue-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Teachers
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-blue-100 text-blue-700">
+                Faculty
+              </span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                <CountUp end={stats?.totalTeachers ?? 0} duration={600} />
+              </span>
+              <span className="text-xs font-medium text-slate-400">active assigned</span>
+            </div>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-500"
+                style={{ width: `${Math.min(100, ((stats?.totalTeachers ?? 0) / 25) * 100)}%` }}
+              />
+            </div>
           </div>
-        </Section>
 
-        {/* Academic Timeline */}
+          {/* Classes Card - Indigo */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-indigo-200/80 bg-gradient-to-br from-indigo-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Classes
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-700">
+                Enrolled
+              </span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                <CountUp end={stats?.totalClasses ?? 0} duration={600} />
+              </span>
+              <span className="text-xs font-medium text-slate-400">across grades</span>
+            </div>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 transition-all duration-500"
+                style={{ width: `${Math.min(100, ((stats?.totalClasses ?? 0) / 50) * 100)}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Chapters Card - Teal */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-teal-200/80 bg-gradient-to-br from-teal-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-teal-500 to-emerald-500" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Chapters
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-teal-100 text-teal-700">
+                {stats?.completedChapters ?? 0} Done
+              </span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                <CountUp end={stats?.totalChapters ?? 0} duration={600} />
+              </span>
+              <span className="text-xs font-medium text-slate-400">
+                / {stats?.completedChapters ?? 0} completed
+              </span>
+            </div>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-teal-600 to-emerald-600 transition-all duration-500"
+                style={{
+                  width: `${
+                    (stats?.totalChapters ?? 0) > 0
+                      ? Math.min(100, ((stats?.completedChapters ?? 0) / (stats?.totalChapters ?? 1)) * 100)
+                      : 0
+                  }%`,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Overall Progress Card - Purple */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-purple-200/80 bg-gradient-to-br from-purple-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Overall Progress
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-purple-100 text-purple-700">
+                {Math.round(overallPct)}%
+              </span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                <CountUp end={Math.round(overallPct)} duration={600} />%
+              </span>
+              <span className="text-xs font-medium text-slate-400">target 100%</span>
+            </div>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-purple-600 to-pink-600 transition-all duration-500"
+                style={{ width: `${Math.min(100, overallPct)}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Academic Timeline Section */}
         <Section title="Academic Timeline" icon={Calendar} iconGradient="from-emerald-600 to-teal-600">
           {analytics?.globalTimeline && analytics.globalTimeline.totalTeachingDays > 0 ? (
             <>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 shadow-2xs">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 text-white shadow-sm">
-                    <Calendar className="h-5 w-5" />
+              <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+                <div className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-slate-50/50 p-3 shadow-2xs">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-white shadow-xs">
+                    <Calendar className="h-4 w-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#434655]">
-                      Start Date
-                    </p>
-                    <p className="mt-0.5 text-sm font-bold text-[#0b1c30]">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Start Date</p>
+                    <p className="text-xs font-bold text-slate-900 truncate">
                       {new Date(analytics.globalTimeline.startDate).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 shadow-2xs">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 text-white shadow-sm">
-                    <Clock className="h-5 w-5" />
+                <div className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-slate-50/50 p-3 shadow-2xs">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-700 text-white shadow-xs">
+                    <Clock className="h-4 w-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#434655]">
-                      End Date
-                    </p>
-                    <p className="mt-0.5 text-sm font-bold text-[#0b1c30]">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">End Date</p>
+                    <p className="text-xs font-bold text-slate-900 truncate">
                       {new Date(analytics.globalTimeline.endDate).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/80 to-white p-4 shadow-2xs">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm shadow-emerald-600/20">
-                    <TrendingUp className="h-5 w-5" />
+                <div className="flex items-center gap-3 rounded-xl border border-emerald-200/80 bg-emerald-50/30 p-3 shadow-2xs">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xs">
+                    <TrendingUp className="h-4 w-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
-                      Elapsed Days
-                    </p>
-                    <p className="mt-0.5 text-2xl font-black leading-none text-emerald-900">
-                      <CountUp end={analytics.globalTimeline.elapsedTeachingDays} duration={700} />
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Elapsed Days</p>
+                    <p className="text-sm font-black text-emerald-900">
+                      <CountUp end={analytics.globalTimeline.elapsedTeachingDays} duration={600} />
+                      <span className="text-[10px] font-normal text-emerald-700 ml-1">days</span>
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-50/80 to-white p-4 shadow-2xs">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-sm shadow-amber-500/20">
-                    <Activity className="h-5 w-5" />
+                <div className="flex items-center gap-3 rounded-xl border border-amber-200/80 bg-amber-50/30 p-3 shadow-2xs">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-xs">
+                    <Activity className="h-4 w-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-extrabold uppercase tracking-wider text-amber-800">
-                      Timeline Progress
-                    </p>
-                    <p className="mt-0.5 text-2xl font-black leading-none text-amber-900">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-amber-800">Timeline Progress</p>
+                    <p className="text-sm font-black text-amber-900">
                       {analytics.globalTimeline.percentageComplete.toFixed(1)}%
                     </p>
                   </div>
                 </div>
               </div>
-              <div className="mt-4 rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-50 via-emerald-50/20 to-slate-50 p-4">
+              <div className="mt-3 rounded-xl border border-slate-200/80 bg-gradient-to-r from-slate-50 via-emerald-50/20 to-slate-50 p-3.5">
                 <div className="mb-2 flex items-center justify-between text-xs">
                   <span className="font-bold text-[#0b1c30]">Academic Year Progress</span>
                   <span className="font-black text-emerald-700">
                     {analytics.globalTimeline.percentageComplete.toFixed(1)}%
                   </span>
                 </div>
-                <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-200/80">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200/80">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-400 transition-all duration-1000"
                     style={{
@@ -784,96 +739,87 @@ export default function AdminDashboardPage() {
                   />
                 </div>
                 <div className="mt-2 flex items-center justify-between text-[11px] font-medium text-[#434655]">
-                  <span>
-                    {analytics.globalTimeline.remainingTeachingDays} teaching days remaining
-                  </span>
+                  <span>{analytics.globalTimeline.remainingTeachingDays} teaching days remaining</span>
                   <span>{analytics.globalTimeline.totalTeachingDays} total teaching days</span>
                 </div>
               </div>
             </>
           ) : (
-            <div className="relative overflow-hidden rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-50/90 via-teal-50/50 to-blue-50/30 p-6 sm:p-7 shadow-xs">
-              <div className="pointer-events-none absolute -right-12 -bottom-12 h-48 w-48 rounded-full bg-emerald-400/20 blur-3xl" />
-              <div className="pointer-events-none absolute top-0 left-1/3 h-32 w-32 rounded-full bg-teal-400/15 blur-2xl" />
-              
-              <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25 ring-4 ring-emerald-500/10">
-                    <Calendar className="h-7 w-7 text-white" />
+            <div className="relative overflow-hidden rounded-xl border border-emerald-200/90 bg-gradient-to-r from-emerald-50/70 via-teal-50/40 to-white p-4 sm:p-5 shadow-2xs">
+              <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/20">
+                    <Calendar className="h-5 w-5 text-white" />
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="text-base sm:text-lg font-black text-[#0b1c30]">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-sm font-black text-[#0b1c30]">
                         Setup Academic Timeline & Schedule Targets
                       </h4>
-                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold text-amber-800">
+                      <Badge className="bg-amber-100 text-amber-800 border-amber-200 text-[10px] py-0 px-1.5 font-bold">
                         Not Configured
-                      </span>
+                      </Badge>
                     </div>
-                    <p className="text-xs sm:text-sm font-medium text-slate-600 max-w-xl">
-                      Define start & end dates, working days, and seasonal breaks for this academic session to enable automated syllabus velocity calculations and pacing alerts.
+                    <p className="text-xs font-medium text-slate-600 mt-0.5 max-w-xl">
+                      Configure term dates, teaching days, and milestones to calculate automated pacing velocities.
                     </p>
-                    <div className="pt-2 flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                        ✓ Teaching Days Calendar
-                      </span>
-                      <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                        ✓ Behind / Ahead Pacing
-                      </span>
-                      <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                        ✓ Session Completion Forecast
-                      </span>
-                    </div>
                   </div>
                 </div>
-
                 <Link
                   href="/admin/academic-timeline"
-                  className="relative z-10 inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-700 hover:to-teal-700 px-6 py-3 text-sm font-extrabold text-white shadow-md shadow-emerald-600/30 transition-all hover:shadow-lg active:scale-95"
+                  className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 px-4 py-2 text-xs font-bold text-white shadow-xs transition-all active:scale-95"
                 >
-                  Configure Academic Timeline
-                  <ArrowRight className="h-4 w-4" />
+                  Configure Timeline
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
             </div>
           )}
         </Section>
 
-        {/* Velocity Schedule Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Concise Velocity Schedule Strip */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {(['behind', 'onpace', 'ahead'] as const).map((key) => {
             const cfg = velocityStyles[key];
             const Icon = cfg.icon;
             const count = velocityBreakdown[key];
             const badgeText = key === 'behind' ? 'Needs Review' : key === 'onpace' ? 'On Schedule' : 'Leading Pace';
-            const badgeBg = key === 'behind' ? 'bg-rose-100 text-rose-800' : key === 'onpace' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800';
+            const badgeBg = key === 'behind' ? 'bg-rose-100 text-rose-700' : key === 'onpace' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700';
+            const topBar = key === 'behind' ? 'from-rose-500 to-red-500' : key === 'onpace' ? 'from-amber-500 to-yellow-500' : 'from-emerald-500 to-teal-500';
 
             return (
               <div
                 key={key}
                 className={cn(
-                  'relative overflow-hidden flex items-center justify-between gap-3.5 rounded-2xl border p-4 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-md',
-                  cfg.cardBg,
+                  'group relative flex items-center justify-between overflow-hidden rounded-xl border p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs bg-white',
                   cfg.border,
                 )}
               >
-                <div className="flex items-center gap-3.5">
+                <div className={cn('absolute inset-x-0 top-0 h-1 bg-gradient-to-r', topBar)} />
+                <div className="flex items-center gap-3">
                   <div
                     className={cn(
-                      'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl',
+                      'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg shadow-xs text-white',
                       cfg.iconBg,
                     )}
                   >
-                    <Icon className="h-6 w-6" />
+                    <Icon className="h-4.5 w-4.5" />
                   </div>
                   <div>
-                    <p className={cn('text-2xl sm:text-3xl font-black leading-tight', cfg.color)}>
-                      <CountUp end={count} duration={600} />
+                    <div className="flex items-baseline gap-1.5">
+                      <span className={cn('text-xl font-black leading-tight', cfg.color)}>
+                        <CountUp end={count} duration={600} />
+                      </span>
+                      <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                        {cfg.label}
+                      </span>
+                    </div>
+                    <p className="text-[11px] font-medium text-slate-400">
+                      {key === 'behind' ? 'Lagging target timeline' : key === 'onpace' ? 'Aligned with milestones' : 'Trending ahead of pace'}
                     </p>
-                    <p className="text-xs font-bold text-[#0b1c30]">{cfg.label} Schedule</p>
                   </div>
                 </div>
-                <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-extrabold shrink-0', badgeBg)}>
+                <span className={cn('rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider shrink-0', badgeBg)}>
                   {badgeText}
                 </span>
               </div>
@@ -1327,80 +1273,202 @@ export default function AdminDashboardPage() {
           </Section>
         )}
 
-        <Section title="Performance Insights" icon={Sparkles} iconGradient="from-emerald-500 to-teal-600">
+        <Section
+          title="Performance Insights"
+          icon={Sparkles}
+          iconGradient="from-emerald-500 to-teal-600"
+          extra={
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/60">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              Academic Health: {velocityBreakdown.behind > velocityBreakdown.ahead ? 'Needs Review' : 'Optimal'}
+            </span>
+          }
+        >
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-blue-50/50 to-white p-4.5 shadow-2xs hover:shadow-xs transition-shadow">
-              <div className="flex items-center gap-3.5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/25">
-                  <Users className="h-6 w-6" />
-                </div>
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-wider text-[#434655]">Teacher Efficiency</p>
-                  <p className="text-2xl font-black text-[#0b1c30]">
-                    {allTeachers.length > 0
-                      ? formatPercent(
-                          allTeachers.reduce((sum, t) => sum + t.progress, 0) / allTeachers.length,
-                        )
-                      : '0%'}
-                  </p>
-                  <p className="text-[11px] font-semibold text-slate-500 mt-0.5">Average across faculty</p>
+            {/* Card 1: Teacher Efficiency */}
+            <div className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all duration-200">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Teacher Efficiency
+                </span>
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100 group-hover:scale-105 transition-transform">
+                  <Users className="h-4 w-4" />
                 </div>
               </div>
-            </div>
-            <div className="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-teal-50/50 to-white p-4.5 shadow-2xs hover:shadow-xs transition-shadow">
-              <div className="flex items-center gap-3.5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md shadow-teal-500/25">
-                  <GraduationCap className="h-6 w-6" />
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="text-3xl font-black text-slate-900 tracking-tight">
+                  {allTeachers.length > 0
+                    ? Math.round(allTeachers.reduce((sum, t) => sum + t.progress, 0) / allTeachers.length)
+                    : 0}
+                  %
+                </span>
+                <span className="text-xs font-semibold text-slate-400">
+                  {allTeachers.length} {allTeachers.length === 1 ? 'Faculty' : 'Faculty members'}
+                </span>
+              </div>
+              <div className="mt-3 space-y-1.5">
+                <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-700"
+                    style={{
+                      width: `${
+                        allTeachers.length > 0
+                          ? Math.min(
+                              Math.round(
+                                allTeachers.reduce((sum, t) => sum + t.progress, 0) /
+                                  allTeachers.length,
+                              ),
+                              100,
+                            )
+                          : 0
+                      }%`,
+                    }}
+                  />
                 </div>
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-wider text-[#434655]">Class Performance</p>
-                  <p className="text-2xl font-black text-[#0b1c30]">
-                    {classProgressionData.length > 0
-                      ? formatPercent(
-                          classProgressionData.reduce((sum, c) => sum + c.progress, 0) /
-                            classProgressionData.length,
-                        )
-                      : '0%'}
-                  </p>
-                  <p className="text-[11px] font-semibold text-slate-500 mt-0.5">Grade-wide benchmark</p>
-                </div>
+                <p className="text-[11px] font-medium text-slate-500">
+                  Average syllabus coverage across faculty
+                </p>
               </div>
             </div>
-            <div className="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-emerald-50/50 to-white p-4.5 shadow-2xs hover:shadow-xs transition-shadow">
-              <div className="flex items-center gap-3.5">
-                <div className={cn(
-                  'flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-md',
-                  velocityBreakdown.ahead >= velocityBreakdown.behind
-                    ? 'bg-gradient-to-br from-emerald-500 to-teal-600 shadow-emerald-500/25'
-                    : 'bg-gradient-to-br from-rose-500 to-red-600 shadow-rose-500/25'
-                )}>
-                  <TrendingUp className="h-6 w-6" />
+
+            {/* Card 2: Class Performance */}
+            <div className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all duration-200">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Class Performance
+                </span>
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-teal-50 text-teal-600 border border-teal-100 group-hover:scale-105 transition-transform">
+                  <GraduationCap className="h-4 w-4" />
                 </div>
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-wider text-[#434655]">Pacing Status</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className={cn(
-                      'text-2xl font-black',
-                      velocityBreakdown.ahead >= velocityBreakdown.behind ? 'text-emerald-700' : 'text-rose-700'
-                    )}>
-                      {velocityBreakdown.ahead >= velocityBreakdown.behind ? 'On Schedule' : 'Behind Pace'}
-                    </span>
-                  </div>
-                  <p className="text-[11px] font-semibold text-slate-500">
-                    {velocityBreakdown.ahead} ahead vs {velocityBreakdown.behind} behind
-                  </p>
+              </div>
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="text-3xl font-black text-slate-900 tracking-tight">
+                  {classProgressionData.length > 0
+                    ? Math.round(
+                        classProgressionData.reduce((sum, c) => sum + c.progress, 0) /
+                          classProgressionData.length,
+                      )
+                    : 0}
+                  %
+                </span>
+                <span className="text-xs font-semibold text-slate-400">
+                  {classProgressionData.length} {classProgressionData.length === 1 ? 'Grade' : 'Grades tracked'}
+                </span>
+              </div>
+              <div className="mt-3 space-y-1.5">
+                <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-600 transition-all duration-700"
+                    style={{
+                      width: `${
+                        classProgressionData.length > 0
+                          ? Math.min(
+                              Math.round(
+                                classProgressionData.reduce((sum, c) => sum + c.progress, 0) /
+                                  classProgressionData.length,
+                              ),
+                              100,
+                            )
+                          : 0
+                      }%`,
+                    }}
+                  />
+                </div>
+                <p className="text-[11px] font-medium text-slate-500">
+                  Institution-wide grade completion benchmark
+                </p>
+              </div>
+            </div>
+
+            {/* Card 3: Pacing Status */}
+            <div className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all duration-200">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Pacing Status
+                </span>
+                <div
+                  className={cn(
+                    'flex h-8 w-8 items-center justify-center rounded-xl border group-hover:scale-105 transition-transform',
+                    velocityBreakdown.ahead >= velocityBreakdown.behind
+                      ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                      : 'bg-rose-50 text-rose-600 border-rose-100',
+                  )}
+                >
+                  <TrendingUp className="h-4 w-4" />
+                </div>
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <span
+                  className={cn(
+                    'inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-sm font-extrabold border',
+                    velocityBreakdown.ahead >= velocityBreakdown.behind
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : 'bg-rose-50 text-rose-700 border-rose-200',
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'h-2 w-2 rounded-full',
+                      velocityBreakdown.ahead >= velocityBreakdown.behind
+                        ? 'bg-emerald-500 animate-pulse'
+                        : 'bg-rose-500',
+                    )}
+                  />
+                  {velocityBreakdown.ahead >= velocityBreakdown.behind ? 'On Schedule' : 'Behind Pace'}
+                </span>
+              </div>
+              <div className="mt-3 space-y-1.5">
+                <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                  <div
+                    className={cn(
+                      'h-full rounded-full transition-all duration-700',
+                      velocityBreakdown.ahead >= velocityBreakdown.behind
+                        ? 'bg-gradient-to-r from-emerald-500 to-teal-600'
+                        : 'bg-gradient-to-r from-rose-500 to-red-600',
+                    )}
+                    style={{
+                      width: `${
+                        filteredSubjectData.length > 0
+                          ? Math.round(
+                              ((velocityBreakdown.ahead + velocityBreakdown.onpace) /
+                                filteredSubjectData.length) *
+                                100,
+                            )
+                          : 100
+                      }%`,
+                    }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px] font-medium text-slate-500">
+                  <span className="text-emerald-700 font-semibold">{velocityBreakdown.ahead} ahead</span>
+                  <span>{velocityBreakdown.onpace} on pace</span>
+                  <span className={cn(velocityBreakdown.behind > 0 ? 'text-rose-600 font-semibold' : '')}>
+                    {velocityBreakdown.behind} behind
+                  </span>
                 </div>
               </div>
             </div>
           </div>
-          <div className="mt-4 rounded-2xl border border-emerald-200/90 bg-gradient-to-r from-emerald-50/80 via-teal-50/40 to-slate-50 p-4.5">
-            <div className="flex items-start gap-3.5">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm shadow-emerald-500/20">
-                <Sparkles className="h-5 w-5" />
+
+          {/* Academic Pacing Recommendations */}
+          <div className="mt-4 rounded-xl border border-slate-200/80 bg-gradient-to-r from-emerald-50/40 via-teal-50/20 to-white p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-2xs">
+                <Sparkles className="h-4 w-4" />
               </div>
-              <div>
-                <p className="text-sm font-extrabold text-[#0b1c30]">Academic Pacing Insights & Recommendations</p>
-                <p className="mt-1 text-xs font-medium text-slate-700 leading-relaxed">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="text-xs font-bold text-slate-900">
+                    Academic Pacing Insights & Recommendations
+                  </h4>
+                  <span className="inline-flex items-center text-[10px] font-bold text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-full border border-emerald-200/60">
+                    Institutional Overview
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-slate-600 leading-relaxed font-normal">
                   {velocityBreakdown.behind > velocityBreakdown.ahead
                     ? `${velocityBreakdown.behind} subjects or classes are currently lagging behind the target timeline pace. We recommend reviewing teacher assignments, scheduling catch-up modules, or adjusting academic milestone targets.`
                     : velocityBreakdown.ahead > velocityBreakdown.behind
