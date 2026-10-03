@@ -3,6 +3,8 @@ import { GraduationCap } from 'lucide-react';
 import { Suspense } from 'react';
 import { LoginForm } from '@/features/auth/components/login-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { MascotLogo } from '@/components/common/mascot-logo';
+
 
 export default function LoginPage() {
   return (
@@ -19,9 +21,7 @@ export default function LoginPage() {
         {/* ── Left: branding panel ── */}
         <div className="hidden lg:block">
           <Link href="/" className="inline-flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1a73e8] to-[#1558b0] shadow-md">
-              <GraduationCap className="h-5 w-5 text-white" />
-            </span>
+            <MascotLogo size={46} animated />
             <span className="text-lg font-bold tracking-tight text-[#1a73e8]">
               Syllabus<span className="text-gray-400 font-normal">Tracker</span>
             </span>
@@ -57,12 +57,13 @@ export default function LoginPage() {
           <div className="w-full max-w-md overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
             {/* Blue header bar — matching dashboard section headers */}
             <div className="bg-gradient-to-r from-[#1a73e8] to-[#1558b0] px-6 py-5 text-center">
-              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-white/20">
-                <GraduationCap className="h-6 w-6 text-white" />
+              <div className="mx-auto mb-2 flex items-center justify-center">
+                <MascotLogo size={52} animated />
               </div>
               <h2 className="text-lg font-bold text-white">Welcome back</h2>
               <p className="mt-0.5 text-sm text-blue-100">Sign in to your account to continue</p>
             </div>
+
 
             <div className="px-6 py-6">
               <Suspense

@@ -49,3 +49,6 @@ mysql-data
 
 # Misc
 *.pem
+
+# Agents / MCP
+.agents/mcp_config.json

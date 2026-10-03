@@ -12,6 +12,8 @@ import { api, ApiError } from '@/services/api-client';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { MascotLogo } from '@/components/common/mascot-logo';
+
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -106,9 +108,7 @@ export default function RegisterPage() {
         {/* ── Left: branding panel ── */}
         <div className="hidden lg:block">
           <Link href="/" className="inline-flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1a73e8] to-[#1558b0] shadow-md">
-              <GraduationCap className="h-5 w-5 text-white" />
-            </span>
+            <MascotLogo size={46} animated />
             <span className="text-lg font-bold tracking-tight text-[#1a73e8]">
               Syllabus<span className="font-normal text-gray-400">Tracker</span>
             </span>
@@ -126,11 +126,11 @@ export default function RegisterPage() {
           <div className="mt-10 grid max-w-xl grid-cols-3 gap-3">
             {[
               {
-                k: 'Free Trial',
-                v: '30 days access',
-                color: 'border-blue-200 bg-blue-50',
-                text: 'text-blue-700',
-                dot: 'bg-blue-500',
+                k: 'Academic Tier',
+                v: 'Full session access',
+                color: 'border-emerald-200 bg-emerald-50',
+                text: 'text-emerald-700',
+                dot: 'bg-emerald-500',
               },
               {
                 k: 'Quick Setup',
@@ -163,8 +163,8 @@ export default function RegisterPage() {
           <div className="w-full max-w-md overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
             {/* Blue header bar */}
             <div className="bg-gradient-to-r from-[#1a73e8] to-[#1558b0] px-6 py-5 text-center">
-              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-white/20">
-                <GraduationCap className="h-6 w-6 text-white" />
+              <div className="mx-auto mb-2 flex items-center justify-center">
+                <MascotLogo size={52} animated />
               </div>
               <h2 className="text-lg font-bold text-white">Register your school</h2>
               <p className="mt-0.5 text-sm text-blue-100">
