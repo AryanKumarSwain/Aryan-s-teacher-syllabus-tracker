@@ -185,6 +185,52 @@ export const academicSessionService = {
     return session;
   },
 
+  async update(schoolId: string, id: string, data: { name: string }) {
+    const trimmedName = data.name.trim();
+    if (!trimmedName) {
+      throw new AppError('Session name is required', 400);
+    }
+
+    const session = await prisma.academicSession.findFirst({
+      where: { id, schoolId },
+    });
+
+    if (!session) {
+      throw new AppError('Academic session not found', 404);
+    }
+
+    if (session.name !== trimmedName) {
+      const duplicate = await prisma.academicSession.findFirst({
+        where: {
+          schoolId,
+          name: trimmedName,
+          id: { not: id },
+        },
+      });
+
+      if (duplicate) {
+        throw new AppError(`A session with name "${trimmedName}" already exists`, 409);
+      }
+    }
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const s = await tx.academicSession.update({
+        where: { id },
+        data: { name: trimmedName },
+      });
+
+      // Synchronize related academicTerm if exists
+      await tx.academicTerm.updateMany({
+        where: { academicSessionId: id, schoolId },
+        data: { name: trimmedName },
+      });
+
+      return s;
+    });
+
+    return updated;
+  },
+
   async delete(schoolId: string, id: string) {
     const session = await prisma.academicSession.findFirst({
       where: { id, schoolId },

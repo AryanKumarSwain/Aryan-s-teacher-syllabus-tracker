@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Calendar,
@@ -17,6 +18,8 @@ import {
   Sparkles,
   AlertCircle,
   CheckCircle2,
+  Clock,
+  ArrowRight,
 } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
@@ -362,11 +365,155 @@ function fmt(dateStr: string) {
   });
 }
 
+function CountUp({ end, duration = 800 }: { end: number; duration?: number }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let animId: number;
+    const startTime = performance.now();
+    const startValue = 0;
+    const endValue = Number(end) || 0;
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      const currentValue = Math.round(startValue + (endValue - startValue) * easeOut);
+      setCount(currentValue);
+      if (progress < 1) {
+        animId = requestAnimationFrame(animate);
+      }
+    };
+
+    animId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animId);
+  }, [end, duration]);
+
+  return <>{count}</>;
+}
+
+interface TimelineStatCardProps {
+  title: string;
+  value: React.ReactNode;
+  icon: React.ElementType;
+  iconBg: string;
+  iconColor?: string;
+  cardBg?: string;
+  borderColor?: string;
+  accentBar?: string;
+  glowColor?: string;
+  sub?: string;
+  subColor?: string;
+  badge?: string;
+  badgeColor?: string;
+  progress?: number;
+}
+
+function TimelineStatCard({
+  title,
+  value,
+  icon: Icon,
+  iconBg,
+  iconColor = 'text-white',
+  cardBg = 'bg-white',
+  borderColor = 'border-slate-200',
+  accentBar,
+  glowColor,
+  sub,
+  subColor = 'text-slate-600',
+  badge,
+  badgeColor,
+  progress,
+}: TimelineStatCardProps) {
+  return (
+    <div
+      className={cn(
+        'group relative flex flex-col justify-between overflow-hidden rounded-2xl border p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-lg',
+        borderColor,
+        cardBg,
+      )}
+    >
+      {accentBar && (
+        <div className={cn('absolute inset-x-0 top-0 h-1 bg-gradient-to-r', accentBar)} />
+      )}
+      {glowColor && (
+        <div
+          className={cn(
+            'pointer-events-none absolute -right-6 -top-6 h-28 w-28 rounded-full blur-2xl transition-opacity duration-300 group-hover:scale-125',
+            glowColor,
+          )}
+        />
+      )}
+
+      {/* Top Row: Title on Left, Icon on Right */}
+      <div className="relative z-10 flex items-center justify-between gap-2">
+        <p className="text-[11px] font-black uppercase tracking-wider text-[#434655] truncate">
+          {title}
+        </p>
+        <div
+          className={cn(
+            'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm transition-transform duration-300 group-hover:scale-105',
+            iconBg,
+          )}
+        >
+          <Icon className={cn('h-5 w-5', iconColor)} />
+        </div>
+      </div>
+
+      {/* Middle Row: Value + Badge */}
+      <div className="relative z-10 mt-2 mb-3 flex items-baseline gap-2">
+        <span className="text-3xl font-black leading-none tracking-tight text-[#0b1c30]">
+          {value}
+        </span>
+        {badge && (
+          <span
+            className={cn(
+              'rounded-md px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider shrink-0',
+              badgeColor || 'bg-slate-100 text-slate-700',
+            )}
+          >
+            {badge}
+          </span>
+        )}
+      </div>
+
+      {/* Bottom Row: Subtext & Progress Track */}
+      <div className="relative z-10 pt-2.5 border-t border-slate-200/50">
+        <div className="space-y-1.5">
+          <div className={cn('flex items-center justify-between text-[11px] font-bold', subColor)}>
+            <span className="truncate">{sub}</span>
+            {progress !== undefined && (
+              <span className="font-black text-emerald-700 shrink-0 ml-1">{progress}%</span>
+            )}
+          </div>
+          <div className="h-1.5 w-full rounded-full bg-slate-100/80 overflow-hidden">
+            {progress !== undefined ? (
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 transition-all duration-700"
+                style={{ width: `${Math.min(progress, 100)}%` }}
+              />
+            ) : (
+              <div className="h-full rounded-full bg-transparent" />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AcademicTimelinePage() {
+  const router = useRouter();
   const schoolId = useSchoolId();
   const { school, isViewMode } = useSchool();
-  const { sessions } = useAcademicSessions();
-  const activeSession = sessions.find((s) => s.id === school?.currentAcademicSessionId);
+  const { sessions, isLoading: sessionsLoading } = useAcademicSessions();
+  const activeSession = useMemo(() => {
+    return (
+      sessions.find((s) => s.id === school?.currentAcademicSessionId) ||
+      sessions.find((s) => s.status === 'ACTIVE') ||
+      sessions[0]
+    );
+  }, [sessions, school?.currentAcademicSessionId]);
   const qc = useQueryClient();
   const STORAGE_KEY = `academic-timeline-form-${schoolId || 'default'}`;
 
@@ -542,22 +689,23 @@ export default function AcademicTimelinePage() {
   const selectedTerm = academicYears.find((t) => t.id === selectedTermId);
 
   const getAutoFetchedSessionName = () => {
-    if (!activeSession?.name) return '';
-    return activeSession.name.toLowerCase().includes('academic') ||
-      activeSession.name.toLowerCase().includes('year')
-      ? activeSession.name
-      : `${activeSession.name} Academic Year`;
+    return activeSession?.name || '';
   };
 
   useEffect(() => {
     if (!editingYear && !savedState?.yearName && activeSession?.name && !yearName) {
-      setYearName(getAutoFetchedSessionName());
+      setYearName(activeSession.name);
     }
   }, [activeSession?.name, editingYear, savedState?.yearName, yearName]);
 
   const handleCreateClick = () => {
+    if (!sessionsLoading && sessions.length === 0) {
+      toast.error('Academic Calendar banane se pehle Academic Session create karna hoga.');
+      router.push('/admin/sessions');
+      return;
+    }
     setEditingYear(null);
-    setYearName(getAutoFetchedSessionName());
+    setYearName(activeSession?.name || '');
     setYearStartDate('');
     setYearEndDate('');
     setWeeklyHolidays([0]);
@@ -624,13 +772,14 @@ export default function AcademicTimelinePage() {
         (vd) => vd.startDate && vd.endDate && vd.reason,
       );
       
-      if (!school?.currentAcademicSessionId) {
-        throw new Error('No active academic session found. Please create or select a session first.');
+      const targetSessionId = school?.currentAcademicSessionId || activeSession?.id;
+      if (!targetSessionId) {
+        throw new Error('Academic Calendar banane se pehle Academic Session create karna hoga. Please create a session first.');
       }
       
       return api.post<AcademicYear>('/academic-terms', {
         schoolId,
-        academicSessionId: school.currentAcademicSessionId,
+        academicSessionId: targetSessionId,
         name: yearName,
         startDate: yearStartDate,
         endDate: yearEndDate,
@@ -641,7 +790,7 @@ export default function AcademicTimelinePage() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['academic-terms'] });
-      toast.success('Academic year created');
+      toast.success('Session timeline created');
       setOpen(false);
     },
     onError: (e: Error) => toast.error(e.message),
@@ -910,6 +1059,10 @@ export default function AcademicTimelinePage() {
       : selectedTerm.weeklyHolidays || []
     : [];
 
+  const offDayLabels = useMemo(() => {
+    return weeklyHolidaysArr.map((d) => dayNames[d] || '').filter(Boolean);
+  }, [weeklyHolidaysArr]);
+
   const timelineDays = selectedTerm
     ? generateTimelineDays(
         selectedTerm.startDate,
@@ -923,9 +1076,13 @@ export default function AcademicTimelinePage() {
     : [];
 
   const teachingDays = timelineDays.filter((d) => !d.isHoliday && !d.isVacation);
+  const totalTeachingDaysCount =
+    teachingDays.length > 0
+      ? teachingDays.length
+      : selectedTerm?.actualAvailableDays || selectedTerm?.totalWorkingDays || 0;
   const completedDays = teachingDays.filter((d) => d.isPast).length;
   const progressPercentage =
-    teachingDays.length > 0 ? (completedDays / teachingDays.length) * 100 : 0;
+    totalTeachingDaysCount > 0 ? (completedDays / totalTeachingDaysCount) * 100 : 0;
 
   // Month groups for full year view
   const monthGroups: MonthGroup[] = groupDaysByMonth(timelineDays);
@@ -1136,96 +1293,313 @@ export default function AcademicTimelinePage() {
   return (
     <DashboardShell title="Academic Timeline Configuration">
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-lg font-semibold">Academic Timeline</h2>
-            <p className="text-muted-foreground text-sm">
-              Manage the academic timeline, holidays, and vacation days to calculate available
-              teaching days.
-            </p>
-          </div>
-          {isViewMode ? (
-            <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-700 py-1.5 px-3 font-medium">
-              Read-Only View Mode
-            </Badge>
-          ) : !timelineExists ? (
-            <Button onClick={handleCreateClick}>
-              <Plus className="mr-2 h-4 w-4" /> Create Timeline
-            </Button>
-          ) : null}
-        </div>
+        {/* Executive Welcome & Status Banner */}
+        <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-6 shadow-xs">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-emerald-400/10 blur-3xl" />
+          <div className="pointer-events-none absolute -left-16 -bottom-16 h-48 w-48 rounded-full bg-blue-400/10 blur-3xl" />
+          
+          <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100/90 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-300/40">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Academic Calendar Operations
+                </span>
+                <span className="text-[11px] font-semibold text-slate-500">
+                  {selectedTerm?.name || 'Session Schedule'}
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#0b1c30]">
+                Academic Timeline & Schedule
+              </h1>
+              <p className="text-xs sm:text-sm font-medium text-slate-600 max-w-2xl">
+                Configure term milestones, instructional days, national holidays, and vacation breaks to power accurate pacing analytics.
+              </p>
+            </div>
 
+            <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+              {isViewMode ? (
+                <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-700 py-2 px-3.5 font-bold rounded-xl text-xs">
+                  Read-Only View Mode
+                </Badge>
+              ) : !sessionsLoading && sessions.length === 0 ? (
+                <Button
+                  onClick={() => router.push('/admin/sessions')}
+                  className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold shadow-md shadow-blue-600/25 px-4 py-2.5"
+                >
+                  <Plus className="mr-1.5 h-4 w-4" /> Create Academic Session First
+                </Button>
+              ) : !timelineExists ? (
+                <Button
+                  onClick={handleCreateClick}
+                  className="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold shadow-md shadow-emerald-600/25 px-4 py-2.5"
+                >
+                  <Plus className="mr-1.5 h-4 w-4" /> Create Academic Timeline
+                </Button>
+              ) : selectedTerm ? (
+                <Button
+                  onClick={() => handleEditClick(selectedTerm)}
+                  className="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold shadow-md shadow-emerald-600/25 px-4 py-2.5"
+                >
+                  <Pencil className="mr-1.5 h-4 w-4" /> Configure Timeline & Breaks
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        </div>
 
         {isLoading ? (
           <div className="grid gap-4 md:grid-cols-2">
             {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-48 rounded-xl" />
+              <Skeleton key={i} className="h-48 rounded-2xl" />
             ))}
           </div>
+        ) : !sessionsLoading && sessions.length === 0 ? (
+          <div className="relative overflow-hidden rounded-3xl border border-blue-200/90 bg-gradient-to-br from-blue-50/90 via-indigo-50/50 to-slate-50/30 p-8 shadow-xs">
+            <div className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 rounded-full bg-blue-400/20 blur-3xl" />
+            <div className="pointer-events-none absolute top-0 left-1/4 h-36 w-36 rounded-full bg-indigo-400/15 blur-2xl" />
+
+            <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex items-start gap-5">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25 ring-4 ring-blue-500/10">
+                  <CalendarRange className="h-8 w-8 text-white" />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-lg sm:text-xl font-black text-[#0b1c30]">
+                      Academic Session Required First
+                    </h3>
+                    <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-extrabold text-amber-800">
+                      Step 1 Required
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm font-medium text-slate-600 max-w-xl leading-relaxed">
+                    Academic calendar banane se pehle Academic Session create karna hoga (e.g. 2026-2027). Please create an active session first to configure timeline dates, term milestones, and weekly schedules.
+                  </p>
+                  <div className="pt-2 flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                      1. Create Academic Session
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                      2. Configure Academic Timeline
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                      3. Track Syllabus Progress
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {!isViewMode && (
+                <Button
+                  onClick={() => router.push('/admin/sessions')}
+                  className="relative z-10 shrink-0 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-700 hover:to-indigo-700 px-6 py-3.5 text-sm font-extrabold text-white shadow-md shadow-blue-600/30 transition-all hover:shadow-lg active:scale-95"
+                >
+                  <Plus className="mr-2 h-4 w-4" /> Create Academic Session First
+                </Button>
+              )}
+            </div>
+          </div>
         ) : academicYears.length === 0 ? (
-          <EmptyState
-            icon={Calendar}
-            title="No academic timeline configured"
-            description={
-              isViewMode
-                ? "No academic timeline exists for this historical session."
-                : "Create an academic timeline to start tracking teaching days and progress. You can do this once per academic session."
-            }
-            action={!isViewMode ? { label: 'Create Timeline', onClick: handleCreateClick } : undefined}
-          />
+          <div className="relative overflow-hidden rounded-3xl border border-emerald-200/90 bg-gradient-to-br from-emerald-50/90 via-teal-50/50 to-blue-50/30 p-8 shadow-xs">
+            <div className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 rounded-full bg-emerald-400/20 blur-3xl" />
+            <div className="pointer-events-none absolute top-0 left-1/4 h-36 w-36 rounded-full bg-teal-400/15 blur-2xl" />
+
+            <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex items-start gap-5">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25 ring-4 ring-emerald-500/10">
+                  <Calendar className="h-8 w-8 text-white" />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-lg sm:text-xl font-black text-[#0b1c30]">
+                      No Academic Timeline Configured
+                    </h3>
+                    <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-extrabold text-amber-800">
+                      Action Required
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm font-medium text-slate-600 max-w-xl leading-relaxed">
+                    {isViewMode
+                      ? 'No academic timeline exists for this historical session.'
+                      : 'Define term start & end dates, working days, and seasonal breaks for this academic session to enable automated syllabus velocity calculations and pacing alerts.'}
+                  </p>
+                  <div className="pt-2 flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                      ✓ Teaching Days Calendar
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                      ✓ Weekly Off Schedules
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                      ✓ National Holidays & Vacations
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {!isViewMode && (
+                <Button
+                  onClick={handleCreateClick}
+                  className="relative z-10 shrink-0 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-700 hover:to-teal-700 px-6 py-3.5 text-sm font-extrabold text-white shadow-md shadow-emerald-600/30 transition-all hover:shadow-lg active:scale-95"
+                >
+                  <Plus className="mr-2 h-4 w-4" /> Create Academic Timeline
+                </Button>
+              )}
+            </div>
+          </div>
         ) : (
           <>
+            {/* 4 Aligned KPI Stat Cards (Matching exact Session Metrics: Total Days, Available, Vacations, Off Days) */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <TimelineStatCard
+                title="Total Days"
+                value={<CountUp end={selectedTerm?.totalWorkingDays ?? timelineDays.length} />}
+                icon={Calendar}
+                iconBg="bg-gradient-to-br from-blue-600 to-indigo-600 shadow-blue-500/30"
+                iconColor="text-white"
+                cardBg="bg-gradient-to-br from-blue-50/70 via-indigo-50/20 to-white"
+                borderColor="border-blue-200/80"
+                accentBar="from-blue-600 to-indigo-600"
+                glowColor="bg-blue-500/15"
+                badge="Total"
+                badgeColor="bg-blue-100 text-blue-800"
+                sub={`${selectedTerm?.name || 'Session'} total span`}
+                subColor="text-blue-700"
+              />
+              <TimelineStatCard
+                title="Available"
+                value={<CountUp end={totalTeachingDaysCount} />}
+                icon={CheckCircle2}
+                iconBg="bg-gradient-to-br from-emerald-600 to-teal-600 shadow-emerald-500/30"
+                iconColor="text-white"
+                cardBg="bg-gradient-to-br from-emerald-50/70 via-green-50/20 to-white"
+                borderColor="border-emerald-200/80"
+                accentBar="from-emerald-500 to-teal-500"
+                glowColor="bg-emerald-500/15"
+                badge={`${Math.round(progressPercentage)}% Passed`}
+                badgeColor="bg-emerald-100 text-emerald-800"
+                sub={`${completedDays} of ${totalTeachingDaysCount} teaching days`}
+                subColor="text-emerald-700"
+                progress={Math.round(progressPercentage)}
+              />
+              <TimelineStatCard
+                title="Vacations"
+                value={<CountUp end={selectedTerm?.vacationDays?.length ?? 0} />}
+                icon={Palmtree}
+                iconBg="bg-gradient-to-br from-amber-500 to-orange-500 shadow-amber-500/30"
+                iconColor="text-white"
+                cardBg="bg-gradient-to-br from-amber-50/70 via-orange-50/20 to-white"
+                borderColor="border-amber-200/80"
+                accentBar="from-amber-500 to-orange-500"
+                glowColor="bg-amber-500/15"
+                badge="Breaks"
+                badgeColor="bg-amber-100 text-amber-800"
+                sub={`${timelineDays.filter((d) => d.isVacation).length} vacation days scheduled`}
+                subColor="text-amber-700"
+              />
+              <TimelineStatCard
+                title="Off Days"
+                value={
+                  offDayLabels.length === 0
+                    ? 'None'
+                    : offDayLabels.length === 1
+                    ? offDayLabels[0]
+                    : offDayLabels.length === 2
+                    ? `${offDayLabels[0]?.slice(0, 3)} & ${offDayLabels[1]?.slice(0, 3)}`
+                    : `${offDayLabels.length} Days/wk`
+                }
+                icon={Clock}
+                iconBg="bg-gradient-to-br from-rose-500 to-red-600 shadow-rose-500/30"
+                iconColor="text-white"
+                cardBg="bg-gradient-to-br from-rose-50/70 via-red-50/20 to-white"
+                borderColor="border-rose-200/80"
+                accentBar="from-rose-500 to-red-600"
+                glowColor="bg-rose-500/15"
+                badge={
+                  offDayLabels.length === 0
+                    ? 'None'
+                    : offDayLabels.length === 1
+                    ? '1 Day/wk'
+                    : `${offDayLabels.length} Days/wk`
+                }
+                badgeColor="bg-rose-100 text-rose-800"
+                sub={
+                  offDayLabels.length === 0
+                    ? 'No weekly off days'
+                    : `${offDayLabels.map((name) => name.slice(0, 3)).join(', ')} (${timelineDays.filter((d) => d.isWeeklyHoliday && !d.isNationalHoliday).length} days)`
+                }
+                subColor="text-rose-700"
+              />
+            </div>
+
             {selectedTerm && (
-              <Card className="animate-in fade-in slide-in-from-top-2 border-2 transition-all duration-300">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-bold">
-                      {selectedTerm.name} — Timeline
-                    </CardTitle>
-                    <Badge className="border-none bg-blue-100 text-blue-800">
-                      {selectedTerm.status}
-                    </Badge>
+              <div className="overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-xs transition-all duration-300">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-6 py-4 sm:py-5 gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/25 ring-4 ring-emerald-500/10">
+                      <CalendarRange className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2.5 flex-wrap">
+                        <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">
+                          {selectedTerm.name} — Academic Calendar
+                        </h3>
+                        <Badge className="border-none bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5">
+                          {selectedTerm.status}
+                        </Badge>
+                      </div>
+                      <p className="text-xs font-semibold text-slate-500 mt-0.5">
+                        {fmt(selectedTerm.startDate)} → {fmt(selectedTerm.endDate)}
+                      </p>
+                    </div>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-5">
+                </div>
+                <div className="p-6 space-y-6">
                   {/* Progress bar */}
-                  <div>
-                    <div className="mb-2 flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Teaching Days Progress</span>
-                      <span className="font-semibold">
-                        {completedDays} / {teachingDays.length} days (
-                        {Math.round(progressPercentage)}%)
+                  <div className="rounded-2xl border border-slate-200/90 bg-gradient-to-r from-emerald-50/60 via-teal-50/40 to-slate-50/60 p-4 sm:p-5 shadow-xs">
+                    <div className="mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <span className="font-extrabold text-[#0b1c30] text-sm tracking-tight">
+                          Teaching Days Completion
+                        </span>
+                        <Badge variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5">
+                          {Math.round(progressPercentage)}% Passed
+                        </Badge>
+                      </div>
+                      <span className="text-xs font-semibold text-slate-600">
+                        <span className="font-black text-emerald-700 text-sm">{completedDays}</span> / {totalTeachingDaysCount} teaching days
+                        {progressPercentage > 0 ? ` (${Math.round(progressPercentage)}%)` : ''}
                       </span>
                     </div>
-                    <div className="relative h-3 w-full overflow-hidden rounded-full bg-blue-100">
+                    <div className="h-3 w-full overflow-hidden rounded-full bg-slate-200/90 p-0.5 shadow-inner">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-blue-400 to-green-500 transition-all duration-700"
-                        style={{ width: `${progressPercentage}%` }}
+                        className="h-full rounded-full bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-400 transition-all duration-700 shadow-xs"
+                        style={{ width: `${Math.min(progressPercentage, 100)}%` }}
                       />
                     </div>
                   </div>
 
                   {/* Legend */}
-                  <div className="text-muted-foreground flex flex-wrap gap-4 text-xs">
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
                     {[
-                      { color: 'bg-green-500', label: 'Completed' },
+                      { color: 'bg-emerald-500', label: 'Completed' },
                       { color: 'bg-blue-500 ring-2 ring-blue-300', label: 'Today' },
-                      { color: 'bg-blue-100 border border-blue-200', label: 'Upcoming' },
-                      { color: 'bg-red-100 border border-red-300', label: 'Weekly Holiday' },
-                      { color: 'bg-yellow-200 border border-yellow-400', label: 'Holiday (Festival/Nat.)' },
-                      { color: 'bg-orange-100 border border-orange-300', label: 'Holiday' },
+                      { color: 'bg-blue-100 border border-blue-200 text-blue-900', label: 'Upcoming' },
+                      { color: 'bg-rose-100 border border-rose-300 text-rose-900', label: 'Weekly Holiday' },
+                      { color: 'bg-amber-100 border border-amber-300 text-amber-900', label: 'Festival / National' },
+                      { color: 'bg-orange-100 border border-orange-300 text-orange-900', label: 'Vacation Break' },
                     ].map(({ color, label }) => (
-                      <div key={label} className="flex items-center gap-1.5">
-                        <div className={cn('h-3 w-3 rounded', color)} />
+                      <div key={label} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/60 bg-slate-50/80 px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-2xs">
+                        <div className={cn('h-2.5 w-2.5 rounded-full', color)} />
                         <span>{label}</span>
                       </div>
                     ))}
                     {activatedTerms.map((t: Term, i: number) => {
                       const tc = TERM_COLORS[i % TERM_COLORS.length]!;
                       return (
-                        <div key={i} className="flex items-center gap-1.5">
-                          <div className={cn('h-3 w-3 rounded-full', tc.bg)} />
+                        <div key={i} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/60 bg-slate-50/80 px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-2xs">
+                          <div className={cn('h-2.5 w-2.5 rounded-full', tc.bg)} />
                           <span>{t.name}</span>
                         </div>
                       );
@@ -1652,202 +2026,9 @@ export default function AcademicTimelinePage() {
                       </div>
                     )}
                   </div>
-
-                  {/* Stats */}
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 border-t pt-4">
-                    {[
-                      {
-                        value: teachingDays.length,
-                        label: 'Teaching Days',
-                        color: 'text-blue-600',
-                      },
-                      { value: completedDays, label: 'Completed', color: 'text-green-600' },
-                      {
-                        value: timelineDays.filter((d) => d.isWeeklyHoliday && !d.isNationalHoliday).length,
-                        label: 'Weekly Off',
-                        color: 'text-red-600',
-                      },
-                      {
-                        value: timelineDays.filter((d) => d.isNationalHoliday).length,
-                        label: 'Festival / Holidays',
-                        color: 'text-yellow-600',
-                      },
-                      {
-                        value: timelineDays.filter((d) => d.isVacation).length,
-                        label: 'Vacation Days',
-                        color: 'text-orange-600',
-                      },
-                    ].map(({ value, label, color }) => (
-                      <div key={label} className="text-center">
-                        <div className={cn('text-2xl font-bold', color)}>{value}</div>
-                        <div className="text-muted-foreground text-xs">{label}</div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Academic Years Grid */}
-            <div className="grid gap-4 md:grid-cols-2">
-              {academicYears.map((year, i) => (
-                <div
-                  key={year.id}
-                  className="animate-in fade-in slide-in-from-bottom-2 group relative rounded-xl duration-200"
-                  style={{ animationDelay: `${i * 60}ms` }}
-                >
-                  <Card
-                    className={cn(
-                      'h-full border transition-all duration-300 hover:shadow-md',
-                      selectedTermId === year.id
-                        ? 'shadow-md ring-2 ring-blue-500'
-                        : 'border-blue-200 bg-blue-50/40 dark:border-blue-900/50 dark:bg-blue-950/10',
-                    )}
-                  >
-                    <CardHeader className="pr-32">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="line-clamp-1 text-lg font-bold tracking-tight">
-                            {year.name}
-                          </CardTitle>
-                          <p className="text-muted-foreground mt-1 text-sm">
-                            {new Date(year.startDate).toLocaleDateString()} —{' '}
-                            {new Date(year.endDate).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <Badge className="border-none bg-blue-100 font-semibold text-blue-800 shadow-none dark:bg-blue-900/40 dark:text-blue-300">
-                          {year.status}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="mb-4 grid grid-cols-3 gap-3">
-                        <div className="rounded-lg border bg-white/50 p-3 dark:bg-gray-800/50">
-                          <div className="text-muted-foreground text-xs">Total Days</div>
-                          <div className="text-xl font-bold text-blue-600">
-                            {year.totalWorkingDays}
-                          </div>
-                        </div>
-                        <div className="rounded-lg border bg-white/50 p-3 dark:bg-gray-800/50">
-                          <div className="text-muted-foreground text-xs">Available</div>
-                          <div className="text-xl font-bold text-green-600">
-                            {year.actualAvailableDays}
-                          </div>
-                        </div>
-                        <div className="rounded-lg border bg-white/50 p-3 dark:bg-gray-800/50">
-                          <div className="text-muted-foreground text-xs">Vacations</div>
-                          <div className="text-xl font-bold text-orange-600">
-                            {year.vacationDays?.length ?? 0}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-muted-foreground mb-3 text-xs">
-                        Off days:{' '}
-                        {(typeof year.weeklyHolidays === 'string'
-                          ? JSON.parse(year.weeklyHolidays as unknown as string)
-                          : year.weeklyHolidays || []
-                        )
-                          .map((d: number) => dayNames[d])
-                          .join(', ')}
-                      </div>
-
-                      {/* Terms */}
-                      {year.terms && Array.isArray(year.terms) && year.terms.length > 0 && (
-                        <div className="space-y-1.5">
-                          <div className="text-muted-foreground text-xs font-semibold">Terms</div>
-                          {(year.terms as Term[]).map((term: Term, tIdx: number) => {
-                            const tc = TERM_COLORS[tIdx % TERM_COLORS.length]!;
-                            return (
-                              <div
-                                key={tIdx}
-                                className={cn(
-                                  'flex items-center gap-2 rounded-lg border px-3 py-2',
-                                  tc.light,
-                                  tc.border,
-                                )}
-                              >
-                                <div
-                                  className={cn('h-2.5 w-2.5 flex-shrink-0 rounded-full', tc.bg)}
-                                />
-                                <span className={cn('text-xs font-semibold', tc.text)}>
-                                  {term.name}
-                                </span>
-                                <span className="text-muted-foreground ml-auto text-xs">
-                                  {term.startDate ? fmt(term.startDate) : '—'} →{' '}
-                                  {term.endDate ? fmt(term.endDate) : '—'}
-                                </span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-
-                      {/* Vacation Days */}
-                      {year.vacationDays && year.vacationDays.length > 0 && (
-                        <div className="mt-2.5 space-y-1.5">
-                          <div className="text-muted-foreground text-xs font-semibold flex items-center gap-1">
-                            <Palmtree className="h-3 w-3 text-amber-600 dark:text-amber-400" />
-                            <span>Vacations ({year.vacationDays.length})</span>
-                          </div>
-                          {year.vacationDays.map((vd: VacationDay, vIdx: number) => (
-                            <div
-                              key={vIdx}
-                              className="flex items-center gap-2 rounded-lg border border-amber-200/80 bg-amber-50/70 px-3 py-1.5 text-xs text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-200"
-                            >
-                              <span className="font-semibold truncate">{vd.reason || 'Vacation'}</span>
-                              <span className="text-muted-foreground ml-auto text-[11px] shrink-0">
-                                {fmt(vd.startDate)} → {fmt(vd.endDate)}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  <div className="bg-background/80 absolute right-3 top-3 flex items-center gap-0.5 rounded-lg border p-1 opacity-0 shadow-sm backdrop-blur-sm transition-opacity group-hover:opacity-100">
-                    <Button
-                      variant={selectedTermId === year.id ? 'default' : 'ghost'}
-                      size="icon"
-                      className={cn(
-                        'h-8 w-8',
-                        selectedTermId === year.id
-                          ? 'bg-blue-600 hover:bg-blue-700'
-                          : 'text-muted-foreground hover:text-foreground',
-                      )}
-                      title={selectedTermId === year.id ? 'Active year' : 'Set as active year'}
-                      onClick={() => setSelectedTermId(year.id)}
-                    >
-                      <Calculator className="h-4 w-4" />
-                    </Button>
-                    {!isViewMode && (
-                      <>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-muted-foreground hover:text-foreground h-8 w-8"
-                          title="Edit year"
-                          onClick={() => handleEditClick(year)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
-                          title="Delete year"
-                          onClick={() => {
-                            if (confirm('Delete this academic year?')) deleteMutation.mutate(year.id);
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
-                  </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -1862,7 +2043,7 @@ export default function AcademicTimelinePage() {
             <div className="flex items-center justify-between">
               <div>
                 <DialogTitle className="text-lg md:text-xl font-bold">
-                  {editingYear ? 'Edit Academic Year' : 'New Academic Year'}
+                  {editingYear ? 'Edit Session Timeline' : 'New Academic Timeline'}
                 </DialogTitle>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Configure session dates, terms, weekly off-days, and vacation periods.
@@ -1871,11 +2052,11 @@ export default function AcademicTimelinePage() {
               {activeSession?.name && (
                 <button
                   type="button"
-                  onClick={() => setYearName(getAutoFetchedSessionName())}
-                  className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-full bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800 transition-colors font-medium"
+                  onClick={() => setYearName(activeSession.name)}
+                  className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors font-medium"
                   title="Auto-fill with current active session name"
                 >
-                  <Sparkles className="h-3 w-3 text-blue-500" />
+                  <Sparkles className="h-3 w-3 text-emerald-600" />
                   Auto-fill: {activeSession.name}
                 </button>
               )}
@@ -1889,12 +2070,12 @@ export default function AcademicTimelinePage() {
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <Label className="text-xs font-semibold">Year Name</Label>
+                    <Label className="text-xs font-semibold">Session Name</Label>
                     {activeSession?.name && (
                       <button
                         type="button"
-                        onClick={() => setYearName(getAutoFetchedSessionName())}
-                        className="sm:hidden text-[11px] text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                        onClick={() => setYearName(activeSession.name)}
+                        className="sm:hidden text-[11px] text-emerald-600 hover:text-emerald-800 hover:underline font-medium"
                         title="Auto-fill with current active session name"
                       >
                         Auto-fill: {activeSession.name}
@@ -1904,7 +2085,7 @@ export default function AcademicTimelinePage() {
                   <Input
                     value={yearName}
                     onChange={(e) => setYearName(e.target.value)}
-                    placeholder="e.g. 2026-2027 Academic Year"
+                    placeholder={activeSession?.name ? `e.g. ${activeSession.name}` : 'e.g. 2026-2027'}
                     className="h-9 text-sm"
                   />
                 </div>
@@ -2320,7 +2501,7 @@ export default function AcademicTimelinePage() {
                 updateMutation.isPending
               }
             >
-              {editingYear ? 'Save Changes' : 'Create Academic Year'}
+              {editingYear ? 'Save Changes' : 'Create Session Timeline'}
             </Button>
           </DialogFooter>
         </DialogContent>

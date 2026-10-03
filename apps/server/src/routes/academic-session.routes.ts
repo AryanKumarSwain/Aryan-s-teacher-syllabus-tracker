@@ -57,6 +57,18 @@ academicSessionRoutes.post(
 // Archive a session
 academicSessionRoutes.patch('/:id/archive', academicSessionController.archive);
 
+// Update a session (e.g. rename)
+academicSessionRoutes.patch(
+  '/:id',
+  requireSchoolTenant,
+  validateBody(
+    z.object({
+      name: z.string().trim().min(1, 'Session name is required').max(50),
+    }),
+  ),
+  academicSessionController.update,
+);
+
 // Delete an inactive session
 academicSessionRoutes.delete('/:id', requireSchoolTenant, academicSessionController.delete);
 

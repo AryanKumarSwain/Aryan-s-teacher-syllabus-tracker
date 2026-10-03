@@ -1,84 +1,211 @@
+'use client';
+
 import Link from 'next/link';
-import { GraduationCap } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, FileSpreadsheet, ShieldCheck } from 'lucide-react';
 import { Suspense } from 'react';
+import { motion, type Variants } from 'framer-motion';
 import { LoginForm } from '@/features/auth/components/login-form';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MascotLogo } from '@/components/common/mascot-logo';
 
+const fadeInUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+};
+
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.05 },
+  },
+};
 
 export default function LoginPage() {
   return (
-    <div suppressHydrationWarning className="relative min-h-screen bg-[#f0f4f8] text-foreground">
-      {/* Subtle background blobs referencing the dashboard's blue/teal palette */}
+    <div suppressHydrationWarning className="relative min-h-screen bg-[#f8f9ff] text-[#0b1c30] selection:bg-[#d3e4fe] selection:text-[#0037b0] overflow-hidden">
+      {/* Background soft ambient glowing blobs with gentle breathing animation */}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-32 left-1/2 h-[480px] w-[860px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(26,115,232,0.12),transparent_65%)] blur-3xl" />
-        <div className="absolute -bottom-40 left-[-20%] h-[440px] w-[700px] rounded-full bg-[radial-gradient(circle_at_center,rgba(52,168,83,0.10),transparent_65%)] blur-3xl" />
-        <div className="absolute -bottom-32 right-[-20%] h-[440px] w-[700px] rounded-full bg-[radial-gradient(circle_at_center,rgba(21,88,176,0.09),transparent_65%)] blur-3xl" />
+        <motion.div
+          animate={{ scale: [1, 1.08, 1], opacity: [0.12, 0.18, 0.12] }}
+          transition={{ repeat: Infinity, duration: 8, ease: 'easeInOut' }}
+          className="absolute -top-32 left-1/2 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.14),transparent_70%)] blur-3xl"
+        />
+        <motion.div
+          animate={{ scale: [1, 1.1, 1], opacity: [0.06, 0.11, 0.06] }}
+          transition={{ repeat: Infinity, duration: 10, ease: 'easeInOut', delay: 1 }}
+          className="absolute -bottom-40 left-[-10%] h-[450px] w-[750px] rounded-full bg-[radial-gradient(circle_at_center,rgba(11,28,48,0.08),transparent_70%)] blur-3xl"
+        />
+        <motion.div
+          animate={{ scale: [1, 1.07, 1], opacity: [0.08, 0.14, 0.08] }}
+          transition={{ repeat: Infinity, duration: 9, ease: 'easeInOut', delay: 2 }}
+          className="absolute -bottom-32 right-[-10%] h-[450px] w-[750px] rounded-full bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.10),transparent_70%)] blur-3xl"
+        />
       </div>
 
-      <div className="relative mx-auto grid min-h-screen w-full max-w-6xl grid-cols-1 items-center gap-10 px-6 py-10 lg:grid-cols-2">
-
-        {/* ── Left: branding panel ── */}
-        <div className="hidden lg:block">
-          <Link href="/" className="inline-flex items-center gap-3">
-            <MascotLogo size={46} animated />
-            <span className="text-lg font-bold tracking-tight text-[#1a73e8]">
-              Syllabus<span className="text-gray-400 font-normal">Tracker</span>
-            </span>
+      <div className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-between px-4 py-4 sm:px-6 sm:py-8">
+        {/* Top bar back link */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex items-center justify-between pb-4 sm:pb-6"
+        >
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 sm:gap-2 text-xs font-semibold text-[#434655] hover:text-emerald-700 transition-colors group shrink-0"
+          >
+            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+            <span className="sm:hidden">Back to Home</span>
+            <span className="hidden sm:inline">Back to SyllabusTracker Home</span>
           </Link>
+        </motion.div>
 
-          <h1 className="mt-10 text-4xl font-bold leading-tight tracking-tight text-gray-800">
-            Operational clarity for syllabus delivery — across every class, subject, and teacher.
-          </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-gray-500">
-            Real-time progress, structured workflows, and analytics that help admins unblock delivery before it becomes a problem.
-          </p>
-
-          {/* Feature pills — like the dashboard summary cards */}
-          <div className="mt-10 grid max-w-xl grid-cols-3 gap-3">
-            {[
-              { k: 'Multi-tenant', v: 'School isolation', color: 'border-blue-200 bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500' },
-              { k: 'RBAC', v: 'Admin / Teacher', color: 'border-teal-200 bg-teal-50', text: 'text-teal-700', dot: 'bg-teal-500' },
-              { k: 'Audit-ready', v: 'Traceable actions', color: 'border-green-200 bg-green-50', text: 'text-green-700', dot: 'bg-green-500' },
-            ].map((x) => (
-              <div key={x.k} className={`rounded-2xl border ${x.color} p-4`}>
-                <div className="flex items-center gap-1.5 mb-1">
-                  <span className={`h-1.5 w-1.5 rounded-full ${x.dot}`} />
-                  <p className={`text-xs font-semibold ${x.text}`}>{x.k}</p>
+        {/* Main 2-column layout */}
+        <div className="grid grid-cols-1 items-center gap-6 lg:gap-12 lg:grid-cols-12 py-2 sm:py-4">
+          {/* ── Left Column: Value Proposition (Desktop Only to keep Mobile clean & focused) ── */}
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+            className="hidden lg:block lg:col-span-7 space-y-7"
+          >
+            <motion.div variants={fadeInUp}>
+              <Link href="/" className="inline-flex items-center gap-3 group">
+                <MascotLogo size={48} animated />
+                <div className="flex flex-col">
+                  <span className="text-xl font-extrabold tracking-tight text-[#0b1c30]">
+                    SyllabusTracker
+                  </span>
+                  <span className="text-xs text-emerald-700 font-semibold tracking-wide">
+                    Academic Operations OS
+                  </span>
                 </div>
-                <p className="text-sm font-bold text-gray-700">{x.v}</p>
+              </Link>
+            </motion.div>
+
+            <motion.div variants={fadeInUp} className="space-y-3">
+              <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight text-[#0b1c30]">
+                The Precision Academic OS for{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-700 underline decoration-wavy decoration-emerald-300">
+                  Educational Excellence
+                </span>
+              </h1>
+              <p className="max-w-xl text-sm sm:text-base leading-relaxed text-[#434655]">
+                Log in to coordinate classroom pacing across grades, auto-generate board-aligned exam blueprints, and ensure 100% notebook audit compliance.
+              </p>
+            </motion.div>
+
+            {/* Meaningful Feature Highlights with Hover Interactions */}
+            <motion.div variants={fadeInUp} className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2">
+              <motion.div
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="rounded-2xl border border-emerald-200/80 bg-white/80 backdrop-blur-sm p-4 shadow-xs hover:shadow-md transition-all cursor-default"
+              >
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span className="text-xs font-bold text-emerald-800">3-Stage Engine</span>
+                </div>
+                <p className="text-xs font-semibold text-[#0b1c30]">
+                  Teaching ➔ Q&A ➔ Notebooks
+                </p>
+                <p className="text-[11px] text-[#434655] mt-1 leading-snug">
+                  Never lag behind CBSE calendar schedules.
+                </p>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="rounded-2xl border border-blue-200/80 bg-white/80 backdrop-blur-sm p-4 shadow-xs hover:shadow-md transition-all cursor-default"
+              >
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <FileSpreadsheet className="w-4 h-4 text-blue-600" />
+                  <span className="text-xs font-bold text-blue-800">Exam Blueprint</span>
+                </div>
+                <p className="text-xs font-semibold text-[#0b1c30]">
+                  Automated Question Papers
+                </p>
+                <p className="text-[11px] text-[#434655] mt-1 leading-snug">
+                  Weightage matrices & difficulty balance.
+                </p>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="rounded-2xl border border-amber-200/80 bg-white/80 backdrop-blur-sm p-4 shadow-xs hover:shadow-md transition-all cursor-default"
+              >
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <ShieldCheck className="w-4 h-4 text-amber-600" />
+                  <span className="text-xs font-bold text-amber-800">CBSE CPD Log</span>
+                </div>
+                <p className="text-xs font-semibold text-[#0b1c30]">
+                  Teacher Training Tracker
+                </p>
+                <p className="text-[11px] text-[#434655] mt-1 leading-snug">
+                  Mandatory 50-hour compliance with audit export.
+                </p>
+              </motion.div>
+            </motion.div>
+
+            {/* Telemetry Social Proof */}
+            <motion.div
+              variants={fadeInUp}
+              className="grid grid-cols-3 gap-4 border-t border-[#c4c5d7]/40 pt-4 max-w-xl"
+            >
+              <div>
+                <p className="text-xl font-black text-[#0b1c30]">450+</p>
+                <p className="text-xs text-[#434655]">Schools Onboarded</p>
               </div>
-            ))}
+              <div>
+                <p className="text-xl font-black text-emerald-600">98.6%</p>
+                <p className="text-xs text-[#434655]">Pacing Accuracy</p>
+              </div>
+              <div>
+                <p className="text-xl font-black text-[#0b1c30]">3.4M</p>
+                <p className="text-xs text-[#434655]">Copies Audited</p>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* ── Right Column: Sign In Card with Entrance Animation ── */}
+          <div className="lg:col-span-5 flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 24, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full max-w-md overflow-hidden rounded-3xl border border-[#c4c5d7]/60 bg-white shadow-2xl shadow-emerald-950/10 transition-all"
+            >
+              {/* Clean Light Header */}
+              <div className="bg-gradient-to-b from-emerald-50/70 via-white to-white px-6 pt-6 pb-3 text-center border-b border-[#c4c5d7]/30">
+                <motion.div
+                  animate={{ y: [0, -4, 0] }}
+                  transition={{ repeat: Infinity, duration: 3.5, ease: 'easeInOut' }}
+                  className="mx-auto mb-2 flex items-center justify-center"
+                >
+                  <div className="p-2 rounded-2xl bg-emerald-100/70 border border-emerald-200/80 shadow-xs">
+                    <MascotLogo size={42} animated />
+                  </div>
+                </motion.div>
+                <h2 className="text-xl font-extrabold tracking-tight text-[#0b1c30]">Welcome Back</h2>
+                <p className="mt-0.5 text-xs text-[#434655]">
+                  Sign in to your school management portal
+                </p>
+              </div>
+
+              {/* Form Content */}
+              <div className="px-6 py-6 sm:px-8">
+                <Suspense
+                  fallback={<div className="h-40 animate-pulse rounded-xl bg-gray-100" />}
+                >
+                  <LoginForm />
+                </Suspense>
+              </div>
+            </motion.div>
           </div>
         </div>
 
-        {/* ── Right: login card ── */}
-        <div className="flex items-center justify-center">
-          <div className="w-full max-w-md overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
-            {/* Blue header bar — matching dashboard section headers */}
-            <div className="bg-gradient-to-r from-[#1a73e8] to-[#1558b0] px-6 py-5 text-center">
-              <div className="mx-auto mb-2 flex items-center justify-center">
-                <MascotLogo size={52} animated />
-              </div>
-              <h2 className="text-lg font-bold text-white">Welcome back</h2>
-              <p className="mt-0.5 text-sm text-blue-100">Sign in to your account to continue</p>
-            </div>
-
-
-            <div className="px-6 py-6">
-              <Suspense
-                fallback={<div className="h-40 animate-pulse rounded-xl bg-gray-100" />}
-              >
-                <LoginForm />
-              </Suspense>
-              <p className="mt-5 text-center text-sm text-gray-500">
-                New school?{' '}
-                <Link href="/register" className="font-semibold text-[#1a73e8] hover:text-[#1558b0] hover:underline">
-                  Register your institution
-                </Link>
-              </p>
-            </div>
-          </div>
+        {/* Footer */}
+        <div className="text-center py-4 border-t border-[#c4c5d7]/30 text-xs text-[#434655]">
+          © 2026 SyllabusTracker Academic Management Platform. All rights reserved.
         </div>
       </div>
     </div>

@@ -50,6 +50,19 @@ export const academicSessionController = {
     }
   },
 
+  async update(req: Request, res: Response, next: NextFunction) {
+    try {
+      const schoolId = req.schoolId || String(req.body.schoolId);
+      if (!schoolId) {
+        return res.status(400).json({ success: false, error: 'schoolId is required' });
+      }
+      const session = await academicSessionService.update(schoolId, String(req.params.id), req.body);
+      sendSuccess(res, session);
+    } catch (err) {
+      next(err);
+    }
+  },
+
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const schoolId = req.schoolId || String(req.query.schoolId);

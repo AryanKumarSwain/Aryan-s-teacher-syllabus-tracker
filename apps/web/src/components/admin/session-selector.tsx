@@ -87,15 +87,15 @@ export function SessionSelector({ selectedSessionId, onSessionChange }: SessionS
             className={cn(
               'gap-2 min-w-[200px] h-9 transition-colors shadow-xs',
               isViewMode
-                ? 'border-amber-300 bg-amber-50/90 text-amber-900 hover:bg-amber-100 hover:text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200'
-                : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-gray-100',
+                ? 'border-amber-300 bg-amber-50/90 text-amber-900 hover:bg-amber-100 hover:text-amber-950 rounded-xl'
+                : 'border-emerald-200/80 bg-white text-[#0b1c30] hover:bg-emerald-50/50 rounded-xl shadow-xs',
             )}
           >
             {isViewMode ? (
               <div className="flex items-center gap-2 text-left truncate flex-1">
                 <Eye className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-                <span className="truncate font-semibold">{currentSession?.name || 'Session'}</span>
-                <span className="rounded bg-amber-200/80 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-900 shrink-0">
+                <span className="truncate font-bold text-xs">{currentSession?.name || 'Session'}</span>
+                <span className="rounded-md bg-amber-200/80 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-amber-900 shrink-0">
                   View Mode
                 </span>
               </div>
@@ -105,13 +105,13 @@ export function SessionSelector({ selectedSessionId, onSessionChange }: SessionS
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
                 </span>
-                <span className="truncate font-semibold">{currentSession?.name || 'Select Session'}</span>
-                <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-emerald-800 shrink-0">
+                <span className="truncate font-bold text-xs text-[#0b1c30]">{currentSession?.name || 'Select Session'}</span>
+                <span className="rounded-md bg-emerald-50 border border-emerald-200/70 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-800 shrink-0">
                   Active
                 </span>
               </div>
             )}
-            <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+            <ChevronDown className="h-4 w-4 opacity-50 shrink-0 text-[#434655]" />
           </Button>
         </DropdownMenuTrigger>
 

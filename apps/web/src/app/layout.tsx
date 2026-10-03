@@ -23,6 +23,8 @@ export const viewport: Viewport = {
   ],
 };
 
+import { PwaRegistrar } from '@/components/pwa-registrar';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={cn('font-mono', jetbrainsMono.variable)}>
@@ -30,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} font-sans`}
       >
+        <PwaRegistrar />
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

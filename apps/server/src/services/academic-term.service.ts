@@ -90,6 +90,33 @@ export const academicTermService = {
       throw new AppError('Academic session not found or does not belong to this school', 400);
     }
 
+    // Check if an academic term already exists for this session
+    const existingTerm = await prisma.academicTerm.findFirst({
+      where: {
+        schoolId: data.schoolId,
+        academicSessionId: data.academicSessionId,
+      },
+    });
+
+    if (existingTerm) {
+      if (existingTerm.deletedAt !== null) {
+        // Hard clean up previously deleted timeline to satisfy @@unique([schoolId, academicSessionId])
+        await prisma.$transaction(async (tx) => {
+          await tx.vacationDay.deleteMany({
+            where: { academicTermId: existingTerm.id },
+          });
+          await tx.academicTerm.delete({
+            where: { id: existingTerm.id },
+          });
+        });
+      } else {
+        throw new AppError(
+          'An academic timeline already exists for this session. Please edit the existing timeline instead.',
+          400,
+        );
+      }
+    }
+
     const start = new Date(data.startDate);
     const end = new Date(data.endDate);
     const diffDays = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));

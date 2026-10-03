@@ -56,13 +56,13 @@ export function AcademicMascot({
   };
 
   return (
-    <div className={`relative flex flex-col sm:flex-row items-center gap-3.5 sm:gap-4.5 ${className}`}>
+    <div className={`relative flex flex-row items-center gap-2.5 sm:gap-3.5 w-full max-w-sm sm:max-w-md ${className}`}>
       {/* Animated Character Avatar / Mascot SVG (Left side) */}
       <motion.div
         onClick={handleCharacterClick}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="relative cursor-pointer select-none shrink-0"
+        className="relative cursor-pointer select-none shrink-0 w-12 h-12 sm:w-16 sm:h-16"
       >
         {/* Heart float animation on click */}
         <AnimatePresence>
@@ -81,7 +81,7 @@ export function AcademicMascot({
         {/* Character Base & Glow */}
         <motion.div
           animate={{
-            y: [0, -8, 0],
+            y: [0, -4, 0],
             rotate: [0, 1.5, -1.5, 0],
           }}
           transition={{
@@ -89,9 +89,9 @@ export function AcademicMascot({
             duration: 4,
             ease: 'easeInOut',
           }}
-          className="relative h-16 w-16 sm:h-20 sm:w-20 drop-shadow-lg"
+          className="relative w-12 h-12 sm:w-16 sm:h-16 drop-shadow-md"
         >
-          <svg viewBox="0 0 120 120" className="h-full w-full overflow-visible">
+          <svg viewBox="0 0 120 120" className="w-full h-full block">
             <defs>
               <linearGradient id="bodyGrad-hero" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#3B82F6" />
@@ -208,10 +208,10 @@ export function AcademicMascot({
           animate={{ opacity: 1, x: 0, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.25 }}
-          className="relative max-w-xs sm:max-w-sm rounded-xl bg-white p-2.5 sm:p-3 shadow-md border border-blue-100 text-left dark:bg-slate-900 dark:border-slate-800"
+          className="relative flex-1 min-w-0 rounded-xl bg-white p-2 sm:p-2.5 shadow-sm border border-blue-100 text-left dark:bg-slate-900 dark:border-slate-800"
         >
           {/* Bubble tail pointing left towards mascot */}
-          <div className="absolute -left-2 top-4 h-2.5 w-2.5 rotate-45 bg-white border-b border-l border-blue-100 dark:bg-slate-900 dark:border-slate-800 hidden sm:block" />
+          <div className="absolute -left-1.5 top-3.5 h-2 w-2 rotate-45 bg-white border-b border-l border-blue-100 dark:bg-slate-900 dark:border-slate-800 block" />
 
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-1.5 text-[10px] font-bold text-blue-600 dark:text-blue-400">

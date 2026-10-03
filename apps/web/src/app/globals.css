@@ -292,4 +292,37 @@
   transform: perspective(1200px) rotateY(0deg) rotateX(0deg) translateY(-2px);
 }
 
+.hero-popout-card {
+  transform: translateZ(40px) translateY(8px) translateX(-18px) rotate(-2deg);
+  box-shadow:
+    0 25px 55px -10px rgba(29, 78, 216, 0.38),
+    0 15px 30px -6px rgba(0, 0, 0, 0.20),
+    0 0 0 1px rgba(29, 78, 216, 0.2);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+}
+
+@media (max-width: 640px) {
+  .hero-popout-card {
+    transform: translateZ(25px) translateY(4px) translateX(-6px) rotate(-1deg);
+  }
+}
+
+.hero-popout-card:hover {
+  transform: translateZ(55px) translateY(2px) translateX(-16px) rotate(-1deg) scale(1.02);
+  box-shadow:
+    0 32px 65px -12px rgba(29, 78, 216, 0.45),
+    0 20px 35px -6px rgba(0, 0, 0, 0.26);
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 

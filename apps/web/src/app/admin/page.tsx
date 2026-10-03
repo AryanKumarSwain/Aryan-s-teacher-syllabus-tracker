@@ -72,13 +72,18 @@ function velocityFromPct(pct: number, target: number): 'behind' | 'onpace' | 'ah
 
 interface StatCardProps {
   title: string;
-  value: string | number;
+  value: React.ReactNode;
   icon: React.ElementType;
   iconBg: string;
-  iconColor: string;
-  cardBg: string;
-  borderColor: string;
+  iconColor?: string;
+  cardBg?: string;
+  borderColor?: string;
+  accentBar?: string;
+  glowColor?: string;
   sub?: string;
+  badge?: string;
+  badgeColor?: string;
+  progress?: number;
 }
 
 function StatCard({
@@ -86,28 +91,89 @@ function StatCard({
   value,
   icon: Icon,
   iconBg,
-  iconColor,
-  cardBg,
-  borderColor,
+  iconColor = 'text-white',
+  cardBg = 'bg-white',
+  borderColor = 'border-slate-200',
+  accentBar,
+  glowColor,
   sub,
+  badge,
+  badgeColor,
+  progress,
 }: StatCardProps) {
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border ${borderColor} ${cardBg} px-5 py-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md`}
+      className={cn(
+        'group relative flex flex-col justify-between overflow-hidden rounded-2xl border p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-lg',
+        borderColor,
+        cardBg,
+      )}
     >
-      <div className="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-current opacity-10" />
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-xs font-bold uppercase tracking-widest text-gray-500/80">{title}</p>
-          <p className="mt-2 text-3xl font-black leading-none tracking-tight text-gray-800">
-            {value}
-          </p>
-          {sub && <p className="mt-2 text-xs font-medium text-gray-500">{sub}</p>}
-        </div>
+      {/* Top accent gradient line */}
+      {accentBar && (
+        <div className={cn('absolute inset-x-0 top-0 h-1 bg-gradient-to-r', accentBar)} />
+      )}
+      {/* Corner colorful blur glow */}
+      {glowColor && (
         <div
-          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${iconBg} border border-white/20 shadow-sm`}
+          className={cn(
+            'pointer-events-none absolute -right-6 -top-6 h-28 w-28 rounded-full blur-2xl transition-opacity duration-300 group-hover:scale-125',
+            glowColor,
+          )}
+        />
+      )}
+
+      {/* Top Row: Title on Left, Icon on Right */}
+      <div className="relative z-10 flex items-center justify-between gap-2">
+        <p className="text-[11px] font-black uppercase tracking-wider text-[#434655] truncate">
+          {title}
+        </p>
+        <div
+          className={cn(
+            'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm transition-transform duration-300 group-hover:scale-105',
+            iconBg,
+          )}
         >
-          <Icon className={`h-5 w-5 ${iconColor}`} />
+          <Icon className={cn('h-5 w-5', iconColor)} />
+        </div>
+      </div>
+
+      {/* Middle Row: Value + Badge */}
+      <div className="relative z-10 mt-2 mb-3 flex items-baseline gap-2">
+        <span className="text-3xl font-black leading-none tracking-tight text-[#0b1c30]">
+          {value}
+        </span>
+        {badge && (
+          <span
+            className={cn(
+              'rounded-md px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider shrink-0',
+              badgeColor || 'bg-slate-100 text-slate-700',
+            )}
+          >
+            {badge}
+          </span>
+        )}
+      </div>
+
+      {/* Bottom Row: Subtext & Progress Track (Aligned across all cards) */}
+      <div className="relative z-10 pt-2.5 border-t border-slate-200/50">
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-[11px] font-bold text-emerald-700">
+            <span className="truncate">{sub}</span>
+            {progress !== undefined && (
+              <span className="font-black text-emerald-700 shrink-0 ml-1">{progress}%</span>
+            )}
+          </div>
+          <div className="h-1.5 w-full rounded-full bg-slate-100/80 overflow-hidden">
+            {progress !== undefined ? (
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 transition-all duration-700"
+                style={{ width: `${Math.min(progress, 100)}%` }}
+              />
+            ) : (
+              <div className="h-full rounded-full bg-transparent" />
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -117,22 +183,24 @@ function StatCard({
 function Section({
   title,
   icon: Icon,
+  iconGradient = 'from-emerald-500 to-teal-600',
   extra,
   children,
 }: {
   title: string;
   icon: React.ElementType;
+  iconGradient?: string;
   extra?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-md">
-      <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-all duration-300 hover:shadow-md">
+      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-5 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50">
-            <Icon className="h-4 w-4 text-gray-500" />
+          <div className={`flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br ${iconGradient} text-white shadow-sm`}>
+            <Icon className="h-4 w-4 text-white" />
           </div>
-          <h3 className="text-sm font-bold tracking-wide text-gray-800">{title}</h3>
+          <h3 className="text-sm font-extrabold tracking-wide text-[#0b1c30]">{title}</h3>
         </div>
         {extra && <div className="flex items-center">{extra}</div>}
       </div>
@@ -142,9 +210,30 @@ function Section({
 }
 
 const velocityStyles = {
-  behind: { label: 'Behind', color: 'text-red-600', bg: 'bg-red-100', icon: TrendingDown },
-  onpace: { label: 'On Pace', color: 'text-amber-600', bg: 'bg-amber-100', icon: Minus },
-  ahead: { label: 'Ahead', color: 'text-emerald-600', bg: 'bg-emerald-100', icon: TrendingUp },
+  behind: {
+    label: 'Behind',
+    color: 'text-rose-700',
+    cardBg: 'bg-gradient-to-br from-rose-50 via-red-50/40 to-white',
+    border: 'border-rose-200/90',
+    iconBg: 'bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-md shadow-rose-500/25',
+    icon: TrendingDown,
+  },
+  onpace: {
+    label: 'On Pace',
+    color: 'text-amber-700',
+    cardBg: 'bg-gradient-to-br from-amber-50 via-yellow-50/40 to-white',
+    border: 'border-amber-200/90',
+    iconBg: 'bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/25',
+    icon: Minus,
+  },
+  ahead: {
+    label: 'Ahead',
+    color: 'text-emerald-700',
+    cardBg: 'bg-gradient-to-br from-emerald-50 via-teal-50/40 to-white',
+    border: 'border-emerald-200/90',
+    iconBg: 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25',
+    icon: TrendingUp,
+  },
 };
 
 type SortDirection = 'asc' | 'desc';
@@ -506,127 +595,195 @@ export default function AdminDashboardPage() {
   return (
     <DashboardShell title="Dashboard">
       <div className="animate-in fade-in space-y-6 pb-8 duration-300">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground">Overview of your school's syllabus progress</p>
+        {/* Executive Welcome & Status Banner */}
+        <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-6 shadow-xs">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-emerald-400/10 blur-3xl" />
+          <div className="pointer-events-none absolute -left-16 -bottom-16 h-48 w-48 rounded-full bg-blue-400/10 blur-3xl" />
+          
+          <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100/90 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-300/40">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Live Academic Coverage
+                </span>
+                <span className="text-[11px] font-semibold text-slate-500">
+                  {school?.name || 'Academic Operations'}
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#0b1c30]">
+                Academic Operations Dashboard
+              </h1>
+              <p className="text-xs sm:text-sm font-medium text-slate-600 max-w-2xl">
+                Real-time syllabus completion analytics, faculty pacing velocities, and institutional coverage metrics.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2.5 shrink-0">
+              <div className="hidden md:flex flex-col items-end text-right mr-1">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Current Pacing</span>
+                <span className={cn(
+                  'text-xs font-black',
+                  velocityBreakdown.behind > velocityBreakdown.ahead ? 'text-rose-600' : 'text-emerald-700'
+                )}>
+                  {velocityBreakdown.ahead >= velocityBreakdown.behind ? '✓ On Schedule' : '⚠ Pacing Review Needed'}
+                </span>
+              </div>
+              <Link
+                href="/admin/academic-timeline"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition-colors"
+              >
+                <Calendar className="h-3.5 w-3.5 text-slate-500" />
+                Timeline
+              </Link>
+              <Link
+                href="/admin/classes"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:from-emerald-700 hover:to-teal-700 transition-colors"
+              >
+                <GraduationCap className="h-3.5 w-3.5" />
+                Classes
+              </Link>
+            </div>
           </div>
         </div>
-        <Section title="System Overview" icon={Sparkles}>
+
+        {/* System Overview Stat Cards */}
+        <Section title="System Overview" icon={Sparkles} iconGradient="from-indigo-600 to-blue-600">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
               title="Total Teachers"
-              value={stats?.totalTeachers ?? 0}
+              value={<CountUp end={stats?.totalTeachers ?? 0} duration={800} />}
               icon={Users}
-              iconBg="bg-indigo-500"
+              iconBg="bg-gradient-to-br from-blue-600 to-indigo-600 shadow-blue-500/30"
               iconColor="text-white"
-              cardBg="bg-indigo-50/40"
-              borderColor="border-indigo-100"
+              cardBg="bg-gradient-to-br from-blue-50/70 via-indigo-50/20 to-white"
+              borderColor="border-blue-200/80"
+              accentBar="from-blue-600 to-indigo-600"
+              glowColor="bg-blue-500/15"
+              badge="Faculty"
+              badgeColor="bg-blue-100 text-blue-800"
+              sub={`${stats?.totalTeachers ?? 0} active assigned`}
             />
             <StatCard
               title="Active Classes"
-              value={stats?.totalClasses ?? 0}
+              value={<CountUp end={stats?.totalClasses ?? 0} duration={800} />}
               icon={GraduationCap}
-              iconBg="bg-cyan-500"
+              iconBg="bg-gradient-to-br from-teal-600 to-emerald-600 shadow-teal-500/30"
               iconColor="text-white"
-              cardBg="bg-cyan-50/40"
-              borderColor="border-cyan-100"
+              cardBg="bg-gradient-to-br from-teal-50/70 via-emerald-50/20 to-white"
+              borderColor="border-teal-200/80"
+              accentBar="from-teal-500 to-emerald-600"
+              glowColor="bg-teal-500/15"
+              badge="Enrolled"
+              badgeColor="bg-teal-100 text-teal-800"
+              sub="Across all grades"
             />
             <StatCard
               title="Syllabus Chapters"
-              value={stats?.totalChapters ?? 0}
+              value={<CountUp end={stats?.totalChapters ?? 0} duration={800} />}
               icon={BookOpen}
-              iconBg="bg-amber-500"
+              iconBg="bg-gradient-to-br from-amber-500 to-orange-500 shadow-amber-500/30"
               iconColor="text-white"
-              cardBg="bg-amber-50/40"
-              borderColor="border-amber-100"
+              cardBg="bg-gradient-to-br from-amber-50/70 via-orange-50/20 to-white"
+              borderColor="border-amber-200/80"
+              accentBar="from-amber-500 to-orange-500"
+              glowColor="bg-amber-500/15"
+              badge="Curriculum"
+              badgeColor="bg-amber-100 text-amber-800"
+              sub={`${stats?.completedChapters ?? 0} completed`}
             />
             <StatCard
               title="Overall Progress"
-              value={formatPercent(overallPct)}
+              value={<><CountUp end={Math.round(overallPct)} duration={800} />%</>}
               icon={CheckCircle2}
-              iconBg="bg-emerald-500"
+              iconBg="bg-gradient-to-br from-emerald-600 to-teal-600 shadow-emerald-500/30"
               iconColor="text-white"
-              cardBg="bg-emerald-50/40"
-              borderColor="border-emerald-100"
-              sub={`${stats?.completedChapters ?? 0} chapters completed`}
+              cardBg="bg-gradient-to-br from-emerald-50/70 via-green-50/20 to-white"
+              borderColor="border-emerald-200/80"
+              accentBar="from-emerald-500 to-teal-500"
+              glowColor="bg-emerald-500/15"
+              badge="Target 100%"
+              badgeColor="bg-emerald-100 text-emerald-800"
+              sub={`${stats?.completedChapters ?? 0} / ${stats?.totalChapters ?? 0} chapters`}
+              progress={Math.round(overallPct)}
             />
           </div>
         </Section>
 
-        <Section title="Academic Timeline" icon={Calendar}>
+        {/* Academic Timeline */}
+        <Section title="Academic Timeline" icon={Calendar} iconGradient="from-emerald-600 to-teal-600">
           {analytics?.globalTimeline && analytics.globalTimeline.totalTeachingDays > 0 ? (
             <>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="flex items-center gap-4 rounded-xl border border-blue-100 bg-blue-50/40 p-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-blue-500 shadow-sm">
-                    <Calendar className="h-5 w-5 text-white" />
+                <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 shadow-2xs">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 text-white shadow-sm">
+                    <Calendar className="h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
+                    <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#434655]">
                       Start Date
                     </p>
-                    <p className="mt-0.5 text-sm font-semibold text-blue-700">
+                    <p className="mt-0.5 text-sm font-bold text-[#0b1c30]">
                       {new Date(analytics.globalTimeline.startDate).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 rounded-xl border border-purple-100 bg-purple-50/40 p-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-purple-500 shadow-sm">
-                    <Clock className="h-5 w-5 text-white" />
+                <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 shadow-2xs">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 text-white shadow-sm">
+                    <Clock className="h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-bold uppercase tracking-wider text-purple-600">
+                    <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#434655]">
                       End Date
                     </p>
-                    <p className="mt-0.5 text-sm font-semibold text-purple-700">
+                    <p className="mt-0.5 text-sm font-bold text-[#0b1c30]">
                       {new Date(analytics.globalTimeline.endDate).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 rounded-xl border border-emerald-100 bg-emerald-50/40 p-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-emerald-500 shadow-sm">
-                    <TrendingUp className="h-5 w-5 text-white" />
+                <div className="flex items-center gap-4 rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/80 to-white p-4 shadow-2xs">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm shadow-emerald-600/20">
+                    <TrendingUp className="h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-bold uppercase tracking-wider text-emerald-600">
+                    <p className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
                       Elapsed Days
                     </p>
-                    <p className="mt-0.5 text-2xl font-black leading-none text-emerald-700">
-                      {analytics.globalTimeline.elapsedTeachingDays}
+                    <p className="mt-0.5 text-2xl font-black leading-none text-emerald-900">
+                      <CountUp end={analytics.globalTimeline.elapsedTeachingDays} duration={700} />
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 rounded-xl border border-amber-100 bg-amber-50/40 p-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-amber-500 shadow-sm">
-                    <Activity className="h-5 w-5 text-white" />
+                <div className="flex items-center gap-4 rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-50/80 to-white p-4 shadow-2xs">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-sm shadow-amber-500/20">
+                    <Activity className="h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-bold uppercase tracking-wider text-amber-600">
+                    <p className="text-[11px] font-extrabold uppercase tracking-wider text-amber-800">
                       Timeline Progress
                     </p>
-                    <p className="mt-0.5 text-2xl font-black leading-none text-amber-700">
+                    <p className="mt-0.5 text-2xl font-black leading-none text-amber-900">
                       {analytics.globalTimeline.percentageComplete.toFixed(1)}%
                     </p>
                   </div>
                 </div>
               </div>
-              <div className="mt-4 rounded-xl border border-gray-100 bg-gray-50/50 p-4">
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-50 via-emerald-50/20 to-slate-50 p-4">
                 <div className="mb-2 flex items-center justify-between text-xs">
-                  <span className="font-semibold text-gray-600">Academic Year Progress</span>
-                  <span className="font-black text-[#1a73e8]">
+                  <span className="font-bold text-[#0b1c30]">Academic Year Progress</span>
+                  <span className="font-black text-emerald-700">
                     {analytics.globalTimeline.percentageComplete.toFixed(1)}%
                   </span>
                 </div>
-                <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200/80">
+                <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-200/80">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#1a73e8] via-indigo-500 to-[#34a853] transition-all duration-1000"
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-400 transition-all duration-1000"
                     style={{
                       width: `${Math.min(analytics.globalTimeline.percentageComplete, 100)}%`,
                     }}
                   />
                 </div>
-                <div className="mt-2 flex items-center justify-between text-[10px] text-gray-500">
+                <div className="mt-2 flex items-center justify-between text-[11px] font-medium text-[#434655]">
                   <span>
                     {analytics.globalTimeline.remainingTeachingDays} teaching days remaining
                   </span>
@@ -635,50 +792,90 @@ export default function AdminDashboardPage() {
               </div>
             </>
           ) : (
-            <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-dashed border-gray-200 bg-gray-50/70 p-6 text-center sm:flex-row sm:text-left">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
-                  <Calendar className="h-6 w-6" />
+            <div className="relative overflow-hidden rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-50/90 via-teal-50/50 to-blue-50/30 p-6 sm:p-7 shadow-xs">
+              <div className="pointer-events-none absolute -right-12 -bottom-12 h-48 w-48 rounded-full bg-emerald-400/20 blur-3xl" />
+              <div className="pointer-events-none absolute top-0 left-1/3 h-32 w-32 rounded-full bg-teal-400/15 blur-2xl" />
+              
+              <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25 ring-4 ring-emerald-500/10">
+                    <Calendar className="h-7 w-7 text-white" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="text-base sm:text-lg font-black text-[#0b1c30]">
+                        Setup Academic Timeline & Schedule Targets
+                      </h4>
+                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold text-amber-800">
+                        Not Configured
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-sm font-medium text-slate-600 max-w-xl">
+                      Define start & end dates, working days, and seasonal breaks for this academic session to enable automated syllabus velocity calculations and pacing alerts.
+                    </p>
+                    <div className="pt-2 flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                        ✓ Teaching Days Calendar
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                        ✓ Behind / Ahead Pacing
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                        ✓ Session Completion Forecast
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900">No Academic Timeline Configured</h4>
-                  <p className="text-sm text-gray-500">
-                    Create an academic timeline (start & end dates, working days, holidays) for this session to track teaching days and schedule progression.
-                  </p>
-                </div>
+
+                <Link
+                  href="/admin/academic-timeline"
+                  className="relative z-10 inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-700 hover:to-teal-700 px-6 py-3 text-sm font-extrabold text-white shadow-md shadow-emerald-600/30 transition-all hover:shadow-lg active:scale-95"
+                >
+                  Configure Academic Timeline
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </div>
-              <Link
-                href="/admin/academic-timeline"
-                className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#1a73e8] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700"
-              >
-                Configure Timeline
-                <ArrowRight className="h-4 w-4" />
-              </Link>
             </div>
           )}
         </Section>
 
-        <div className="grid grid-cols-3 gap-4">
+        {/* Velocity Schedule Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {(['behind', 'onpace', 'ahead'] as const).map((key) => {
             const cfg = velocityStyles[key];
             const Icon = cfg.icon;
+            const count = velocityBreakdown[key];
+            const badgeText = key === 'behind' ? 'Needs Review' : key === 'onpace' ? 'On Schedule' : 'Leading Pace';
+            const badgeBg = key === 'behind' ? 'bg-rose-100 text-rose-800' : key === 'onpace' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800';
+
             return (
               <div
                 key={key}
-                className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                className={cn(
+                  'relative overflow-hidden flex items-center justify-between gap-3.5 rounded-2xl border p-4 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-md',
+                  cfg.cardBg,
+                  cfg.border,
+                )}
               >
-                <div
-                  className={cn(
-                    'flex h-11 w-11 shrink-0 items-center justify-center rounded-full',
-                    cfg.bg,
-                  )}
-                >
-                  <Icon className={cn('h-5 w-5', cfg.color)} />
+                <div className="flex items-center gap-3.5">
+                  <div
+                    className={cn(
+                      'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl',
+                      cfg.iconBg,
+                    )}
+                  >
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className={cn('text-2xl sm:text-3xl font-black leading-tight', cfg.color)}>
+                      <CountUp end={count} duration={600} />
+                    </p>
+                    <p className="text-xs font-bold text-[#0b1c30]">{cfg.label} Schedule</p>
+                  </div>
                 </div>
-                <div>
-                  <p className={cn('text-2xl font-black', cfg.color)}>{velocityBreakdown[key]}</p>
-                  <p className="text-xs font-semibold text-gray-500">{cfg.label} Schedule</p>
-                </div>
+                <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-extrabold shrink-0', badgeBg)}>
+                  {badgeText}
+                </span>
               </div>
             );
           })}
@@ -689,10 +886,11 @@ export default function AdminDashboardPage() {
             <Section
               title="Class Progression"
               icon={BarChart3}
+              iconGradient="from-blue-600 to-indigo-600"
               extra={
                 <button
                   onClick={() => setClassSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))}
-                  className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-50"
+                  className="flex items-center gap-1.5 rounded-xl border border-[#c4c5d7]/50 bg-white px-3 py-1.5 text-xs font-bold text-[#0b1c30] shadow-2xs transition-colors hover:bg-slate-50"
                 >
                   {classSortDir === 'desc' ? (
                     <ArrowDown className="h-3.5 w-3.5" />
@@ -704,11 +902,20 @@ export default function AdminDashboardPage() {
               }
             >
               {classProgressionData.length === 0 ? (
-                <div className="flex h-72 flex-col items-center justify-center text-center">
-                  <AlertTriangle className="h-8 w-8 animate-bounce text-amber-500" />
-                  <p className="mt-2 text-sm font-medium text-gray-500">
-                    No class progression data available yet.
+                <div className="flex h-72 flex-col items-center justify-center text-center p-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50/50">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 border border-blue-200/60 text-blue-600 mb-3 shadow-2xs">
+                    <BarChart3 className="h-6 w-6" />
+                  </div>
+                  <h4 className="text-sm font-extrabold text-[#0b1c30]">No Class Progression Data</h4>
+                  <p className="mt-1 text-xs font-medium text-slate-500 max-w-sm">
+                    Assign subjects and log chapter progress for classes to see comparative completion bars here.
                   </p>
+                  <Link
+                    href="/admin/classes"
+                    className="mt-3.5 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50"
+                  >
+                    Go to Classes <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
                 </div>
               ) : (
                 <div className="h-80 w-full pt-4">
@@ -781,11 +988,12 @@ export default function AdminDashboardPage() {
             <Section
               title="Subject Distribution by Class"
               icon={PieIcon}
+              iconGradient="from-purple-500 to-pink-600"
               extra={
                 <select
                   value={selectedClass}
                   onChange={(e) => setSelectedClass(e.target.value)}
-                  className="cursor-pointer rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none transition-colors hover:bg-gray-50"
+                  className="cursor-pointer rounded-xl border border-[#c4c5d7]/50 bg-white px-3 py-1.5 text-xs font-bold text-[#0b1c30] outline-none transition-colors hover:bg-slate-50"
                 >
                   <option value="all">All Classes</option>
                   {classOptions.map((c) => (
@@ -825,12 +1033,12 @@ export default function AdminDashboardPage() {
                     </ResponsiveContainer>
                   </div>
                   <div className="absolute top-[26%] flex flex-col items-center text-center">
-                    <span className="text-3xl font-black tracking-tight text-gray-800">
+                    <span className="text-3xl font-black tracking-tight text-[#0b1c30]">
                       {selectedClass === 'all'
                         ? formatPercent(overallPct)
                         : `${averageClassProgress}%`}
                     </span>
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#434655]">
                       Avg Progress
                     </span>
                   </div>
@@ -838,18 +1046,18 @@ export default function AdminDashboardPage() {
                     {pieChartData.map((item, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/80 px-3 py-1.5 transition-all hover:bg-slate-100/50"
+                        className="flex items-center justify-between rounded-xl border border-[#c4c5d7]/30 bg-[#f8f9ff] px-3 py-1.5 transition-all hover:bg-slate-100/60"
                       >
                         <div className="flex min-w-0 items-center gap-2">
                           <div
                             className="h-2.5 w-2.5 shrink-0 rounded-full"
                             style={{ backgroundColor: item.color }}
                           />
-                          <span className="truncate text-xs font-semibold text-gray-600">
+                          <span className="truncate text-xs font-bold text-[#0b1c30]">
                             {item.name}
                           </span>
                         </div>
-                        <span className="ml-2 text-xs font-black text-gray-700">{item.value}%</span>
+                        <span className="ml-2 text-xs font-black text-emerald-800">{item.value}%</span>
                       </div>
                     ))}
                   </div>
@@ -860,7 +1068,7 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <Section title={`Class Comparison Radar (${radarData.length} classes)`} icon={Target}>
+          <Section title={`Class Comparison Radar (${radarData.length} classes)`} icon={Target} iconGradient="from-violet-600 to-indigo-600">
             {radarData.length < 3 ? (
               <div className="flex h-64 flex-col items-center justify-center text-center text-gray-400">
                 <Target className="h-8 w-8 stroke-1" />
@@ -881,9 +1089,9 @@ export default function AdminDashboardPage() {
                     <Radar
                       name="Progress"
                       dataKey="progress"
-                      stroke="#6366f1"
-                      fill="#6366f1"
-                      fillOpacity={0.35}
+                      stroke="#059669"
+                      fill="#059669"
+                      fillOpacity={0.25}
                       animationDuration={800}
                     />
                     <Tooltip formatter={(value) => [`${value}%`, 'Progress']} />
@@ -893,7 +1101,7 @@ export default function AdminDashboardPage() {
             )}
           </Section>
 
-          <Section title="Subject Completion Distribution" icon={Activity}>
+          <Section title="Subject Completion Distribution" icon={Activity} iconGradient="from-amber-500 to-orange-600">
             <div className="h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
@@ -934,15 +1142,16 @@ export default function AdminDashboardPage() {
           <Section
             title={`Teacher Progress Distribution (${allTeachers.length} teachers)`}
             icon={Award}
+            iconGradient="from-rose-500 to-pink-600"
             extra={
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setTeacherSortDir('desc')}
                   className={cn(
-                    'cursor-pointer rounded-lg border px-2 py-1.5 text-xs font-semibold transition-colors',
+                    'cursor-pointer rounded-xl border px-3 py-1.5 text-xs font-bold transition-all',
                     teacherSortDir === 'desc'
-                      ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                      : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50',
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-800 shadow-2xs'
+                      : 'border-[#c4c5d7]/50 bg-white text-[#434655] hover:bg-slate-50',
                   )}
                 >
                   Highest
@@ -950,10 +1159,10 @@ export default function AdminDashboardPage() {
                 <button
                   onClick={() => setTeacherSortDir('asc')}
                   className={cn(
-                    'cursor-pointer rounded-lg border px-2 py-1.5 text-xs font-semibold transition-colors',
+                    'cursor-pointer rounded-xl border px-3 py-1.5 text-xs font-bold transition-all',
                     teacherSortDir === 'asc'
-                      ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                      : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50',
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-800 shadow-2xs'
+                      : 'border-[#c4c5d7]/50 bg-white text-[#434655] hover:bg-slate-50',
                   )}
                 >
                   Lowest
@@ -966,38 +1175,38 @@ export default function AdminDashboardPage() {
                 const pct = Math.round(teacher.progress);
                 const barColor =
                   pct >= 70
-                    ? 'from-emerald-400 to-emerald-600'
+                    ? 'from-emerald-500 to-teal-500'
                     : pct >= 40
-                      ? 'from-blue-400 to-indigo-500'
-                      : 'from-amber-400 to-orange-500';
+                      ? 'from-blue-500 to-indigo-500'
+                      : 'from-amber-500 to-orange-500';
                 return (
                   <div
                     key={`${teacher.name}-${index}`}
                     onClick={() => setSelectedTeacher(teacher.name)}
                     className={cn(
-                      'animate-in fade-in slide-in-from-left-1 flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition-all duration-200',
+                      'animate-in fade-in slide-in-from-left-1 flex cursor-pointer items-center gap-3 rounded-2xl border p-3.5 transition-all duration-200',
                       selectedTeacher === teacher.name
-                        ? 'border-indigo-500 bg-indigo-50 shadow-md'
-                        : 'border-gray-100 bg-white hover:border-gray-200 hover:shadow-sm',
+                        ? 'border-emerald-500 bg-emerald-50/50 shadow-xs'
+                        : 'border-[#c4c5d7]/30 bg-white hover:border-emerald-200/80 hover:shadow-xs',
                     )}
                     style={{ animationDelay: `${Math.min(index * 25, 400)}ms` }}
                   >
                     <div
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-black text-white shadow-2xs"
                       style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
                     >
                       {teacher.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="mb-1 flex items-center justify-between gap-2">
-                        <span className="truncate text-sm font-semibold text-gray-800">
+                        <span className="truncate text-sm font-bold text-[#0b1c30]">
                           {teacher.name}
                         </span>
-                        <span className="flex-shrink-0 text-sm font-black text-gray-700">
+                        <span className="flex-shrink-0 text-sm font-black text-emerald-800">
                           <CountUp end={pct} duration={800} />%
                         </span>
                       </div>
-                      <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                      <div className="relative h-2 w-full overflow-hidden rounded-full bg-slate-100">
                         <div
                           className={cn(
                             'h-full rounded-full bg-gradient-to-r transition-all duration-700',
@@ -1105,10 +1314,10 @@ export default function AdminDashboardPage() {
                     <Line
                       type="monotone"
                       dataKey="progress"
-                      stroke="#6366f1"
+                      stroke="#059669"
                       strokeWidth={3}
-                      dot={{ fill: '#6366f1', strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6 }}
+                      dot={{ fill: '#059669', strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, fill: '#065f46' }}
                       animationDuration={1000}
                     />
                   </LineChart>
@@ -1118,33 +1327,34 @@ export default function AdminDashboardPage() {
           </Section>
         )}
 
-        <Section title="Performance Insights" icon={Sparkles}>
+        <Section title="Performance Insights" icon={Sparkles} iconGradient="from-emerald-500 to-teal-600">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                  <Users className="h-5 w-5 text-blue-600" />
+            <div className="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-blue-50/50 to-white p-4.5 shadow-2xs hover:shadow-xs transition-shadow">
+              <div className="flex items-center gap-3.5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/25">
+                  <Users className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-500">Teacher Efficiency</p>
-                  <p className="text-lg font-bold text-gray-900">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-[#434655]">Teacher Efficiency</p>
+                  <p className="text-2xl font-black text-[#0b1c30]">
                     {allTeachers.length > 0
                       ? formatPercent(
                           allTeachers.reduce((sum, t) => sum + t.progress, 0) / allTeachers.length,
                         )
                       : '0%'}
                   </p>
+                  <p className="text-[11px] font-semibold text-slate-500 mt-0.5">Average across faculty</p>
                 </div>
               </div>
             </div>
-            <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">
-                  <GraduationCap className="h-5 w-5 text-purple-600" />
+            <div className="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-teal-50/50 to-white p-4.5 shadow-2xs hover:shadow-xs transition-shadow">
+              <div className="flex items-center gap-3.5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md shadow-teal-500/25">
+                  <GraduationCap className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-500">Class Performance</p>
-                  <p className="text-lg font-bold text-gray-900">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-[#434655]">Class Performance</p>
+                  <p className="text-2xl font-black text-[#0b1c30]">
                     {classProgressionData.length > 0
                       ? formatPercent(
                           classProgressionData.reduce((sum, c) => sum + c.progress, 0) /
@@ -1152,36 +1362,50 @@ export default function AdminDashboardPage() {
                         )
                       : '0%'}
                   </p>
+                  <p className="text-[11px] font-semibold text-slate-500 mt-0.5">Grade-wide benchmark</p>
                 </div>
               </div>
             </div>
-            <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
-                  <TrendingUp className="h-5 w-5 text-emerald-600" />
+            <div className="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-emerald-50/50 to-white p-4.5 shadow-2xs hover:shadow-xs transition-shadow">
+              <div className="flex items-center gap-3.5">
+                <div className={cn(
+                  'flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-md',
+                  velocityBreakdown.ahead >= velocityBreakdown.behind
+                    ? 'bg-gradient-to-br from-emerald-500 to-teal-600 shadow-emerald-500/25'
+                    : 'bg-gradient-to-br from-rose-500 to-red-600 shadow-rose-500/25'
+                )}>
+                  <TrendingUp className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-500">Pacing Status</p>
-                  <p className="text-lg font-bold text-gray-900">
-                    {velocityBreakdown.ahead > velocityBreakdown.behind ? 'Ahead' : 'Behind'}
+                  <p className="text-[11px] font-black uppercase tracking-wider text-[#434655]">Pacing Status</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className={cn(
+                      'text-2xl font-black',
+                      velocityBreakdown.ahead >= velocityBreakdown.behind ? 'text-emerald-700' : 'text-rose-700'
+                    )}>
+                      {velocityBreakdown.ahead >= velocityBreakdown.behind ? 'On Schedule' : 'Behind Pace'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] font-semibold text-slate-500">
+                    {velocityBreakdown.ahead} ahead vs {velocityBreakdown.behind} behind
                   </p>
                 </div>
               </div>
             </div>
           </div>
-          <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/40 p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-500">
-                <Info className="h-4 w-4 text-white" />
+          <div className="mt-4 rounded-2xl border border-emerald-200/90 bg-gradient-to-r from-emerald-50/80 via-teal-50/40 to-slate-50 p-4.5">
+            <div className="flex items-start gap-3.5">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm shadow-emerald-500/20">
+                <Sparkles className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-blue-900">Recommendation</p>
-                <p className="mt-1 text-xs text-blue-700">
+                <p className="text-sm font-extrabold text-[#0b1c30]">Academic Pacing Insights & Recommendations</p>
+                <p className="mt-1 text-xs font-medium text-slate-700 leading-relaxed">
                   {velocityBreakdown.behind > velocityBreakdown.ahead
-                    ? `${velocityBreakdown.behind} items are behind schedule. Consider reviewing teaching schedules and providing additional support.`
+                    ? `${velocityBreakdown.behind} subjects or classes are currently lagging behind the target timeline pace. We recommend reviewing teacher assignments, scheduling catch-up modules, or adjusting academic milestone targets.`
                     : velocityBreakdown.ahead > velocityBreakdown.behind
-                      ? `${velocityBreakdown.ahead} items are ahead of schedule. Great progress! Consider maintaining current momentum.`
-                      : 'Overall pacing is on track. Continue monitoring individual subject and class progress.'}
+                      ? `${velocityBreakdown.ahead} subjects or classes are trending ahead of the projected schedule! Pacing momentum is optimal across the institution.`
+                      : 'Institutional syllabus coverage is well-balanced and aligned with academic session milestones. Keep monitoring individual class progression charts.'}
                 </p>
               </div>
             </div>

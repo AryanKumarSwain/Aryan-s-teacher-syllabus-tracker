@@ -44,27 +44,27 @@ export function Navbar({ title }: { title: string }) {
   const currentSession = sessions?.find(s => s.id === school?.currentAcademicSessionId);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#c4c5d7]/40 bg-white/95 backdrop-blur-md px-4 sm:px-6">
       {/* Left — school brand (logo + name) + workspace title */}
       <div className="flex items-center gap-3 sm:gap-4">
         {(schoolName || schoolLogo) && (
-          <div className="flex items-center gap-2.5 pr-3 sm:pr-4 border-r border-gray-200">
+          <div className="flex items-center gap-2.5 pr-3 sm:pr-4 border-r border-[#c4c5d7]/40">
             {schoolLogo ? (
               <img
                 src={schoolLogo}
                 alt={schoolName || 'School Logo'}
-                className="h-9 w-9 rounded-lg object-contain border border-gray-200 bg-white p-0.5 shadow-2xs shrink-0"
+                className="h-9 w-9 rounded-xl object-contain border border-[#c4c5d7]/40 bg-white p-0.5 shadow-2xs shrink-0"
               />
             ) : (
-              <div className="h-9 w-9 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm shrink-0 shadow-2xs">
-                {schoolName ? schoolName.charAt(0).toUpperCase() : <Building2 className="h-4 w-4" />}
+              <div className="h-9 w-9 rounded-xl bg-emerald-50 border border-emerald-200/70 flex items-center justify-center text-emerald-800 font-black text-sm shrink-0 shadow-2xs">
+                {schoolName ? schoolName.charAt(0).toUpperCase() : <Building2 className="h-4 w-4 text-emerald-700" />}
               </div>
             )}
             <div className="hidden md:block leading-tight">
-              <span className="block text-xs font-bold text-gray-900 truncate max-w-[180px] lg:max-w-[240px]">
+              <span className="block text-xs font-bold text-[#0b1c30] truncate max-w-[180px] lg:max-w-[240px]">
                 {schoolName || 'School Portal'}
               </span>
-              <span className="block text-[10px] text-gray-500 font-medium">
+              <span className="block text-[10px] text-emerald-700 font-semibold tracking-wide">
                 {isAdminRoute ? 'Admin Workspace' : isTeacherRoute ? 'Teacher Portal' : 'Academic Portal'}
               </span>
             </div>
@@ -72,8 +72,8 @@ export function Navbar({ title }: { title: string }) {
         )}
 
         <div>
-          <p className="text-xs font-medium text-gray-400">Workspace</p>
-          <h1 className="text-base font-semibold tracking-tight text-gray-800 sm:text-lg">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#434655]">Workspace</p>
+          <h1 className="text-base font-extrabold tracking-tight text-[#0b1c30] sm:text-lg">
             {title}
           </h1>
         </div>

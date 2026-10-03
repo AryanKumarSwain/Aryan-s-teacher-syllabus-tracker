@@ -21,6 +21,10 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
     return sendError(res, err.message, err.statusCode);
   }
 
+  if ((err as any).code === 'P2002') {
+    return sendError(res, 'An academic timeline already exists for this session.', 409);
+  }
+
   console.error('[Error]', err);
   return sendError(res, 'Internal server error', 500);
 }

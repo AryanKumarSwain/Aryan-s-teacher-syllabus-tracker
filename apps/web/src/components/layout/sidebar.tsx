@@ -28,6 +28,7 @@ import { useUiStore } from '@/store/ui-store';
 import { Button } from '@/components/ui/button';
 import { useSubscription } from '@/features/subscription/hooks/use-subscription';
 import { toast } from 'sonner';
+import { MascotLogo } from '@/components/common/mascot-logo';
 
 const navByRole: Record<UserRole, { href: string; label: string; icon: React.ElementType }[]> = {
   [UserRole.SUPER_ADMIN]: [
@@ -38,6 +39,7 @@ const navByRole: Record<UserRole, { href: string; label: string; icon: React.Ele
   ],
   [UserRole.SCHOOL_ADMIN]: [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/admin/sessions', label: 'Sessions', icon: CalendarRange },
     { href: '/admin/academic-timeline', label: 'Academic Timeline', icon: Calendar },
     { href: '/admin/classes', label: 'Classes', icon: GraduationCap },
     { href: '/admin/subjects', label: 'Subjects', icon: Bookmark },
@@ -46,7 +48,6 @@ const navByRole: Record<UserRole, { href: string; label: string; icon: React.Ele
     { href: '/admin/progress', label: 'Progress', icon: TrendingUp },
     { href: '/admin/exam-papers', label: 'Exam Papers', icon: BookOpen },
     { href: '/admin/teacher-training', label: 'Teacher Training', icon: Award },
-    { href: '/admin/sessions', label: 'Sessions', icon: CalendarRange },
     { href: '/admin/upgrade', label: 'Upgrade & Plans', icon: CreditCard },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ],
@@ -86,30 +87,32 @@ export function Sidebar() {
     <motion.aside
       initial={false}
       animate={{ width: sidebarOpen ? 240 : 68 }}
-      className="sticky top-0 z-40 flex h-screen flex-col border-r border-gray-200 bg-white"
+      className="sticky top-0 z-40 flex h-screen flex-col border-r border-slate-700/40 bg-gradient-to-b from-[#1e293b] via-[#243447] to-[#1e293b]"
     >
       {/* Logo row */}
-      <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4">
-        {sidebarOpen && (
-          <div className="flex flex-col">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#1a73e8] to-[#1558b0]">
-                <GraduationCap className="h-4 w-4 text-white" />
-              </div>
-              <span className="text-sm font-bold text-[#1a73e8]">SyllabusTracker</span>
-            </Link>
-            {user.school && (
-              <span className="ml-10 max-w-[140px] truncate text-xs text-gray-500">
-                {user.school.name}
+      <div className="flex h-16 items-center justify-between border-b border-white/10 px-3.5">
+        {sidebarOpen ? (
+          <Link href="/" className="flex items-center gap-2.5 min-w-0 group">
+            <MascotLogo size={32} animated />
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-extrabold tracking-tight text-white truncate">
+                SyllabusTracker
               </span>
-            )}
-          </div>
+              <span className="text-[10px] text-emerald-400 font-bold tracking-wide truncate leading-none">
+                {user.school?.name || 'Academic Operations'}
+              </span>
+            </div>
+          </Link>
+        ) : (
+          <Link href="/" className="mx-auto block" title="SyllabusTracker">
+            <MascotLogo size={30} animated />
+          </Link>
         )}
         <Button
           variant="ghost"
           size="icon"
           onClick={toggleSidebar}
-          className="shrink-0 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+          className="shrink-0 text-slate-300 hover:bg-white/10 hover:text-white rounded-lg"
         >
           <ChevronLeft
             className={cn('h-4 w-4 transition-transform', !sidebarOpen && 'rotate-180')}
@@ -118,9 +121,12 @@ export function Sidebar() {
       </div>
 
       {/* Nav items */}
-      <nav className="flex-1 space-y-0.5 p-3">
+      <nav className="flex-1 space-y-1 p-2.5 overflow-y-auto no-scrollbar">
         {navItems.map((item) => {
-          const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const isDashboardRoute = item.href === '/admin' || item.href === '/super-admin' || item.href === '/teacher';
+          const active = isDashboardRoute
+            ? pathname === item.href
+            : pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;
           const isItemLocked = isPlanLocked && item.href !== '/admin/upgrade' && item.href !== '/admin/settings';
           const isUpgradeTab = item.href === '/admin/upgrade';
@@ -139,28 +145,37 @@ export function Sidebar() {
               href={isItemLocked ? '/admin/upgrade' : item.href}
               onClick={handleClick}
               className={cn(
-                'group flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/30',
+                'group flex items-center justify-between rounded-xl px-3 py-2 text-xs transition-all duration-150',
                 active
-                  ? 'bg-[#E8EEFF] text-[#1a73e8]'
+                  ? 'bg-emerald-500 text-white font-bold shadow-md shadow-emerald-950/20'
                   : isItemLocked
-                  ? 'text-gray-400 hover:bg-gray-50 hover:text-gray-500'
-                  : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700',
+                  ? 'text-white/40 hover:bg-white/5 hover:text-white/60'
+                  : 'text-white font-semibold hover:bg-white/12 hover:text-white',
               )}
             >
-              <div className="flex items-center gap-3 min-w-0">
-                <Icon className={cn('h-4 w-4 shrink-0', isItemLocked && 'opacity-60')} />
-                {sidebarOpen && <span className="truncate">{item.label}</span>}
+              <div className="flex items-center gap-2.5 min-w-0">
+                <Icon
+                  className={cn(
+                    'h-4 w-4 shrink-0 transition-colors',
+                    active ? 'text-white' : 'text-slate-200 group-hover:text-white',
+                    isItemLocked && 'opacity-40',
+                  )}
+                />
+                {sidebarOpen && (
+                  <span className="truncate text-white font-semibold tracking-tight">
+                    {item.label}
+                  </span>
+                )}
               </div>
               {sidebarOpen && (
                 <>
                   {isItemLocked && (
-                    <Lock className="h-3.5 w-3.5 text-gray-300 group-hover:text-amber-500 transition-colors" />
+                    <Lock className="h-3.5 w-3.5 text-white/30 group-hover:text-amber-400 transition-colors" />
                   )}
                   {isUpgradeTab && isPlanLocked && (
                     <span className="flex h-2 w-2 relative">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600" />
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                     </span>
                   )}
                 </>
@@ -172,16 +187,16 @@ export function Sidebar() {
 
       {/* User footer */}
       {user && (
-        <div className="border-t border-gray-200 p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#1a73e8] text-xs font-bold text-white">
+        <div className="border-t border-white/10 p-3">
+          <div className="flex items-center justify-between gap-2.5">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-xs font-black text-white shadow-xs">
                 {user.name?.charAt(0).toUpperCase()}
               </div>
               {sidebarOpen && (
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-gray-800">{user.name}</p>
-                  <p className="truncate text-xs text-gray-400">{user.role.replace('_', ' ')}</p>
+                  <p className="truncate text-xs font-bold text-white">{user.name}</p>
+                  <p className="truncate text-[10px] font-semibold text-emerald-400">{user.role.replace('_', ' ')}</p>
                 </div>
               )}
             </div>
@@ -189,7 +204,8 @@ export function Sidebar() {
               variant="ghost"
               size="icon"
               onClick={handleLogout}
-              className="shrink-0 text-gray-400 hover:bg-red-50 hover:text-red-500"
+              className="shrink-0 text-slate-300 hover:bg-rose-500/20 hover:text-rose-400 rounded-lg"
+              title="Sign Out"
             >
               <LogOut className="h-4 w-4" />
             </Button>

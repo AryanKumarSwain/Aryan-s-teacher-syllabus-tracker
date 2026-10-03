@@ -154,6 +154,16 @@ export const useAcademicSessions = () => {
     },
   });
 
+  const updateSession = useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      return api.patch<AcademicSession>(`/academic-sessions/${id}`, { name });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['academic-sessions', schoolId] });
+      queryClient.invalidateQueries({ queryKey: ['academic-terms'] });
+    },
+  });
+
   const archiveSession = useMutation({
     mutationFn: async (sessionId: string) => {
       return api.patch(`/academic-sessions/${sessionId}/archive`, {});
@@ -239,6 +249,7 @@ export const useAcademicSessions = () => {
     sessions,
     isLoading,
     createSession,
+    updateSession,
     switchSession,
     deleteSession,
     archiveSession,
