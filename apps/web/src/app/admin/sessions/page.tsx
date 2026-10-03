@@ -39,6 +39,7 @@ import { EmptyState } from '@/components/shared/empty-state';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { useAcademicSessions, AcademicSession, performSessionHardReset } from '@/features/syllabus/hooks/use-academic-sessions';
 import { ImportDataButton } from '@/components/admin/import-data-button';
@@ -48,6 +49,7 @@ import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { api } from '@/services/api-client';
 
 export default function AdminSessionsPage() {
+  const router = useRouter();
   const { school, activeSessionId, isViewMode, viewSessionId } = useSchool();
   const { setViewSessionId, resetViewSession } = useAdminSessionStore();
   const queryClient = useQueryClient();
@@ -295,7 +297,13 @@ export default function AdminSessionsPage() {
                 onClick={() => {
                   if (isLimitReached) {
                     toast.error(
-                      `Session limit reached (${sessions.length}/${sessionLimit}). Please upgrade your plan to create more academic sessions.`,
+                      `Academic session limit reached (${sessions.length}/${sessionLimit}). Please upgrade your plan to create more sessions.`,
+                      {
+                        action: {
+                          label: 'Upgrade Plan',
+                          onClick: () => router.push('/admin/upgrade'),
+                        },
+                      },
                     );
                     return;
                   }
@@ -303,13 +311,7 @@ export default function AdminSessionsPage() {
                   setSetAsActive(true);
                   setCreateDialogOpen(true);
                 }}
-                disabled={isLimitReached}
-                className={cn(
-                  'h-9 font-bold text-xs shadow-sm transition-all duration-200 px-3.5',
-                  isLimitReached
-                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed hover:bg-slate-200 shadow-none'
-                    : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-600/20',
-                )}
+                className="h-9 font-bold text-xs shadow-sm transition-all duration-200 px-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-600/20 active:scale-95 cursor-pointer"
               >
                 <Plus className="mr-1.5 h-3.5 w-3.5" />
                 Create New Session
