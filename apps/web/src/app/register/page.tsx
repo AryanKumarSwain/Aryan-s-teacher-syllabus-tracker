@@ -18,6 +18,7 @@ import {
 import { registerSchema, type RegisterFormData } from '@/features/auth/schemas/login.schema';
 import { PasswordStrengthMeter } from '@/features/auth/components/password-strength-meter';
 import { api, ApiError } from '@/services/api-client';
+import { getGoogleAuthUrl } from '@/config/env';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
@@ -457,8 +458,7 @@ export default function RegisterPage() {
                   type="button"
                   className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-2 text-xs font-bold text-gray-700 shadow-xs transition-all hover:bg-gray-50"
                   onClick={() => {
-                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-                    window.location.href = `${apiUrl}/api/auth/google`;
+                    window.location.href = getGoogleAuthUrl();
                   }}
                 >
                   <svg className="h-3.5 w-3.5" viewBox="0 0 24 24">

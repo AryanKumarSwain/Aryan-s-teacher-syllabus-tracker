@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { loginSchema, passwordSchema, type LoginFormData } from '../schemas/login.schema';
 import { api, ApiError } from '@/services/api-client';
+import { getGoogleAuthUrl } from '@/config/env';
 import { useAuthStore } from '@/store/auth-store';
 import type { AuthUser, LoginResponse } from '@school-syllabus/types';
 import { toast } from 'sonner';
@@ -324,8 +325,7 @@ export function LoginForm() {
                   variant="outline"
                   className="w-full rounded-xl border border-gray-200 bg-white hover:bg-slate-50 font-semibold py-2.5 text-gray-700 shadow-xs active:scale-[0.98] transition-all"
                   onClick={() => {
-                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-                    window.location.href = `${apiUrl}/api/auth/google`;
+                    window.location.href = getGoogleAuthUrl();
                   }}
                 >
                   <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">

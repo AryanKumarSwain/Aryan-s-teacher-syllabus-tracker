@@ -67,6 +67,14 @@ export function createApp() {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Normalize duplicate /api prefixes if forwarded by proxy or client (e.g. /api/api/...)
+  app.use((req, _res, next) => {
+    if (req.url.startsWith('/api/api')) {
+      req.url = req.url.replace(/^\/api\/api/, '/api');
+    }
+    next();
+  });
+
   // Global API Rate Limiter
   app.use('/api', apiLimiter);
 
