@@ -9,98 +9,105 @@ async function main() {
 
   console.log(`🌱 Seeding account for ${email}...`);
 
-  // 1. Ensure Subscription Plans exist with real pricing
-  await prisma.subscriptionPlan.upsert({
-    where: { slug: 'starter' },
+  // 1. Ensure ONLY the 2 requested plans exist
+  const standardFeatures = [
+    '1 session',
+    'Unlimited Syllabuses & Topics',
+    'Up to 50 Teacher Accounts',
+    'Max 200 Subjects & 100 Classes',
+    'Full Exam Paper Generator & Custom PDF Export',
+    'CBSE Teacher CPD Training Logs',
+    'Priority Phone & Email Support',
+  ];
+
+  const standardPlan = await prisma.subscriptionPlan.upsert({
+    where: { slug: 'standard-session' },
     update: {
-      pricePerSession: 1999.0,
-      priceYearly: 1999.0,
-      priceMonthly: 199.0,
-    },
-    create: {
-      name: 'Starter',
-      slug: 'starter',
-      description: 'Ideal for small schools and budding learning centers',
-      priceMonthly: 199.0,
-      priceYearly: 1999.0,
-      pricePerSession: 1999.0,
+      name: 'Standard Academic Session',
+      description: 'Ideal for small to medium schools managing 1 academic session',
+      priceMonthly: 299.0,
+      priceYearly: 2999.0,
+      pricePerSession: 2999.0,
       sessionDurationDays: 365,
       sessionLimit: 1,
-      teacherLimit: 15,
-      features: ['Includes 1 Academic Session', 'Up to 15 Teacher Logins', 'Max 50 Subjects & 25 Classes', 'Basic Analytics'],
+      teacherLimit: 50,
+      features: standardFeatures,
+      isActive: true,
+      sortOrder: 1,
+    },
+    create: {
+      name: 'Standard Academic Session',
+      slug: 'standard-session',
+      description: 'Ideal for small to medium schools managing 1 academic session',
+      priceMonthly: 299.0,
+      priceYearly: 2999.0,
+      pricePerSession: 2999.0,
+      sessionDurationDays: 365,
+      sessionLimit: 1,
+      teacherLimit: 50,
+      features: standardFeatures,
       isActive: true,
       sortOrder: 1,
     },
   });
 
-  const professionalPlan = await prisma.subscriptionPlan.upsert({
-    where: { slug: 'professional' },
+  const premiumFeatures = [
+    '2 session',
+    'Unlimited Syllabuses & Topics',
+    'Up to 50 Teacher Accounts',
+    'Max 200 Subjects & 100 Classes',
+    'Full Exam Paper Generator & Custom PDF Export',
+    'CBSE Teacher CPD Training Logs',
+    'Priority Phone & Email Support',
+  ];
+
+  const premiumPlan = await prisma.subscriptionPlan.upsert({
+    where: { slug: 'premium-session' },
     update: {
-      pricePerSession: 4999.0,
-      priceYearly: 4999.0,
+      name: 'Premium Academic Session',
+      description: 'Full-featured package for complete academic syllabus management',
       priceMonthly: 499.0,
+      priceYearly: 4999.0,
+      pricePerSession: 4999.0,
+      sessionDurationDays: 730,
+      sessionLimit: 2,
+      teacherLimit: 50,
+      features: premiumFeatures,
+      isActive: true,
+      sortOrder: 2,
     },
     create: {
-      name: 'Professional',
-      slug: 'professional',
-      description: 'For growing institutions needing complete syllabus governance',
+      name: 'Premium Academic Session',
+      slug: 'premium-session',
+      description: 'Full-featured package for complete academic syllabus management',
       priceMonthly: 499.0,
       priceYearly: 4999.0,
       pricePerSession: 4999.0,
-      sessionDurationDays: 365,
-      sessionLimit: 1,
+      sessionDurationDays: 730,
+      sessionLimit: 2,
       teacherLimit: 50,
-      features: [
-        'Includes 1 Academic Session(s)',
-        'Up to 50 Teacher Logins',
-        'Max 200 Subjects & 100 Classes',
-        'Dashboard & Analytics',
-        'Bulk Import',
-        'Priority Support',
-        'Exam Paper Generator',
-      ],
+      features: premiumFeatures,
       isActive: true,
       sortOrder: 2,
     },
   });
 
-  await prisma.subscriptionPlan.upsert({
-    where: { slug: 'enterprise' },
-    update: {
-      pricePerSession: 9999.0,
-      priceYearly: 9999.0,
-      priceMonthly: 999.0,
-    },
-    create: {
-      name: 'Enterprise',
-      slug: 'enterprise',
-      description: 'For large educational institutions and multi-branch schools',
-      priceMonthly: 999.0,
-      priceYearly: 9999.0,
-      pricePerSession: 9999.0,
-      sessionDurationDays: 365,
-      sessionLimit: 3,
-      teacherLimit: 200,
-      features: [
-        'Includes 3 Academic Sessions',
-        'Up to 200 Teacher Logins',
-        'Unlimited Classes & Subjects',
-        'Exam Paper Generator & Blueprints',
-        'Dedicated Account Manager',
-        'Custom CBSE Compliance Audits',
-      ],
-      isActive: true,
-      sortOrder: 3,
-    },
+  // Reassign any existing subscriptions / payments pointing to old plans to standardPlan
+  await prisma.subscription.updateMany({
+    where: { planId: { notIn: [standardPlan.id, premiumPlan.id] } },
+    data: { planId: standardPlan.id },
+  });
+  await prisma.paymentTransaction.updateMany({
+    where: { planId: { notIn: [standardPlan.id, premiumPlan.id] } },
+    data: { planId: standardPlan.id },
   });
 
-  // Also fix any plans that have 0.00 pricePerSession
-  await prisma.subscriptionPlan.updateMany({
-    where: { slug: 'professional', pricePerSession: 0 },
-    data: { pricePerSession: 4999.0, priceYearly: 4999.0 },
+  // Remove any other plans (such as starter, professional, enterprise)
+  await prisma.subscriptionPlan.deleteMany({
+    where: { slug: { notIn: ['standard-session', 'premium-session'] } },
   });
 
-  const plan = professionalPlan;
+  const plan = standardPlan;
 
   // 2. Upsert School
   const school = await prisma.school.upsert({
