@@ -40,21 +40,89 @@ async function main() {
   console.log('✅ Super Admin created.');
 
   // =================================================================
-  // 3. SUBSCRIPTION PLAN
+  // 3. SUBSCRIPTION PLANS
   // =================================================================
+  const starterPlan = await prisma.subscriptionPlan.upsert({
+    where: { slug: 'starter' },
+    update: {
+      pricePerSession: 1999.0,
+      priceYearly: 1999.0,
+      priceMonthly: 199.0,
+    },
+    create: {
+      name: 'Starter',
+      slug: 'starter',
+      description: 'Ideal for small schools and budding learning centers',
+      priceMonthly: 199.0,
+      priceYearly: 1999.0,
+      pricePerSession: 1999.0,
+      sessionDurationDays: 365,
+      sessionLimit: 1,
+      teacherLimit: 15,
+      features: ['Includes 1 Academic Session', 'Up to 15 Teacher Logins', 'Max 50 Subjects & 25 Classes', 'Basic Analytics'],
+      isActive: true,
+      sortOrder: 1,
+    },
+  });
+
   const professionalPlan = await prisma.subscriptionPlan.upsert({
     where: { slug: 'professional' },
-    update: {},
+    update: {
+      pricePerSession: 4999.0,
+      priceYearly: 4999.0,
+      priceMonthly: 499.0,
+    },
     create: {
       name: 'Professional',
       slug: 'professional',
-      description: 'For growing institutions',
-      priceMonthly: 99.99,
-      priceYearly: 999.99,
+      description: 'For growing institutions needing complete syllabus governance',
+      priceMonthly: 499.0,
+      priceYearly: 4999.0,
+      pricePerSession: 4999.0,
+      sessionDurationDays: 365,
+      sessionLimit: 1,
       teacherLimit: 50,
-      features: ['Dashboard', 'Analytics', 'Bulk Import', 'Priority Support'],
+      features: [
+        'Includes 1 Academic Session(s)',
+        'Up to 50 Teacher Logins',
+        'Max 200 Subjects & 100 Classes',
+        'Dashboard & Analytics',
+        'Bulk Import',
+        'Priority Support',
+        'Exam Paper Generator',
+      ],
       isActive: true,
       sortOrder: 2,
+    },
+  });
+
+  const enterprisePlan = await prisma.subscriptionPlan.upsert({
+    where: { slug: 'enterprise' },
+    update: {
+      pricePerSession: 9999.0,
+      priceYearly: 9999.0,
+      priceMonthly: 999.0,
+    },
+    create: {
+      name: 'Enterprise',
+      slug: 'enterprise',
+      description: 'For large educational institutions and multi-branch schools',
+      priceMonthly: 999.0,
+      priceYearly: 9999.0,
+      pricePerSession: 9999.0,
+      sessionDurationDays: 365,
+      sessionLimit: 3,
+      teacherLimit: 200,
+      features: [
+        'Includes 3 Academic Sessions',
+        'Up to 200 Teacher Logins',
+        'Unlimited Classes & Subjects',
+        'Exam Paper Generator & Blueprints',
+        'Dedicated Account Manager',
+        'Custom CBSE Compliance Audits',
+      ],
+      isActive: true,
+      sortOrder: 3,
     },
   });
 
@@ -116,6 +184,74 @@ async function main() {
     },
   });
   console.log('✅ School Admin created.');
+
+  // =================================================================
+  // 5b. JD INTERNATIONAL SCHOOL & ADMIN
+  // =================================================================
+  const jdSchool = await prisma.school.upsert({
+    where: { slug: 'jd-international-jaipur' },
+    update: {
+      name: 'JD International School, Jaipur',
+      status: 'ACTIVE',
+    },
+    create: {
+      name: 'JD International School, Jaipur',
+      slug: 'jd-international-jaipur',
+      email: 'jdinternationaljaipur@gmail.com',
+      phone: '+91-9876543210',
+      address: 'Jaipur, Rajasthan',
+      status: 'ACTIVE',
+    },
+  });
+
+  const jdSession = await prisma.academicSession.upsert({
+    where: {
+      schoolId_name: {
+        schoolId: jdSchool.id,
+        name: '2026-27',
+      },
+    },
+    update: {},
+    create: {
+      schoolId: jdSchool.id,
+      name: '2026-27',
+      status: 'ACTIVE',
+    },
+  });
+
+  await prisma.school.update({
+    where: { id: jdSchool.id },
+    data: { currentAcademicSessionId: jdSession.id },
+  });
+
+  await prisma.subscription.upsert({
+    where: { id: '00000000-0000-0000-0000-000000000002' },
+    update: {
+      planId: professionalPlan.id,
+      status: 'ACTIVE',
+    },
+    create: {
+      id: '00000000-0000-0000-0000-000000000002',
+      schoolId: jdSchool.id,
+      planId: professionalPlan.id,
+      status: 'ACTIVE',
+      startDate: new Date(),
+      endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  const jdAdminHash = await bcrypt.hash('jdinternationaljaipur@gmail.com', 12);
+  await prisma.user.create({
+    data: {
+      email: 'jdinternationaljaipur@gmail.com',
+      passwordHash: jdAdminHash,
+      name: 'JD International Jaipur',
+      role: 'SCHOOL_ADMIN',
+      phone: '+91-9876543210',
+      schoolId: jdSchool.id,
+    },
+  });
+  console.log('✅ JD International School & Admin created.');
 
   // =================================================================
   // 6. 10 TEACHERS — no subject assigned (assign manually later)
@@ -303,6 +439,7 @@ async function main() {
   console.log('─────────────────────────────────────────────────────────────────');
   console.log('🛡️  SUPER_ADMIN  : superadmin@schooltracker.com   | SuperAdmin@123');
   console.log('🏫  SCHOOL_ADMIN : aryannn.ks@gmail.com           | aryannn.ks@gmail.com');
+  console.log('🏫  SCHOOL_ADMIN : jdinternationaljaipur@gmail.com | jdinternationaljaipur@gmail.com');
   console.log('👨‍🏫  TEACHER 1    : aryankumarswain99@gmail.com    | aryankumarswain99@gmail.com');
   console.log('👨‍🏫  TEACHERS 2–10: teacher{N}@demoacademy.edu     | Teacher{N}@123');
   console.log('');
