@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   title: 'School Syllabus Tracker',
   description: 'Enterprise multi-tenant school syllabus tracking SaaS',
   manifest: '/manifest.json',
+  icons: { icon: '/favicon.ico', shortcut: '/favicon.ico', apple: '/icons/icon-192x192.png' },
   appleWebApp: { capable: true, statusBarStyle: 'default', title: 'Syllabus Tracker' },
 };
 
