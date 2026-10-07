@@ -325,4 +325,14 @@
   scrollbar-width: none;  /* Firefox */
 }
 
+/* Ensure Razorpay checkout iframe and container receive immediate pointer events */
+.razorpay-container {
+  pointer-events: auto !important;
+  z-index: 2147483647 !important;
+}
+
+.razorpay-checkout-frame {
+  pointer-events: auto !important;
+}
+
 

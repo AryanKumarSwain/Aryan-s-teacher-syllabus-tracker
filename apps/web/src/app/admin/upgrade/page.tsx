@@ -281,6 +281,9 @@ export default function AdminUpgradePage() {
         couponCode: appliedCoupon?.code || undefined,
       });
 
+      // Close checkout dialog so Radix focus-trap & pointer-events lock don't block Razorpay
+      setIsCheckoutOpen(false);
+
       // Step 2: Open Razorpay Checkout Modal
       const options = {
         key: orderData.keyId,
@@ -289,6 +292,15 @@ export default function AdminUpgradePage() {
         name: 'School Syllabus Tracker',
         description: `Upgrade to ${selectedPlan.name} (Academic Session)`,
         order_id: orderData.orderId,
+        modal: {
+          ondismiss: () => {
+            // Re-open checkout dialog if user dismissed without completing payment
+            setIsCheckoutOpen(true);
+            setIsProcessingPayment(false);
+          },
+          escape: true,
+          backdropclose: false,
+        },
         handler: async (response: any) => {
           try {
             // Step 3: Verify payment on backend & activate queued subscription
@@ -304,11 +316,16 @@ export default function AdminUpgradePage() {
 
             toast.success(verifyRes.message || 'Payment Successful! Subscription activated.');
             setIsCheckoutOpen(false);
+            setSelectedPlan(null);
+            setAppliedCoupon(null);
             qc.invalidateQueries({ queryKey: ['admin', 'current-subscription'] });
             qc.invalidateQueries({ queryKey: ['admin', 'subscription-history'] });
             qc.invalidateQueries({ queryKey: ['plans'] });
           } catch (verifyErr: any) {
             toast.error(verifyErr.message || 'Payment verification failed');
+            setIsCheckoutOpen(true);
+          } finally {
+            setIsProcessingPayment(false);
           }
         },
         prefill: {
@@ -321,14 +338,22 @@ export default function AdminUpgradePage() {
         },
       };
 
-      const rzp = new (window as any).Razorpay(options);
-      rzp.on('payment.failed', (failRes: any) => {
-        toast.error(failRes?.error?.description || 'Payment Failed');
-      });
-      rzp.open();
+      // Ensure pointer-events are immediately restored on body
+      if (typeof document !== 'undefined') {
+        document.body.style.pointerEvents = 'auto';
+      }
+
+      setTimeout(() => {
+        const rzp = new (window as any).Razorpay(options);
+        rzp.on('payment.failed', (failRes: any) => {
+          toast.error(failRes?.error?.description || 'Payment Failed');
+          setIsCheckoutOpen(true);
+          setIsProcessingPayment(false);
+        });
+        rzp.open();
+      }, 50);
     } catch (err: any) {
       toast.error(err.message || 'Failed to initiate payment');
-    } finally {
       setIsProcessingPayment(false);
     }
   };
