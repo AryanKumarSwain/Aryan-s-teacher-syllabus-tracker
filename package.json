@@ -15,6 +15,7 @@
     "db:push": "pnpm --filter @school-syllabus/database db:push",
     "db:migrate": "pnpm --filter @school-syllabus/database db:migrate",
     "db:seed": "pnpm --filter @school-syllabus/database db:seed",
+    "db:seed:jd": "pnpm --filter @school-syllabus/database db:seed:jd",
     "db:studio": "pnpm --filter @school-syllabus/database db:studio"
   },
   "devDependencies": {
