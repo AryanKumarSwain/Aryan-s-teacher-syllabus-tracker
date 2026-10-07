@@ -139,6 +139,7 @@ export const examPaperController = {
       });
       sendSuccess(res, template);
     } catch (error) {
+      console.error('[uploadLogo error]:', error);
       next(error);
     }
   },
@@ -153,6 +154,7 @@ export const examPaperController = {
       });
       sendSuccess(res, { message: 'School logo removed successfully', template });
     } catch (error) {
+      console.error('[removeLogo error]:', error);
       next(error);
     }
   },
@@ -166,6 +168,7 @@ export const examPaperController = {
       const imageUrl = await uploadImage(req.file.buffer, 'question-images');
       sendSuccess(res, { imageUrl });
     } catch (error) {
+      console.error('[uploadQuestionImage error]:', error);
       next(error);
     }
   },
