@@ -396,7 +396,7 @@ interface TimelineStatCardProps {
   title: string;
   value: React.ReactNode;
   icon: React.ElementType;
-  iconBg: string;
+  iconBg?: string;
   iconColor?: string;
   cardBg?: string;
   borderColor?: string;
@@ -416,11 +416,10 @@ function TimelineStatCard({
   iconBg,
   iconColor = 'text-white',
   cardBg = 'bg-white',
-  borderColor = 'border-slate-200',
+  borderColor = 'border-slate-200/80',
   accentBar,
-  glowColor,
   sub,
-  subColor = 'text-slate-600',
+  subColor = 'text-slate-500',
   badge,
   badgeColor,
   progress,
@@ -428,7 +427,7 @@ function TimelineStatCard({
   return (
     <div
       className={cn(
-        'group relative flex flex-col justify-between overflow-hidden rounded-2xl border p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-lg',
+        'group relative flex flex-col justify-between overflow-hidden rounded-xl border p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs',
         borderColor,
         cardBg,
       )}
@@ -436,67 +435,41 @@ function TimelineStatCard({
       {accentBar && (
         <div className={cn('absolute inset-x-0 top-0 h-1 bg-gradient-to-r', accentBar)} />
       )}
-      {glowColor && (
-        <div
-          className={cn(
-            'pointer-events-none absolute -right-6 -top-6 h-28 w-28 rounded-full blur-2xl transition-opacity duration-300 group-hover:scale-125',
-            glowColor,
-          )}
-        />
-      )}
 
-      {/* Top Row: Title on Left, Icon on Right */}
-      <div className="relative z-10 flex items-center justify-between gap-2">
-        <p className="text-[11px] font-black uppercase tracking-wider text-[#434655] truncate">
+      {/* Top Row: Title on Left, Badge on Right */}
+      <div className="flex items-center justify-between gap-1.5">
+        <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
           {title}
-        </p>
-        <div
-          className={cn(
-            'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm transition-transform duration-300 group-hover:scale-105',
-            iconBg,
-          )}
-        >
-          <Icon className={cn('h-5 w-5', iconColor)} />
-        </div>
-      </div>
-
-      {/* Middle Row: Value + Badge */}
-      <div className="relative z-10 mt-2 mb-3 flex items-baseline gap-2">
-        <span className="text-3xl font-black leading-none tracking-tight text-[#0b1c30]">
-          {value}
         </span>
-        {badge && (
+        {badge ? (
           <span
             className={cn(
-              'rounded-md px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider shrink-0',
+              'rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider shrink-0',
               badgeColor || 'bg-slate-100 text-slate-700',
             )}
           >
             {badge}
           </span>
+        ) : (
+          <Icon className={cn('h-3.5 w-3.5 text-slate-400', iconColor)} />
         )}
       </div>
 
-      {/* Bottom Row: Subtext & Progress Track */}
-      <div className="relative z-10 pt-2.5 border-t border-slate-200/50">
-        <div className="space-y-1.5">
-          <div className={cn('flex items-center justify-between text-[11px] font-bold', subColor)}>
-            <span className="truncate">{sub}</span>
-            {progress !== undefined && (
-              <span className="font-black text-emerald-700 shrink-0 ml-1">{progress}%</span>
-            )}
-          </div>
-          <div className="h-1.5 w-full rounded-full bg-slate-100/80 overflow-hidden">
-            {progress !== undefined ? (
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 transition-all duration-700"
-                style={{ width: `${Math.min(progress, 100)}%` }}
-              />
-            ) : (
-              <div className="h-full rounded-full bg-transparent" />
-            )}
-          </div>
-        </div>
+      {/* Middle Row: Value + Sub */}
+      <div className="mt-1 flex items-baseline gap-1.5">
+        <span className="text-xl font-black text-[#0b1c30]">{value}</span>
+        {sub && <span className="text-xs font-medium text-slate-400 truncate">{sub}</span>}
+      </div>
+
+      {/* Bottom Row: Compact Progress Track */}
+      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
+        <div
+          className={cn(
+            'h-full rounded-full transition-all duration-500',
+            accentBar ? `bg-gradient-to-r ${accentBar}` : 'bg-emerald-500',
+          )}
+          style={{ width: `${Math.min(100, Math.max(0, progress ?? 100))}%` }}
+        />
       </div>
     </div>
   );
@@ -1292,56 +1265,68 @@ export default function AcademicTimelinePage() {
 
   return (
     <DashboardShell title="Academic Timeline Configuration">
-      <div className="space-y-6">
-        {/* Executive Welcome & Status Banner */}
-        <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-6 shadow-xs">
-          <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-emerald-400/10 blur-3xl" />
-          <div className="pointer-events-none absolute -left-16 -bottom-16 h-48 w-48 rounded-full bg-blue-400/10 blur-3xl" />
-          
-          <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100/90 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-300/40">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Academic Calendar Operations
-                </span>
-                <span className="text-[11px] font-semibold text-slate-500">
-                  {selectedTerm?.name || 'Session Schedule'}
-                </span>
+      <div className="space-y-4">
+        {/* Executive Banner */}
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-4 sm:p-5 shadow-xs">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-emerald-400/10 blur-3xl" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 ring-2 ring-emerald-500/15">
+                <Calendar className="h-5 w-5 text-white" />
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#0b1c30]">
-                Academic Timeline & Schedule
-              </h1>
-              <p className="text-xs sm:text-sm font-medium text-slate-600 max-w-2xl">
-                Configure term milestones, instructional days, national holidays, and vacation breaks to power accurate pacing analytics.
-              </p>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#0b1c30]">
+                    Academic Timeline & Schedule
+                  </h1>
+                  {activeSession && (
+                    <Badge className="border-none bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5 gap-1.5 shadow-2xs">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                      </span>
+                      Live: {activeSession.name}
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-slate-500 font-medium">
+                  Configure term milestones, instructional days, national holidays, and vacation breaks.
+                </p>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              {selectedTerm && (
+                <span className="h-9 inline-flex items-center gap-2 whitespace-nowrap text-xs font-bold px-3 rounded-lg border border-slate-200 bg-white text-slate-700 shrink-0 shadow-2xs">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+                  <span>{selectedTerm.status === 'ACTIVE' ? 'Active Timeline' : selectedTerm.name}</span>
+                </span>
+              )}
               {isViewMode ? (
-                <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-700 py-2 px-3.5 font-bold rounded-xl text-xs">
+                <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-700 py-2 px-3 font-bold rounded-lg text-xs">
                   Read-Only View Mode
                 </Badge>
               ) : !sessionsLoading && sessions.length === 0 ? (
                 <Button
                   onClick={() => router.push('/admin/sessions')}
-                  className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold shadow-md shadow-blue-600/25 px-4 py-2.5"
+                  className="h-9 font-bold text-xs shadow-sm transition-all duration-200 px-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-600/20 active:scale-95 cursor-pointer rounded-xl"
                 >
-                  <Plus className="mr-1.5 h-4 w-4" /> Create Academic Session First
+                  <Plus className="mr-1.5 h-3.5 w-3.5" /> Create Session First
                 </Button>
               ) : !timelineExists ? (
                 <Button
                   onClick={handleCreateClick}
-                  className="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold shadow-md shadow-emerald-600/25 px-4 py-2.5"
+                  className="h-9 font-bold text-xs shadow-sm transition-all duration-200 px-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-600/20 active:scale-95 cursor-pointer rounded-xl"
                 >
-                  <Plus className="mr-1.5 h-4 w-4" /> Create Academic Timeline
+                  <Plus className="mr-1.5 h-3.5 w-3.5" /> Create Academic Timeline
                 </Button>
               ) : selectedTerm ? (
                 <Button
                   onClick={() => handleEditClick(selectedTerm)}
-                  className="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold shadow-md shadow-emerald-600/25 px-4 py-2.5"
+                  className="h-9 font-bold text-xs shadow-sm transition-all duration-200 px-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-600/20 active:scale-95 cursor-pointer rounded-xl"
                 >
-                  <Pencil className="mr-1.5 h-4 w-4" /> Configure Timeline & Breaks
+                  <Pencil className="mr-1.5 h-3.5 w-3.5" /> Configure Timeline & Breaks
                 </Button>
               ) : null}
             </div>
@@ -1450,131 +1435,110 @@ export default function AcademicTimelinePage() {
           </div>
         ) : (
           <>
-            {/* 4 Aligned KPI Stat Cards (Matching exact Session Metrics: Total Days, Available, Vacations, Off Days) */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Concise Timeline KPI Metric Strip (Matching /admin/sessions) */}
+            <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
               <TimelineStatCard
-                title="Total Days"
+                title="Total Span"
                 value={<CountUp end={selectedTerm?.totalWorkingDays ?? timelineDays.length} />}
                 icon={Calendar}
-                iconBg="bg-gradient-to-br from-blue-600 to-indigo-600 shadow-blue-500/30"
-                iconColor="text-white"
-                cardBg="bg-gradient-to-br from-blue-50/70 via-indigo-50/20 to-white"
+                cardBg="bg-gradient-to-br from-blue-50/40 via-white to-slate-50/30"
                 borderColor="border-blue-200/80"
                 accentBar="from-blue-600 to-indigo-600"
-                glowColor="bg-blue-500/15"
-                badge="Total"
-                badgeColor="bg-blue-100 text-blue-800"
-                sub={`${selectedTerm?.name || 'Session'} total span`}
-                subColor="text-blue-700"
+                badge="Days"
+                badgeColor="bg-blue-100 text-blue-700"
+                sub="total calendar days"
+                progress={100}
               />
               <TimelineStatCard
-                title="Available"
+                title="Teaching Days"
                 value={<CountUp end={totalTeachingDaysCount} />}
                 icon={CheckCircle2}
-                iconBg="bg-gradient-to-br from-emerald-600 to-teal-600 shadow-emerald-500/30"
-                iconColor="text-white"
-                cardBg="bg-gradient-to-br from-emerald-50/70 via-green-50/20 to-white"
+                cardBg="bg-gradient-to-br from-emerald-50/40 via-white to-slate-50/30"
                 borderColor="border-emerald-200/80"
-                accentBar="from-emerald-500 to-teal-500"
-                glowColor="bg-emerald-500/15"
+                accentBar="from-emerald-600 to-teal-600"
                 badge={`${Math.round(progressPercentage)}% Passed`}
-                badgeColor="bg-emerald-100 text-emerald-800"
-                sub={`${completedDays} of ${totalTeachingDaysCount} teaching days`}
-                subColor="text-emerald-700"
+                badgeColor="bg-emerald-100 text-emerald-700"
+                sub={`${completedDays} of ${totalTeachingDaysCount} completed`}
                 progress={Math.round(progressPercentage)}
               />
               <TimelineStatCard
-                title="Vacations"
+                title="Vacation Breaks"
                 value={<CountUp end={selectedTerm?.vacationDays?.length ?? 0} />}
                 icon={Palmtree}
-                iconBg="bg-gradient-to-br from-amber-500 to-orange-500 shadow-amber-500/30"
-                iconColor="text-white"
-                cardBg="bg-gradient-to-br from-amber-50/70 via-orange-50/20 to-white"
+                cardBg="bg-gradient-to-br from-amber-50/40 via-white to-slate-50/30"
                 borderColor="border-amber-200/80"
                 accentBar="from-amber-500 to-orange-500"
-                glowColor="bg-amber-500/15"
-                badge="Breaks"
-                badgeColor="bg-amber-100 text-amber-800"
-                sub={`${timelineDays.filter((d) => d.isVacation).length} vacation days scheduled`}
-                subColor="text-amber-700"
+                badge={`${timelineDays.filter((d) => d.isVacation).length} Days`}
+                badgeColor="bg-amber-100 text-amber-700"
+                sub="scheduled vacations"
+                progress={Math.min(100, (((timelineDays.filter((d) => d.isVacation).length)) / Math.max(1, selectedTerm?.totalWorkingDays || 365)) * 100 * 5)}
               />
               <TimelineStatCard
-                title="Off Days"
+                title="Weekly Offs"
                 value={
                   offDayLabels.length === 0
                     ? 'None'
                     : offDayLabels.length === 1
                     ? offDayLabels[0]
-                    : offDayLabels.length === 2
-                    ? `${offDayLabels[0]?.slice(0, 3)} & ${offDayLabels[1]?.slice(0, 3)}`
                     : `${offDayLabels.length} Days/wk`
                 }
                 icon={Clock}
-                iconBg="bg-gradient-to-br from-rose-500 to-red-600 shadow-rose-500/30"
-                iconColor="text-white"
-                cardBg="bg-gradient-to-br from-rose-50/70 via-red-50/20 to-white"
-                borderColor="border-rose-200/80"
-                accentBar="from-rose-500 to-red-600"
-                glowColor="bg-rose-500/15"
+                cardBg="bg-gradient-to-br from-purple-50/40 via-white to-slate-50/30"
+                borderColor="border-purple-200/80"
+                accentBar="from-purple-600 to-pink-600"
                 badge={
                   offDayLabels.length === 0
-                    ? 'None'
-                    : offDayLabels.length === 1
-                    ? '1 Day/wk'
-                    : `${offDayLabels.length} Days/wk`
+                    ? '0/wk'
+                    : `${offDayLabels.length}/wk`
                 }
-                badgeColor="bg-rose-100 text-rose-800"
-                sub={
-                  offDayLabels.length === 0
-                    ? 'No weekly off days'
-                    : `${offDayLabels.map((name) => name.slice(0, 3)).join(', ')} (${timelineDays.filter((d) => d.isWeeklyHoliday && !d.isNationalHoliday).length} days)`
-                }
-                subColor="text-rose-700"
+                badgeColor="bg-purple-100 text-purple-700"
+                sub={`${timelineDays.filter((d) => d.isWeeklyHoliday && !d.isNationalHoliday).length} days off total`}
+                progress={Math.min(100, (offDayLabels.length / 2) * 100)}
               />
             </div>
 
             {selectedTerm && (
-              <div className="overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-xs transition-all duration-300">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-6 py-4 sm:py-5 gap-3">
+              <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-all duration-300">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-4 sm:px-5 py-3 gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/25 ring-4 ring-emerald-500/10">
-                      <CalendarRange className="h-5 w-5 text-white" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-sm ring-2 ring-emerald-500/15">
+                      <CalendarRange className="h-4.5 w-4.5 text-white" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2.5 flex-wrap">
-                        <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-base font-black text-[#0b1c30]">
                           {selectedTerm.name} — Academic Calendar
                         </h3>
-                        <Badge className="border-none bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5">
+                        <Badge className="border-none bg-emerald-100 text-emerald-800 text-[9px] font-black uppercase px-1.5 py-0.5">
                           {selectedTerm.status}
                         </Badge>
                       </div>
-                      <p className="text-xs font-semibold text-slate-500 mt-0.5">
+                      <p className="text-[11px] font-semibold text-slate-500 mt-0.5">
                         {fmt(selectedTerm.startDate)} → {fmt(selectedTerm.endDate)}
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className="p-6 space-y-6">
+                <div className="p-4 sm:p-5 space-y-4">
                   {/* Progress bar */}
-                  <div className="rounded-2xl border border-slate-200/90 bg-gradient-to-r from-emerald-50/60 via-teal-50/40 to-slate-50/60 p-4 sm:p-5 shadow-xs">
-                    <div className="mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                      <div className="flex items-center gap-2.5">
-                        <span className="font-extrabold text-[#0b1c30] text-sm tracking-tight">
+                  <div className="rounded-xl border border-slate-200/70 bg-gradient-to-r from-emerald-50/50 via-teal-50/30 to-slate-50/40 p-3.5 shadow-2xs">
+                    <div className="mb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-[#0b1c30] text-xs tracking-tight">
                           Teaching Days Completion
                         </span>
-                        <Badge variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5">
+                        <Badge variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-800 text-[9px] font-black uppercase px-1.5 py-0.5">
                           {Math.round(progressPercentage)}% Passed
                         </Badge>
                       </div>
                       <span className="text-xs font-semibold text-slate-600">
-                        <span className="font-black text-emerald-700 text-sm">{completedDays}</span> / {totalTeachingDaysCount} teaching days
+                        <span className="font-black text-emerald-700">{completedDays}</span> / {totalTeachingDaysCount} teaching days
                         {progressPercentage > 0 ? ` (${Math.round(progressPercentage)}%)` : ''}
                       </span>
                     </div>
-                    <div className="h-3 w-full overflow-hidden rounded-full bg-slate-200/90 p-0.5 shadow-inner">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200/80">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-400 transition-all duration-700 shadow-xs"
+                        className="h-full rounded-full bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-400 transition-all duration-700"
                         style={{ width: `${Math.min(progressPercentage, 100)}%` }}
                       />
                     </div>
