@@ -437,6 +437,20 @@ export const authController = {
   // Google OAuth - callback handler
   async googleCallback(req: Request, res: Response, next: NextFunction) {
     try {
+      // Check if this callback is for Google Drive integration
+      const stateStr = req.query.state as string;
+      if (stateStr) {
+        try {
+          const decoded = JSON.parse(Buffer.from(stateStr, 'base64url').toString('utf-8'));
+          if (decoded.type === 'GOOGLE_DRIVE' || (decoded.schoolId && decoded.returnUrl)) {
+            const { googleDriveController } = await import('./google-drive.controller.js');
+            return googleDriveController.callback(req, res, next);
+          }
+        } catch {
+          // not a base64 json state, continue with passport login
+        }
+      }
+
       passport.authenticate(
         'google',
         { failureRedirect: '/login?error=google_auth_failed' },

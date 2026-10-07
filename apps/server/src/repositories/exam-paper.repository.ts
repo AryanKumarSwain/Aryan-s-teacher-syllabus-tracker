@@ -27,6 +27,8 @@ export const examPaperRepository = {
         styleColor: true,
         templateType: true,
         pdfUrl: true,
+        googleDriveFileId: true,
+        googleDriveWebViewLink: true,
         school: { 
           select: { 
             id: true, 
@@ -66,6 +68,8 @@ export const examPaperRepository = {
         styleColor: true,
         templateType: true,
         pdfUrl: true,
+        googleDriveFileId: true,
+        googleDriveWebViewLink: true,
         school: { 
           select: { 
             id: true, 

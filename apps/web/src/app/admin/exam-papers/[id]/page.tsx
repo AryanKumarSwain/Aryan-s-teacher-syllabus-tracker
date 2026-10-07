@@ -8,6 +8,21 @@ import { ExamPaperPreviewModal } from '@/features/exam-papers/components/ExamPap
 import { api } from '@/services/api-client';
 import { useParams } from 'next/navigation';
 import { generateExamPaperPdf, generateBulkExamPapersZip } from '@/features/exam-papers/utils/pdf-generator';
+import { Loader2, CloudUpload, ExternalLink } from 'lucide-react';
+import { toast } from 'sonner';
+
+function GoogleDriveIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 87.3 78" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.9 2.5 3.2 3.3l12.3-21.3H6.6c0 1.5.4 3 1.2 4.35l-1.2 7z" fill="#0066DA" />
+      <path d="M43.65 25L31.35 3.7c-1.3.8-2.4 1.9-3.2 3.3L1.2 53.5c-.8 1.4-1.2 2.9-1.2 4.4h25.95L43.65 25z" fill="#00AC47" />
+      <path d="M73.55 76.8c1.3-.8 2.4-1.9 3.2-3.3l1.6-2.8 8.1-14c.8-1.4 1.2-2.9 1.2-4.4H61.7l5.25 10.5 6.6 14z" fill="#EA4335" />
+      <path d="M43.65 25L56 3.7C54.7 2.9 53.2 2.5 51.7 2.5H35.6c-1.5 0-3 .4-4.3 1.2L43.65 25z" fill="#00832D" />
+      <path d="M59.8 55.5H27.5L15.2 76.8c1.3.8 2.8 1.2 4.3 1.2h48.3c1.5 0 3-.4 4.3-1.2L59.8 55.5z" fill="#2684FC" />
+      <path d="M73.4 26.5l-12.7-22c-1.3-.8-2.8-1.2-4.3-1.2L43.65 25l18.05 31.2h25.6c0-1.5-.4-3-1.2-4.4l-12.7-25.3z" fill="#FFBA00" />
+    </svg>
+  );
+}
 
 function formatDuration(minutes: number): string {
   const hours = Math.floor(minutes / 60);
@@ -27,6 +42,7 @@ export default function AdminExamPaperReviewPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [studentCount, setStudentCount] = useState(30);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [uploadingDrive, setUploadingDrive] = useState(false);
   const [showTeacherName, setShowTeacherName] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('admin_show_teacher_name_paper');
@@ -122,6 +138,70 @@ export default function AdminExamPaperReviewPage() {
     } catch (error) {
       console.error('Failed to download bulk ZIP:', error);
       alert('Failed to download bulk ZIP. Please try again.');
+    }
+  };
+
+  const handleUploadToDrive = async () => {
+    try {
+      setUploadingDrive(true);
+      const statusRes = await api.get<{ connected: boolean }>('/google-drive/status');
+      if (!statusRes?.connected) {
+        toast.error('Google Drive is not connected yet. Please connect Google Drive on the Exam Papers list page first.');
+        setUploadingDrive(false);
+        return;
+      }
+
+      const pdfData = {
+        schoolName: paper.school?.name || '',
+        examName: paper.examName || '',
+        className: paper.class?.name || '',
+        subjectName: paper.subject?.name || '',
+        examDate: paper.examDate || '',
+        totalMarks: paper.totalMarks || 0,
+        duration: paper.duration || 0,
+        instructions: paper.instructions || '',
+        templateType: paper.templateType as 'SINGLE' | 'SPLIT',
+        styleFontFamily: paper.styleFontFamily || 'Times New Roman',
+        styleFontSize: paper.styleFontSize || '11pt',
+        styleColor: paper.styleColor || '#000000',
+        logoUrl: paper.school?.examPaperTemplates?.[0]?.logoUrl || '',
+        teacherName: paper.teacher?.user?.name || '',
+        showTeacherName: showTeacherName,
+        sections: paper.sections || [],
+      };
+
+      const blob = await generateExamPaperPdf(pdfData);
+      const safeExamName = `${paper.examName.replace(/\s+/g, '_')}_Paper.pdf`;
+
+      const formData = new FormData();
+      formData.append('pdf', blob, safeExamName);
+      formData.append('fileName', safeExamName);
+
+      const result = await api.post<any>(`/google-drive/upload-paper/${paper.id}`, formData);
+
+      setPaper({
+        ...paper,
+        googleDriveFileId: result.fileId,
+        googleDriveWebViewLink: result.webViewLink,
+      });
+
+      toast.success(
+        `Uploaded to Google Drive! Path: ${result.folderPath || `Exam Papers / ${paper.class?.name} / ${paper.subject?.name}`}`,
+        {
+          action: result.webViewLink
+            ? {
+                label: 'Open in Drive',
+                onClick: () => window.open(result.webViewLink, '_blank'),
+              }
+            : undefined,
+          duration: 7000,
+        }
+      );
+    } catch (error: any) {
+      console.error('Failed to upload paper to Google Drive:', error);
+      toast.error(error?.message || 'Failed to upload paper to Google Drive.');
+    } finally {
+      setUploadingDrive(false);
     }
   };
 
@@ -243,6 +323,47 @@ export default function AdminExamPaperReviewPage() {
               <Button onClick={handleBulkDownload} className="bg-purple-600 hover:bg-purple-700 w-full md:w-auto">
                 Download ZIP
               </Button>
+            </div>
+          </div>
+
+          {/* Google Drive Upload Card */}
+          <div className="border border-emerald-200 rounded-xl p-5 bg-emerald-50/50 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <GoogleDriveIcon className="h-5 w-5" />
+                <h4 className="font-semibold text-sm text-emerald-950">Upload to Google Drive</h4>
+                {paper.googleDriveWebViewLink && (
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">Synced</span>
+                )}
+              </div>
+              <p className="text-xs text-emerald-800/80">
+                Automatically saves into: <span className="font-semibold">Exam Papers &gt; {paper.class?.name} &gt; {paper.subject?.name}</span>
+              </p>
+            </div>
+            <div className="flex items-center gap-2 w-full md:w-auto">
+              <Button
+                onClick={handleUploadToDrive}
+                disabled={uploadingDrive}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white w-full md:w-auto gap-1.5"
+              >
+                {uploadingDrive ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <CloudUpload className="h-4 w-4" />
+                )}
+                {paper.googleDriveWebViewLink ? 'Re-upload to Drive' : 'Upload to Google Drive'}
+              </Button>
+              {paper.googleDriveWebViewLink && (
+                <a
+                  href={paper.googleDriveWebViewLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center h-9 px-3 rounded-md border border-emerald-300 bg-white hover:bg-emerald-50 text-emerald-700 text-xs font-medium transition-colors shrink-0 gap-1"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Open in Drive
+                </a>
+              )}
             </div>
           </div>
 

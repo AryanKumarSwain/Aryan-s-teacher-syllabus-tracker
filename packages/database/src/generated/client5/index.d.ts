@@ -143,6 +143,11 @@ export type VacationDay = $Result.DefaultSelection<Prisma.$VacationDayPayload>
  * 
  */
 export type TeacherTrainingRecord = $Result.DefaultSelection<Prisma.$TeacherTrainingRecordPayload>
+/**
+ * Model GoogleDriveToken
+ * 
+ */
+export type GoogleDriveToken = $Result.DefaultSelection<Prisma.$GoogleDriveTokenPayload>
 
 /**
  * Enums
@@ -734,6 +739,16 @@ export class PrismaClient<
     * ```
     */
   get teacherTrainingRecord(): Prisma.TeacherTrainingRecordDelegate<ExtArgs>;
+
+  /**
+   * `prisma.googleDriveToken`: Exposes CRUD operations for the **GoogleDriveToken** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GoogleDriveTokens
+    * const googleDriveTokens = await prisma.googleDriveToken.findMany()
+    * ```
+    */
+  get googleDriveToken(): Prisma.GoogleDriveTokenDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1200,7 +1215,8 @@ export namespace Prisma {
     AuditLog: 'AuditLog',
     AcademicTerm: 'AcademicTerm',
     VacationDay: 'VacationDay',
-    TeacherTrainingRecord: 'TeacherTrainingRecord'
+    TeacherTrainingRecord: 'TeacherTrainingRecord',
+    GoogleDriveToken: 'GoogleDriveToken'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1216,7 +1232,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "user" | "refreshToken" | "school" | "academicSession" | "subscriptionPlan" | "subscription" | "coupon" | "paymentTransaction" | "teacher" | "class" | "subject" | "chapter" | "topic" | "teacherClass" | "chapterProgress" | "topicProgress" | "examPaper" | "examSection" | "examQuestion" | "examPaperTemplate" | "notification" | "activityLog" | "auditLog" | "academicTerm" | "vacationDay" | "teacherTrainingRecord"
+      modelProps: "user" | "refreshToken" | "school" | "academicSession" | "subscriptionPlan" | "subscription" | "coupon" | "paymentTransaction" | "teacher" | "class" | "subject" | "chapter" | "topic" | "teacherClass" | "chapterProgress" | "topicProgress" | "examPaper" | "examSection" | "examQuestion" | "examPaperTemplate" | "notification" | "activityLog" | "auditLog" | "academicTerm" | "vacationDay" | "teacherTrainingRecord" | "googleDriveToken"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2933,6 +2949,72 @@ export namespace Prisma {
           count: {
             args: Prisma.TeacherTrainingRecordCountArgs<ExtArgs>
             result: $Utils.Optional<TeacherTrainingRecordCountAggregateOutputType> | number
+          }
+        }
+      }
+      GoogleDriveToken: {
+        payload: Prisma.$GoogleDriveTokenPayload<ExtArgs>
+        fields: Prisma.GoogleDriveTokenFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GoogleDriveTokenFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoogleDriveTokenPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GoogleDriveTokenFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoogleDriveTokenPayload>
+          }
+          findFirst: {
+            args: Prisma.GoogleDriveTokenFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoogleDriveTokenPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GoogleDriveTokenFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoogleDriveTokenPayload>
+          }
+          findMany: {
+            args: Prisma.GoogleDriveTokenFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoogleDriveTokenPayload>[]
+          }
+          create: {
+            args: Prisma.GoogleDriveTokenCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoogleDriveTokenPayload>
+          }
+          createMany: {
+            args: Prisma.GoogleDriveTokenCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.GoogleDriveTokenDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoogleDriveTokenPayload>
+          }
+          update: {
+            args: Prisma.GoogleDriveTokenUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoogleDriveTokenPayload>
+          }
+          deleteMany: {
+            args: Prisma.GoogleDriveTokenDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GoogleDriveTokenUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GoogleDriveTokenUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoogleDriveTokenPayload>
+          }
+          aggregate: {
+            args: Prisma.GoogleDriveTokenAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGoogleDriveToken>
+          }
+          groupBy: {
+            args: Prisma.GoogleDriveTokenGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GoogleDriveTokenGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GoogleDriveTokenCountArgs<ExtArgs>
+            result: $Utils.Optional<GoogleDriveTokenCountAggregateOutputType> | number
           }
         }
       }
@@ -6141,6 +6223,7 @@ export namespace Prisma {
     examPaperTemplates?: boolean | School$examPaperTemplatesArgs<ExtArgs>
     teacherTrainingRecords?: boolean | School$teacherTrainingRecordsArgs<ExtArgs>
     paymentTransactions?: boolean | School$paymentTransactionsArgs<ExtArgs>
+    googleDriveToken?: boolean | School$googleDriveTokenArgs<ExtArgs>
     _count?: boolean | SchoolCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["school"]>
 
@@ -6177,6 +6260,7 @@ export namespace Prisma {
     examPaperTemplates?: boolean | School$examPaperTemplatesArgs<ExtArgs>
     teacherTrainingRecords?: boolean | School$teacherTrainingRecordsArgs<ExtArgs>
     paymentTransactions?: boolean | School$paymentTransactionsArgs<ExtArgs>
+    googleDriveToken?: boolean | School$googleDriveTokenArgs<ExtArgs>
     _count?: boolean | SchoolCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -6199,6 +6283,7 @@ export namespace Prisma {
       examPaperTemplates: Prisma.$ExamPaperTemplatePayload<ExtArgs>[]
       teacherTrainingRecords: Prisma.$TeacherTrainingRecordPayload<ExtArgs>[]
       paymentTransactions: Prisma.$PaymentTransactionPayload<ExtArgs>[]
+      googleDriveToken: Prisma.$GoogleDriveTokenPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6569,6 +6654,7 @@ export namespace Prisma {
     examPaperTemplates<T extends School$examPaperTemplatesArgs<ExtArgs> = {}>(args?: Subset<T, School$examPaperTemplatesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExamPaperTemplatePayload<ExtArgs>, T, "findMany"> | Null>
     teacherTrainingRecords<T extends School$teacherTrainingRecordsArgs<ExtArgs> = {}>(args?: Subset<T, School$teacherTrainingRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherTrainingRecordPayload<ExtArgs>, T, "findMany"> | Null>
     paymentTransactions<T extends School$paymentTransactionsArgs<ExtArgs> = {}>(args?: Subset<T, School$paymentTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentTransactionPayload<ExtArgs>, T, "findMany"> | Null>
+    googleDriveToken<T extends School$googleDriveTokenArgs<ExtArgs> = {}>(args?: Subset<T, School$googleDriveTokenArgs<ExtArgs>>): Prisma__GoogleDriveTokenClient<$Result.GetResult<Prisma.$GoogleDriveTokenPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7226,6 +7312,21 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PaymentTransactionScalarFieldEnum | PaymentTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * School.googleDriveToken
+   */
+  export type School$googleDriveTokenArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoogleDriveToken
+     */
+    select?: GoogleDriveTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoogleDriveTokenInclude<ExtArgs> | null
+    where?: GoogleDriveTokenWhereInput
   }
 
   /**
@@ -20907,6 +21008,8 @@ export namespace Prisma {
     styleColor: string | null
     templateType: string | null
     pdfUrl: string | null
+    googleDriveFileId: string | null
+    googleDriveWebViewLink: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -20929,6 +21032,8 @@ export namespace Prisma {
     styleColor: string | null
     templateType: string | null
     pdfUrl: string | null
+    googleDriveFileId: string | null
+    googleDriveWebViewLink: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -20951,6 +21056,8 @@ export namespace Prisma {
     styleColor: number
     templateType: number
     pdfUrl: number
+    googleDriveFileId: number
+    googleDriveWebViewLink: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -20985,6 +21092,8 @@ export namespace Prisma {
     styleColor?: true
     templateType?: true
     pdfUrl?: true
+    googleDriveFileId?: true
+    googleDriveWebViewLink?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -21007,6 +21116,8 @@ export namespace Prisma {
     styleColor?: true
     templateType?: true
     pdfUrl?: true
+    googleDriveFileId?: true
+    googleDriveWebViewLink?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -21029,6 +21140,8 @@ export namespace Prisma {
     styleColor?: true
     templateType?: true
     pdfUrl?: true
+    googleDriveFileId?: true
+    googleDriveWebViewLink?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -21138,6 +21251,8 @@ export namespace Prisma {
     styleColor: string | null
     templateType: string | null
     pdfUrl: string | null
+    googleDriveFileId: string | null
+    googleDriveWebViewLink: string | null
     createdAt: Date
     updatedAt: Date
     _count: ExamPaperCountAggregateOutputType | null
@@ -21179,6 +21294,8 @@ export namespace Prisma {
     styleColor?: boolean
     templateType?: boolean
     pdfUrl?: boolean
+    googleDriveFileId?: boolean
+    googleDriveWebViewLink?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     school?: boolean | SchoolDefaultArgs<ExtArgs>
@@ -21209,6 +21326,8 @@ export namespace Prisma {
     styleColor?: boolean
     templateType?: boolean
     pdfUrl?: boolean
+    googleDriveFileId?: boolean
+    googleDriveWebViewLink?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
@@ -21251,6 +21370,8 @@ export namespace Prisma {
       styleColor: string | null
       templateType: string | null
       pdfUrl: string | null
+      googleDriveFileId: string | null
+      googleDriveWebViewLink: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["examPaper"]>
@@ -21645,6 +21766,8 @@ export namespace Prisma {
     readonly styleColor: FieldRef<"ExamPaper", 'String'>
     readonly templateType: FieldRef<"ExamPaper", 'String'>
     readonly pdfUrl: FieldRef<"ExamPaper", 'String'>
+    readonly googleDriveFileId: FieldRef<"ExamPaper", 'String'>
+    readonly googleDriveWebViewLink: FieldRef<"ExamPaper", 'String'>
     readonly createdAt: FieldRef<"ExamPaper", 'DateTime'>
     readonly updatedAt: FieldRef<"ExamPaper", 'DateTime'>
   }
@@ -30664,6 +30787,974 @@ export namespace Prisma {
 
 
   /**
+   * Model GoogleDriveToken
+   */
+
+  export type AggregateGoogleDriveToken = {
+    _count: GoogleDriveTokenCountAggregateOutputType | null
+    _avg: GoogleDriveTokenAvgAggregateOutputType | null
+    _sum: GoogleDriveTokenSumAggregateOutputType | null
+    _min: GoogleDriveTokenMinAggregateOutputType | null
+    _max: GoogleDriveTokenMaxAggregateOutputType | null
+  }
+
+  export type GoogleDriveTokenAvgAggregateOutputType = {
+    expiryDate: number | null
+  }
+
+  export type GoogleDriveTokenSumAggregateOutputType = {
+    expiryDate: bigint | null
+  }
+
+  export type GoogleDriveTokenMinAggregateOutputType = {
+    id: string | null
+    schoolId: string | null
+    userId: string | null
+    email: string | null
+    accessToken: string | null
+    refreshToken: string | null
+    expiryDate: bigint | null
+    rootFolderId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GoogleDriveTokenMaxAggregateOutputType = {
+    id: string | null
+    schoolId: string | null
+    userId: string | null
+    email: string | null
+    accessToken: string | null
+    refreshToken: string | null
+    expiryDate: bigint | null
+    rootFolderId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GoogleDriveTokenCountAggregateOutputType = {
+    id: number
+    schoolId: number
+    userId: number
+    email: number
+    accessToken: number
+    refreshToken: number
+    expiryDate: number
+    rootFolderId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type GoogleDriveTokenAvgAggregateInputType = {
+    expiryDate?: true
+  }
+
+  export type GoogleDriveTokenSumAggregateInputType = {
+    expiryDate?: true
+  }
+
+  export type GoogleDriveTokenMinAggregateInputType = {
+    id?: true
+    schoolId?: true
+    userId?: true
+    email?: true
+    accessToken?: true
+    refreshToken?: true
+    expiryDate?: true
+    rootFolderId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GoogleDriveTokenMaxAggregateInputType = {
+    id?: true
+    schoolId?: true
+    userId?: true
+    email?: true
+    accessToken?: true
+    refreshToken?: true
+    expiryDate?: true
+    rootFolderId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GoogleDriveTokenCountAggregateInputType = {
+    id?: true
+    schoolId?: true
+    userId?: true
+    email?: true
+    accessToken?: true
+    refreshToken?: true
+    expiryDate?: true
+    rootFolderId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type GoogleDriveTokenAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GoogleDriveToken to aggregate.
+     */
+    where?: GoogleDriveTokenWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GoogleDriveTokens to fetch.
+     */
+    orderBy?: GoogleDriveTokenOrderByWithRelationInput | GoogleDriveTokenOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GoogleDriveTokenWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GoogleDriveTokens from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GoogleDriveTokens.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GoogleDriveTokens
+    **/
+    _count?: true | GoogleDriveTokenCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GoogleDriveTokenAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GoogleDriveTokenSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GoogleDriveTokenMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GoogleDriveTokenMaxAggregateInputType
+  }
+
+  export type GetGoogleDriveTokenAggregateType<T extends GoogleDriveTokenAggregateArgs> = {
+        [P in keyof T & keyof AggregateGoogleDriveToken]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGoogleDriveToken[P]>
+      : GetScalarType<T[P], AggregateGoogleDriveToken[P]>
+  }
+
+
+
+
+  export type GoogleDriveTokenGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GoogleDriveTokenWhereInput
+    orderBy?: GoogleDriveTokenOrderByWithAggregationInput | GoogleDriveTokenOrderByWithAggregationInput[]
+    by: GoogleDriveTokenScalarFieldEnum[] | GoogleDriveTokenScalarFieldEnum
+    having?: GoogleDriveTokenScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GoogleDriveTokenCountAggregateInputType | true
+    _avg?: GoogleDriveTokenAvgAggregateInputType
+    _sum?: GoogleDriveTokenSumAggregateInputType
+    _min?: GoogleDriveTokenMinAggregateInputType
+    _max?: GoogleDriveTokenMaxAggregateInputType
+  }
+
+  export type GoogleDriveTokenGroupByOutputType = {
+    id: string
+    schoolId: string
+    userId: string | null
+    email: string | null
+    accessToken: string
+    refreshToken: string
+    expiryDate: bigint | null
+    rootFolderId: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: GoogleDriveTokenCountAggregateOutputType | null
+    _avg: GoogleDriveTokenAvgAggregateOutputType | null
+    _sum: GoogleDriveTokenSumAggregateOutputType | null
+    _min: GoogleDriveTokenMinAggregateOutputType | null
+    _max: GoogleDriveTokenMaxAggregateOutputType | null
+  }
+
+  type GetGoogleDriveTokenGroupByPayload<T extends GoogleDriveTokenGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GoogleDriveTokenGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GoogleDriveTokenGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GoogleDriveTokenGroupByOutputType[P]>
+            : GetScalarType<T[P], GoogleDriveTokenGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GoogleDriveTokenSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    schoolId?: boolean
+    userId?: boolean
+    email?: boolean
+    accessToken?: boolean
+    refreshToken?: boolean
+    expiryDate?: boolean
+    rootFolderId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    school?: boolean | SchoolDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["googleDriveToken"]>
+
+
+  export type GoogleDriveTokenSelectScalar = {
+    id?: boolean
+    schoolId?: boolean
+    userId?: boolean
+    email?: boolean
+    accessToken?: boolean
+    refreshToken?: boolean
+    expiryDate?: boolean
+    rootFolderId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type GoogleDriveTokenInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    school?: boolean | SchoolDefaultArgs<ExtArgs>
+  }
+
+  export type $GoogleDriveTokenPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GoogleDriveToken"
+    objects: {
+      school: Prisma.$SchoolPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      schoolId: string
+      userId: string | null
+      email: string | null
+      accessToken: string
+      refreshToken: string
+      expiryDate: bigint | null
+      rootFolderId: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["googleDriveToken"]>
+    composites: {}
+  }
+
+  type GoogleDriveTokenGetPayload<S extends boolean | null | undefined | GoogleDriveTokenDefaultArgs> = $Result.GetResult<Prisma.$GoogleDriveTokenPayload, S>
+
+  type GoogleDriveTokenCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GoogleDriveTokenFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GoogleDriveTokenCountAggregateInputType | true
+    }
+
+  export interface GoogleDriveTokenDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GoogleDriveToken'], meta: { name: 'GoogleDriveToken' } }
+    /**
+     * Find zero or one GoogleDriveToken that matches the filter.
+     * @param {GoogleDriveTokenFindUniqueArgs} args - Arguments to find a GoogleDriveToken
+     * @example
+     * // Get one GoogleDriveToken
+     * const googleDriveToken = await prisma.googleDriveToken.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GoogleDriveTokenFindUniqueArgs>(args: SelectSubset<T, GoogleDriveTokenFindUniqueArgs<ExtArgs>>): Prisma__GoogleDriveTokenClient<$Result.GetResult<Prisma.$GoogleDriveTokenPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one GoogleDriveToken that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {GoogleDriveTokenFindUniqueOrThrowArgs} args - Arguments to find a GoogleDriveToken
+     * @example
+     * // Get one GoogleDriveToken
+     * const googleDriveToken = await prisma.googleDriveToken.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GoogleDriveTokenFindUniqueOrThrowArgs>(args: SelectSubset<T, GoogleDriveTokenFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GoogleDriveTokenClient<$Result.GetResult<Prisma.$GoogleDriveTokenPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first GoogleDriveToken that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoogleDriveTokenFindFirstArgs} args - Arguments to find a GoogleDriveToken
+     * @example
+     * // Get one GoogleDriveToken
+     * const googleDriveToken = await prisma.googleDriveToken.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GoogleDriveTokenFindFirstArgs>(args?: SelectSubset<T, GoogleDriveTokenFindFirstArgs<ExtArgs>>): Prisma__GoogleDriveTokenClient<$Result.GetResult<Prisma.$GoogleDriveTokenPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first GoogleDriveToken that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoogleDriveTokenFindFirstOrThrowArgs} args - Arguments to find a GoogleDriveToken
+     * @example
+     * // Get one GoogleDriveToken
+     * const googleDriveToken = await prisma.googleDriveToken.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GoogleDriveTokenFindFirstOrThrowArgs>(args?: SelectSubset<T, GoogleDriveTokenFindFirstOrThrowArgs<ExtArgs>>): Prisma__GoogleDriveTokenClient<$Result.GetResult<Prisma.$GoogleDriveTokenPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more GoogleDriveTokens that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoogleDriveTokenFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GoogleDriveTokens
+     * const googleDriveTokens = await prisma.googleDriveToken.findMany()
+     * 
+     * // Get first 10 GoogleDriveTokens
+     * const googleDriveTokens = await prisma.googleDriveToken.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const googleDriveTokenWithIdOnly = await prisma.googleDriveToken.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GoogleDriveTokenFindManyArgs>(args?: SelectSubset<T, GoogleDriveTokenFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GoogleDriveTokenPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a GoogleDriveToken.
+     * @param {GoogleDriveTokenCreateArgs} args - Arguments to create a GoogleDriveToken.
+     * @example
+     * // Create one GoogleDriveToken
+     * const GoogleDriveToken = await prisma.googleDriveToken.create({
+     *   data: {
+     *     // ... data to create a GoogleDriveToken
+     *   }
+     * })
+     * 
+     */
+    create<T extends GoogleDriveTokenCreateArgs>(args: SelectSubset<T, GoogleDriveTokenCreateArgs<ExtArgs>>): Prisma__GoogleDriveTokenClient<$Result.GetResult<Prisma.$GoogleDriveTokenPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many GoogleDriveTokens.
+     * @param {GoogleDriveTokenCreateManyArgs} args - Arguments to create many GoogleDriveTokens.
+     * @example
+     * // Create many GoogleDriveTokens
+     * const googleDriveToken = await prisma.googleDriveToken.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GoogleDriveTokenCreateManyArgs>(args?: SelectSubset<T, GoogleDriveTokenCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a GoogleDriveToken.
+     * @param {GoogleDriveTokenDeleteArgs} args - Arguments to delete one GoogleDriveToken.
+     * @example
+     * // Delete one GoogleDriveToken
+     * const GoogleDriveToken = await prisma.googleDriveToken.delete({
+     *   where: {
+     *     // ... filter to delete one GoogleDriveToken
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GoogleDriveTokenDeleteArgs>(args: SelectSubset<T, GoogleDriveTokenDeleteArgs<ExtArgs>>): Prisma__GoogleDriveTokenClient<$Result.GetResult<Prisma.$GoogleDriveTokenPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one GoogleDriveToken.
+     * @param {GoogleDriveTokenUpdateArgs} args - Arguments to update one GoogleDriveToken.
+     * @example
+     * // Update one GoogleDriveToken
+     * const googleDriveToken = await prisma.googleDriveToken.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GoogleDriveTokenUpdateArgs>(args: SelectSubset<T, GoogleDriveTokenUpdateArgs<ExtArgs>>): Prisma__GoogleDriveTokenClient<$Result.GetResult<Prisma.$GoogleDriveTokenPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more GoogleDriveTokens.
+     * @param {GoogleDriveTokenDeleteManyArgs} args - Arguments to filter GoogleDriveTokens to delete.
+     * @example
+     * // Delete a few GoogleDriveTokens
+     * const { count } = await prisma.googleDriveToken.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GoogleDriveTokenDeleteManyArgs>(args?: SelectSubset<T, GoogleDriveTokenDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GoogleDriveTokens.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoogleDriveTokenUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GoogleDriveTokens
+     * const googleDriveToken = await prisma.googleDriveToken.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GoogleDriveTokenUpdateManyArgs>(args: SelectSubset<T, GoogleDriveTokenUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GoogleDriveToken.
+     * @param {GoogleDriveTokenUpsertArgs} args - Arguments to update or create a GoogleDriveToken.
+     * @example
+     * // Update or create a GoogleDriveToken
+     * const googleDriveToken = await prisma.googleDriveToken.upsert({
+     *   create: {
+     *     // ... data to create a GoogleDriveToken
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GoogleDriveToken we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GoogleDriveTokenUpsertArgs>(args: SelectSubset<T, GoogleDriveTokenUpsertArgs<ExtArgs>>): Prisma__GoogleDriveTokenClient<$Result.GetResult<Prisma.$GoogleDriveTokenPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of GoogleDriveTokens.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoogleDriveTokenCountArgs} args - Arguments to filter GoogleDriveTokens to count.
+     * @example
+     * // Count the number of GoogleDriveTokens
+     * const count = await prisma.googleDriveToken.count({
+     *   where: {
+     *     // ... the filter for the GoogleDriveTokens we want to count
+     *   }
+     * })
+    **/
+    count<T extends GoogleDriveTokenCountArgs>(
+      args?: Subset<T, GoogleDriveTokenCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GoogleDriveTokenCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GoogleDriveToken.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoogleDriveTokenAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GoogleDriveTokenAggregateArgs>(args: Subset<T, GoogleDriveTokenAggregateArgs>): Prisma.PrismaPromise<GetGoogleDriveTokenAggregateType<T>>
+
+    /**
+     * Group by GoogleDriveToken.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoogleDriveTokenGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GoogleDriveTokenGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GoogleDriveTokenGroupByArgs['orderBy'] }
+        : { orderBy?: GoogleDriveTokenGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GoogleDriveTokenGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGoogleDriveTokenGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GoogleDriveToken model
+   */
+  readonly fields: GoogleDriveTokenFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GoogleDriveToken.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GoogleDriveTokenClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GoogleDriveToken model
+   */ 
+  interface GoogleDriveTokenFieldRefs {
+    readonly id: FieldRef<"GoogleDriveToken", 'String'>
+    readonly schoolId: FieldRef<"GoogleDriveToken", 'String'>
+    readonly userId: FieldRef<"GoogleDriveToken", 'String'>
+    readonly email: FieldRef<"GoogleDriveToken", 'String'>
+    readonly accessToken: FieldRef<"GoogleDriveToken", 'String'>
+    readonly refreshToken: FieldRef<"GoogleDriveToken", 'String'>
+    readonly expiryDate: FieldRef<"GoogleDriveToken", 'BigInt'>
+    readonly rootFolderId: FieldRef<"GoogleDriveToken", 'String'>
+    readonly createdAt: FieldRef<"GoogleDriveToken", 'DateTime'>
+    readonly updatedAt: FieldRef<"GoogleDriveToken", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GoogleDriveToken findUnique
+   */
+  export type GoogleDriveTokenFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoogleDriveToken
+     */
+    select?: GoogleDriveTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoogleDriveTokenInclude<ExtArgs> | null
+    /**
+     * Filter, which GoogleDriveToken to fetch.
+     */
+    where: GoogleDriveTokenWhereUniqueInput
+  }
+
+  /**
+   * GoogleDriveToken findUniqueOrThrow
+   */
+  export type GoogleDriveTokenFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoogleDriveToken
+     */
+    select?: GoogleDriveTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoogleDriveTokenInclude<ExtArgs> | null
+    /**
+     * Filter, which GoogleDriveToken to fetch.
+     */
+    where: GoogleDriveTokenWhereUniqueInput
+  }
+
+  /**
+   * GoogleDriveToken findFirst
+   */
+  export type GoogleDriveTokenFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoogleDriveToken
+     */
+    select?: GoogleDriveTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoogleDriveTokenInclude<ExtArgs> | null
+    /**
+     * Filter, which GoogleDriveToken to fetch.
+     */
+    where?: GoogleDriveTokenWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GoogleDriveTokens to fetch.
+     */
+    orderBy?: GoogleDriveTokenOrderByWithRelationInput | GoogleDriveTokenOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GoogleDriveTokens.
+     */
+    cursor?: GoogleDriveTokenWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GoogleDriveTokens from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GoogleDriveTokens.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GoogleDriveTokens.
+     */
+    distinct?: GoogleDriveTokenScalarFieldEnum | GoogleDriveTokenScalarFieldEnum[]
+  }
+
+  /**
+   * GoogleDriveToken findFirstOrThrow
+   */
+  export type GoogleDriveTokenFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoogleDriveToken
+     */
+    select?: GoogleDriveTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoogleDriveTokenInclude<ExtArgs> | null
+    /**
+     * Filter, which GoogleDriveToken to fetch.
+     */
+    where?: GoogleDriveTokenWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GoogleDriveTokens to fetch.
+     */
+    orderBy?: GoogleDriveTokenOrderByWithRelationInput | GoogleDriveTokenOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GoogleDriveTokens.
+     */
+    cursor?: GoogleDriveTokenWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GoogleDriveTokens from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GoogleDriveTokens.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GoogleDriveTokens.
+     */
+    distinct?: GoogleDriveTokenScalarFieldEnum | GoogleDriveTokenScalarFieldEnum[]
+  }
+
+  /**
+   * GoogleDriveToken findMany
+   */
+  export type GoogleDriveTokenFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoogleDriveToken
+     */
+    select?: GoogleDriveTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoogleDriveTokenInclude<ExtArgs> | null
+    /**
+     * Filter, which GoogleDriveTokens to fetch.
+     */
+    where?: GoogleDriveTokenWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GoogleDriveTokens to fetch.
+     */
+    orderBy?: GoogleDriveTokenOrderByWithRelationInput | GoogleDriveTokenOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GoogleDriveTokens.
+     */
+    cursor?: GoogleDriveTokenWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GoogleDriveTokens from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GoogleDriveTokens.
+     */
+    skip?: number
+    distinct?: GoogleDriveTokenScalarFieldEnum | GoogleDriveTokenScalarFieldEnum[]
+  }
+
+  /**
+   * GoogleDriveToken create
+   */
+  export type GoogleDriveTokenCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoogleDriveToken
+     */
+    select?: GoogleDriveTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoogleDriveTokenInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GoogleDriveToken.
+     */
+    data: XOR<GoogleDriveTokenCreateInput, GoogleDriveTokenUncheckedCreateInput>
+  }
+
+  /**
+   * GoogleDriveToken createMany
+   */
+  export type GoogleDriveTokenCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GoogleDriveTokens.
+     */
+    data: GoogleDriveTokenCreateManyInput | GoogleDriveTokenCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GoogleDriveToken update
+   */
+  export type GoogleDriveTokenUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoogleDriveToken
+     */
+    select?: GoogleDriveTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoogleDriveTokenInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GoogleDriveToken.
+     */
+    data: XOR<GoogleDriveTokenUpdateInput, GoogleDriveTokenUncheckedUpdateInput>
+    /**
+     * Choose, which GoogleDriveToken to update.
+     */
+    where: GoogleDriveTokenWhereUniqueInput
+  }
+
+  /**
+   * GoogleDriveToken updateMany
+   */
+  export type GoogleDriveTokenUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GoogleDriveTokens.
+     */
+    data: XOR<GoogleDriveTokenUpdateManyMutationInput, GoogleDriveTokenUncheckedUpdateManyInput>
+    /**
+     * Filter which GoogleDriveTokens to update
+     */
+    where?: GoogleDriveTokenWhereInput
+  }
+
+  /**
+   * GoogleDriveToken upsert
+   */
+  export type GoogleDriveTokenUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoogleDriveToken
+     */
+    select?: GoogleDriveTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoogleDriveTokenInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GoogleDriveToken to update in case it exists.
+     */
+    where: GoogleDriveTokenWhereUniqueInput
+    /**
+     * In case the GoogleDriveToken found by the `where` argument doesn't exist, create a new GoogleDriveToken with this data.
+     */
+    create: XOR<GoogleDriveTokenCreateInput, GoogleDriveTokenUncheckedCreateInput>
+    /**
+     * In case the GoogleDriveToken was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GoogleDriveTokenUpdateInput, GoogleDriveTokenUncheckedUpdateInput>
+  }
+
+  /**
+   * GoogleDriveToken delete
+   */
+  export type GoogleDriveTokenDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoogleDriveToken
+     */
+    select?: GoogleDriveTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoogleDriveTokenInclude<ExtArgs> | null
+    /**
+     * Filter which GoogleDriveToken to delete.
+     */
+    where: GoogleDriveTokenWhereUniqueInput
+  }
+
+  /**
+   * GoogleDriveToken deleteMany
+   */
+  export type GoogleDriveTokenDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GoogleDriveTokens to delete
+     */
+    where?: GoogleDriveTokenWhereInput
+  }
+
+  /**
+   * GoogleDriveToken without action
+   */
+  export type GoogleDriveTokenDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoogleDriveToken
+     */
+    select?: GoogleDriveTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoogleDriveTokenInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -30975,6 +32066,8 @@ export namespace Prisma {
     styleColor: 'styleColor',
     templateType: 'templateType',
     pdfUrl: 'pdfUrl',
+    googleDriveFileId: 'googleDriveFileId',
+    googleDriveWebViewLink: 'googleDriveWebViewLink',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -31128,6 +32221,22 @@ export namespace Prisma {
   };
 
   export type TeacherTrainingRecordScalarFieldEnum = (typeof TeacherTrainingRecordScalarFieldEnum)[keyof typeof TeacherTrainingRecordScalarFieldEnum]
+
+
+  export const GoogleDriveTokenScalarFieldEnum: {
+    id: 'id',
+    schoolId: 'schoolId',
+    userId: 'userId',
+    email: 'email',
+    accessToken: 'accessToken',
+    refreshToken: 'refreshToken',
+    expiryDate: 'expiryDate',
+    rootFolderId: 'rootFolderId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type GoogleDriveTokenScalarFieldEnum = (typeof GoogleDriveTokenScalarFieldEnum)[keyof typeof GoogleDriveTokenScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -31319,6 +32428,13 @@ export namespace Prisma {
    * Reference to a field of type 'CpdRecordStatus'
    */
   export type EnumCpdRecordStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CpdRecordStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'BigInt'
+   */
+  export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
     
 
 
@@ -31540,6 +32656,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateListRelationFilter
     teacherTrainingRecords?: TeacherTrainingRecordListRelationFilter
     paymentTransactions?: PaymentTransactionListRelationFilter
+    googleDriveToken?: XOR<GoogleDriveTokenNullableRelationFilter, GoogleDriveTokenWhereInput> | null
   }
 
   export type SchoolOrderByWithRelationInput = {
@@ -31571,6 +32688,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateOrderByRelationAggregateInput
     teacherTrainingRecords?: TeacherTrainingRecordOrderByRelationAggregateInput
     paymentTransactions?: PaymentTransactionOrderByRelationAggregateInput
+    googleDriveToken?: GoogleDriveTokenOrderByWithRelationInput
   }
 
   export type SchoolWhereUniqueInput = Prisma.AtLeast<{
@@ -31605,6 +32723,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateListRelationFilter
     teacherTrainingRecords?: TeacherTrainingRecordListRelationFilter
     paymentTransactions?: PaymentTransactionListRelationFilter
+    googleDriveToken?: XOR<GoogleDriveTokenNullableRelationFilter, GoogleDriveTokenWhereInput> | null
   }, "id" | "slug">
 
   export type SchoolOrderByWithAggregationInput = {
@@ -32991,6 +34110,8 @@ export namespace Prisma {
     styleColor?: StringNullableFilter<"ExamPaper"> | string | null
     templateType?: StringNullableFilter<"ExamPaper"> | string | null
     pdfUrl?: StringNullableFilter<"ExamPaper"> | string | null
+    googleDriveFileId?: StringNullableFilter<"ExamPaper"> | string | null
+    googleDriveWebViewLink?: StringNullableFilter<"ExamPaper"> | string | null
     createdAt?: DateTimeFilter<"ExamPaper"> | Date | string
     updatedAt?: DateTimeFilter<"ExamPaper"> | Date | string
     school?: XOR<SchoolRelationFilter, SchoolWhereInput>
@@ -33019,6 +34140,8 @@ export namespace Prisma {
     styleColor?: SortOrderInput | SortOrder
     templateType?: SortOrderInput | SortOrder
     pdfUrl?: SortOrderInput | SortOrder
+    googleDriveFileId?: SortOrderInput | SortOrder
+    googleDriveWebViewLink?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     school?: SchoolOrderByWithRelationInput
@@ -33050,6 +34173,8 @@ export namespace Prisma {
     styleColor?: StringNullableFilter<"ExamPaper"> | string | null
     templateType?: StringNullableFilter<"ExamPaper"> | string | null
     pdfUrl?: StringNullableFilter<"ExamPaper"> | string | null
+    googleDriveFileId?: StringNullableFilter<"ExamPaper"> | string | null
+    googleDriveWebViewLink?: StringNullableFilter<"ExamPaper"> | string | null
     createdAt?: DateTimeFilter<"ExamPaper"> | Date | string
     updatedAt?: DateTimeFilter<"ExamPaper"> | Date | string
     school?: XOR<SchoolRelationFilter, SchoolWhereInput>
@@ -33078,6 +34203,8 @@ export namespace Prisma {
     styleColor?: SortOrderInput | SortOrder
     templateType?: SortOrderInput | SortOrder
     pdfUrl?: SortOrderInput | SortOrder
+    googleDriveFileId?: SortOrderInput | SortOrder
+    googleDriveWebViewLink?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ExamPaperCountOrderByAggregateInput
@@ -33108,6 +34235,8 @@ export namespace Prisma {
     styleColor?: StringNullableWithAggregatesFilter<"ExamPaper"> | string | null
     templateType?: StringNullableWithAggregatesFilter<"ExamPaper"> | string | null
     pdfUrl?: StringNullableWithAggregatesFilter<"ExamPaper"> | string | null
+    googleDriveFileId?: StringNullableWithAggregatesFilter<"ExamPaper"> | string | null
+    googleDriveWebViewLink?: StringNullableWithAggregatesFilter<"ExamPaper"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"ExamPaper"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"ExamPaper"> | Date | string
   }
@@ -33885,6 +35014,88 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"TeacherTrainingRecord"> | Date | string
   }
 
+  export type GoogleDriveTokenWhereInput = {
+    AND?: GoogleDriveTokenWhereInput | GoogleDriveTokenWhereInput[]
+    OR?: GoogleDriveTokenWhereInput[]
+    NOT?: GoogleDriveTokenWhereInput | GoogleDriveTokenWhereInput[]
+    id?: StringFilter<"GoogleDriveToken"> | string
+    schoolId?: StringFilter<"GoogleDriveToken"> | string
+    userId?: StringNullableFilter<"GoogleDriveToken"> | string | null
+    email?: StringNullableFilter<"GoogleDriveToken"> | string | null
+    accessToken?: StringFilter<"GoogleDriveToken"> | string
+    refreshToken?: StringFilter<"GoogleDriveToken"> | string
+    expiryDate?: BigIntNullableFilter<"GoogleDriveToken"> | bigint | number | null
+    rootFolderId?: StringNullableFilter<"GoogleDriveToken"> | string | null
+    createdAt?: DateTimeFilter<"GoogleDriveToken"> | Date | string
+    updatedAt?: DateTimeFilter<"GoogleDriveToken"> | Date | string
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
+  }
+
+  export type GoogleDriveTokenOrderByWithRelationInput = {
+    id?: SortOrder
+    schoolId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
+    accessToken?: SortOrder
+    refreshToken?: SortOrder
+    expiryDate?: SortOrderInput | SortOrder
+    rootFolderId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    school?: SchoolOrderByWithRelationInput
+  }
+
+  export type GoogleDriveTokenWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    schoolId?: string
+    AND?: GoogleDriveTokenWhereInput | GoogleDriveTokenWhereInput[]
+    OR?: GoogleDriveTokenWhereInput[]
+    NOT?: GoogleDriveTokenWhereInput | GoogleDriveTokenWhereInput[]
+    userId?: StringNullableFilter<"GoogleDriveToken"> | string | null
+    email?: StringNullableFilter<"GoogleDriveToken"> | string | null
+    accessToken?: StringFilter<"GoogleDriveToken"> | string
+    refreshToken?: StringFilter<"GoogleDriveToken"> | string
+    expiryDate?: BigIntNullableFilter<"GoogleDriveToken"> | bigint | number | null
+    rootFolderId?: StringNullableFilter<"GoogleDriveToken"> | string | null
+    createdAt?: DateTimeFilter<"GoogleDriveToken"> | Date | string
+    updatedAt?: DateTimeFilter<"GoogleDriveToken"> | Date | string
+    school?: XOR<SchoolRelationFilter, SchoolWhereInput>
+  }, "id" | "schoolId">
+
+  export type GoogleDriveTokenOrderByWithAggregationInput = {
+    id?: SortOrder
+    schoolId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
+    accessToken?: SortOrder
+    refreshToken?: SortOrder
+    expiryDate?: SortOrderInput | SortOrder
+    rootFolderId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: GoogleDriveTokenCountOrderByAggregateInput
+    _avg?: GoogleDriveTokenAvgOrderByAggregateInput
+    _max?: GoogleDriveTokenMaxOrderByAggregateInput
+    _min?: GoogleDriveTokenMinOrderByAggregateInput
+    _sum?: GoogleDriveTokenSumOrderByAggregateInput
+  }
+
+  export type GoogleDriveTokenScalarWhereWithAggregatesInput = {
+    AND?: GoogleDriveTokenScalarWhereWithAggregatesInput | GoogleDriveTokenScalarWhereWithAggregatesInput[]
+    OR?: GoogleDriveTokenScalarWhereWithAggregatesInput[]
+    NOT?: GoogleDriveTokenScalarWhereWithAggregatesInput | GoogleDriveTokenScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GoogleDriveToken"> | string
+    schoolId?: StringWithAggregatesFilter<"GoogleDriveToken"> | string
+    userId?: StringNullableWithAggregatesFilter<"GoogleDriveToken"> | string | null
+    email?: StringNullableWithAggregatesFilter<"GoogleDriveToken"> | string | null
+    accessToken?: StringWithAggregatesFilter<"GoogleDriveToken"> | string
+    refreshToken?: StringWithAggregatesFilter<"GoogleDriveToken"> | string
+    expiryDate?: BigIntNullableWithAggregatesFilter<"GoogleDriveToken"> | bigint | number | null
+    rootFolderId?: StringNullableWithAggregatesFilter<"GoogleDriveToken"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"GoogleDriveToken"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"GoogleDriveToken"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     email: string
@@ -34115,6 +35326,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateInput = {
@@ -34146,6 +35358,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUpdateInput = {
@@ -34177,6 +35390,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateInput = {
@@ -34208,6 +35422,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolCreateManyInput = {
@@ -35695,6 +36910,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     school: SchoolCreateNestedOneWithoutExamPapersInput
@@ -35723,6 +36940,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
@@ -35741,6 +36960,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
@@ -35769,6 +36990,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
@@ -35792,6 +37015,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -35809,6 +37034,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -35831,6 +37058,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -36675,6 +37904,96 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type GoogleDriveTokenCreateInput = {
+    id?: string
+    userId?: string | null
+    email?: string | null
+    accessToken: string
+    refreshToken: string
+    expiryDate?: bigint | number | null
+    rootFolderId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    school: SchoolCreateNestedOneWithoutGoogleDriveTokenInput
+  }
+
+  export type GoogleDriveTokenUncheckedCreateInput = {
+    id?: string
+    schoolId: string
+    userId?: string | null
+    email?: string | null
+    accessToken: string
+    refreshToken: string
+    expiryDate?: bigint | number | null
+    rootFolderId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GoogleDriveTokenUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: StringFieldUpdateOperationsInput | string
+    expiryDate?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    rootFolderId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneRequiredWithoutGoogleDriveTokenNestedInput
+  }
+
+  export type GoogleDriveTokenUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: StringFieldUpdateOperationsInput | string
+    expiryDate?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    rootFolderId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GoogleDriveTokenCreateManyInput = {
+    id?: string
+    schoolId: string
+    userId?: string | null
+    email?: string | null
+    accessToken: string
+    refreshToken: string
+    expiryDate?: bigint | number | null
+    rootFolderId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GoogleDriveTokenUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: StringFieldUpdateOperationsInput | string
+    expiryDate?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    rootFolderId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GoogleDriveTokenUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: StringFieldUpdateOperationsInput | string
+    expiryDate?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    rootFolderId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -37059,6 +38378,11 @@ export namespace Prisma {
     every?: PaymentTransactionWhereInput
     some?: PaymentTransactionWhereInput
     none?: PaymentTransactionWhereInput
+  }
+
+  export type GoogleDriveTokenNullableRelationFilter = {
+    is?: GoogleDriveTokenWhereInput | null
+    isNot?: GoogleDriveTokenWhereInput | null
   }
 
   export type AcademicSessionOrderByRelationAggregateInput = {
@@ -38232,6 +39556,8 @@ export namespace Prisma {
     styleColor?: SortOrder
     templateType?: SortOrder
     pdfUrl?: SortOrder
+    googleDriveFileId?: SortOrder
+    googleDriveWebViewLink?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -38259,6 +39585,8 @@ export namespace Prisma {
     styleColor?: SortOrder
     templateType?: SortOrder
     pdfUrl?: SortOrder
+    googleDriveFileId?: SortOrder
+    googleDriveWebViewLink?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -38281,6 +39609,8 @@ export namespace Prisma {
     styleColor?: SortOrder
     templateType?: SortOrder
     pdfUrl?: SortOrder
+    googleDriveFileId?: SortOrder
+    googleDriveWebViewLink?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -38889,6 +40219,80 @@ export namespace Prisma {
     _max?: NestedEnumCpdRecordStatusFilter<$PrismaModel>
   }
 
+  export type BigIntNullableFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel> | null
+    in?: bigint[] | number[] | null
+    notIn?: bigint[] | number[] | null
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntNullableFilter<$PrismaModel> | bigint | number | null
+  }
+
+  export type GoogleDriveTokenCountOrderByAggregateInput = {
+    id?: SortOrder
+    schoolId?: SortOrder
+    userId?: SortOrder
+    email?: SortOrder
+    accessToken?: SortOrder
+    refreshToken?: SortOrder
+    expiryDate?: SortOrder
+    rootFolderId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GoogleDriveTokenAvgOrderByAggregateInput = {
+    expiryDate?: SortOrder
+  }
+
+  export type GoogleDriveTokenMaxOrderByAggregateInput = {
+    id?: SortOrder
+    schoolId?: SortOrder
+    userId?: SortOrder
+    email?: SortOrder
+    accessToken?: SortOrder
+    refreshToken?: SortOrder
+    expiryDate?: SortOrder
+    rootFolderId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GoogleDriveTokenMinOrderByAggregateInput = {
+    id?: SortOrder
+    schoolId?: SortOrder
+    userId?: SortOrder
+    email?: SortOrder
+    accessToken?: SortOrder
+    refreshToken?: SortOrder
+    expiryDate?: SortOrder
+    rootFolderId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GoogleDriveTokenSumOrderByAggregateInput = {
+    expiryDate?: SortOrder
+  }
+
+  export type BigIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel> | null
+    in?: bigint[] | number[] | null
+    notIn?: bigint[] | number[] | null
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntNullableWithAggregatesFilter<$PrismaModel> | bigint | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedBigIntNullableFilter<$PrismaModel>
+    _min?: NestedBigIntNullableFilter<$PrismaModel>
+    _max?: NestedBigIntNullableFilter<$PrismaModel>
+  }
+
   export type ActivityLogCreateNestedManyWithoutUserInput = {
     create?: XOR<ActivityLogCreateWithoutUserInput, ActivityLogUncheckedCreateWithoutUserInput> | ActivityLogCreateWithoutUserInput[] | ActivityLogUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ActivityLogCreateOrConnectWithoutUserInput | ActivityLogCreateOrConnectWithoutUserInput[]
@@ -39339,6 +40743,12 @@ export namespace Prisma {
     connect?: PaymentTransactionWhereUniqueInput | PaymentTransactionWhereUniqueInput[]
   }
 
+  export type GoogleDriveTokenCreateNestedOneWithoutSchoolInput = {
+    create?: XOR<GoogleDriveTokenCreateWithoutSchoolInput, GoogleDriveTokenUncheckedCreateWithoutSchoolInput>
+    connectOrCreate?: GoogleDriveTokenCreateOrConnectWithoutSchoolInput
+    connect?: GoogleDriveTokenWhereUniqueInput
+  }
+
   export type AcademicSessionUncheckedCreateNestedManyWithoutSchoolInput = {
     create?: XOR<AcademicSessionCreateWithoutSchoolInput, AcademicSessionUncheckedCreateWithoutSchoolInput> | AcademicSessionCreateWithoutSchoolInput[] | AcademicSessionUncheckedCreateWithoutSchoolInput[]
     connectOrCreate?: AcademicSessionCreateOrConnectWithoutSchoolInput | AcademicSessionCreateOrConnectWithoutSchoolInput[]
@@ -39449,6 +40859,12 @@ export namespace Prisma {
     connectOrCreate?: PaymentTransactionCreateOrConnectWithoutSchoolInput | PaymentTransactionCreateOrConnectWithoutSchoolInput[]
     createMany?: PaymentTransactionCreateManySchoolInputEnvelope
     connect?: PaymentTransactionWhereUniqueInput | PaymentTransactionWhereUniqueInput[]
+  }
+
+  export type GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput = {
+    create?: XOR<GoogleDriveTokenCreateWithoutSchoolInput, GoogleDriveTokenUncheckedCreateWithoutSchoolInput>
+    connectOrCreate?: GoogleDriveTokenCreateOrConnectWithoutSchoolInput
+    connect?: GoogleDriveTokenWhereUniqueInput
   }
 
   export type EnumSchoolStatusFieldUpdateOperationsInput = {
@@ -39679,6 +41095,16 @@ export namespace Prisma {
     deleteMany?: PaymentTransactionScalarWhereInput | PaymentTransactionScalarWhereInput[]
   }
 
+  export type GoogleDriveTokenUpdateOneWithoutSchoolNestedInput = {
+    create?: XOR<GoogleDriveTokenCreateWithoutSchoolInput, GoogleDriveTokenUncheckedCreateWithoutSchoolInput>
+    connectOrCreate?: GoogleDriveTokenCreateOrConnectWithoutSchoolInput
+    upsert?: GoogleDriveTokenUpsertWithoutSchoolInput
+    disconnect?: GoogleDriveTokenWhereInput | boolean
+    delete?: GoogleDriveTokenWhereInput | boolean
+    connect?: GoogleDriveTokenWhereUniqueInput
+    update?: XOR<XOR<GoogleDriveTokenUpdateToOneWithWhereWithoutSchoolInput, GoogleDriveTokenUpdateWithoutSchoolInput>, GoogleDriveTokenUncheckedUpdateWithoutSchoolInput>
+  }
+
   export type AcademicSessionUncheckedUpdateManyWithoutSchoolNestedInput = {
     create?: XOR<AcademicSessionCreateWithoutSchoolInput, AcademicSessionUncheckedCreateWithoutSchoolInput> | AcademicSessionCreateWithoutSchoolInput[] | AcademicSessionUncheckedCreateWithoutSchoolInput[]
     connectOrCreate?: AcademicSessionCreateOrConnectWithoutSchoolInput | AcademicSessionCreateOrConnectWithoutSchoolInput[]
@@ -39901,6 +41327,16 @@ export namespace Prisma {
     update?: PaymentTransactionUpdateWithWhereUniqueWithoutSchoolInput | PaymentTransactionUpdateWithWhereUniqueWithoutSchoolInput[]
     updateMany?: PaymentTransactionUpdateManyWithWhereWithoutSchoolInput | PaymentTransactionUpdateManyWithWhereWithoutSchoolInput[]
     deleteMany?: PaymentTransactionScalarWhereInput | PaymentTransactionScalarWhereInput[]
+  }
+
+  export type GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput = {
+    create?: XOR<GoogleDriveTokenCreateWithoutSchoolInput, GoogleDriveTokenUncheckedCreateWithoutSchoolInput>
+    connectOrCreate?: GoogleDriveTokenCreateOrConnectWithoutSchoolInput
+    upsert?: GoogleDriveTokenUpsertWithoutSchoolInput
+    disconnect?: GoogleDriveTokenWhereInput | boolean
+    delete?: GoogleDriveTokenWhereInput | boolean
+    connect?: GoogleDriveTokenWhereUniqueInput
+    update?: XOR<XOR<GoogleDriveTokenUpdateToOneWithWhereWithoutSchoolInput, GoogleDriveTokenUpdateWithoutSchoolInput>, GoogleDriveTokenUncheckedUpdateWithoutSchoolInput>
   }
 
   export type SchoolCreateNestedOneWithoutAcademicSessionsInput = {
@@ -42089,6 +43525,28 @@ export namespace Prisma {
     update?: XOR<XOR<TeacherUpdateToOneWithWhereWithoutTrainingRecordsInput, TeacherUpdateWithoutTrainingRecordsInput>, TeacherUncheckedUpdateWithoutTrainingRecordsInput>
   }
 
+  export type SchoolCreateNestedOneWithoutGoogleDriveTokenInput = {
+    create?: XOR<SchoolCreateWithoutGoogleDriveTokenInput, SchoolUncheckedCreateWithoutGoogleDriveTokenInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutGoogleDriveTokenInput
+    connect?: SchoolWhereUniqueInput
+  }
+
+  export type NullableBigIntFieldUpdateOperationsInput = {
+    set?: bigint | number | null
+    increment?: bigint | number
+    decrement?: bigint | number
+    multiply?: bigint | number
+    divide?: bigint | number
+  }
+
+  export type SchoolUpdateOneRequiredWithoutGoogleDriveTokenNestedInput = {
+    create?: XOR<SchoolCreateWithoutGoogleDriveTokenInput, SchoolUncheckedCreateWithoutGoogleDriveTokenInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutGoogleDriveTokenInput
+    upsert?: SchoolUpsertWithoutGoogleDriveTokenInput
+    connect?: SchoolWhereUniqueInput
+    update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutGoogleDriveTokenInput, SchoolUpdateWithoutGoogleDriveTokenInput>, SchoolUncheckedUpdateWithoutGoogleDriveTokenInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -42643,6 +44101,33 @@ export namespace Prisma {
     _max?: NestedEnumCpdRecordStatusFilter<$PrismaModel>
   }
 
+  export type NestedBigIntNullableFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel> | null
+    in?: bigint[] | number[] | null
+    notIn?: bigint[] | number[] | null
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntNullableFilter<$PrismaModel> | bigint | number | null
+  }
+
+  export type NestedBigIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel> | null
+    in?: bigint[] | number[] | null
+    notIn?: bigint[] | number[] | null
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntNullableWithAggregatesFilter<$PrismaModel> | bigint | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedBigIntNullableFilter<$PrismaModel>
+    _min?: NestedBigIntNullableFilter<$PrismaModel>
+    _max?: NestedBigIntNullableFilter<$PrismaModel>
+  }
+
   export type ActivityLogCreateWithoutUserInput = {
     id?: string
     action: string
@@ -42906,6 +44391,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutUsersInput = {
@@ -42936,6 +44422,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutUsersInput = {
@@ -43213,6 +44700,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutUsersInput = {
@@ -43243,6 +44731,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type UserCreateWithoutRefreshTokensInput = {
@@ -43858,6 +45347,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     academicSession: AcademicSessionCreateNestedOneWithoutExamPapersInput
@@ -43884,6 +45375,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
@@ -44033,6 +45526,35 @@ export namespace Prisma {
   export type PaymentTransactionCreateManySchoolInputEnvelope = {
     data: PaymentTransactionCreateManySchoolInput | PaymentTransactionCreateManySchoolInput[]
     skipDuplicates?: boolean
+  }
+
+  export type GoogleDriveTokenCreateWithoutSchoolInput = {
+    id?: string
+    userId?: string | null
+    email?: string | null
+    accessToken: string
+    refreshToken: string
+    expiryDate?: bigint | number | null
+    rootFolderId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GoogleDriveTokenUncheckedCreateWithoutSchoolInput = {
+    id?: string
+    userId?: string | null
+    email?: string | null
+    accessToken: string
+    refreshToken: string
+    expiryDate?: bigint | number | null
+    rootFolderId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GoogleDriveTokenCreateOrConnectWithoutSchoolInput = {
+    where: GoogleDriveTokenWhereUniqueInput
+    create: XOR<GoogleDriveTokenCreateWithoutSchoolInput, GoogleDriveTokenUncheckedCreateWithoutSchoolInput>
   }
 
   export type AcademicSessionUpsertWithWhereUniqueWithoutSchoolInput = {
@@ -44420,6 +45942,8 @@ export namespace Prisma {
     styleColor?: StringNullableFilter<"ExamPaper"> | string | null
     templateType?: StringNullableFilter<"ExamPaper"> | string | null
     pdfUrl?: StringNullableFilter<"ExamPaper"> | string | null
+    googleDriveFileId?: StringNullableFilter<"ExamPaper"> | string | null
+    googleDriveWebViewLink?: StringNullableFilter<"ExamPaper"> | string | null
     createdAt?: DateTimeFilter<"ExamPaper"> | Date | string
     updatedAt?: DateTimeFilter<"ExamPaper"> | Date | string
   }
@@ -44537,6 +46061,41 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"PaymentTransaction"> | Date | string
   }
 
+  export type GoogleDriveTokenUpsertWithoutSchoolInput = {
+    update: XOR<GoogleDriveTokenUpdateWithoutSchoolInput, GoogleDriveTokenUncheckedUpdateWithoutSchoolInput>
+    create: XOR<GoogleDriveTokenCreateWithoutSchoolInput, GoogleDriveTokenUncheckedCreateWithoutSchoolInput>
+    where?: GoogleDriveTokenWhereInput
+  }
+
+  export type GoogleDriveTokenUpdateToOneWithWhereWithoutSchoolInput = {
+    where?: GoogleDriveTokenWhereInput
+    data: XOR<GoogleDriveTokenUpdateWithoutSchoolInput, GoogleDriveTokenUncheckedUpdateWithoutSchoolInput>
+  }
+
+  export type GoogleDriveTokenUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: StringFieldUpdateOperationsInput | string
+    expiryDate?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    rootFolderId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GoogleDriveTokenUncheckedUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: StringFieldUpdateOperationsInput | string
+    refreshToken?: StringFieldUpdateOperationsInput | string
+    expiryDate?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    rootFolderId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type SchoolCreateWithoutAcademicSessionsInput = {
     id?: string
     name: string
@@ -44565,6 +46124,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutAcademicSessionsInput = {
@@ -44595,6 +46155,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutAcademicSessionsInput = {
@@ -44977,6 +46538,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     school: SchoolCreateNestedOneWithoutExamPapersInput
@@ -45003,6 +46566,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
@@ -45117,6 +46682,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutAcademicSessionsInput = {
@@ -45147,6 +46713,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type AcademicTermUpsertWithWhereUniqueWithoutAcademicSessionInput = {
@@ -45527,6 +47094,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutSubscriptionsInput = {
@@ -45557,6 +47125,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutSubscriptionsInput = {
@@ -45654,6 +47223,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutSubscriptionsInput = {
@@ -45684,6 +47254,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type PaymentTransactionCreateWithoutCouponInput = {
@@ -45778,6 +47349,7 @@ export namespace Prisma {
     examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
     examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutPaymentTransactionsInput = {
@@ -45808,6 +47380,7 @@ export namespace Prisma {
     examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
     examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutPaymentTransactionsInput = {
@@ -45938,6 +47511,7 @@ export namespace Prisma {
     examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
     examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutPaymentTransactionsInput = {
@@ -45968,6 +47542,7 @@ export namespace Prisma {
     examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
     examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type SubscriptionPlanUpsertWithoutPaymentsInput = {
@@ -46209,6 +47784,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutTeachersInput = {
@@ -46239,6 +47815,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutTeachersInput = {
@@ -46342,6 +47919,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     school: SchoolCreateNestedOneWithoutExamPapersInput
@@ -46368,6 +47947,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
@@ -46565,6 +48146,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutTeachersInput = {
@@ -46595,6 +48177,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type UserUpsertWithoutTeacherInput = {
@@ -46821,6 +48404,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutClassesInput = {
@@ -46851,6 +48435,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutClassesInput = {
@@ -46943,6 +48528,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     school: SchoolCreateNestedOneWithoutExamPapersInput
@@ -46969,6 +48556,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
@@ -47090,6 +48679,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutClassesInput = {
@@ -47120,6 +48710,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type SubjectUpsertWithWhereUniqueWithoutClassInput = {
@@ -47330,6 +48921,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutSubjectsInput = {
@@ -47360,6 +48952,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutSubjectsInput = {
@@ -47408,6 +49001,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     school: SchoolCreateNestedOneWithoutExamPapersInput
@@ -47434,6 +49029,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sections?: ExamSectionUncheckedCreateNestedManyWithoutExamPaperInput
@@ -47600,6 +49197,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutSubjectsInput = {
@@ -47630,6 +49228,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type TeacherClassUpsertWithWhereUniqueWithoutSubjectInput = {
@@ -47818,6 +49417,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutChaptersInput = {
@@ -47848,6 +49448,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutChaptersInput = {
@@ -48083,6 +49684,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutChaptersInput = {
@@ -48113,6 +49715,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type SubjectUpsertWithoutChaptersInput = {
@@ -48326,6 +49929,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutTopicsInput = {
@@ -48356,6 +49960,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutTopicsInput = {
@@ -48518,6 +50123,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutTopicsInput = {
@@ -48548,6 +50154,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type AcademicSessionCreateWithoutTeacherClassesInput = {
@@ -49634,6 +51241,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutExamPapersInput = {
@@ -49664,6 +51272,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutExamPapersInput = {
@@ -49898,6 +51507,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutExamPapersInput = {
@@ -49928,6 +51538,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type AcademicSessionUpsertWithoutExamPapersInput = {
@@ -50154,6 +51765,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     school: SchoolCreateNestedOneWithoutExamPapersInput
@@ -50181,6 +51794,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -50246,6 +51861,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
@@ -50273,6 +51890,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -50392,6 +52011,7 @@ export namespace Prisma {
     examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutExamPaperTemplatesInput = {
@@ -50422,6 +52042,7 @@ export namespace Prisma {
     examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutExamPaperTemplatesInput = {
@@ -50468,6 +52089,7 @@ export namespace Prisma {
     examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutExamPaperTemplatesInput = {
@@ -50498,6 +52120,7 @@ export namespace Prisma {
     examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolCreateWithoutNotificationsInput = {
@@ -50528,6 +52151,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutNotificationsInput = {
@@ -50558,6 +52182,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutNotificationsInput = {
@@ -50653,6 +52278,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutNotificationsInput = {
@@ -50683,6 +52309,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type UserUpsertWithoutNotificationsInput = {
@@ -50768,6 +52395,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutActivityLogsInput = {
@@ -50798,6 +52426,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutActivityLogsInput = {
@@ -50893,6 +52522,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutActivityLogsInput = {
@@ -50923,6 +52553,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type UserUpsertWithoutActivityLogsInput = {
@@ -51057,6 +52688,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutAuditLogsInput = {
@@ -51087,6 +52719,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutAuditLogsInput = {
@@ -51188,6 +52821,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutAuditLogsInput = {
@@ -51218,6 +52852,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type AcademicSessionCreateWithoutAcademicTermsInput = {
@@ -51293,6 +52928,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutAcademicTermsInput = {
@@ -51323,6 +52959,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutAcademicTermsInput = {
@@ -51446,6 +53083,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutAcademicTermsInput = {
@@ -51476,6 +53114,7 @@ export namespace Prisma {
     examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
     teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type VacationDayUpsertWithWhereUniqueWithoutAcademicTermInput = {
@@ -51618,6 +53257,7 @@ export namespace Prisma {
     examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
     examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutTeacherTrainingRecordsInput = {
@@ -51648,6 +53288,7 @@ export namespace Prisma {
     examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
     examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
     paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+    googleDriveToken?: GoogleDriveTokenUncheckedCreateNestedOneWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutTeacherTrainingRecordsInput = {
@@ -51774,6 +53415,7 @@ export namespace Prisma {
     examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
     examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUpdateOneWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutTeacherTrainingRecordsInput = {
@@ -51804,6 +53446,7 @@ export namespace Prisma {
     examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
     examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
     paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
+    googleDriveToken?: GoogleDriveTokenUncheckedUpdateOneWithoutSchoolNestedInput
   }
 
   export type AcademicSessionUpsertWithoutTeacherTrainingRecordsInput = {
@@ -51896,6 +53539,146 @@ export namespace Prisma {
     teacherClasses?: TeacherClassUncheckedUpdateManyWithoutTeacherNestedInput
     topicProgress?: TopicProgressUncheckedUpdateManyWithoutTeacherNestedInput
     examPapers?: ExamPaperUncheckedUpdateManyWithoutTeacherNestedInput
+  }
+
+  export type SchoolCreateWithoutGoogleDriveTokenInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    currentAcademicSessionId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicSessions?: AcademicSessionCreateNestedManyWithoutSchoolInput
+    academicTerms?: AcademicTermCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterCreateNestedManyWithoutSchoolInput
+    classes?: ClassCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherCreateNestedManyWithoutSchoolInput
+    topics?: TopicCreateNestedManyWithoutSchoolInput
+    users?: UserCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateCreateNestedManyWithoutSchoolInput
+    teacherTrainingRecords?: TeacherTrainingRecordCreateNestedManyWithoutSchoolInput
+    paymentTransactions?: PaymentTransactionCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolUncheckedCreateWithoutGoogleDriveTokenInput = {
+    id?: string
+    name: string
+    slug: string
+    email: string
+    phone?: string | null
+    address?: string | null
+    logo?: string | null
+    status?: $Enums.SchoolStatus
+    currentAcademicSessionId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    academicSessions?: AcademicSessionUncheckedCreateNestedManyWithoutSchoolInput
+    academicTerms?: AcademicTermUncheckedCreateNestedManyWithoutSchoolInput
+    activityLogs?: ActivityLogUncheckedCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
+    chapters?: ChapterUncheckedCreateNestedManyWithoutSchoolInput
+    classes?: ClassUncheckedCreateNestedManyWithoutSchoolInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutSchoolInput
+    subjects?: SubjectUncheckedCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
+    teachers?: TeacherUncheckedCreateNestedManyWithoutSchoolInput
+    topics?: TopicUncheckedCreateNestedManyWithoutSchoolInput
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    examPapers?: ExamPaperUncheckedCreateNestedManyWithoutSchoolInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedCreateNestedManyWithoutSchoolInput
+    teacherTrainingRecords?: TeacherTrainingRecordUncheckedCreateNestedManyWithoutSchoolInput
+    paymentTransactions?: PaymentTransactionUncheckedCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolCreateOrConnectWithoutGoogleDriveTokenInput = {
+    where: SchoolWhereUniqueInput
+    create: XOR<SchoolCreateWithoutGoogleDriveTokenInput, SchoolUncheckedCreateWithoutGoogleDriveTokenInput>
+  }
+
+  export type SchoolUpsertWithoutGoogleDriveTokenInput = {
+    update: XOR<SchoolUpdateWithoutGoogleDriveTokenInput, SchoolUncheckedUpdateWithoutGoogleDriveTokenInput>
+    create: XOR<SchoolCreateWithoutGoogleDriveTokenInput, SchoolUncheckedCreateWithoutGoogleDriveTokenInput>
+    where?: SchoolWhereInput
+  }
+
+  export type SchoolUpdateToOneWithWhereWithoutGoogleDriveTokenInput = {
+    where?: SchoolWhereInput
+    data: XOR<SchoolUpdateWithoutGoogleDriveTokenInput, SchoolUncheckedUpdateWithoutGoogleDriveTokenInput>
+  }
+
+  export type SchoolUpdateWithoutGoogleDriveTokenInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    currentAcademicSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicSessions?: AcademicSessionUpdateManyWithoutSchoolNestedInput
+    academicTerms?: AcademicTermUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUpdateManyWithoutSchoolNestedInput
+    users?: UserUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUpdateManyWithoutSchoolNestedInput
+    teacherTrainingRecords?: TeacherTrainingRecordUpdateManyWithoutSchoolNestedInput
+    paymentTransactions?: PaymentTransactionUpdateManyWithoutSchoolNestedInput
+  }
+
+  export type SchoolUncheckedUpdateWithoutGoogleDriveTokenInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    logo?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    currentAcademicSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    academicSessions?: AcademicSessionUncheckedUpdateManyWithoutSchoolNestedInput
+    academicTerms?: AcademicTermUncheckedUpdateManyWithoutSchoolNestedInput
+    activityLogs?: ActivityLogUncheckedUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
+    chapters?: ChapterUncheckedUpdateManyWithoutSchoolNestedInput
+    classes?: ClassUncheckedUpdateManyWithoutSchoolNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutSchoolNestedInput
+    subjects?: SubjectUncheckedUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
+    teachers?: TeacherUncheckedUpdateManyWithoutSchoolNestedInput
+    topics?: TopicUncheckedUpdateManyWithoutSchoolNestedInput
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    examPapers?: ExamPaperUncheckedUpdateManyWithoutSchoolNestedInput
+    examPaperTemplates?: ExamPaperTemplateUncheckedUpdateManyWithoutSchoolNestedInput
+    teacherTrainingRecords?: TeacherTrainingRecordUncheckedUpdateManyWithoutSchoolNestedInput
+    paymentTransactions?: PaymentTransactionUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type ActivityLogCreateManyUserInput = {
@@ -52349,6 +54132,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -52949,6 +54734,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     academicSession?: AcademicSessionUpdateOneRequiredWithoutExamPapersNestedInput
@@ -52975,6 +54762,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
@@ -52997,6 +54786,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -53297,6 +55088,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -53731,6 +55524,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
@@ -53757,6 +55552,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
@@ -53779,6 +55576,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -54116,6 +55915,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -54269,6 +56070,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
@@ -54295,6 +56098,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
@@ -54317,6 +56122,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -54453,6 +56260,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -54600,6 +56409,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
@@ -54626,6 +56437,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
@@ -54648,6 +56461,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -54695,6 +56510,8 @@ export namespace Prisma {
     styleColor?: string | null
     templateType?: string | null
     pdfUrl?: string | null
+    googleDriveFileId?: string | null
+    googleDriveWebViewLink?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -54794,6 +56611,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneRequiredWithoutExamPapersNestedInput
@@ -54820,6 +56639,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sections?: ExamSectionUncheckedUpdateManyWithoutExamPaperNestedInput
@@ -54842,6 +56663,8 @@ export namespace Prisma {
     styleColor?: NullableStringFieldUpdateOperationsInput | string | null
     templateType?: NullableStringFieldUpdateOperationsInput | string | null
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveFileId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleDriveWebViewLink?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -55287,6 +57110,10 @@ export namespace Prisma {
      * @deprecated Use TeacherTrainingRecordDefaultArgs instead
      */
     export type TeacherTrainingRecordArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TeacherTrainingRecordDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use GoogleDriveTokenDefaultArgs instead
+     */
+    export type GoogleDriveTokenArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GoogleDriveTokenDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

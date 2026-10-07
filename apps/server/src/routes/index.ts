@@ -13,6 +13,7 @@ import { examPaperRoutes } from './exam-paper.routes.js';
 import { teacherTrainingRoutes } from './teacher-training.routes.js';
 import { subscriptionRoutes } from './subscription.routes.js';
 import { couponRoutes } from './coupon.routes.js';
+import { googleDriveRoutes } from './google-drive.routes.js';
 
 export const apiRouter = Router();
 
@@ -30,6 +31,7 @@ apiRouter.use('/academic-sessions', academicSessionRoutes);
 apiRouter.use('/progression', progressionRoutes);
 apiRouter.use('/exam-papers', examPaperRoutes);
 apiRouter.use('/teacher-trainings', teacherTrainingRoutes);
+apiRouter.use('/google-drive', googleDriveRoutes);
 
 apiRouter.get('/health', (_req, res) => {
   res.json({ success: true, data: { status: 'ok', timestamp: new Date().toISOString() } });

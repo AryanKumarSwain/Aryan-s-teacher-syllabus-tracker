@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, FileText, Download, CheckCircle2, Eye, Edit3, Upload, Image as ImageIcon, Trash2 } from 'lucide-react';
+import { Loader2, FileText, Download, CheckCircle2, Eye, Edit3, Upload, Image as ImageIcon, Trash2, CloudUpload, ExternalLink, RefreshCw } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,19 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/services/api-client';
 import { toast } from 'sonner';
 import { env } from '@/config/env';
+
+function GoogleDriveIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 87.3 78" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.9 2.5 3.2 3.3l12.3-21.3H6.6c0 1.5.4 3 1.2 4.35l-1.2 7z" fill="#0066DA" />
+      <path d="M43.65 25L31.35 3.7c-1.3.8-2.4 1.9-3.2 3.3L1.2 53.5c-.8 1.4-1.2 2.9-1.2 4.4h25.95L43.65 25z" fill="#00AC47" />
+      <path d="M73.55 76.8c1.3-.8 2.4-1.9 3.2-3.3l1.6-2.8 8.1-14c.8-1.4 1.2-2.9 1.2-4.4H61.7l5.25 10.5 6.6 14z" fill="#EA4335" />
+      <path d="M43.65 25L56 3.7C54.7 2.9 53.2 2.5 51.7 2.5H35.6c-1.5 0-3 .4-4.3 1.2L43.65 25z" fill="#00832D" />
+      <path d="M59.8 55.5H27.5L15.2 76.8c1.3.8 2.8 1.2 4.3 1.2h48.3c1.5 0 3-.4 4.3-1.2L59.8 55.5z" fill="#2684FC" />
+      <path d="M73.4 26.5l-12.7-22c-1.3-.8-2.8-1.2-4.3-1.2L43.65 25l18.05 31.2h25.6c0-1.5-.4-3-1.2-4.4l-12.7-25.3z" fill="#FFBA00" />
+    </svg>
+  );
+}
 
 interface AdminPaperItem {
   id: string;
@@ -32,6 +45,8 @@ interface AdminPaperItem {
   styleColor?: string;
   templateType?: string;
   pdfUrl?: string;
+  googleDriveFileId?: string;
+  googleDriveWebViewLink?: string;
   sections?: unknown[];
 }
 
@@ -57,6 +72,34 @@ export default function AdminExamPapersPage() {
     queryFn: () => api.get<{ id?: string; logoUrl?: string | null }>('/exam-papers/template'),
     staleTime: 60000,
   });
+
+  const [connectingDrive, setConnectingDrive] = useState(false);
+  const [disconnectingDrive, setDisconnectingDrive] = useState(false);
+
+  const { data: driveStatus, refetch: refetchDriveStatus, isLoading: loadingDriveStatus } = useQuery({
+    queryKey: ['google-drive-status'],
+    queryFn: () => api.get<{ connected: boolean; email?: string }>('/google-drive/status'),
+    staleTime: 15000,
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    const driveConnected = url.searchParams.get('drive_connected');
+    const driveError = url.searchParams.get('drive_error');
+
+    if (driveConnected === 'true') {
+      toast.success('Google Drive successfully connected! Auto-folder organization is active.');
+      refetchDriveStatus();
+      queryClient.invalidateQueries({ queryKey: ['admin-exam-papers'] });
+      url.searchParams.delete('drive_connected');
+      window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
+    } else if (driveError) {
+      toast.error(`Google Drive connection error: ${decodeURIComponent(driveError)}`);
+      url.searchParams.delete('drive_error');
+      window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
+    }
+  }, [queryClient, refetchDriveStatus]);
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -266,6 +309,108 @@ export default function AdminExamPapersPage() {
     }
   };
 
+  const handleConnectDrive = async () => {
+    try {
+      setConnectingDrive(true);
+      const res = await api.get<{ authUrl: string }>(
+        `/google-drive/auth-url?returnUrl=${encodeURIComponent(window.location.origin + '/admin/exam-papers')}`
+      );
+      if (res?.authUrl) {
+        window.location.href = res.authUrl;
+      } else {
+        toast.error('Failed to get Google authorization URL');
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to start Google Drive connection');
+    } finally {
+      setConnectingDrive(false);
+    }
+  };
+
+  const handleDisconnectDrive = async () => {
+    if (!confirm('Are you sure you want to disconnect Google Drive? Exam papers will no longer auto-sync to Drive.')) {
+      return;
+    }
+    try {
+      setDisconnectingDrive(true);
+      await api.post('/google-drive/disconnect');
+      await refetchDriveStatus();
+      toast.success('Google Drive disconnected');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to disconnect Google Drive');
+    } finally {
+      setDisconnectingDrive(false);
+    }
+  };
+
+  const handleUploadToDrive = async (paperId: string) => {
+    if (!driveStatus?.connected) {
+      toast.error('Google Drive is not connected yet. Click "Connect Google Drive" above to authorize your account.', {
+        action: {
+          label: 'Connect Now',
+          onClick: handleConnectDrive,
+        },
+      });
+      return;
+    }
+
+    setDownloadingType(`drive-${paperId}`);
+    try {
+      const [paper, { generateExamPaperPdf }] = await Promise.all([
+        api.get<AdminPaperItem>(`/exam-papers/${paperId}`),
+        import('@/features/exam-papers/utils/pdf-generator'),
+      ]);
+
+      const pdfData = {
+        schoolName: paper.school?.name || '',
+        examName: paper.examName || '',
+        className: paper.class?.name || '',
+        subjectName: paper.subject?.name || '',
+        examDate: paper.examDate || '',
+        totalMarks: paper.totalMarks || 0,
+        duration: paper.duration || 0,
+        instructions: paper.instructions || '',
+        templateType: (paper.templateType as 'SINGLE' | 'SPLIT') || 'SINGLE',
+        styleFontFamily: paper.styleFontFamily || 'Times New Roman',
+        styleFontSize: paper.styleFontSize || '11pt',
+        styleColor: paper.styleColor || '#000000',
+        logoUrl: template?.logoUrl || paper.school?.examPaperTemplates?.[0]?.logoUrl || '',
+        teacherName: paper.teacher?.user?.name || '',
+        showTeacherName: showTeacherName,
+        sections: paper.sections || [],
+      };
+
+      const blob = await generateExamPaperPdf(pdfData as any, '');
+      const safeExamName = `${paper.examName.replace(/\s+/g, '_')}_Paper.pdf`;
+
+      const formData = new FormData();
+      formData.append('pdf', blob, safeExamName);
+      formData.append('fileName', safeExamName);
+
+      const result = await api.post<any>(`/google-drive/upload-paper/${paper.id}`, formData);
+
+      queryClient.invalidateQueries({ queryKey: ['admin-exam-papers'] });
+
+      toast.success(
+        `Uploaded to Google Drive! Path: ${result.folderPath || `Exam Papers / ${paper.class.name} / ${paper.subject.name}`}`,
+        {
+          action: result.webViewLink
+            ? {
+                label: 'Open in Drive',
+                onClick: () => window.open(result.webViewLink, '_blank'),
+              }
+            : undefined,
+          duration: 7000,
+        }
+      );
+    } catch (error: any) {
+      console.error('Failed to upload paper to Google Drive:', error);
+      toast.error(error?.message || 'Failed to upload paper to Google Drive. Please try again.');
+    } finally {
+      setDownloadingType(null);
+    }
+  };
+
   const toggleExpand = (paperId: string) => {
     setExpandedPaperId(expandedPaperId === paperId ? null : paperId);
     setRollNumber('');
@@ -368,6 +513,67 @@ export default function AdminExamPapersPage() {
               )}
             </div>
           </div>
+
+          {/* Google Drive Integration Banner */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-gray-100 bg-emerald-50/50 border border-emerald-100/70 rounded-xl p-3">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-lg border border-emerald-200 bg-white p-2 flex items-center justify-center shadow-2xs shrink-0">
+                <GoogleDriveIcon className="h-7 w-7" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-gray-800">Google Drive Auto-Sync</span>
+                  {loadingDriveStatus ? (
+                    <span className="text-[10px] bg-gray-100 text-gray-500 font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Loader2 className="h-2.5 w-2.5 animate-spin" /> Checking
+                    </span>
+                  ) : driveStatus?.connected ? (
+                    <span className="text-[10px] bg-emerald-100 text-emerald-700 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Connected
+                    </span>
+                  ) : (
+                    <span className="text-[10px] bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">
+                      Not Connected
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-gray-500 mt-0.5">
+                  {driveStatus?.connected
+                    ? `Active for ${driveStatus.email || 'School Admin'}. Uploaded exam papers automatically create Exam Papers > Classwise > Subjectwise folders in Drive.`
+                    : 'Connect your Google Drive with 1 click. When you upload exam papers, folders are automatically organized class-wise and subject-wise.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+              {driveStatus?.connected ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={disconnectingDrive}
+                  onClick={handleDisconnectDrive}
+                  className="text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 gap-1.5"
+                >
+                  {disconnectingDrive && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  Disconnect Drive
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  disabled={connectingDrive || loadingDriveStatus}
+                  onClick={handleConnectDrive}
+                  className="text-xs h-8 bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 shadow-2xs"
+                >
+                  {connectingDrive ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <GoogleDriveIcon className="h-4 w-4" />
+                  )}
+                  Connect Google Drive
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
 
         {isLoading ? (
@@ -405,6 +611,20 @@ export default function AdminExamPapersPage() {
                     }`}>
                       {paper.status === 'REVIEWED' ? 'Reviewed' : paper.status === 'SUBMITTED' ? 'Submitted' : paper.status}
                     </span>
+
+                    {paper.googleDriveWebViewLink && (
+                      <a
+                        href={paper.googleDriveWebViewLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-full transition-colors"
+                        title="View in Google Drive"
+                      >
+                        <GoogleDriveIcon className="h-3 w-3" />
+                        <span>Drive</span>
+                        <ExternalLink className="h-2.5 w-2.5" />
+                      </a>
+                    )}
 
                     {paper.status === 'SUBMITTED' && (
                       <Button
@@ -466,7 +686,7 @@ export default function AdminExamPapersPage() {
                       </label>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                       {/* Single Student PDF */}
                       <div className="border border-gray-200 rounded-xl p-4 bg-white shadow-2xs flex flex-col justify-between">
                         <div>
@@ -539,6 +759,55 @@ export default function AdminExamPapersPage() {
                           <Download className="mr-1.5 h-3.5 w-3.5 text-gray-500" />
                           Download PDF
                         </Button>
+                      </div>
+
+                      {/* Google Drive Upload */}
+                      <div className="border border-emerald-200 rounded-xl p-4 bg-emerald-50/40 shadow-2xs flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <h5 className="font-semibold text-sm text-emerald-950 flex items-center gap-1.5">
+                              <GoogleDriveIcon className="h-4 w-4" />
+                              Google Drive
+                            </h5>
+                            {paper.googleDriveWebViewLink && (
+                              <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                                <CheckCircle2 className="h-2.5 w-2.5 text-emerald-600" /> Synced
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 mb-2">
+                            Auto-syncs into: <br />
+                            <span className="font-semibold text-emerald-800 break-all text-[11px]">
+                              Exam Papers &gt; {paper.class.name} &gt; {paper.subject.name}
+                            </span>
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 pt-2 border-t border-emerald-100">
+                          <Button
+                            size="sm"
+                            disabled={downloadingType === `drive-${paper.id}`}
+                            onClick={() => handleUploadToDrive(paper.id)}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8 flex-1 gap-1.5"
+                          >
+                            {downloadingType === `drive-${paper.id}` ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <CloudUpload className="h-3.5 w-3.5" />
+                            )}
+                            {paper.googleDriveWebViewLink ? 'Re-upload' : 'Upload to Drive'}
+                          </Button>
+                          {paper.googleDriveWebViewLink && (
+                            <a
+                              href={paper.googleDriveWebViewLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center h-8 px-2.5 rounded-lg border border-emerald-300 bg-white hover:bg-emerald-50 text-emerald-700 text-xs font-medium transition-colors shrink-0"
+                              title="Open in Google Drive"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

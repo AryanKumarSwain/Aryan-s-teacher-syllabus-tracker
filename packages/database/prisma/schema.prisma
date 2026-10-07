@@ -80,6 +80,7 @@ model School {
   examPaperTemplates       ExamPaperTemplate[]
   teacherTrainingRecords   TeacherTrainingRecord[]
   paymentTransactions      PaymentTransaction[]
+  googleDriveToken         GoogleDriveToken?
 
   @@index([status])
   @@index([slug])
@@ -436,6 +437,8 @@ model ExamPaper {
   styleColor        String?         @map("style_color") @db.VarChar(50)
   templateType      String?         @default("SINGLE") @map("template_type") @db.VarChar(50)
   pdfUrl            String?         @map("pdf_url") @db.VarChar(500)
+  googleDriveFileId String?         @map("google_drive_file_id") @db.VarChar(191)
+  googleDriveWebViewLink String?    @map("google_drive_web_view_link") @db.VarChar(500)
   createdAt         DateTime        @default(now()) @map("created_at")
   updatedAt         DateTime        @updatedAt @map("updated_at")
   school            School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
@@ -730,4 +733,20 @@ enum CpdRecordStatus {
   VERIFIED
   SUBMITTED
   REJECTED
+}
+
+model GoogleDriveToken {
+  id           String    @id @default(uuid()) @db.VarChar(50)
+  schoolId     String    @unique @map("school_id") @db.VarChar(50)
+  userId       String?   @map("user_id") @db.VarChar(50)
+  email        String?   @db.VarChar(191)
+  accessToken  String    @map("access_token") @db.Text
+  refreshToken String    @map("refresh_token") @db.Text
+  expiryDate   BigInt?   @map("expiry_date")
+  rootFolderId String?   @map("root_folder_id") @db.VarChar(191)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  school       School    @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@map("google_drive_tokens")
 }

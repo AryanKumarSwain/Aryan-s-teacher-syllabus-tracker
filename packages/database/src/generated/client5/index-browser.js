@@ -372,6 +372,8 @@ exports.Prisma.ExamPaperScalarFieldEnum = {
   styleColor: 'styleColor',
   templateType: 'templateType',
   pdfUrl: 'pdfUrl',
+  googleDriveFileId: 'googleDriveFileId',
+  googleDriveWebViewLink: 'googleDriveWebViewLink',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -493,6 +495,19 @@ exports.Prisma.TeacherTrainingRecordScalarFieldEnum = {
   certificateUrl: 'certificateUrl',
   remarks: 'remarks',
   status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.GoogleDriveTokenScalarFieldEnum = {
+  id: 'id',
+  schoolId: 'schoolId',
+  userId: 'userId',
+  email: 'email',
+  accessToken: 'accessToken',
+  refreshToken: 'refreshToken',
+  expiryDate: 'expiryDate',
+  rootFolderId: 'rootFolderId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -645,7 +660,8 @@ exports.Prisma.ModelName = {
   AuditLog: 'AuditLog',
   AcademicTerm: 'AcademicTerm',
   VacationDay: 'VacationDay',
-  TeacherTrainingRecord: 'TeacherTrainingRecord'
+  TeacherTrainingRecord: 'TeacherTrainingRecord',
+  GoogleDriveToken: 'GoogleDriveToken'
 };
 
 /**
