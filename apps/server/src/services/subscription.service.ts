@@ -2,9 +2,10 @@ import crypto from 'node:crypto';
 import { prisma } from '@school-syllabus/database';
 import { AppError } from '../middleware/error-handler.js';
 import { couponService } from './coupon.service.js';
+import { env } from '../config/env.js';
 
-const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || 'rzp_test_TNFrLSunBdtmcv';
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'rYqvnc8Q8GqIpXT6ZSNKp7Ly';
+const getRazorpayKeyId = () => env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID || 'rzp_test_TNFrLSunBdtmcv';
+const getRazorpayKeySecret = () => env.RAZORPAY_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET || 'rYqvnc8Q8GqIpXT6ZSNKp7Ly';
 
 export const subscriptionService = {
   async getCurrentSubscription(schoolId: string, academicSessionId?: string) {
@@ -68,7 +69,7 @@ export const subscriptionService = {
           }
         : null,
       limits,
-      razorpayKeyId: RAZORPAY_KEY_ID,
+      razorpayKeyId: getRazorpayKeyId(),
     };
   },
 
@@ -153,7 +154,7 @@ export const subscriptionService = {
     const amountInPaise = Math.round(finalAmount * 100);
 
     // Call Razorpay API to create an order
-    const authHeader = 'Basic ' + Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
+    const authHeader = 'Basic ' + Buffer.from(`${getRazorpayKeyId()}:${getRazorpayKeySecret()}`).toString('base64');
     let razorpayOrderId = `order_${Date.now()}`;
 
     try {
@@ -221,7 +222,7 @@ export const subscriptionService = {
       amount: finalAmount,
       amountInPaise,
       currency: 'INR',
-      keyId: RAZORPAY_KEY_ID,
+      keyId: getRazorpayKeyId(),
       plan: {
         id: plan.id,
         name: plan.name,
@@ -245,7 +246,7 @@ export const subscriptionService = {
 
     // Verify signature
     const expectedSignature = crypto
-      .createHmac('sha256', RAZORPAY_KEY_SECRET)
+      .createHmac('sha256', getRazorpayKeySecret())
       .update(`${razorpayOrderId}|${razorpayPaymentId}`)
       .digest('hex');
 
