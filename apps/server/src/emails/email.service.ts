@@ -41,6 +41,9 @@ function getSmtpTransporter(): nodemailer.Transporter | null {
       auth:
         env.SMTP_USER && env.SMTP_PASS ? { user: env.SMTP_USER, pass: env.SMTP_PASS } : undefined,
       ...(port === 587 && !secure ? { requireTLS: true } : {}),
+      tls: {
+        rejectUnauthorized: false,
+      },
     });
     smtpTransporterKey = cacheKey;
   }
