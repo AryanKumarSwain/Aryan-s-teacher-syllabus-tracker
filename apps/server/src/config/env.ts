@@ -8,9 +8,9 @@ const __dirname = path.dirname(__filename);
 const serverRoot = path.resolve(__dirname, '../..');
 const repoRoot = path.resolve(serverRoot, '../..');
 
-// Load root .env, then server-specific .env (with override: true)
-dotenv.config({ path: path.resolve(repoRoot, '.env') });
-dotenv.config({ path: path.resolve(serverRoot, '.env'), override: true });
+// Load server-specific .env first, then root .env with override so root .env takes precedence
+dotenv.config({ path: path.resolve(serverRoot, '.env') });
+dotenv.config({ path: path.resolve(repoRoot, '.env'), override: true });
 dotenv.config(); // fallback to cwd .env
 
 const envSchema = z.object({
