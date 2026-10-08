@@ -10,7 +10,7 @@ import { SessionSelector } from '@/components/admin/session-selector';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { useAcademicSessions } from '@/features/syllabus/hooks/use-academic-sessions';
 
-export function Navbar({ title }: { title: string }) {
+export function Navbar({ title }: { title?: string }) {
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const router = useRouter();
@@ -71,12 +71,14 @@ export function Navbar({ title }: { title: string }) {
           </div>
         )}
 
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-[#434655]">Workspace</p>
-          <h1 className="text-base font-extrabold tracking-tight text-[#0b1c30] sm:text-lg">
-            {title}
-          </h1>
-        </div>
+        {title && (
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#434655]">Workspace</p>
+            <h1 className="text-base font-extrabold tracking-tight text-[#0b1c30] sm:text-lg">
+              {title}
+            </h1>
+          </div>
+        )}
       </div>
 
       {/* Middle — session selector for admin routes, batch name for teacher routes */}

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { use, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, BookOpen, ChevronDown, CheckCircle2, Target, Layers } from 'lucide-react';
+import { ArrowLeft, BookOpen, ChevronDown, CheckCircle2, Target, Layers, GraduationCap } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

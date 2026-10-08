@@ -11,7 +11,7 @@ import { Sparkles, ShieldAlert, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-export function DashboardShell({ title, children }: { title: string; children: React.ReactNode }) {
+export function DashboardShell({ title, children }: { title?: string; children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
