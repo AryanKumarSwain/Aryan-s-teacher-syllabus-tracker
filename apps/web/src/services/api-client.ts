@@ -131,13 +131,20 @@ export const api = {
     request<PaginatedResponse<T>>(endpoint, { method: 'GET', params }),
 
   post: <T>(endpoint: string, body?: unknown, skipAuth?: boolean) =>
-    request<T>(endpoint, { method: 'POST', body: JSON.stringify(sanitizePayload(body)), skipAuth }),
+    request<T>(endpoint, {
+      method: 'POST',
+      body: body instanceof FormData ? body : JSON.stringify(sanitizePayload(body)),
+      skipAuth,
+    }),
 
   postFormData: <T>(endpoint: string, formData: FormData, skipAuth?: boolean) =>
     request<T>(endpoint, { method: 'POST', body: formData, skipAuth }),
 
   patch: <T>(endpoint: string, body?: unknown) =>
-    request<T>(endpoint, { method: 'PATCH', body: JSON.stringify(sanitizePayload(body)) }),
+    request<T>(endpoint, {
+      method: 'PATCH',
+      body: body instanceof FormData ? body : JSON.stringify(sanitizePayload(body)),
+    }),
 
   delete: <T>(endpoint: string) => request<T>(endpoint, { method: 'DELETE' }),
 };

@@ -177,7 +177,7 @@ export default function AdminExamPaperReviewPage() {
       formData.append('pdf', blob, safeExamName);
       formData.append('fileName', safeExamName);
 
-      const result = await api.post<any>(`/google-drive/upload-paper/${paper.id}`, formData);
+      const result = await api.postFormData<any>(`/google-drive/upload-paper/${paper.id}`, formData);
 
       setPaper({
         ...paper,

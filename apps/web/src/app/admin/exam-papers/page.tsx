@@ -393,7 +393,7 @@ export default function AdminExamPapersPage() {
       formData.append('pdf', blob, safeExamName);
       formData.append('fileName', safeExamName);
 
-      const result = await api.post<any>(`/google-drive/upload-paper/${paper.id}`, formData);
+      const result = await api.postFormData<any>(`/google-drive/upload-paper/${paper.id}`, formData);
 
       queryClient.invalidateQueries({ queryKey: ['admin-exam-papers'] });
 

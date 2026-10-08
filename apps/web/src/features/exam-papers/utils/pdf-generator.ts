@@ -1132,6 +1132,73 @@ function formatDuration(minutes: number): string {
   }
 }
 
+function estimateQuestionHeightQuick(
+  doc: typeof jsPDF.prototype,
+  question: any,
+  colWidth: number,
+  lineHeight: number
+): number {
+  if (!question) return 0;
+
+  // Matching
+  if (question.segmentType === 'MATCHING') {
+    const pairCount = (question.matchingPairs || []).length || 4;
+    return pairCount * (lineHeight * 1.1) + 16;
+  }
+
+  // Passage
+  if (question.segmentType === 'PASSAGE') {
+    const cleanPassage = (question.passageText || '').replace(/<[^>]+>/g, ' ');
+    const passageLines = doc.splitTextToSize(cleanPassage || 'Passage', Math.max(colWidth - 8, 20)).length;
+    const sqCount = (question.subQuestions || []).length || 2;
+    return passageLines * lineHeight + sqCount * (lineHeight + 3) + 16;
+  }
+
+  // Assertion Reasoning
+  if (question.segmentType === 'ASSERTION_REASONING') {
+    const aText = (question.assertion || '').replace(/<[^>]+>/g, ' ');
+    const rText = (question.reason || '').replace(/<[^>]+>/g, ' ');
+    const aLines = doc.splitTextToSize(aText, Math.max(colWidth - 8, 20)).length;
+    const rLines = doc.splitTextToSize(rText, Math.max(colWidth - 8, 20)).length;
+    return (aLines + rLines) * lineHeight + lineHeight * 4 + 12;
+  }
+
+  // Standard / MCQ
+  const cleanQ = (question.questionText || '').replace(/<[^>]+>/g, ' ');
+  const qLines = Math.max(1, doc.splitTextToSize(`Q. ${cleanQ}`, Math.max(colWidth - 5, 20)).length);
+  let h = qLines * lineHeight;
+
+  if (question.subject || question.hint) {
+    h += 4.5;
+  }
+
+  const isMCQ = question.segmentType === 'MCQ' || (question.options && question.options.length > 0);
+  if (isMCQ && question.options && question.options.length > 0) {
+    const optCount = question.options.length;
+    const rows = Math.ceil(optCount / 2);
+    h += rows * (lineHeight + 1.5) + 3;
+  }
+
+  if (question.imageUrl) {
+    h = Math.max(h, 28);
+  }
+
+  h += QUESTION_GAP;
+
+  if (question.alternatives && question.alternatives.length > 0) {
+    for (const alt of question.alternatives) {
+      const cleanAlt = (alt.questionText || '').replace(/<[^>]+>/g, ' ');
+      const altLines = Math.max(1, doc.splitTextToSize(cleanAlt, Math.max(colWidth - 5, 20)).length);
+      h += altLines * lineHeight + 6;
+      if (alt.options && alt.options.length > 0) {
+        h += Math.ceil(alt.options.length / 2) * (lineHeight + 1.5) + 3;
+      }
+    }
+  }
+
+  return h;
+}
+
 export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: string): Promise<Blob> {
   const doc = new jsPDF({
     orientation: 'portrait',
@@ -1252,34 +1319,10 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
   await drawPageHeader(doc, rollNumber);
 
   let colWidth = paper.templateType === 'SPLIT' ? 85 : 180;
-  let bottomMargin = 20;
+  let bottomMargin = 22;
   let currentColumn = 0; 
   let y = 72;
-
-  const advanceCursor = async (requiredHeight: number) => {
-    if (y + requiredHeight > 297 - bottomMargin) {
-      if (paper.templateType === 'SPLIT' && currentColumn === 0) {
-        currentColumn = 1;
-        y = pageContentStartY[currentPage] ?? 24; 
-      } else {
-        doc.addPage();
-        currentPage++;
-        await setupPage(doc, currentPage);
-
-        doc.setFont(activeFont, 'italic');
-        doc.setFontSize(8);
-        doc.text(`${paper.examName} - ${paper.subjectName}`, 15, 12);
-        if (rollNumber) {
-          doc.text(`Roll Number: ${rollNumber}`, 195, 12, { align: 'right' });
-        }
-        doc.line(15, 14, 195, 14);
-
-        currentColumn = 0;
-        y = 24; 
-        pageContentStartY[currentPage] = 24;
-      }
-    }
-  };
+  const maxPageY: Record<number, number> = {};
 
   const getX = () => {
     if (paper.templateType === 'SPLIT') {
@@ -1299,13 +1342,11 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
     const instructionsWithBreaks = insertInstructionLineBreaks(paper.instructions);
     const formattedInstructions = parseHtmlToFormattedText(instructionsWithBreaks);
     await resolveMathSegments(formattedInstructions, fontColor, Math.max(baseFontSize - 1, 9));
-    const instHeight = estimateSegmentsHeight(doc, formattedInstructions, colWidth, LINE_HEIGHT);
-
-    await advanceCursor(5 + instHeight);
+    const instWidth = paper.templateType === 'SPLIT' ? 180 : colWidth;
 
     doc.setFont(activeFont, 'bold');
     doc.setFontSize(Math.max(baseFontSize - 0.5, 9.5));
-    doc.text('General Instructions:', getX(), y);
+    doc.text('General Instructions:', 15, y);
     y += 5;
 
     doc.setFont(activeFont, 'normal');
@@ -1314,25 +1355,129 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
     const { newY: afterInstructionsY } = renderFormattedText(
       doc,
       formattedInstructions,
-      getX(),
+      15,
       y,
-      colWidth,
+      instWidth,
       LINE_HEIGHT,
       activeFont,
       rgb,
       Math.max(baseFontSize - 1, 9)
     );
-    y = afterInstructionsY;
-    y += 3;
+    y = afterInstructionsY + 4;
+    if (paper.templateType === 'SPLIT') {
+      pageContentStartY[1] = y;
+    }
+    maxPageY[1] = y;
   }
+
+  // Pre-calculate total content height to enable balanced 2-column layout in SPLIT mode
+  let totalContentHeight = 0;
+  for (const section of paper.sections) {
+    if (!section) continue;
+    totalContentHeight += 12;
+
+    if (section.segments && section.segments.length > 0) {
+      let isFirst = true;
+      for (const segment of section.segments) {
+        const segQuestions = (section.questions || []).filter((q: any) => q.segmentType === segment.type);
+        if (segQuestions.length === 0) continue;
+
+        totalContentHeight += isFirst ? 10 : (SEGMENT_BEFORE_GAP + 10);
+        isFirst = false;
+
+        if (segment.type === 'ASSERTION_REASONING') {
+          totalContentHeight += 32;
+        }
+
+        for (const q of segQuestions) {
+          totalContentHeight += estimateQuestionHeightQuick(doc, q, colWidth, LINE_HEIGHT);
+        }
+      }
+    } else if (section.questions && section.questions.length > 0) {
+      for (const q of section.questions) {
+        totalContentHeight += estimateQuestionHeightQuick(doc, q, colWidth, LINE_HEIGHT);
+      }
+    }
+    totalContentHeight += SECTION_GAP;
+  }
+
+  const maxY = 297 - bottomMargin;
+  const p1Start = pageContentStartY[1] ?? 72;
+  const p1ColCapacity = maxY - p1Start;
+  const p1TotalCapacity = p1ColCapacity * 2;
+
+  let col0TargetHeight = p1ColCapacity;
+  if (paper.templateType === 'SPLIT') {
+    if (totalContentHeight <= p1TotalCapacity) {
+      // Single-page SPLIT: balance evenly between Column 0 and Column 1
+      col0TargetHeight = Math.min(
+        p1ColCapacity - 10,
+        Math.max(35, Math.ceil(totalContentHeight / 2) + 6)
+      );
+    } else {
+      col0TargetHeight = p1ColCapacity;
+    }
+  }
+
+  let remainingHeightAfterP1 = Math.max(0, totalContentHeight - p1TotalCapacity);
+
+  const advanceCursor = async (requiredHeight: number) => {
+    const pageMaxY = 297 - bottomMargin;
+    const pageStartY = pageContentStartY[currentPage] ?? 24;
+    const currentColCapacity = pageMaxY - pageStartY;
+
+    let col0Limit = pageMaxY;
+    if (paper.templateType === 'SPLIT' && currentColumn === 0) {
+      if (currentPage === 1) {
+        col0Limit = Math.min(pageMaxY, pageStartY + col0TargetHeight);
+      } else {
+        const pCapacity = currentColCapacity * 2;
+        if (remainingHeightAfterP1 <= pCapacity) {
+          const balancedTarget = Math.min(
+            currentColCapacity - 10,
+            Math.max(30, Math.ceil(remainingHeightAfterP1 / 2) + 6)
+          );
+          col0Limit = Math.min(pageMaxY, pageStartY + balancedTarget);
+        } else {
+          col0Limit = pageMaxY;
+        }
+      }
+    }
+
+    if (y + requiredHeight > (paper.templateType === 'SPLIT' && currentColumn === 0 ? col0Limit : pageMaxY)) {
+      if (paper.templateType === 'SPLIT' && currentColumn === 0) {
+        currentColumn = 1;
+        y = pageContentStartY[currentPage] ?? 24; 
+      } else {
+        doc.addPage();
+        currentPage++;
+        await setupPage(doc, currentPage);
+
+        doc.setFont(activeFont, 'italic');
+        doc.setFontSize(8);
+        doc.text(`${paper.examName} - ${paper.subjectName}`, 15, 12);
+        if (rollNumber) {
+          doc.text(`Roll Number: ${rollNumber}`, 195, 12, { align: 'right' });
+        }
+        doc.line(15, 14, 195, 14);
+
+        currentColumn = 0;
+        y = 24; 
+        pageContentStartY[currentPage] = 24;
+        remainingHeightAfterP1 = Math.max(0, remainingHeightAfterP1 - (currentColCapacity * 2));
+      }
+    }
+  };
 
   const drawMiddleSplitLineForPage = (pageNum: number) => {
     if (paper.templateType !== 'SPLIT') return;
     const startY = pageNum === 1 ? (pageContentStartY[1] ?? 72) : 18;
+    const recordedEnd = maxPageY[pageNum] ? maxPageY[pageNum] + 4 : CONTENT_END_Y;
+    const endY = Math.min(CONTENT_END_Y, Math.max(recordedEnd, startY + 30));
     doc.setPage(pageNum);
     doc.setLineWidth(0.2);
     doc.setDrawColor(200, 200, 200);
-    doc.line(105, startY, 105, CONTENT_END_Y);
+    doc.line(105, startY, 105, endY);
     doc.setDrawColor(rgb.r, rgb.g, rgb.b); 
   };
 
@@ -2138,6 +2283,7 @@ export async function generateExamPaperPdf(paper: PdfPaperData, rollNumber?: str
       }
     }
     y += SECTION_GAP;
+    maxPageY[currentPage] = Math.max(maxPageY[currentPage] || 0, y);
   }
 
   const totalPages = doc.getNumberOfPages();

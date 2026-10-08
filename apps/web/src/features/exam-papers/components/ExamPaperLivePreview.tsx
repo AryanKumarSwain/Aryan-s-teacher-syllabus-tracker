@@ -191,7 +191,7 @@ export function ExamPaperLivePreviewSheet({
 
       {/* Sections and Questions */}
       <div 
-        className={templateType === 'SPLIT' ? 'relative z-10 columns-1 md:columns-2 gap-8' : 'relative z-10 space-y-4'}
+        className={templateType === 'SPLIT' ? 'relative z-10 columns-2 gap-8' : 'relative z-10 space-y-4'}
         style={templateType === 'SPLIT' ? { columnRule: '1px solid #cbd5e1' } : undefined}
       >
         {sections.length === 0 ? (
@@ -206,7 +206,7 @@ export function ExamPaperLivePreviewSheet({
             return (
               <div 
                 key={sIdx} 
-                className={`mb-5 break-inside-avoid-column ${templateType === 'SPLIT' ? 'pb-3' : ''}`}
+                className={`mb-5 ${templateType === 'SPLIT' ? 'pb-3' : ''}`}
               >
                 {/* Section Header */}
                 <div className="text-center my-3">
