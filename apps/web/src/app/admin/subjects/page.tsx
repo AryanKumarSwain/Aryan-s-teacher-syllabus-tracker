@@ -53,6 +53,7 @@ import { syllabusKeys } from '@/features/syllabus/query-keys';
 import { invalidateSyllabusStructure } from '@/features/syllabus/invalidate-syllabus';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
+import { useAcademicSessions } from '@/features/syllabus/hooks/use-academic-sessions';
 
 interface AssignedTeacher {
   id: string;
@@ -215,6 +216,21 @@ export default function AdminSubjectsPage() {
 
   const classes = classesData?.items ?? [];
   const subjects = useMemo(() => data ?? [], [data]);
+
+  const { sessions } = useAcademicSessions();
+  const currentSession = sessions?.find((s) => s.id === school?.currentAcademicSessionId);
+
+  const totalClassesCount = useMemo(() => new Set(data?.map((s) => s.class?.id).filter(Boolean)).size, [data]);
+  const totalAssignedTeachers = useMemo(() => {
+    const teacherIds = new Set<string>();
+    data?.forEach((s) => s.teachers?.forEach((t) => teacherIds.add(t.id)));
+    return teacherIds.size;
+  }, [data]);
+  const avgSyllabusProgress = useMemo(() => {
+    if (!data?.length) return 0;
+    const total = data.reduce((acc, s) => acc + (s.progressPercentage ?? s.progress?.percentage ?? 0), 0);
+    return Math.round(total / data.length);
+  }, [data]);
 
   // Fetch full detailed chapter breakdown on-demand when a card is clicked
   const { data: subjectDetail, isLoading: isLoadingDetail } = useQuery({
@@ -400,72 +416,154 @@ export default function AdminSubjectsPage() {
   const isMutating = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <DashboardShell title="Subjects">
-      <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <p className="text-muted-foreground max-w-2xl text-sm">
-            Create, track, and monitor academic subjects, syllabus completion progress, and assigned
-            teachers.
-          </p>
-        </div>
-      </div>
+    <DashboardShell title="Subjects & Curriculum">
+      <div className="animate-in fade-in space-y-4 pb-8 duration-300">
+        {/* Executive Banner (Matching Dashboard & Sessions) */}
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-4 sm:p-5 shadow-xs">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-emerald-400/10 blur-3xl" />
+          <div className="pointer-events-none absolute -left-16 -bottom-16 h-36 w-36 rounded-full bg-blue-400/10 blur-3xl" />
 
-      {/* Control Utility Toolbar */}
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
-          <div className="relative max-w-md flex-1">
-            <Search className="text-muted-foreground absolute left-3 top-2.5 h-4 w-4" />
-            <Input
-              placeholder="Search by name or code..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 ring-2 ring-emerald-500/15">
+                <BookMarked className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#0b1c30]">
+                    Subjects & Curriculum
+                  </h1>
+                  <Badge className="border-none bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5 gap-1.5 shadow-2xs">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                    </span>
+                    Live: {currentSession?.name || 'Active Session'}
+                  </Badge>
+                </div>
+                <p className="text-xs text-slate-500 font-medium">
+                  Manage academic subjects, syllabus completion milestones, and assigned faculty.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              {data && (
+                <span
+                  className={cn(
+                    'h-9 inline-flex items-center gap-1.5 text-xs font-bold px-3 rounded-xl border shadow-2xs',
+                    data.length >= 200
+                      ? 'bg-rose-50 text-rose-700 border-rose-200'
+                      : 'bg-indigo-50 text-indigo-700 border-indigo-200/80',
+                  )}
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                  {data.length} / 200 Subjects
+                </span>
+              )}
+              {!isViewMode ? (
+                <Button
+                  onClick={handleCreateClick}
+                  disabled={!!data && data.length >= 200}
+                  className="h-9 font-bold text-xs shadow-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-600/20 px-3.5 gap-1.5 rounded-xl cursor-pointer active:scale-95 transition-all"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add Subject
+                </Button>
+              ) : (
+                <span className="text-xs font-bold text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-2xs">
+                  <Eye className="h-3.5 w-3.5 text-amber-600" /> Read-Only View Mode
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* 4 Concise KPI Cards */}
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-blue-200/80 bg-gradient-to-br from-blue-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">Total Subjects</span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-blue-100 text-blue-700">Coursework</span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">{data?.length || 0}</span>
+              <span className="text-[10px] font-semibold text-slate-400">subjects</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">Active across curriculum</p>
           </div>
 
-          {/* Custom Styled Native Select */}
-          <select
-            value={selectedClassFilter}
-            onChange={(e) => setSelectedClassFilter(e.target.value)}
-            className="border-input bg-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 sm:w-[180px]"
-          >
-            <option value="all">All Classes</option>
-            {classes.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-purple-200/80 bg-gradient-to-br from-purple-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-600" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">Classes Covered</span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-purple-100 text-purple-700">Grades</span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">{totalClassesCount}</span>
+              <span className="text-[10px] font-semibold text-slate-400">classes</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">Subject mapping coverage</p>
+          </div>
+
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-amber-200/80 bg-gradient-to-br from-amber-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">Assigned Faculty</span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-700">Teachers</span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">{totalAssignedTeachers}</span>
+              <span className="text-[10px] font-semibold text-slate-400">assigned</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">Teachers managing syllabus</p>
+          </div>
+
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-600 to-teal-600" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">Avg Syllabus Pace</span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700">{avgSyllabusProgress}% Passed</span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">{avgSyllabusProgress}%</span>
+              <span className="text-[10px] font-semibold text-emerald-600">completion</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">Overall syllabus delivery</p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {data && (
-            <span
-              className={cn(
-                'text-xs font-semibold px-2.5 py-1 rounded-full border',
-                data.length >= 200
-                  ? 'bg-red-50 text-red-700 border-red-200'
-                  : 'bg-blue-50 text-blue-700 border-blue-200',
-              )}
+        {/* Search & Class Filter Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 sm:p-3.5 shadow-2xs">
+          <div className="flex flex-1 flex-col sm:flex-row sm:items-center gap-2.5">
+            <div className="relative max-w-sm flex-1">
+              <Search className="text-slate-400 absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+              <Input
+                placeholder="Search subjects by name or code..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-9 text-xs rounded-xl border-slate-200 bg-slate-50/60 focus:bg-white transition-colors"
+              />
+            </div>
+            <select
+              value={selectedClassFilter}
+              onChange={(e) => setSelectedClassFilter(e.target.value)}
+              className="h-9 rounded-xl border border-slate-200 bg-slate-50/60 px-3 text-xs font-semibold text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 sm:w-[190px]"
             >
-              {data.length} / 200 Subjects
+              <option value="all">All Classes ({classes.length})</option>
+              {classes.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-slate-500">
+              Showing <strong className="text-slate-800 font-black">{filteredSubjects.length}</strong> of {data?.length || 0} Subjects
             </span>
-          )}
-          {!isViewMode ? (
-            <Button
-              onClick={handleCreateClick}
-              disabled={!!data && data.length >= 200}
-              className="shrink-0 shadow-sm"
-            >
-              <Plus className="mr-2 h-4 w-4" /> Add subject
-            </Button>
-          ) : (
-            <span className="text-xs font-semibold text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-xs">
-              <Eye className="h-3.5 w-3.5 text-amber-600" /> Read-Only View Mode
-            </span>
-          )}
+          </div>
         </div>
-      </div>
 
       {isLoading && !data ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -670,6 +768,7 @@ export default function AdminSubjectsPage() {
           })}
         </div>
       )}
+      </div>
 
       {/* ========================================================================= */}
       {/* Subject Detail Modal (Opened on Card Click) */}

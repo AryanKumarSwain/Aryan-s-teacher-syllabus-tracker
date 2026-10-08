@@ -14,6 +14,8 @@ import {
   BookOpen,
   ChevronRight,
   Pencil,
+  Mail,
+  Loader2,
 } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
@@ -25,16 +27,19 @@ import { EmptyState } from '@/components/shared/empty-state';
 import { CreateTeacherDialog } from '@/features/teachers/components/create-teacher-dialog';
 import { BulkImportTeachersDialog } from '@/features/teachers/components/bulk-import-dialog';
 import { EditTeacherDialog } from '@/features/teachers/components/edit-teacher-dialog';
+import { ResendCredentialsDialog } from '@/features/teachers/components/resend-credentials-dialog';
 import { cn } from '@/lib/utils';
 import {
   useTeachers,
   useDeleteTeacher,
   useUpdateTeacherStatus,
+  useResendCredentials,
 } from '@/features/teachers/hooks/use-teachers';
 import { ImportDataButton } from '@/components/admin/import-data-button';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/services/api-client';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
+import { useAcademicSessions } from '@/features/syllabus/hooks/use-academic-sessions';
 import { getTeacherColorStyles } from '@/features/teachers/utils/teacher-styles';
 
 function teacherStatusBadge(status: string) {
@@ -67,14 +72,27 @@ export default function AdminTeachersPage() {
   const [bulkOpen, setBulkOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedTeacher, setSelectedTeacher] = useState<{ id: string; user: { name: string; email: string; phone: string | null } } | null>(null);
+  const [credentialsDialogOpen, setCredentialsDialogOpen] = useState(false);
+  const [credentialsTeacher, setCredentialsTeacher] = useState<{ id: string; name: string; email: string } | null>(null);
 
   const { school, isViewMode } = useSchool();
+  const { sessions } = useAcademicSessions();
+  const currentSession = sessions?.find((s) => s.id === school?.currentAcademicSessionId);
 
   const { data, isLoading } = useTeachers({ search: search || undefined, termFilter: selectedTermFilter, academicSessionId: school?.currentAcademicSessionId || undefined });
   const deleteTeacher = useDeleteTeacher();
   const updateStatus = useUpdateTeacherStatus();
+  const resendCredentials = useResendCredentials();
 
   const teachers = data?.items ?? [];
+
+  const activeCount = useMemo(() => teachers.filter((t) => (t.status ?? t.user?.status) === 'ACTIVE').length, [teachers]);
+  const totalTeacherClasses = useMemo(() => teachers.reduce((acc, t) => acc + (t.teacherClasses?.length ?? 0), 0), [teachers]);
+  const avgTeacherProgress = useMemo(() => {
+    if (!teachers.length) return 0;
+    const sum = teachers.reduce((acc, t) => acc + (t.progressPercentage ?? 0), 0);
+    return Math.round(sum / teachers.length);
+  }, [teachers]);
 
   // Fetch academic years for term filter
   const { data: academicYears } = useQuery({
@@ -152,100 +170,190 @@ export default function AdminTeachersPage() {
   }, [teachers, selectedClassFilter, selectedSubjectFilter]);
 
   return (
-    <DashboardShell title="Teachers">
-      <div className="space-y-6">
-        {/* Filtering Toolbar */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+    <DashboardShell title="Faculty & Teachers">
+      <div className="animate-in fade-in space-y-4 pb-8 duration-300">
+        {/* Executive Banner (Matching Dashboard & Sessions) */}
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-4 sm:p-5 shadow-xs">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-emerald-400/10 blur-3xl" />
+          <div className="pointer-events-none absolute -left-16 -bottom-16 h-36 w-36 rounded-full bg-blue-400/10 blur-3xl" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 ring-2 ring-emerald-500/15">
+                <Users className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#0b1c30]">
+                    Faculty & Teacher Management
+                  </h1>
+                  <Badge className="border-none bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5 gap-1.5 shadow-2xs">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                    </span>
+                    Live: {currentSession?.name || 'Active Session'}
+                  </Badge>
+                </div>
+                <p className="text-xs text-slate-500 font-medium">
+                  Manage teacher profiles, course allocations, syllabus tracking access, and teaching permissions.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              {!isViewMode ? (
+                <>
+                  <span
+                    className={cn(
+                      'h-9 inline-flex items-center gap-1.5 text-xs font-bold px-3 rounded-xl border shadow-2xs',
+                      teachers.length >= 50
+                        ? 'bg-rose-50 text-rose-700 border-rose-200'
+                        : 'bg-indigo-50 text-indigo-700 border-indigo-200/80',
+                    )}
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                    {teachers.length} / 50 Teachers
+                  </span>
+                  <ImportDataButton type="teachers" label="Import" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setBulkOpen(true)}
+                    disabled={teachers.length >= 50}
+                    className="h-9 text-xs font-bold border-slate-200 text-slate-700 bg-white hover:bg-slate-50 gap-1.5 shadow-2xs rounded-xl"
+                  >
+                    <Upload className="h-3.5 w-3.5 text-slate-500" /> Bulk Import
+                  </Button>
+                  <Button
+                    onClick={() => setDialogOpen(true)}
+                    disabled={teachers.length >= 50}
+                    className="h-9 font-bold text-xs shadow-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-600/20 px-3.5 gap-1.5 rounded-xl cursor-pointer active:scale-95 transition-all"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Add Teacher
+                  </Button>
+                </>
+              ) : (
+                <span className="text-xs font-bold text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-2xs">
+                  <Eye className="h-3.5 w-3.5 text-amber-600" /> Read-Only View Mode
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* 4 Concise KPI Cards */}
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-blue-200/80 bg-gradient-to-br from-blue-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">Total Faculty</span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-blue-100 text-blue-700">Teachers</span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">{teachers.length}</span>
+              <span className="text-[10px] font-semibold text-slate-400">faculty</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">{activeCount} active instructors</p>
+          </div>
+
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-600 to-teal-600" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">Active Status</span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700">Active</span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">{activeCount}</span>
+              <span className="text-[10px] font-semibold text-emerald-600">verified</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">Authorized for logging</p>
+          </div>
+
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-purple-200/80 bg-gradient-to-br from-purple-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-600" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">Class Mappings</span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-purple-100 text-purple-700">Coverage</span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">{totalTeacherClasses}</span>
+              <span className="text-[10px] font-semibold text-slate-400">classes</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">Subject-class linkages</p>
+          </div>
+
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-amber-200/80 bg-gradient-to-br from-amber-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">Avg Progression</span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-700">{avgTeacherProgress}% Avg</span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">{avgTeacherProgress}%</span>
+              <span className="text-[10px] font-semibold text-amber-600">completion</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">Faculty delivery velocity</p>
+          </div>
+        </div>
+
+        {/* Filter Controls Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 sm:p-3.5 shadow-2xs">
+          <div className="flex flex-1 flex-col sm:flex-row sm:items-center gap-2.5">
             <div className="relative max-w-sm flex-1">
-              <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+              <Search className="text-slate-400 absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
               <Input
-                placeholder="Search teachers..."
-                className="pl-9"
+                placeholder="Search teachers by name or email..."
+                className="pl-9 h-9 text-xs rounded-xl border-slate-200 bg-slate-50/60 focus:bg-white transition-colors"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
 
-            <div className="relative min-w-[140px]">
-              <select
-                value={selectedClassFilter}
-                onChange={(e) => setSelectedClassFilter(e.target.value)}
-                className="border-input bg-background focus-visible:ring-ring flex h-10 w-full cursor-pointer rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
-              >
-                <option value="all">All Classes</option>
-                {classOptions.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={selectedClassFilter}
+              onChange={(e) => setSelectedClassFilter(e.target.value)}
+              className="h-9 rounded-xl border border-slate-200 bg-slate-50/60 px-3 text-xs font-semibold text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 sm:w-[150px]"
+            >
+              <option value="all">All Classes</option>
+              {classOptions.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
 
-            <div className="relative min-w-[140px]">
-              <select
-                value={selectedSubjectFilter}
-                onChange={(e) => setSelectedSubjectFilter(e.target.value)}
-                className="border-input bg-background focus-visible:ring-ring flex h-10 w-full cursor-pointer rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
-              >
-                <option value="all">All Subjects</option>
-                {subjectOptions.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={selectedSubjectFilter}
+              onChange={(e) => setSelectedSubjectFilter(e.target.value)}
+              className="h-9 rounded-xl border border-slate-200 bg-slate-50/60 px-3 text-xs font-semibold text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 sm:w-[150px]"
+            >
+              <option value="all">All Subjects</option>
+              {subjectOptions.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
 
-            <div className="relative min-w-[140px]">
-              <select
-                value={selectedTermFilter}
-                onChange={(e) => setSelectedTermFilter(e.target.value)}
-                className="border-input bg-background focus-visible:ring-ring flex h-10 w-full cursor-pointer rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
-              >
-                <option value="all">All Terms</option>
-                {allTerms.map((term) => (
-                  <option key={term.id} value={term.id}>
-                    {term.name} ({term.yearName})
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={selectedTermFilter}
+              onChange={(e) => setSelectedTermFilter(e.target.value)}
+              className="h-9 rounded-xl border border-slate-200 bg-slate-50/60 px-3 text-xs font-semibold text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 sm:w-[150px]"
+            >
+              <option value="all">All Terms</option>
+              {allTerms.map((term) => (
+                <option key={term.id} value={term.id}>
+                  {term.name} ({term.yearName})
+                </option>
+              ))}
+            </select>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2">
-            {!isViewMode ? (
-              <>
-                <span
-                  className={cn(
-                    'text-xs font-semibold px-2.5 py-1 rounded-full border',
-                    teachers.length >= 50
-                      ? 'bg-red-50 text-red-700 border-red-200'
-                      : 'bg-teal-50 text-teal-700 border-teal-200',
-                  )}
-                >
-                  {teachers.length} / 50 Teachers
-                </span>
-                <ImportDataButton type="teachers" label="Import Teachers" />
-                <Button
-                  variant="outline"
-                  onClick={() => setBulkOpen(true)}
-                  disabled={teachers.length >= 50}
-                >
-                  <Upload className="mr-2 h-4 w-4" /> Bulk import
-                </Button>
-                <Button
-                  onClick={() => setDialogOpen(true)}
-                  disabled={teachers.length >= 50}
-                >
-                  <Plus className="mr-2 h-4 w-4" /> Add teacher
-                </Button>
-              </>
-            ) : (
-              <span className="text-xs font-semibold text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-xs">
-                <Eye className="h-3.5 w-3.5 text-amber-600" /> Read-Only View Mode
-              </span>
-            )}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-slate-500">
+              Showing <strong className="text-slate-800 font-black">{filteredTeachers.length}</strong> of {teachers.length} Teachers
+            </span>
           </div>
         </div>
 
@@ -281,142 +389,170 @@ export default function AdminTeachersPage() {
                 <Card
                   key={teacher.id}
                   className={cn(
-                    'group animate-in fade-in slide-in-from-bottom-2 h-full border bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg',
+                    'group animate-in fade-in slide-in-from-bottom-2 rounded-2xl border border-slate-200/90 bg-white shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-slate-300',
                     theme.border,
                   )}
-                  style={{ animationDelay: `${i * 60}ms` }}
+                  style={{ animationDelay: `${i * 50}ms` }}
                 >
-                  <CardContent className="p-5">
-                    {/* Header */}
-                    <div className="mb-3 flex items-start justify-between">
-                      <div className="min-w-0 flex-1">
-                        <h3 className="text-base font-bold text-gray-900">{teacher.user.name}</h3>
-                        <p className="text-muted-foreground text-xs">{teacher.user.email}</p>
+                  <CardContent className="p-3.5 sm:p-4 space-y-2.5">
+                    {/* Header with Avatar, Name, Email, and Status Badge */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div
+                          className={cn(
+                            'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-black shadow-xs',
+                            theme.accentBg,
+                            theme.accentText,
+                          )}
+                        >
+                          {teacher.user.name
+                            .split(' ')
+                            .map((n: string) => n[0])
+                            .join('')
+                            .slice(0, 2)
+                            .toUpperCase() || 'TC'}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3
+                            onClick={() => (window.location.href = `/admin/teachers/${teacher.id}`)}
+                            className="cursor-pointer font-bold text-slate-900 text-sm truncate hover:text-blue-600 transition-colors"
+                          >
+                            {teacher.user.name}
+                          </h3>
+                          <p className="text-[11px] text-slate-400 truncate">{teacher.user.email}</p>
+                        </div>
                       </div>
-                      <button
-                        onClick={() => (window.location.href = `/admin/teachers/${teacher.id}`)}
-                        className="text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        <ChevronRight className="h-5 w-5" />
-                      </button>
+                      <div className="shrink-0">{teacherStatusBadge(status)}</div>
                     </div>
 
-                    {/* Status badge */}
-                    <div className="mb-3">{teacherStatusBadge(status)}</div>
-
-                    {/* Stats */}
-                    <div className="mb-4 grid grid-cols-2 gap-2">
+                    {/* Compact Metrics Row */}
+                    <div className="grid grid-cols-2 gap-2">
                       <div
                         className={cn(
-                          'flex flex-col items-center rounded-xl px-2 py-2.5 transition-colors',
+                          'flex items-center justify-between rounded-xl px-2.5 py-1.5 border border-slate-100',
                           theme.accentBg,
                         )}
                       >
-                        <BookOpen className={cn('mb-1 h-4 w-4', theme.iconColor)} />
-                        <span className={cn('text-base font-bold', theme.accentText)}>
-                          {assignedCount}
-                        </span>
-                        <span className="text-muted-foreground text-[10px]">Subjects</span>
+                        <div className="flex items-center gap-1.5">
+                          <BookOpen className={cn('h-3.5 w-3.5', theme.iconColor)} />
+                          <span className="text-[11px] font-semibold text-slate-500">Subjects</span>
+                        </div>
+                        <span className={cn('text-xs font-black', theme.accentText)}>{assignedCount}</span>
                       </div>
                       <div
                         className={cn(
-                          'flex flex-col items-center rounded-xl px-2 py-2.5 transition-colors',
+                          'flex items-center justify-between rounded-xl px-2.5 py-1.5 border border-slate-100',
                           theme.accentBg,
                         )}
                       >
-                        <CheckCircle2 className={cn('mb-1 h-4 w-4', theme.iconColor)} />
-                        <span className={cn('text-base font-bold', theme.accentText)}>
+                        <div className="flex items-center gap-1.5">
+                          <CheckCircle2 className={cn('h-3.5 w-3.5', theme.iconColor)} />
+                          <span className="text-[11px] font-semibold text-slate-500">Progress</span>
+                        </div>
+                        <span className={cn('text-xs font-black', theme.accentText)}>
                           {teacher.progressPercentage ?? 0}%
                         </span>
-                        <span className="text-muted-foreground text-[10px]">Progress</span>
                       </div>
                     </div>
 
-                    {/* View progress button */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mb-3 w-full text-xs"
-                      onClick={() => {
-                        window.location.href = `/admin/teachers/${teacher.id}`;
-                      }}
-                    >
-                      <Eye className="mr-1.5 h-3 w-3" />
-                      View details
-                    </Button>
-
-                    {/* Subject badges */}
-                    <div className="flex flex-wrap gap-1.5">
-                      {teacher.teacherClasses.length === 0 && (
-                        <Badge variant="secondary" className="text-[10px]">
-                          No subjects assigned
-                        </Badge>
-                      )}
-                      {teacher.teacherClasses.slice(0, 3).map((tc) => (
-                        <Badge
-                          key={`${tc.classId}-${tc.subjectId || 'all'}`}
-                          variant="outline"
-                          className="text-[10px]"
-                        >
-                          {tc.subject?.name || tc.class.name}
-                        </Badge>
-                      ))}
-                      {teacher.teacherClasses.length > 3 && (
-                        <Badge variant="secondary" className="text-[10px]">
-                          +{teacher.teacherClasses.length - 3} more
-                        </Badge>
-                      )}
-                    </div>
-
-                    {/* Actions */}
-                    {!isViewMode && (
-                      <div className="mt-3 flex items-center justify-end gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-muted-foreground hover:text-foreground h-7 w-7"
-                          title="Edit Teacher"
-                          onClick={() => {
-                            setSelectedTeacher(teacher);
-                            setEditDialogOpen(true);
-                          }}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-muted-foreground hover:text-foreground h-7 w-7"
-                          title={status === 'SUSPENDED' ? 'Activate' : 'Suspend'}
-                          onClick={() => {
-                            updateStatus.mutate({
-                              id: teacher.id,
-                              status: status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED',
-                            });
-                          }}
-                          disabled={updateStatus.isPending}
-                        >
-                          {status === 'SUSPENDED' ? (
-                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                          ) : (
-                            <Ban className="h-3.5 w-3.5 text-amber-600" />
+                    {/* Subject Tags */}
+                    <div className="flex flex-wrap items-center gap-1 min-h-[22px]">
+                      {teacher.teacherClasses.length === 0 ? (
+                        <span className="text-[10px] font-medium text-slate-400 italic">No subjects assigned</span>
+                      ) : (
+                        <>
+                          {teacher.teacherClasses.slice(0, 2).map((tc) => (
+                            <span
+                              key={`${tc.classId}-${tc.subjectId || 'all'}`}
+                              className="inline-flex items-center rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 truncate max-w-[140px]"
+                            >
+                              {tc.subject?.name || tc.class.name}
+                            </span>
+                          ))}
+                          {teacher.teacherClasses.length > 2 && (
+                            <span className="inline-flex items-center rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500">
+                              +{teacher.teacherClasses.length - 2}
+                            </span>
                           )}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7"
-                          title="Delete Teacher"
-                          onClick={() => {
-                            if (confirm('Permanently delete this teacher?')) {
-                              deleteTeacher.mutate(teacher.id);
-                            }
-                          }}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    )}
+                        </>
+                      )}
+                    </div>
+
+                    {/* Bottom Action Row: View Details link on left, action icons on right */}
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                      <button
+                        onClick={() => (window.location.href = `/admin/teachers/${teacher.id}`)}
+                        className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                        <span>Details</span>
+                      </button>
+
+                      {!isViewMode && (
+                        <div className="flex items-center gap-0.5">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 rounded-lg text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
+                            title="Resend Credentials"
+                            onClick={() => {
+                              setCredentialsTeacher({
+                                id: teacher.id,
+                                name: teacher.user.name,
+                                email: teacher.user.email,
+                              });
+                              setCredentialsDialogOpen(true);
+                            }}
+                          >
+                            <Mail className="h-3.5 w-3.5 text-emerald-600" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 rounded-lg text-slate-400 hover:text-blue-700 hover:bg-blue-50 transition-colors"
+                            title="Edit Teacher"
+                            onClick={() => {
+                              setSelectedTeacher(teacher);
+                              setEditDialogOpen(true);
+                            }}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 rounded-lg text-slate-400 hover:text-amber-700 hover:bg-amber-50 transition-colors"
+                            title={status === 'SUSPENDED' ? 'Activate' : 'Suspend'}
+                            onClick={() => {
+                              updateStatus.mutate({
+                                id: teacher.id,
+                                status: status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED',
+                              });
+                            }}
+                            disabled={updateStatus.isPending}
+                          >
+                            {status === 'SUSPENDED' ? (
+                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                            ) : (
+                              <Ban className="h-3.5 w-3.5 text-amber-600" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 rounded-lg text-slate-400 hover:text-red-700 hover:bg-red-50 transition-colors"
+                            title="Delete Teacher"
+                            onClick={() => {
+                              if (confirm('Permanently delete this teacher?')) {
+                                deleteTeacher.mutate(teacher.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               );
@@ -428,6 +564,11 @@ export default function AdminTeachersPage() {
       <CreateTeacherDialog open={dialogOpen} onOpenChange={setDialogOpen} />
       <BulkImportTeachersDialog open={bulkOpen} onOpenChange={setBulkOpen} />
       <EditTeacherDialog open={editDialogOpen} onOpenChange={setEditDialogOpen} teacher={selectedTeacher} />
+      <ResendCredentialsDialog
+        open={credentialsDialogOpen}
+        onOpenChange={setCredentialsDialogOpen}
+        teacher={credentialsTeacher}
+      />
     </DashboardShell>
   );
 }

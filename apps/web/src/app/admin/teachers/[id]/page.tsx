@@ -2,7 +2,7 @@
 
 import { use, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, Eye, Activity, Clock, CheckCircle2, RotateCw } from 'lucide-react';
+import { Plus, Trash2, Eye, Activity, Clock, CheckCircle2, RotateCw, Mail, Loader2, KeyRound } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +24,8 @@ import { syllabusKeys } from '@/features/syllabus/query-keys';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { getTeacherColorStyles } from '@/features/teachers/utils/teacher-styles';
+import { useResendCredentials } from '@/features/teachers/hooks/use-teachers';
+import { ResendCredentialsDialog } from '@/features/teachers/components/resend-credentials-dialog';
 
 interface TeacherActivityLogItem {
   id: string;
@@ -70,6 +72,8 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
   const schoolId = useSchoolId();
   const { school, isViewMode } = useSchool();
   const [assignOpen, setAssignOpen] = useState(false);
+  const [credentialsDialogOpen, setCredentialsDialogOpen] = useState(false);
+  const resendCredentials = useResendCredentials();
 
   const [selectedClassIds, setSelectedClassIds] = useState<string[]>([]);
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([]);
@@ -259,6 +263,17 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
             <p className="text-muted-foreground border-t pt-2 text-xs">
               Assignments are managed below.
             </p>
+            {!isViewMode && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-3 w-full text-xs text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 border-emerald-200/80 font-semibold"
+                onClick={() => setCredentialsDialogOpen(true)}
+              >
+                <KeyRound className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
+                Resend credentials
+              </Button>
+            )}
           </CardContent>
         </Card>
 
@@ -609,6 +624,20 @@ export default function TeacherProfilePage({ params }: { params: Promise<{ id: s
           </div>
         </DialogContent>
       </Dialog>
+
+      <ResendCredentialsDialog
+        open={credentialsDialogOpen}
+        onOpenChange={setCredentialsDialogOpen}
+        teacher={
+          teacher
+            ? {
+                id: teacher.id,
+                name: teacher.user.name,
+                email: teacher.user.email,
+              }
+            : null
+        }
+      />
     </DashboardShell>
   );
 }

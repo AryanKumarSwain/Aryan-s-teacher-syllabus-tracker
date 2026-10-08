@@ -19,7 +19,7 @@ export async function sendTeacherCredentialsEmail(params: {
     );
   }
 
-  const loginUrl = `${env.APP_URL}/login`;
+  const loginUrl = `${env.APP_URL}/login?role=teacher`;
 
   try {
     const result = await sendMail({

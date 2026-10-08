@@ -1340,97 +1340,75 @@ export default function AcademicTimelinePage() {
             ))}
           </div>
         ) : !sessionsLoading && sessions.length === 0 ? (
-          <div className="relative overflow-hidden rounded-3xl border border-blue-200/90 bg-gradient-to-br from-blue-50/90 via-indigo-50/50 to-slate-50/30 p-8 shadow-xs">
-            <div className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 rounded-full bg-blue-400/20 blur-3xl" />
-            <div className="pointer-events-none absolute top-0 left-1/4 h-36 w-36 rounded-full bg-indigo-400/15 blur-2xl" />
-
-            <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex items-start gap-5">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25 ring-4 ring-blue-500/10">
-                  <CalendarRange className="h-8 w-8 text-white" />
+          <div className="relative overflow-hidden rounded-2xl border border-blue-200/80 bg-gradient-to-r from-blue-50/50 via-indigo-50/30 to-white p-4 sm:p-5 shadow-2xs">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5">
+              <div className="flex items-start sm:items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-sm ring-2 ring-blue-500/15">
+                  <CalendarRange className="h-5 w-5 text-white" />
                 </div>
-                <div className="space-y-1.5">
+                <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-lg sm:text-xl font-black text-[#0b1c30]">
+                    <h3 className="text-sm sm:text-base font-bold text-[#0b1c30]">
                       Academic Session Required First
                     </h3>
-                    <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-extrabold text-amber-800">
+                    <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-extrabold text-amber-800">
                       Step 1 Required
                     </span>
                   </div>
-                  <p className="text-xs sm:text-sm font-medium text-slate-600 max-w-xl leading-relaxed">
-                    Academic calendar banane se pehle Academic Session create karna hoga (e.g. 2026-2027). Please create an active session first to configure timeline dates, term milestones, and weekly schedules.
+                  <p className="text-xs text-slate-500 max-w-xl leading-relaxed mt-0.5">
+                    Academic calendar configure karne ke liye active session (e.g. 2026-2027) zaroori hai.
                   </p>
-                  <div className="pt-2 flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                      1. Create Academic Session
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                      2. Configure Academic Timeline
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                      3. Track Syllabus Progress
-                    </span>
-                  </div>
                 </div>
               </div>
 
-              {!isViewMode && (
-                <Button
-                  onClick={() => router.push('/admin/sessions')}
-                  className="relative z-10 shrink-0 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-700 hover:to-indigo-700 px-6 py-3.5 text-sm font-extrabold text-white shadow-md shadow-blue-600/30 transition-all hover:shadow-lg active:scale-95"
-                >
-                  <Plus className="mr-2 h-4 w-4" /> Create Academic Session First
-                </Button>
-              )}
+              <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                <span className="inline-flex items-center gap-1 rounded-lg bg-white/90 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-600 shadow-2xs">
+                  1. Create Session
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-lg bg-white/90 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-600 shadow-2xs">
+                  2. Configure Timeline
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-lg bg-white/90 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-600 shadow-2xs">
+                  3. Track Syllabus
+                </span>
+              </div>
             </div>
           </div>
         ) : academicYears.length === 0 ? (
-          <div className="relative overflow-hidden rounded-3xl border border-emerald-200/90 bg-gradient-to-br from-emerald-50/90 via-teal-50/50 to-blue-50/30 p-8 shadow-xs">
-            <div className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 rounded-full bg-emerald-400/20 blur-3xl" />
-            <div className="pointer-events-none absolute top-0 left-1/4 h-36 w-36 rounded-full bg-teal-400/15 blur-2xl" />
-
-            <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex items-start gap-5">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25 ring-4 ring-emerald-500/10">
-                  <Calendar className="h-8 w-8 text-white" />
+          <div className="relative overflow-hidden rounded-2xl border border-emerald-200/80 bg-gradient-to-r from-emerald-50/50 via-teal-50/30 to-white p-4 sm:p-5 shadow-2xs">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5">
+              <div className="flex items-start sm:items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm ring-2 ring-emerald-500/15">
+                  <Calendar className="h-5 w-5 text-white" />
                 </div>
-                <div className="space-y-1.5">
+                <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-lg sm:text-xl font-black text-[#0b1c30]">
+                    <h3 className="text-sm sm:text-base font-bold text-[#0b1c30]">
                       No Academic Timeline Configured
                     </h3>
-                    <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-extrabold text-amber-800">
+                    <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-extrabold text-amber-800">
                       Action Required
                     </span>
                   </div>
-                  <p className="text-xs sm:text-sm font-medium text-slate-600 max-w-xl leading-relaxed">
+                  <p className="text-xs text-slate-500 max-w-xl leading-relaxed mt-0.5">
                     {isViewMode
                       ? 'No academic timeline exists for this historical session.'
-                      : 'Define term start & end dates, working days, and seasonal breaks for this academic session to enable automated syllabus velocity calculations and pacing alerts.'}
+                      : 'Define term start & end dates, working days, and seasonal breaks for this session to enable automated syllabus velocity and pacing alerts.'}
                   </p>
-                  <div className="pt-2 flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                      ✓ Teaching Days Calendar
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                      ✓ Weekly Off Schedules
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-lg bg-white/80 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                      ✓ National Holidays & Vacations
-                    </span>
-                  </div>
                 </div>
               </div>
 
-              {!isViewMode && (
-                <Button
-                  onClick={handleCreateClick}
-                  className="relative z-10 shrink-0 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-700 hover:to-teal-700 px-6 py-3.5 text-sm font-extrabold text-white shadow-md shadow-emerald-600/30 transition-all hover:shadow-lg active:scale-95"
-                >
-                  <Plus className="mr-2 h-4 w-4" /> Create Academic Timeline
-                </Button>
-              )}
+              <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                <span className="inline-flex items-center gap-1 rounded-lg bg-white/90 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-600 shadow-2xs">
+                  ✓ Teaching Days
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-lg bg-white/90 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-600 shadow-2xs">
+                  ✓ Weekly Offs
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-lg bg-white/90 border border-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-600 shadow-2xs">
+                  ✓ Vacations & Holidays
+                </span>
+              </div>
             </div>
           </div>
         ) : (

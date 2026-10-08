@@ -429,110 +429,136 @@ export default function SuperAdminSchoolsPage() {
   const schools = data?.items ?? [];
 
   return (
-    <DashboardShell title="Schools">
-      <div className="flex h-[calc(100vh-140px)] gap-6">
-        {/* Left: School List */}
-        <div
-          className={`flex flex-col gap-4 transition-all duration-300 ${selectedId ? 'w-[400px] shrink-0' : 'flex-1'}`}
-        >
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search schools..."
-              className="pl-9"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-
-          {isLoading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-20" />)}
+    <DashboardShell>
+      <div className="space-y-6">
+        {/* Header Banner */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-blue-700 border border-blue-200">
+                <Building2 className="h-3 w-3" /> Tenant Registry
+              </span>
+              <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600">
+                {schools.length} Schools Listed
+              </span>
             </div>
-          ) : schools.length === 0 ? (
-            <EmptyState icon={Building2} title="No schools" description="No schools found." />
-          ) : (
-            <Card className="divide-y overflow-y-auto">
-              {schools.map((school) => {
-                const isSelected = selectedId === school.id;
-                return (
-                  <div
-                    key={school.id}
-                    onClick={() => setSelectedId(isSelected ? null : school.id)}
-                    className={`flex cursor-pointer flex-col gap-2 p-4 transition-all hover:bg-blue-50/40 ${
-                      isSelected
-                        ? 'bg-blue-50 border-l-4 border-l-[#1a73e8]'
-                        : 'border-l-4 border-l-transparent'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <p className="font-semibold text-gray-800 truncate">{school.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{school.email}</p>
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        {school.status !== 'ACTIVE' && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              updateStatus.mutate({ id: school.id, status: 'ACTIVE' });
-                            }}
-                            className="rounded-md border border-gray-200 bg-white px-2 py-1 text-[11px] font-medium hover:bg-gray-50 transition-colors"
-                          >
-                            Activate
-                          </button>
-                        )}
-                        {school.status === 'ACTIVE' && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              updateStatus.mutate({ id: school.id, status: 'SUSPENDED' });
-                            }}
-                            className="rounded-md border border-gray-200 bg-white px-2 py-1 text-[11px] font-medium hover:bg-gray-50 transition-colors"
-                          >
-                            Suspend
-                          </button>
-                        )}
-                        <ChevronRight
-                          className={`h-4 w-4 text-gray-400 transition-transform ${
-                            isSelected ? 'rotate-90 text-[#1a73e8]' : ''
-                          }`}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      <Badge
-                        variant={school.status === 'ACTIVE' ? 'success' : 'warning'}
-                        className="text-[10px]"
-                      >
-                        {school.status}
-                      </Badge>
-                      <Badge variant="outline" className="text-[10px]">
-                        {school._count?.teachers ?? 0} teachers
-                      </Badge>
-                      {school.subscriptions?.[0] && (
-                        <Badge variant="secondary" className="text-[10px]">
-                          {school.subscriptions[0].plan.name}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </Card>
-          )}
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+              Schools & Tenant Directory
+            </h1>
+            <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
+              Manage institution profiles, subscription statuses, and administrative access.
+            </p>
+          </div>
         </div>
 
-        {/* Right: Detail Panel */}
-        {selectedId && (
-          <div className="flex-1 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-md">
-            <SchoolDetailPanel
-              key={selectedId}
-              schoolId={selectedId}
-              onClose={() => setSelectedId(null)}
-            />
+        <div className="flex h-[calc(100vh-210px)] gap-6">
+          {/* Left: School List */}
+          <div
+            className={`flex flex-col gap-3.5 transition-all duration-300 ${selectedId ? 'w-[420px] shrink-0' : 'flex-1'}`}
+          >
+            <div className="relative">
+              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                placeholder="Search by school name, email, or domain..."
+                className="pl-9 h-10 rounded-xl border-slate-200/90 bg-white text-xs shadow-xs focus-visible:ring-blue-500"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
+            {isLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-24 rounded-2xl" />
+                ))}
+              </div>
+            ) : schools.length === 0 ? (
+              <EmptyState icon={Building2} title="No schools found" description="No registered schools match your search query." />
+            ) : (
+              <Card className="divide-y divide-slate-100 rounded-2xl border border-slate-200/90 bg-white shadow-xs overflow-y-auto no-scrollbar">
+                {schools.map((school) => {
+                  const isSelected = selectedId === school.id;
+                  return (
+                    <div
+                      key={school.id}
+                      onClick={() => setSelectedId(isSelected ? null : school.id)}
+                      className={`flex cursor-pointer flex-col gap-2.5 p-4 transition-all hover:bg-slate-50/80 ${
+                        isSelected
+                          ? 'bg-blue-50/60 border-l-4 border-l-blue-600'
+                          : 'border-l-4 border-l-transparent'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="font-bold text-slate-900 truncate text-sm">{school.name}</p>
+                          <p className="text-xs text-slate-400 truncate">{school.email}</p>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {school.status !== 'ACTIVE' && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateStatus.mutate({ id: school.id, status: 'ACTIVE' });
+                              }}
+                              className="rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-700 hover:bg-emerald-100 transition-colors"
+                            >
+                              Activate
+                            </button>
+                          )}
+                          {school.status === 'ACTIVE' && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateStatus.mutate({ id: school.id, status: 'SUSPENDED' });
+                              }}
+                              className="rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-bold text-amber-700 hover:bg-amber-100 transition-colors"
+                            >
+                              Suspend
+                            </button>
+                          )}
+                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100/70 text-slate-400">
+                            <ChevronRight
+                              className={`h-4 w-4 transition-transform ${
+                                isSelected ? 'rotate-90 text-blue-600' : ''
+                              }`}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        <Badge
+                          variant={school.status === 'ACTIVE' ? 'success' : 'warning'}
+                          className="text-[10px] font-bold"
+                        >
+                          {school.status}
+                        </Badge>
+                        <Badge variant="outline" className="text-[10px] font-semibold text-slate-600 border-slate-200">
+                          {school._count?.teachers ?? 0} Teachers
+                        </Badge>
+                        {school.subscriptions?.[0] && (
+                          <Badge variant="secondary" className="text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                            {school.subscriptions[0].plan.name}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </Card>
+            )}
           </div>
-        )}
+
+          {/* Right: Detail Panel */}
+          {selectedId && (
+            <div className="flex-1 overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-md">
+              <SchoolDetailPanel
+                key={selectedId}
+                schoolId={selectedId}
+                onClose={() => setSelectedId(null)}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </DashboardShell>
   );

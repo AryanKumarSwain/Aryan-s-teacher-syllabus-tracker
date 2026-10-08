@@ -94,11 +94,17 @@ export function Sidebar() {
         {sidebarOpen ? (
           <Link href="/" className="flex items-center gap-2.5 min-w-0 group">
             <MascotLogo size={32} animated />
-            <div className="flex flex-col min-w-0">
-              <span className="text-sm font-extrabold tracking-tight text-white truncate">
-                SyllabusTracker
-              </span>
-              <span className="text-[10px] text-emerald-400 font-bold tracking-wide truncate leading-none">
+            <div className="flex flex-col min-w-0 leading-tight">
+              <div className="flex items-center gap-0.5">
+                <span className="text-sm font-black tracking-tight text-white">
+                  Syllabus
+                </span>
+                <span className="text-sm font-black tracking-tight bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+                  Tracker
+                </span>
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 ml-0.5" />
+              </div>
+              <span className="text-[10px] text-emerald-400/90 font-semibold tracking-wide truncate leading-none mt-0.5">
                 {user.school?.name || 'Academic Operations'}
               </span>
             </div>

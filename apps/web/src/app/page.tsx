@@ -316,17 +316,23 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] selection:bg-[#d3e4fe] selection:text-[#0037b0] flex flex-col font-sans">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-50 bg-white/85 dark:bg-[#0b1c30]/85 backdrop-blur-md border-b border-[#c4c5d7]/40 shadow-xs transition-all">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#c4c5d7]/40 shadow-xs transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-2.5 sm:py-3.5 flex items-center justify-between">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
             <MascotLogo size={36} className="sm:hidden" animated />
             <MascotLogo size={46} className="hidden sm:block" animated />
-            <div className="flex flex-col">
-              <span className="text-sm sm:text-base font-extrabold tracking-tight text-[#0b1c30]">
-                SyllabusTracker
-              </span>
-              <span className="text-[10px] sm:text-[11px] text-[#434655] font-medium leading-none">
+            <div className="flex flex-col leading-tight">
+              <div className="flex items-center gap-0.5">
+                <span className="text-sm sm:text-base font-black tracking-tight text-[#0b1c30]">
+                  Syllabus
+                </span>
+                <span className="text-sm sm:text-base font-black tracking-tight bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
+                  Tracker
+                </span>
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 ml-0.5 animate-pulse" />
+              </div>
+              <span className="text-[10px] sm:text-[11px] text-[#434655] font-semibold leading-none mt-0.5">
                 Academic Operations OS
               </span>
             </div>
@@ -1682,7 +1688,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             <MascotLogo size={36} animated />
             <span className="text-xs text-[#434655]">
-              © 2026 SyllabusTracker. All rights reserved. Academic Management Platform.
+              © 2026 <strong className="font-black text-[#0b1c30]">Syllabus<span className="text-emerald-600">Tracker</span></strong>. All rights reserved. Academic Management Platform.
             </span>
           </div>
 

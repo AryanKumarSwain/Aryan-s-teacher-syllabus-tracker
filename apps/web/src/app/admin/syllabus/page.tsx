@@ -35,8 +35,10 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { syllabusKeys } from '@/features/syllabus/query-keys';
 import { invalidateSyllabusStructure } from '@/features/syllabus/invalidate-syllabus';
+import { Badge } from '@/components/ui/badge';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
+import { useAcademicSessions } from '@/features/syllabus/hooks/use-academic-sessions';
 
 interface Chapter {
   id: string;
@@ -142,6 +144,8 @@ export default function AdminSyllabusPage() {
   const queryClient = useQueryClient();
   const schoolId = useSchoolId();
   const { school, isViewMode } = useSchool();
+  const { sessions } = useAcademicSessions();
+  const currentSession = sessions?.find((s) => s.id === school?.currentAcademicSessionId);
 
   const { data: tree = [], isLoading } = useQuery({
     queryKey: syllabusKeys.syllabusTree(schoolId, school?.currentAcademicSessionId),
@@ -475,108 +479,185 @@ export default function AdminSyllabusPage() {
     0,
   );
 
+  const totalTermsCount = termFilterOptions.length;
+
   return (
     <DashboardShell title="Syllabus Management">
-      <div className="space-y-6">
-        {/* Stats */}
-        {!isLoading && tree.length > 0 && (
-          <div className="animate-in fade-in slide-in-from-top-2 grid grid-cols-3 gap-3 duration-300">
-            {[
-              {
-                label: 'Classes',
-                value: tree.length,
-                icon: GraduationCap,
-                color: 'text-blue-600',
-                bg: 'bg-blue-50',
-              },
-              {
-                label: 'Subjects',
-                value: totalSubjects,
-                icon: BookOpen,
-                color: 'text-purple-600',
-                bg: 'bg-purple-50',
-              },
-              {
-                label: 'Chapters',
-                value: totalChapters,
-                icon: FileText,
-                color: 'text-emerald-600',
-                bg: 'bg-emerald-50',
-              },
-            ].map(({ label, value, icon: Icon, color, bg }) => (
-              <Card key={label} className="border shadow-sm">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className={cn('rounded-lg p-2.5', bg)}>
-                      <Icon className={cn('h-4 w-4', color)} />
-                    </div>
-                    <div>
-                      <div className={cn('text-2xl font-bold', color)}>{value}</div>
-                      <div className="text-muted-foreground text-xs">{label}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+      <div className="animate-in fade-in space-y-4 pb-8 duration-300">
+        {/* Executive Header Banner */}
+        <div className="rounded-2xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-4 sm:p-5 shadow-xs">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm ring-4 ring-emerald-500/10">
+                <BookOpen className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-lg font-bold tracking-tight text-slate-900 sm:text-xl">
+                    Syllabus Directory & Structure
+                  </h1>
+                  {currentSession ? (
+                    <Badge
+                      variant="outline"
+                      className="border-emerald-200 bg-emerald-50 text-[11px] font-semibold text-emerald-700 shadow-2xs"
+                    >
+                      <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Live: {currentSession.name}
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="border-slate-200 bg-slate-50 text-[11px] text-slate-600">
+                      Standard Curriculum
+                    </Badge>
+                  )}
+                  {isViewMode && (
+                    <span className="text-xs font-semibold text-amber-800 bg-amber-100 border border-amber-300 px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                      <Eye className="h-3 w-3 text-amber-600" /> Read-Only Mode
+                    </span>
+                  )}
+                </div>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  Organize grades, subjects, academic term breakdowns, and curriculum chapters.
+                </p>
+              </div>
+            </div>
 
-        {/* Toolbar */}
-        <div className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-1 flex-wrap items-center gap-2">
-            <div className="relative w-full max-w-xs">
-              <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 rounded-xl border-slate-200 bg-white text-xs font-medium text-slate-700 shadow-2xs hover:bg-slate-50"
+                onClick={() => handleToggleAll(true)}
+              >
+                Expand All
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 rounded-xl border-slate-200 bg-white text-xs font-medium text-slate-700 shadow-2xs hover:bg-slate-50"
+                onClick={() => handleToggleAll(false)}
+              >
+                Collapse All
+              </Button>
+              {!isViewMode && (
+                <Button
+                  size="sm"
+                  onClick={() => setAddClassDialogOpen(true)}
+                  className="h-9 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 text-xs font-medium text-white shadow-xs hover:from-emerald-700 hover:to-teal-700"
+                >
+                  <Plus className="mr-1.5 h-3.5 w-3.5" />
+                  Add Class
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* 4-KPI Metric Strip */}
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
+            <div className="flex items-center justify-between">
+              <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-blue-700 uppercase">
+                Grades
+              </span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                <GraduationCap className="h-3.5 w-3.5" />
+              </div>
+            </div>
+            <div className="mt-2">
+              <div className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                {isLoading ? '-' : tree.length}
+              </div>
+              <p className="text-[11px] text-slate-500">Configured classes</p>
+            </div>
+          </div>
+
+          <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
+            <div className="flex items-center justify-between">
+              <span className="rounded-md bg-purple-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-purple-700 uppercase">
+                Courses
+              </span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
+                <BookOpen className="h-3.5 w-3.5" />
+              </div>
+            </div>
+            <div className="mt-2">
+              <div className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                {isLoading ? '-' : totalSubjects}
+              </div>
+              <p className="text-[11px] text-slate-500">Academic subjects</p>
+            </div>
+          </div>
+
+          <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500" />
+            <div className="flex items-center justify-between">
+              <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-emerald-700 uppercase">
+                Chapters
+              </span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                <FileText className="h-3.5 w-3.5" />
+              </div>
+            </div>
+            <div className="mt-2">
+              <div className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                {isLoading ? '-' : totalChapters}
+              </div>
+              <p className="text-[11px] text-slate-500">Syllabus units & topics</p>
+            </div>
+          </div>
+
+          <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
+            <div className="flex items-center justify-between">
+              <span className="rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-amber-700 uppercase">
+                Periods
+              </span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+                <Layers className="h-3.5 w-3.5" />
+              </div>
+            </div>
+            <div className="mt-2">
+              <div className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                {isLoading ? '-' : totalTermsCount || 1}
+              </div>
+              <p className="text-[11px] text-slate-500">Active syllabus terms</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Toolbar Filter */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-3 shadow-2xs">
+          <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search classes, subjects, chapters..."
-                className="pl-9"
+                className="h-9 rounded-xl border-slate-200 bg-slate-50/50 pl-9 text-xs focus-visible:bg-white focus-visible:ring-emerald-500/20"
               />
             </div>
 
-            <div className="relative">
-              <Filter className="text-muted-foreground pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2" />
-              <select
-                value={termFilter}
-                onChange={(e) => setTermFilter(e.target.value)}
-                className="border-input bg-background h-9 rounded-md border pl-8 pr-3 text-xs"
-              >
-                <option value="">All Terms</option>
-                {termFilterOptions.map((opt) => (
-                  <option key={opt.termName} value={opt.termName}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+            <div className="flex items-center gap-2">
+              <div className="relative min-w-[160px]">
+                <Filter className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+                <select
+                  value={termFilter}
+                  onChange={(e) => setTermFilter(e.target.value)}
+                  aria-label="Filter syllabus by term"
+                  className="h-9 w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-8 pr-3 text-xs font-medium text-slate-700 outline-none focus:border-emerald-500 focus:bg-white"
+                >
+                  <option value="">All Terms</option>
+                  {termFilterOptions.map((opt) => (
+                    <option key={opt.termName} value={opt.termName}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs"
-              onClick={() => handleToggleAll(true)}
-            >
-              Expand All
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs"
-              onClick={() => handleToggleAll(false)}
-            >
-              Collapse All
-            </Button>
-            {!isViewMode ? (
-              <Button size="sm" className="gap-1 text-xs" onClick={() => setAddClassDialogOpen(true)}>
-                <Plus className="h-3.5 w-3.5" /> Add Class
-              </Button>
-            ) : (
-              <span className="text-xs font-semibold text-amber-800 bg-amber-100 border border-amber-300 px-2.5 py-1 rounded-md flex items-center gap-1.5 shadow-xs">
-                <Eye className="h-3.5 w-3.5 text-amber-600" /> Read-Only View Mode
-              </span>
-            )}
           </div>
         </div>
 

@@ -24,9 +24,9 @@ export function AppProviders({ children }: { children: import('react').ReactNode
     <QueryClientProvider client={queryClient}>
       <ThemeProvider
         attribute="class"
-        defaultTheme="system"
-        enableSystem
-        enableColorScheme
+        defaultTheme="light"
+        enableSystem={false}
+        forcedTheme="light"
         disableTransitionOnChange
         storageKey="syllabus-theme"
       >

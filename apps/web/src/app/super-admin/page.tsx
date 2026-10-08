@@ -67,8 +67,8 @@ interface PlatformStatCardProps {
   value: string | number;
   icon: React.ElementType;
   iconBg: string;
-  cardBg: string;
-  borderColor: string;
+  cardBg?: string;
+  borderColor?: string;
   iconColor?: string;
   sub?: string;
   colSpan?: string;
@@ -79,8 +79,6 @@ function PlatformStatCard({
   value,
   icon: Icon,
   iconBg,
-  cardBg,
-  borderColor,
   iconColor = 'text-white',
   sub,
   colSpan = '',
@@ -88,19 +86,19 @@ function PlatformStatCard({
   return (
     <div
       className={`
-        relative overflow-hidden rounded-2xl border ${borderColor} ${cardBg} ${colSpan}
-        px-5 py-4 shadow-sm
+        relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white ${colSpan}
+        p-4 sm:p-5 shadow-xs
         transition-all duration-200 hover:shadow-md hover:-translate-y-0.5
       `}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">{title}</p>
-          <p className="mt-1.5 text-3xl font-bold text-gray-800 leading-none">{value}</p>
-          {sub && <p className="mt-1.5 text-xs text-gray-500">{sub}</p>}
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{title}</p>
+          <p className="mt-1 text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none">{value}</p>
+          {sub && <p className="mt-1.5 text-xs text-slate-500 font-medium">{sub}</p>}
         </div>
-        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${iconBg} shadow-sm`}>
-          <Icon className={`h-6 w-6 ${iconColor}`} />
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconBg} shadow-xs`}>
+          <Icon className={`h-5 w-5 ${iconColor}`} />
         </div>
       </div>
     </div>
@@ -119,13 +117,13 @@ function Section({
   badge?: React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-      <div className="flex items-center justify-between bg-gradient-to-r from-[#1a73e8] to-[#1558b0] px-5 py-3.5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20">
-            <Icon className="h-4 w-4 text-white" />
+    <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs">
+      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 bg-slate-50/50">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+            <Icon className="h-4 w-4" />
           </div>
-          <h3 className="text-sm font-semibold text-white">{title}</h3>
+          <h3 className="text-sm font-bold text-slate-900">{title}</h3>
         </div>
         {badge}
       </div>
@@ -148,14 +146,31 @@ export default function SuperAdminDashboardPage() {
   const isLoading = statsLoading || analyticsLoading;
 
   return (
-    <DashboardShell title="Platform Analytics & Revenue Overview">
+    <DashboardShell>
       <div className="space-y-6">
+        {/* Header Banner */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-indigo-700 border border-indigo-200">
+                <ShieldCheck className="h-3 w-3" /> SuperAdmin Overview
+              </span>
+            </div>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+              Platform Analytics & Revenue
+            </h1>
+            <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
+              Live operational metrics, school subscriptions, payments, and system health across the tenant platform.
+            </p>
+          </div>
+        </div>
+
         {/* Core KPI Metrics */}
         <Section title="Financial & Platform Metrics" icon={TrendingUp}>
           {isLoading ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-32 animate-pulse rounded-2xl bg-gray-100" />
+                <div key={i} className="h-28 animate-pulse rounded-2xl bg-slate-100" />
               ))}
             </div>
           ) : (
@@ -164,37 +179,29 @@ export default function SuperAdminDashboardPage() {
                 title="Total Platform Revenue"
                 value={`₹${(analytics?.revenue.total ?? 0).toLocaleString()}`}
                 icon={DollarSign}
-                iconBg="bg-emerald-500"
-                cardBg="bg-emerald-50"
-                borderColor="border-emerald-100"
+                iconBg="bg-emerald-500 text-white"
                 sub={`${analytics?.revenue.successfulCount ?? 0} successful payments processed`}
               />
               <PlatformStatCard
                 title="Active Subscriptions"
                 value={analytics?.subscriptions.active ?? 0}
                 icon={CreditCard}
-                iconBg="bg-blue-500"
-                cardBg="bg-blue-50"
-                borderColor="border-blue-100"
-                sub={`Across ${stats?.totalSchools ?? 0} total registered schools`}
+                iconBg="bg-blue-500 text-white"
+                sub={`Across ${stats?.totalSchools ?? 0} registered schools`}
               />
               <PlatformStatCard
                 title="Total Schools"
                 value={stats?.totalSchools ?? 0}
                 icon={School}
-                iconBg="bg-indigo-500"
-                cardBg="bg-indigo-50"
-                borderColor="border-indigo-100"
+                iconBg="bg-indigo-500 text-white"
                 sub={`${stats?.activeSchools ?? 0} active • ${stats?.expiredSchools ?? 0} expired`}
               />
               <PlatformStatCard
-                title="Total Teachers Enrolled"
+                title="Total Teachers"
                 value={stats?.totalTeachers ?? 0}
                 icon={Users}
-                iconBg="bg-teal-500"
-                cardBg="bg-teal-50"
-                borderColor="border-teal-100"
-                sub="Across active academic sessions"
+                iconBg="bg-teal-500 text-white"
+                sub="Active faculty accounts across all schools"
               />
             </div>
           )}

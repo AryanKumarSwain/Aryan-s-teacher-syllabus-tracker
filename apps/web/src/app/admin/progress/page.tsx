@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
+import { useAcademicSessions } from '@/features/syllabus/hooks/use-academic-sessions';
 import { Input } from '@/components/ui/input';
 import { api } from '@/services/api-client';
 import { useSchoolId } from '@/features/syllabus/hooks/use-school-id';
@@ -87,6 +88,7 @@ type VelocityFilter = 'all' | 'less' | 'neutral' | 'more';
 export default function AdminProgressPage() {
   const schoolId = useSchoolId();
   const { school } = useSchool();
+  const { sessions } = useAcademicSessions();
   const [groupBy, setGroupBy] = useState<GroupBy>('classes');
   const [velocityFilter, setVelocityFilter] = useState<VelocityFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -293,22 +295,169 @@ export default function AdminProgressPage() {
     );
   }
 
+  const currentSession = sessions?.find(
+    (s) => s.id === (selectedAcademicYearId || school?.currentAcademicSessionId),
+  );
+
+  const behindCount = filteredItems.filter((i) => i.velocity === 'less').length;
+  const onPaceCount = filteredItems.filter((i) => i.velocity === 'neutral').length;
+  const aheadCount = filteredItems.filter((i) => i.velocity === 'more').length;
+  const avgCompletion =
+    filteredItems.length > 0
+      ? (
+          filteredItems.reduce((acc, i) => acc + (i.percentageComplete || 0), 0) /
+          filteredItems.length
+        ).toFixed(1)
+      : '0.0';
+
   return (
     <DashboardShell title="Syllabus Progress">
-      <div className="space-y-6">
-        <div>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Syllabus Progress</h1>
-              <p className="text-muted-foreground">Track academic progression across your school</p>
+      <div className="animate-in fade-in space-y-4 pb-8 duration-300">
+        {/* Executive Header Banner */}
+        <div className="rounded-2xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-4 sm:p-5 shadow-xs">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm ring-4 ring-emerald-500/10">
+                <BarChart3 className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-lg font-bold tracking-tight text-slate-900 sm:text-xl">
+                    Syllabus Pacing & Progress
+                  </h1>
+                  {currentSession ? (
+                    <Badge
+                      variant="outline"
+                      className="border-emerald-200 bg-emerald-50 text-[11px] font-semibold text-emerald-700 shadow-2xs"
+                    >
+                      <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Live: {currentSession.name}
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="border-slate-200 bg-slate-50 text-[11px] text-slate-600">
+                      Standard Session
+                    </Badge>
+                  )}
+                  {data?.globalTimeline && data.globalTimeline.totalTeachingDays > 0 && (
+                    <Badge variant="outline" className="border-blue-200 bg-blue-50 text-[11px] font-semibold text-blue-700 shadow-2xs">
+                      Target: {data.globalTimeline.percentageComplete.toFixed(1)}%
+                    </Badge>
+                  )}
+                </div>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  Real-time syllabus completion velocity, timeline milestones, and faculty pacing.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowThresholdSettings(true)}
+                className="flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700 shadow-2xs transition-all hover:bg-slate-50 active:scale-95"
+                title="Configure pacing thresholds"
+              >
+                <Settings className="h-3.5 w-3.5 text-slate-500" />
+                <span>Thresholds (±{onPaceTolerance}%)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowInfoPopover((prev) => !prev)}
+                className={cn(
+                  'flex h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-medium shadow-2xs transition-all active:scale-95',
+                  showInfoPopover
+                    ? 'border-blue-300 bg-blue-100 text-blue-700'
+                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
+                )}
+                title="How pacing is calculated"
+              >
+                <Info className="h-3.5 w-3.5 text-blue-600" />
+                <span>Pacing Guide</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 4-KPI Metric Strip */}
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
+            <div className="flex items-center justify-between">
+              <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-blue-700 uppercase">
+                Completion
+              </span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                <TrendingUp className="h-3.5 w-3.5" />
+              </div>
+            </div>
+            <div className="mt-2">
+              <div className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                {avgCompletion}%
+              </div>
+              <p className="text-[11px] text-slate-500">Average completion rate</p>
+            </div>
+          </div>
+
+          <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500" />
+            <div className="flex items-center justify-between">
+              <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-emerald-700 uppercase">
+                Ahead
+              </span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+              </div>
+            </div>
+            <div className="mt-2">
+              <div className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                {aheadCount}
+              </div>
+              <p className="text-[11px] text-slate-500">Ahead of target pace</p>
+            </div>
+          </div>
+
+          <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
+            <div className="flex items-center justify-between">
+              <span className="rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-amber-700 uppercase">
+                On Pace
+              </span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+                <span className="inline-block h-2 w-2 rounded-full bg-amber-500" />
+              </div>
+            </div>
+            <div className="mt-2">
+              <div className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                {onPaceCount}
+              </div>
+              <p className="text-[11px] text-slate-500">On schedule (within tolerance)</p>
+            </div>
+          </div>
+
+          <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 to-rose-500" />
+            <div className="flex items-center justify-between">
+              <span className="rounded-md bg-red-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-red-700 uppercase">
+                Behind
+              </span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-red-600">
+                <span className="inline-block h-2 w-2 rounded-full bg-red-500" />
+              </div>
+            </div>
+            <div className="mt-2">
+              <div className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                {behindCount}
+              </div>
+              <p className="text-[11px] text-slate-500">Require syllabus catch-up</p>
             </div>
           </div>
         </div>
 
         {/* Global Timeline Tracker */}
-        <Card className="shadow-sm">
+        <Card className="rounded-2xl border border-slate-200/80 bg-white shadow-xs">
           <CardHeader>
-            <CardTitle className="relative flex items-center gap-2 text-base font-bold">
+            <CardTitle className="relative flex items-center gap-2 text-base font-bold text-slate-900">
               <Calendar className="h-5 w-5 text-blue-500" />
               Academic Timeline Progress
               {data?.globalTimeline && data.globalTimeline.totalTeachingDays > 0 && (
@@ -488,11 +637,11 @@ export default function AdminProgressPage() {
         </Card>
 
         {/* Analytical Filtering Section */}
-        <Card className="shadow-sm">
+        <Card className="rounded-2xl border border-slate-200/80 bg-white shadow-xs">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base font-bold">
-              <BarChart3 className="h-5 w-5 text-purple-500" />
-              Progress Analytics
+            <CardTitle className="flex items-center gap-2 text-base font-bold text-slate-900">
+              <BarChart3 className="h-5 w-5 text-purple-600" />
+              Progress Analytics & Filters
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -593,9 +742,9 @@ export default function AdminProgressPage() {
         </Card>
 
         {/* Progress Cards Grid */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
           {filteredItems.map((item, index) => (
-            <Card key={index} className="transition-shadow duration-200 hover:shadow-md">
+            <Card key={index} className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-all duration-200 hover:border-slate-300 hover:shadow-md">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-3">
                   <CardTitle className="line-clamp-1 text-base font-bold text-gray-900">

@@ -163,11 +163,17 @@ export default function RegisterPage() {
             <motion.div variants={fadeInUp}>
               <Link href="/" className="inline-flex items-center gap-2.5 group">
                 <MascotLogo size={42} animated />
-                <div className="flex flex-col">
-                  <span className="text-lg font-extrabold tracking-tight text-[#0b1c30]">
-                    SyllabusTracker
-                  </span>
-                  <span className="text-[11px] text-emerald-700 font-semibold tracking-wide">
+                <div className="flex flex-col leading-tight">
+                  <div className="flex items-center gap-0.5">
+                    <span className="text-lg font-black tracking-tight text-[#0b1c30]">
+                      Syllabus
+                    </span>
+                    <span className="text-lg font-black tracking-tight bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
+                      Tracker
+                    </span>
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 ml-0.5 animate-pulse" />
+                  </div>
+                  <span className="text-[11px] text-emerald-700 font-semibold tracking-wide mt-0.5">
                     Academic Operations OS
                   </span>
                 </div>

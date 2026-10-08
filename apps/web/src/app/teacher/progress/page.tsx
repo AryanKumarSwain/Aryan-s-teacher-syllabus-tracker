@@ -215,8 +215,25 @@ export default function TeacherProgressPage() {
   const isLoading = classesLoading || progressionLoading || timelineLoading;
 
   return (
-    <DashboardShell title="My Progress">
+    <DashboardShell>
       <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-emerald-700 border border-emerald-200">
+                <TrendingUp className="h-3 w-3" /> Curriculum Pacing
+              </span>
+            </div>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+              Teaching Progress & Velocity
+            </h1>
+            <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
+              Real-time monitoring of syllabus completion pace compared against academic terms.
+            </p>
+          </div>
+        </div>
+
         {/* Header Stats Row */}
         {((selectedClassId === 'all' && subjectProgress.length > 0) || selectedClass) &&
           !isLoading && (
@@ -235,8 +252,8 @@ export default function TeacherProgressPage() {
                         100
                       ).toFixed(0)}%`,
                   icon: Target,
-                  color: 'text-blue-600',
-                  bg: 'bg-blue-50',
+                  color: 'text-blue-700',
+                  bg: 'bg-blue-50/70 border-blue-100',
                 },
                 {
                   label: selectedClass ? 'Chapters Done' : 'Topics Done',
@@ -244,37 +261,35 @@ export default function TeacherProgressPage() {
                     ? `${selectedClass.completedChapters}/${selectedClass.totalChapters}`
                     : `${subjectProgress.reduce((sum, s) => sum + (s.completedTopics || 0), 0)}/${subjectProgress.reduce((sum, s) => sum + (s.totalTopics || 0), 0)}`,
                   icon: CheckCircle2,
-                  color: 'text-emerald-600',
-                  bg: 'bg-emerald-50',
+                  color: 'text-emerald-700',
+                  bg: 'bg-emerald-50/70 border-emerald-100',
                 },
                 {
-                  label: 'Subjects',
+                  label: 'Assigned Subjects',
                   value: selectedClass ? selectedClass._count.subjects : subjectProgress.length,
                   icon: BookOpen,
-                  color: 'text-purple-600',
-                  bg: 'bg-purple-50',
+                  color: 'text-purple-700',
+                  bg: 'bg-purple-50/70 border-purple-100',
                 },
                 {
                   label: 'Behind Schedule',
                   value: velocityCounts.less,
                   icon: AlertTriangle,
-                  color: 'text-red-600',
-                  bg: 'bg-red-50',
+                  color: 'text-red-700',
+                  bg: 'bg-red-50/70 border-red-100',
                 },
               ].map(({ label, value, icon: Icon, color, bg }) => (
-                <Card key={label} className="border shadow-sm">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className={cn('rounded-lg p-2', bg)}>
-                        <Icon className={cn('h-4 w-4', color)} />
-                      </div>
-                      <div>
-                        <div className={cn('text-xl font-bold', color)}>{value}</div>
-                        <div className="text-muted-foreground text-xs">{label}</div>
-                      </div>
+                <div key={label} className={cn('rounded-2xl border p-4 bg-white shadow-xs', bg)}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{label}</p>
+                      <p className={cn('mt-0.5 text-2xl font-black tracking-tight', color)}>{value}</p>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className={cn('flex h-10 w-10 items-center justify-center rounded-xl bg-white/80 shadow-xs', color)}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           )}

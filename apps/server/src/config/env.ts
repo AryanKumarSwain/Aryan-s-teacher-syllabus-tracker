@@ -1,11 +1,17 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
-// Load local and root .env
-dotenv.config();
-dotenv.config({ path: path.resolve(process.cwd(), '../../.env') });
-dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const serverRoot = path.resolve(__dirname, '../..');
+const repoRoot = path.resolve(serverRoot, '../..');
+
+// Load root .env, then server-specific .env (with override: true)
+dotenv.config({ path: path.resolve(repoRoot, '.env') });
+dotenv.config({ path: path.resolve(serverRoot, '.env'), override: true });
+dotenv.config(); // fallback to cwd .env
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),

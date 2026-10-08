@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -25,10 +25,11 @@ const roleRedirects: Record<UserRole, string> = {
 };
 
 export function LoginForm() {
-  const [loginRole, setLoginRole] = useState<'admin' | 'teacher'>('admin');
-  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const initialRole = searchParams.get('role') === 'teacher' ? 'teacher' : 'admin';
+  const [loginRole, setLoginRole] = useState<'admin' | 'teacher'>(initialRole);
+  const [showPassword, setShowPassword] = useState(false);
   const setAuth = useAuthStore((s) => s.setAuth);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetOtpSent, setResetOtpSent] = useState(false);
@@ -36,6 +37,23 @@ export function LoginForm() {
   const [sendingResetOtp, setSendingResetOtp] = useState(false);
   const [verifyingResetOtp, setVerifyingResetOtp] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+
+  useEffect(() => {
+    const roleParam = searchParams.get('role');
+    if (roleParam === 'teacher') {
+      setLoginRole('teacher');
+    } else if (roleParam === 'admin') {
+      setLoginRole('admin');
+    }
+
+    const errorParam = searchParams.get('error');
+    if (errorParam === 'teacher_google_not_allowed') {
+      setLoginRole('teacher');
+      toast.error('Teacher accounts cannot log in via Google. Please use Teacher Login with your assigned password.');
+    } else if (errorParam === 'google_auth_failed') {
+      toast.error('Google sign-in failed. Please try again.');
+    }
+  }, [searchParams]);
 
   const {
     register: registerLogin,
@@ -65,7 +83,24 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const result = await api.post<LoginResponse>('/auth/login', data);
+      const result = await api.post<LoginResponse>('/auth/login', {
+        ...data,
+        role: loginRole,
+      });
+
+      // Role isolation safety check
+      if (loginRole === 'admin' && result.user.role === UserRole.TEACHER) {
+        toast.error('This is a Teacher account. Please switch to the Teacher Login tab.');
+        return;
+      }
+      if (
+        loginRole === 'teacher' &&
+        (result.user.role === UserRole.SCHOOL_ADMIN || result.user.role === UserRole.SUPER_ADMIN)
+      ) {
+        toast.error('This is an Admin account. Please switch to the Admin Login tab.');
+        return;
+      }
+
       setAuth(result.user as AuthUser, result.accessToken);
 
       // Cookie set karo taaki middleware bhi happy rahe

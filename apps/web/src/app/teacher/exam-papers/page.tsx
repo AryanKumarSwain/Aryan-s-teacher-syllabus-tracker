@@ -202,16 +202,29 @@ export default function TeacherExamPapersPage() {
   };
 
   return (
-    <DashboardShell title="Exam Papers">
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between rounded-2xl border border-gray-200 bg-white p-5 shadow-xs gap-3">
+    <DashboardShell>
+      <div className="space-y-6">
+        {/* Header Banner */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">My Exam Papers</h2>
-            <p className="text-sm text-gray-500">Draft, submit, and export your exam papers.</p>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-md bg-purple-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-purple-700 border border-purple-200">
+                <FileText className="h-3 w-3" /> Question Papers
+              </span>
+              <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600">
+                {papers.length} Papers
+              </span>
+            </div>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+              Exam Papers & Assessments
+            </h1>
+            <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
+              Draft, submit for moderation, and export custom PDF test papers with student roll headers.
+            </p>
           </div>
           <Link href="/teacher/exam-papers/create">
-            <Button className="gap-1.5 text-xs h-9">
-              <Plus className="h-4 w-4" /> Create Paper
+            <Button className="h-10 rounded-xl bg-purple-600 px-4 text-xs font-bold text-white shadow-sm shadow-purple-500/20 hover:bg-purple-700 hover:scale-[1.02] transition-all gap-1.5">
+              <Plus className="h-4 w-4" /> Create Exam Paper
             </Button>
           </Link>
         </div>
@@ -219,35 +232,62 @@ export default function TeacherExamPapersPage() {
         {isLoading ? (
           <div className="space-y-3">
             {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-20 w-full rounded-2xl" />
+              <Skeleton key={i} className="h-24 w-full rounded-2xl" />
             ))}
           </div>
         ) : papers.length === 0 ? (
-          <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-sm text-gray-500">
-            <FileText className="h-10 w-10 text-gray-400 mx-auto mb-3 opacity-60" />
-            <p className="font-medium text-gray-700">No papers created yet.</p>
-            <p className="text-xs text-gray-400 mt-1">Click &apos;Create Paper&apos; to start assembling your first examination paper.</p>
+          <div className="rounded-2xl border border-slate-200/90 bg-white p-12 text-center text-sm text-slate-500 shadow-xs">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-50 text-purple-600 mx-auto mb-3">
+              <FileText className="h-6 w-6" />
+            </div>
+            <p className="font-bold text-slate-800 text-base">No exam papers created yet</p>
+            <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+              Click &apos;Create Exam Paper&apos; to build and format your first question paper using the paper generator.
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
             {papers.map((paper) => (
-              <div key={paper.id} className="rounded-2xl border border-gray-200 bg-white shadow-xs overflow-hidden transition-all hover:border-gray-300">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-3">
-                  <div className="space-y-1">
-                    <p className="font-semibold text-gray-900 text-base">
-                      {paper.examName} {paper.subject?.name && `- ${paper.subject.name}`} {paper.class?.name && `- ${paper.class.name}`}
-                    </p>
-                    <p className="text-xs text-gray-500">
+              <div
+                key={paper.id}
+                className="rounded-2xl border border-slate-200/90 bg-white shadow-xs overflow-hidden transition-all duration-200 hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 gap-3">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-bold text-slate-900 text-base">
+                        {paper.examName}
+                      </p>
+                      {paper.subject?.name && (
+                        <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 border border-blue-100">
+                          {paper.subject.name}
+                        </span>
+                      )}
+                      {paper.class?.name && (
+                        <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                          {paper.class.name}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-400 font-medium">
                       Created on {new Date(paper.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                      paper.status === 'SUBMITTED' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
-                      paper.status === 'REVIEWED' ? 'bg-green-100 text-green-800 border border-green-200' :
-                      'bg-gray-100 text-gray-700'
-                    }`}>
-                      {paper.status === 'REVIEWED' ? 'Reviewed' : paper.status === 'SUBMITTED' ? 'Submitted' : paper.status}
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-bold border ${
+                        paper.status === 'SUBMITTED'
+                          ? 'bg-amber-50 text-amber-800 border-amber-200'
+                          : paper.status === 'REVIEWED'
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                            : 'bg-slate-100 text-slate-700 border-slate-200'
+                      }`}
+                    >
+                      {paper.status === 'REVIEWED'
+                        ? 'Reviewed'
+                        : paper.status === 'SUBMITTED'
+                          ? 'Submitted'
+                          : paper.status}
                     </span>
 
                     {paper.status === 'DRAFT' && (
@@ -255,9 +295,13 @@ export default function TeacherExamPapersPage() {
                         size="sm"
                         disabled={submitMutation.isPending}
                         onClick={() => submitMutation.mutate(paper.id)}
-                        className="text-xs h-8 gap-1"
+                        className="text-xs h-8 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
                       >
-                        {submitMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Send className="h-3 w-3 mr-1" />}
+                        {submitMutation.isPending ? (
+                          <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                        ) : (
+                          <Send className="h-3 w-3 mr-1" />
+                        )}
                         Submit
                       </Button>
                     )}

@@ -10,6 +10,7 @@ export type TeacherMutationResult = {
   emailSent: boolean;
   emailError?: string;
   restored?: boolean;
+  tempPassword?: string;
 };
 
 async function applyTeacherAssignments(
@@ -473,6 +474,7 @@ export const teacherService = {
     emailSent: emailResult.emailSent,
     emailError: emailResult.emailError,
     restored,
+    tempPassword,
   };
 },
 
@@ -932,5 +934,43 @@ export const teacherService = {
     formattedLogs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     return formattedLogs.slice(0, limit);
+  },
+
+  async resendCredentials(schoolId: string, teacherId: string) {
+    const teacher = await prisma.teacher.findFirst({
+      where: withTenant(schoolId, { id: teacherId, ...softDeleteFilter() }),
+      include: { user: true },
+    });
+    if (!teacher || !teacher.user) throw new AppError('Teacher not found', 404);
+
+    const school = await prisma.school.findUnique({ where: { id: schoolId } });
+    if (!school) throw new AppError('School not found', 404);
+
+    const tempPassword = authService.generateSecurePassword();
+    const passwordHash = await hashPassword(tempPassword);
+
+    await prisma.user.update({
+      where: { id: teacher.userId },
+      data: { passwordHash },
+    });
+
+    const emailResult = await trySendTeacherCredentials({
+      to: teacher.user.email,
+      teacherName: teacher.user.name,
+      schoolName: school.name,
+      email: teacher.user.email,
+      tempPassword,
+    });
+
+    return {
+      emailSent: emailResult.emailSent,
+      emailError: emailResult.emailError,
+      tempPassword,
+      teacher: {
+        id: teacher.id,
+        name: teacher.user.name,
+        email: teacher.user.email,
+      },
+    };
   },
 };

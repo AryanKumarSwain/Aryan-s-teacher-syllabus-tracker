@@ -175,40 +175,47 @@ export default function TeacherAcademicTimelinePage() {
   });
 
   return (
-    <DashboardShell title="Academic Timeline">
+    <DashboardShell>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-lg font-semibold">Academic Terms</h2>
-            <p className="text-muted-foreground text-sm">
-              View academic terms, holidays, and teaching days for your school.
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-blue-700 border border-blue-200">
+                <Calendar className="h-3 w-3" /> Teaching Schedule
+              </span>
+            </div>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+              Academic Timeline
+            </h1>
+            <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
+              View official academic term days, holidays, vacations, and teaching schedules.
             </p>
           </div>
-        </div>
 
-        {/* Term selector */}
-        <div className="flex flex-wrap gap-3">
-          <div className="bg-background flex items-center gap-2 rounded-md border px-3 py-1.5 shadow-sm">
-            <Filter className="text-muted-foreground h-4 w-4" />
-            <select
-              value={selectedTermId}
-              onChange={(e) => setSelectedTermId(e.target.value)}
-              className="cursor-pointer bg-transparent text-sm font-medium focus:outline-none"
-            >
-              {terms.map((term) => (
-                <option key={term.id} value={term.id}>
-                  {term.name}
-                </option>
-              ))}
-            </select>
+          {/* Term selector */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3 py-2 shadow-xs">
+              <Filter className="h-3.5 w-3.5 text-slate-400" />
+              <select
+                value={selectedTermId}
+                onChange={(e) => setSelectedTermId(e.target.value)}
+                className="cursor-pointer bg-transparent text-xs font-bold text-slate-700 focus:outline-none"
+              >
+                {terms.map((term) => (
+                  <option key={term.id} value={term.id}>
+                    {term.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
         {isLoading ? (
           <div className="grid gap-4 md:grid-cols-2">
             {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-48 rounded-xl" />
+              <Skeleton key={i} className="h-48 rounded-2xl" />
             ))}
           </div>
         ) : terms.length === 0 ? (
@@ -221,18 +228,24 @@ export default function TeacherAcademicTimelinePage() {
           <>
             {/* Timeline Progress */}
             {selectedTerm && (
-              <Card className="animate-in fade-in slide-in-from-top-2 border-2 transition-all duration-300">
-                <CardHeader>
+              <Card className="animate-in fade-in slide-in-from-top-2 rounded-2xl border border-slate-200/90 bg-white shadow-xs transition-all duration-300">
+                <CardHeader className="p-4 sm:p-5 pb-3 border-b border-slate-100">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-bold">
-                      {selectedTerm.name} — Timeline
-                    </CardTitle>
-                    <Badge className="border-none bg-blue-100 text-blue-800">
+                    <div>
+                      <CardTitle className="text-base font-bold text-slate-900">
+                        {selectedTerm.name} — Teaching Days Progression
+                      </CardTitle>
+                      <p className="mt-0.5 text-xs text-slate-400 font-medium">
+                        {new Date(selectedTerm.startDate).toLocaleDateString()} to{' '}
+                        {new Date(selectedTerm.endDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Badge className="border border-blue-200 bg-blue-50 text-blue-800 text-[11px] font-bold">
                       {selectedTerm.status}
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-5">
+                <CardContent className="p-4 sm:p-5 space-y-5">
                   {/* Progress bar */}
                   <div>
                     <div className="mb-2 flex items-center justify-between text-sm">

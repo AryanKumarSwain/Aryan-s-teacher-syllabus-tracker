@@ -37,6 +37,7 @@ export interface CreateTeacherResponse {
   emailSent: boolean;
   emailError?: string;
   restored?: boolean;
+  tempPassword?: string;
 }
 
 export function useTeachers(params: { page?: number; search?: string; termFilter?: string; academicSessionId?: string }) {
@@ -136,3 +137,35 @@ export function useUpdateTeacherStatus() {
     onError: (e: Error) => toast.error(e.message),
   });
 }
+
+export interface ResendCredentialsResponse {
+  emailSent: boolean;
+  emailError?: string;
+  tempPassword?: string;
+  teacher: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
+export function useResendCredentials() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      api.post<ResendCredentialsResponse>(`/teachers/${id}/resend-credentials`, {}),
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ['teachers'] });
+      if (data.emailSent) {
+        toast.success(`Credentials emailed to ${data.teacher.email}`);
+      } else {
+        toast.warning(
+          `Password reset, but email failed: ${data.emailError ?? 'check SMTP'}. Temp password: ${data.tempPassword}`,
+          { duration: 12000 },
+        );
+      }
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+

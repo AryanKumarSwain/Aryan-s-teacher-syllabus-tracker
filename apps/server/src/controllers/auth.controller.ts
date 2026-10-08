@@ -48,8 +48,8 @@ async function createAuthSession(res: Response, user: any) {
 export const authController = {
   async login(req: Request, res: Response, next: NextFunction) {
     try {
-      const { email, password } = req.body;
-      const result = await authService.login(email, password);
+      const { email, password, role } = req.body;
+      const result = await authService.login(email, password, role);
       // Set auth cookies for the session
       authService.setAuthCookies(res, result.accessToken, result.refreshToken);
 
@@ -463,6 +463,12 @@ export const authController = {
           console.log('[googleCallback] User authenticated:', user.email);
           console.log('[googleCallback] User has phone:', !!user.phone);
           console.log('[googleCallback] User has schoolId:', !!user.schoolId);
+
+          // Teachers cannot log in through Admin Google OAuth
+          if (user.role === 'TEACHER') {
+            console.warn('[googleCallback] Teacher attempted Google login on Admin portal:', user.email);
+            return res.redirect(`${env.APP_URL}/login?error=teacher_google_not_allowed`);
+          }
 
           // Create a session cookie for the user before redirecting.
           const { accessToken } = await createAuthSession(res, user);

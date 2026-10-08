@@ -48,4 +48,9 @@ teacherRoutes.patch(
   validateBody(updateTeacherSchema),
   teacherController.update,
 );
+teacherRoutes.post(
+  '/:id/resend-credentials',
+  validateParams(teacherIdParamSchema),
+  teacherController.resendCredentials,
+);
 teacherRoutes.delete('/:id', teacherController.delete);

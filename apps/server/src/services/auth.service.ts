@@ -29,8 +29,8 @@ const cookieOptions = {
 };
 
 export const authService = {
-  async login(email: string, password: string) {
-    console.log(`[LOGIN ATTEMPT] email: "${email}", password: "${password}"`);
+  async login(email: string, password: string, requiredRole?: 'admin' | 'teacher') {
+    console.log(`[LOGIN ATTEMPT] email: "${email}", requiredRole: "${requiredRole || 'any'}"`);
     const user = await userRepository.findByEmail(email.toLowerCase());
     if (!user) {
       console.log(`[LOGIN FAILED] User not found for email: ${email}`);
@@ -41,6 +41,15 @@ export const authService = {
     if (!valid) {
       console.log(`[LOGIN FAILED] Password mismatch. dbHash: ${user.passwordHash}`);
       throw new AppError('Invalid credentials', 401);
+    }
+
+    // Prevent cross-portal logins: Teacher cannot log in via Admin login, and Admin cannot log in via Teacher login
+    if (requiredRole === 'admin' && user.role === 'TEACHER') {
+      throw new AppError('This is a Teacher account. Please switch to the Teacher Login tab.', 403);
+    }
+
+    if (requiredRole === 'teacher' && (user.role === 'SCHOOL_ADMIN' || user.role === 'SUPER_ADMIN')) {
+      throw new AppError('This is an Administrator account. Please switch to the Admin Login tab.', 403);
     }
 
     if (user.status === 'SUSPENDED') {

@@ -484,189 +484,157 @@ export default function AdminUpgradePage() {
               ))}
             </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 max-w-5xl mx-auto">
+            <div className="grid gap-5 md:grid-cols-2 max-w-4xl mx-auto">
               {plans.map((plan, index) => {
                 const isCurrent = currentSub?.plan.id === plan.id && !currentSub.isExpired;
-                const features = Array.isArray(plan.features) ? plan.features : [];
                 const sessionPrice = Number(plan.pricePerSession || plan.priceYearly || 0);
                 const isMaxPlan = sessionPrice === maxPrice && plans.length > 1;
+
+                const rawFeatures = Array.isArray(plan.features) ? plan.features : [];
+                const cleanAdditional = rawFeatures.filter((f: string) => {
+                  if (typeof f !== 'string') return false;
+                  const lower = f.toLowerCase().trim();
+                  if (/\b\d+\s+session/i.test(lower)) return false;
+                  if (lower.includes('teacher login') || lower.includes('teacher account')) return false;
+                  if (lower.includes('subject') && lower.includes('class')) return false;
+                  return true;
+                });
+
+                const privileges = [
+                  `Includes ${plan.sessionLimit || 1} Academic Session(s)`,
+                  `Up to ${plan.teacherLimit} Teacher Logins`,
+                  `Max 200 Subjects & 100 Classes`,
+                  ...Array.from(new Set(cleanAdditional)),
+                ];
 
                 return (
                   <motion.div
                     key={plan.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    whileHover={{ y: -6 }}
-                    className={`relative flex flex-col justify-between rounded-3xl transition-all duration-300 ${
+                    transition={{ duration: 0.3, delay: index * 0.08 }}
+                    whileHover={{ y: -4 }}
+                    className={`relative flex flex-col justify-between rounded-2xl transition-all duration-300 ${
                       isMaxPlan
-                        ? 'border-2 border-amber-400/90 bg-gradient-to-b from-amber-500/[0.08] via-amber-50/40 to-yellow-50/20 shadow-2xl shadow-amber-500/20 ring-4 ring-amber-400/20'
+                        ? 'border-2 border-amber-400 bg-gradient-to-b from-amber-500/[0.07] via-amber-50/30 to-white shadow-xl shadow-amber-500/10 ring-2 ring-amber-400/20'
                         : isCurrent
-                        ? 'border-2 border-blue-600 bg-gradient-to-b from-blue-50/40 to-white shadow-xl ring-2 ring-blue-600/30'
-                        : 'border-2 border-slate-200/90 bg-gradient-to-b from-slate-50/50 via-white to-indigo-50/20 hover:border-indigo-300 hover:shadow-xl hover:shadow-indigo-500/10'
+                        ? 'border-2 border-blue-600 bg-gradient-to-b from-blue-50/30 to-white shadow-lg ring-2 ring-blue-600/20'
+                        : 'border border-slate-200 bg-white hover:border-indigo-300 hover:shadow-lg hover:shadow-indigo-500/5'
                     }`}
                   >
                     {/* Top Badges */}
                     {isMaxPlan && (
-                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20">
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 px-4 py-1 text-xs font-black uppercase tracking-wider text-white shadow-lg shadow-amber-500/40 border border-amber-300">
-                          <Crown className="h-3.5 w-3.5 fill-white" />
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-3 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-white shadow-md shadow-amber-500/30 border border-amber-300">
+                          <Crown className="h-3 w-3 fill-white" />
                           Most Popular • Max Value
                         </span>
                       </div>
                     )}
 
                     {isCurrent && !isMaxPlan && (
-                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20">
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-4 py-1 text-xs font-bold uppercase tracking-wider text-white shadow-md">
-                          <Check className="h-3.5 w-3.5" />
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-blue-600 px-3 py-0.5 text-[11px] font-bold uppercase tracking-wider text-white shadow-sm">
+                          <Check className="h-3 w-3" />
                           Active Plan
                         </span>
                       </div>
                     )}
 
                     {/* Card Body */}
-                    <div className="p-7 sm:p-8">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h4
-                              className={`text-2xl font-black tracking-tight ${
-                                isMaxPlan ? 'text-amber-950' : 'text-gray-900'
-                              }`}
-                            >
-                              {plan.name}
-                            </h4>
-                            {isMaxPlan && (
-                              <Star className="h-5 w-5 text-amber-500 fill-amber-400" />
-                            )}
-                          </div>
-                          {plan.description && (
-                            <p
-                              className={`mt-1.5 text-xs sm:text-sm min-h-[36px] leading-relaxed ${
-                                isMaxPlan ? 'text-amber-900/80 font-medium' : 'text-gray-500'
-                              }`}
-                            >
-                              {plan.description}
-                            </p>
+                    <div className="p-5 sm:p-6">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <h4
+                            className={`text-xl font-bold tracking-tight ${
+                              isMaxPlan ? 'text-amber-950' : 'text-gray-900'
+                            }`}
+                          >
+                            {plan.name}
+                          </h4>
+                          {isMaxPlan && (
+                            <Star className="h-4 w-4 text-amber-500 fill-amber-400" />
                           )}
                         </div>
+                        {plan.description && (
+                          <p
+                            className={`mt-1 text-xs leading-relaxed ${
+                              isMaxPlan ? 'text-amber-900/80 font-medium' : 'text-gray-500'
+                            }`}
+                          >
+                            {plan.description}
+                          </p>
+                        )}
                       </div>
 
                       {/* Price Section */}
                       <div
-                        className={`my-6 rounded-2xl p-5 border transition-all ${
+                        className={`my-3.5 rounded-xl p-3.5 border transition-all ${
                           isMaxPlan
-                            ? 'bg-gradient-to-br from-amber-500/15 via-yellow-400/10 to-amber-100/40 border-amber-300/80 shadow-sm'
-                            : 'bg-gradient-to-br from-slate-100/80 to-indigo-50/60 border-slate-200/80'
+                            ? 'bg-gradient-to-br from-amber-500/10 via-yellow-400/5 to-amber-100/30 border-amber-300/70'
+                            : 'bg-slate-50/80 border-slate-200/80'
                         }`}
                       >
                         <div className="flex items-baseline gap-1.5">
                           <span
-                            className={`text-4xl font-black tracking-tight ${
+                            className={`text-3xl font-extrabold tracking-tight ${
                               isMaxPlan ? 'text-amber-950' : 'text-slate-900'
                             }`}
                           >
                             ₹{sessionPrice.toLocaleString()}
                           </span>
                           <span
-                            className={`text-xs font-bold uppercase tracking-wider ${
+                            className={`text-[11px] font-semibold uppercase tracking-wider ${
                               isMaxPlan ? 'text-amber-800/80' : 'text-gray-500'
                             }`}
                           >
                             {plan.sessionLimit && plan.sessionLimit > 1
-                              ? `/ ${plan.sessionLimit} Academic Sessions`
-                              : '/ Academic Session'}
+                              ? `/ ${plan.sessionLimit} Sessions`
+                              : '/ Session'}
                           </span>
                         </div>
-                        <div className="mt-2 flex items-center gap-2">
+                        <div className="mt-1.5 flex items-center gap-1.5">
                           <span
-                            className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-bold ${
+                            className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold ${
                               isMaxPlan
-                                ? 'bg-amber-500/20 text-amber-900 border border-amber-400/30'
+                                ? 'bg-amber-500/15 text-amber-900 border border-amber-400/30'
                                 : 'bg-indigo-50 text-indigo-700 border border-indigo-200/50'
                             }`}
                           >
-                            <Clock className="h-3 w-3" /> Duration: {plan.sessionDurationDays || 365} Days Full Access
+                            <Clock className="h-3 w-3" /> {plan.sessionDurationDays || 365} Days Full Access
                           </span>
                         </div>
                       </div>
 
                       {/* Features List */}
-                      <div className="space-y-3.5">
+                      <div className="space-y-2">
                         <p
-                          className={`text-xs font-extrabold uppercase tracking-wider ${
+                          className={`text-[11px] font-bold uppercase tracking-wider ${
                             isMaxPlan ? 'text-amber-900/70' : 'text-gray-400'
                           }`}
                         >
                           Included Privileges
                         </p>
-                        <ul className="space-y-2.5 text-xs sm:text-sm">
-                          <li
-                            className={`flex items-center gap-2.5 font-bold ${
-                              isMaxPlan ? 'text-amber-950' : 'text-gray-800'
-                            }`}
-                          >
-                            <div
-                              className={`flex h-5 w-5 items-center justify-center rounded-full ${
-                                isMaxPlan
-                                  ? 'bg-amber-500/20 text-amber-700'
-                                  : 'bg-emerald-100 text-emerald-700'
-                              }`}
-                            >
-                              <CheckCircle2 className="h-4 w-4 shrink-0" />
-                            </div>
-                            <span>Includes {plan.sessionLimit || 1} Academic Session(s)</span>
-                          </li>
-                          <li
-                            className={`flex items-center gap-2.5 font-bold ${
-                              isMaxPlan ? 'text-amber-950' : 'text-gray-800'
-                            }`}
-                          >
-                            <div
-                              className={`flex h-5 w-5 items-center justify-center rounded-full ${
-                                isMaxPlan
-                                  ? 'bg-amber-500/20 text-amber-700'
-                                  : 'bg-emerald-100 text-emerald-700'
-                              }`}
-                            >
-                              <CheckCircle2 className="h-4 w-4 shrink-0" />
-                            </div>
-                            <span>Up to {plan.teacherLimit} Teacher Logins</span>
-                          </li>
-                          <li
-                            className={`flex items-center gap-2.5 ${
-                              isMaxPlan ? 'text-amber-950 font-semibold' : 'text-gray-700'
-                            }`}
-                          >
-                            <div
-                              className={`flex h-5 w-5 items-center justify-center rounded-full ${
-                                isMaxPlan
-                                  ? 'bg-amber-500/20 text-amber-700'
-                                  : 'bg-emerald-100 text-emerald-700'
-                              }`}
-                            >
-                              <CheckCircle2 className="h-4 w-4 shrink-0" />
-                            </div>
-                            <span>Max 200 Subjects & 100 Classes</span>
-                          </li>
-                          {features.map((f: string, idx: number) => (
+                        <ul className="space-y-1.5 text-xs">
+                          {privileges.map((item: string, idx: number) => (
                             <li
                               key={idx}
-                              className={`flex items-center gap-2.5 ${
-                                isMaxPlan ? 'text-amber-950/90 font-medium' : 'text-gray-600'
+                              className={`flex items-center gap-2 ${
+                                idx < 3
+                                  ? isMaxPlan ? 'text-amber-950 font-semibold' : 'text-gray-900 font-medium'
+                                  : isMaxPlan ? 'text-amber-950/80' : 'text-gray-600'
                               }`}
                             >
                               <div
-                                className={`flex h-5 w-5 items-center justify-center rounded-full ${
+                                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full ${
                                   isMaxPlan
                                     ? 'bg-amber-500/20 text-amber-700'
                                     : 'bg-emerald-100 text-emerald-700'
                                 }`}
                               >
-                                <CheckCircle2 className="h-4 w-4 shrink-0" />
+                                <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
                               </div>
-                              <span>{f}</span>
+                              <span className="truncate">{item}</span>
                             </li>
                           ))}
                         </ul>
@@ -674,23 +642,23 @@ export default function AdminUpgradePage() {
                     </div>
 
                     {/* Card Footer / CTA Button */}
-                    <div className="p-7 sm:p-8 pt-0">
+                    <div className="p-5 sm:p-6 pt-0">
                       <Button
                         onClick={() => handleOpenCheckout(plan)}
-                        className={`w-full py-6 text-base font-bold rounded-2xl transition-all duration-300 shadow-md ${
+                        className={`w-full h-11 text-sm font-bold rounded-xl transition-all duration-300 shadow-sm ${
                           isMaxPlan
-                            ? 'bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white shadow-lg shadow-amber-500/30 border border-amber-400 hover:shadow-amber-500/50 hover:scale-[1.02]'
+                            ? 'bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white shadow-amber-500/25 border border-amber-400 hover:scale-[1.01]'
                             : isCurrent
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20 hover:scale-[1.02]'
-                            : 'bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white shadow-indigo-600/20 hover:scale-[1.02]'
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20 hover:scale-[1.01]'
+                            : 'bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white shadow-indigo-600/20 hover:scale-[1.01]'
                         }`}
                       >
                         {isCurrent ? (
                           <>Extend / Renew Plan</>
                         ) : (
-                          <span className="flex items-center justify-center gap-2">
-                            {isMaxPlan && <Crown className="h-4 w-4 fill-white" />}
-                            Upgrade to {plan.name} <ArrowRight className="h-4 w-4 ml-1" />
+                          <span className="flex items-center justify-center gap-1.5">
+                            {isMaxPlan && <Crown className="h-3.5 w-3.5 fill-white" />}
+                            Upgrade to {plan.name} <ArrowRight className="h-3.5 w-3.5 ml-0.5" />
                           </span>
                         )}
                       </Button>

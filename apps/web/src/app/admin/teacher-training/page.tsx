@@ -23,6 +23,8 @@ import {
 } from '@/features/teacher-training/hooks/use-teacher-training';
 import { CbseGuidelinesModal } from '@/features/teacher-training/components/cbse-guidelines-modal';
 import { LogTrainingDialog } from '@/features/teacher-training/components/log-training-dialog';
+import { useSchool } from '@/features/syllabus/hooks/use-school';
+import { useAcademicSessions } from '@/features/syllabus/hooks/use-academic-sessions';
 import { TeacherCpdDrawer } from '@/features/teacher-training/components/teacher-cpd-drawer';
 import { DomainStackedProgressBar } from '@/features/teacher-training/components/domain-stacked-progress-bar';
 import { CpdQuotaProgressBar } from '@/features/teacher-training/components/cpd-quota-progress-bar';
@@ -49,6 +51,9 @@ import {
 } from 'lucide-react';
 
 export default function AdminTeacherTrainingPage() {
+  const { school } = useSchool();
+  const { sessions } = useAcademicSessions();
+  const currentSession = sessions?.find((s) => s.id === school?.currentAcademicSessionId);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'COMPLIANT' | 'IN_PROGRESS' | 'NOT_STARTED'>('ALL');
 
@@ -136,143 +141,154 @@ export default function AdminTeacherTrainingPage() {
 
   return (
     <DashboardShell title="Teacher Training (CPD)">
-      <div className="space-y-6 pb-12">
-        {/* Header with Title & Action Buttons */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#1a73e8] to-[#1558b0] text-white shadow-sm">
+      <div className="animate-in fade-in space-y-4 pb-8 duration-300">
+        {/* Executive Header Banner */}
+        <div className="rounded-2xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-4 sm:p-5 shadow-xs">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm ring-4 ring-emerald-500/10">
                 <Award className="h-5 w-5" />
               </div>
-              <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-                Teacher Training & CPD Tracker
-              </h1>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-lg font-bold tracking-tight text-slate-900 sm:text-xl">
+                    Faculty Training & CPD Tracker
+                  </h1>
+                  {currentSession ? (
+                    <Badge
+                      variant="outline"
+                      className="border-emerald-200 bg-emerald-50 text-[11px] font-semibold text-emerald-700 shadow-2xs"
+                    >
+                      <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Live: {currentSession.name}
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="border-slate-200 bg-slate-50 text-[11px] text-slate-600">
+                      Standard Session
+                    </Badge>
+                  )}
+                  <Badge variant="outline" className="border-blue-200 bg-blue-50 text-[11px] font-semibold text-blue-700 shadow-2xs">
+                    CBSE 50h Quota
+                  </Badge>
+                </div>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  CBSE Notification TRG-02/2025 • Mandatory 50 Hours Continuous Professional Development compliance.
+                </p>
+              </div>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              CBSE Notification TRG-02/2025 • Mandatory 50 Hours Continuous Professional Development per teacher
-            </p>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setGuidelinesOpen(true)}
-              className="text-xs flex items-center gap-1.5 border-gray-300"
-            >
-              <BookOpen className="h-4 w-4 text-[#1a73e8]" />
-              CBSE Circular & Annexures
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setGuidelinesOpen(true)}
+                className="h-9 rounded-xl border-slate-200 bg-white text-xs font-medium text-slate-700 shadow-2xs hover:bg-slate-50"
+              >
+                <BookOpen className="mr-1.5 h-3.5 w-3.5 text-blue-600" />
+                Guidelines
+              </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExportCsv}
-              disabled={teachers.length === 0}
-              className="text-xs flex items-center gap-1.5 border-gray-300"
-            >
-              <Download className="h-4 w-4 text-emerald-600" />
-              Export OASIS Report
-            </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportCsv}
+                disabled={teachers.length === 0}
+                className="h-9 rounded-xl border-slate-200 bg-white text-xs font-medium text-slate-700 shadow-2xs hover:bg-slate-50"
+              >
+                <Download className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
+                OASIS CSV
+              </Button>
 
-            <Button
-              size="sm"
-              onClick={handleOpenGeneralLog}
-              className="bg-[#1a73e8] hover:bg-[#1558b0] text-white text-xs flex items-center gap-1.5 shadow-sm"
-            >
-              <Plus className="h-4 w-4" />
-              Log Training (Single/Bulk)
-            </Button>
+              <Button
+                size="sm"
+                onClick={handleOpenGeneralLog}
+                className="h-9 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 text-xs font-medium text-white shadow-xs hover:from-emerald-700 hover:to-teal-700"
+              >
+                <Plus className="mr-1.5 h-3.5 w-3.5" />
+                Log Training
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* 4 Summary Metric KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Total Teachers */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+        {/* 4-KPI Metric Strip */}
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Total Teachers
+              <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-blue-700 uppercase">
+                Faculty
               </span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                <Users className="h-4 w-4" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                <Users className="h-3.5 w-3.5" />
               </div>
             </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-black text-gray-900">{stats?.totalTeachers ?? teachers.length}</span>
-              <span className="text-xs text-gray-500">active session</span>
+            <div className="mt-2">
+              <div className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                {isLoading ? '-' : (stats?.totalTeachers ?? teachers.length)}
+              </div>
+              <p className="text-[11px] text-slate-500">Registered teachers</p>
             </div>
-            <p className="text-[11px] text-gray-400 mt-1">
-              Fetched from active teacher records
-            </p>
           </div>
 
-          {/* Card 2: Fully Compliant */}
-          <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50/60 to-teal-50/20 p-4 shadow-sm">
+          <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500" />
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-emerald-800 uppercase tracking-wider">
-                Fully Compliant (50h+)
+              <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-emerald-700 uppercase">
+                Compliant (50h+)
               </span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
-                <CheckCircle2 className="h-4 w-4" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                <CheckCircle2 className="h-3.5 w-3.5" />
               </div>
             </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-black text-emerald-900">
-                {stats?.compliantCount ?? teachers.filter((t) => t.complianceStatus === 'COMPLIANT').length}
-              </span>
-              <span className="text-xs font-bold text-emerald-700">
-                ({stats?.schoolComplianceRate ?? 0}%)
-              </span>
+            <div className="mt-2">
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                  {isLoading ? '-' : (stats?.compliantCount ?? teachers.filter((t) => t.complianceStatus === 'COMPLIANT').length)}
+                </span>
+                <span className="text-xs font-bold text-emerald-600">
+                  ({stats?.schoolComplianceRate ?? 0}%)
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500">Achieved 50h mandate</p>
             </div>
-            <Progress
-              value={stats?.schoolComplianceRate ?? 0}
-              className="h-1.5 mt-2 bg-emerald-100"
-            />
           </div>
 
-          {/* Card 3: In Progress / Pending */}
-          <div className="rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50/60 to-indigo-50/20 p-4 shadow-sm">
+          <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-blue-800 uppercase tracking-wider">
+              <span className="rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-amber-700 uppercase">
                 In Progress
               </span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
-                <Clock className="h-4 w-4" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+                <Clock className="h-3.5 w-3.5" />
               </div>
             </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-black text-blue-900">
-                {stats?.inProgressCount ?? teachers.filter((t) => t.complianceStatus === 'IN_PROGRESS').length}
-              </span>
-              <span className="text-xs text-blue-600">
-                + {stats?.notStartedCount ?? teachers.filter((t) => t.complianceStatus === 'NOT_STARTED').length} pending
-              </span>
+            <div className="mt-2">
+              <div className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                {isLoading ? '-' : (stats?.inProgressCount ?? teachers.filter((t) => t.complianceStatus === 'IN_PROGRESS').length)}
+              </div>
+              <p className="text-[11px] text-slate-500">Accumulating hours</p>
             </div>
-            <p className="text-[11px] text-blue-700 mt-1">
-              Currently accumulating CPD hours
-            </p>
           </div>
 
-          {/* Card 4: Total Hours Logged */}
-          <div className="rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50/60 to-purple-50/20 p-4 shadow-sm">
+          <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-indigo-800 uppercase tracking-wider">
-                Total CPD Hours Logged
+              <span className="rounded-md bg-purple-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-purple-700 uppercase">
+                CPD Volume
               </span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700">
-                <Layers className="h-4 w-4" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
+                <Layers className="h-3.5 w-3.5" />
               </div>
             </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-black text-indigo-900">
-                {stats?.totalHoursLogged ?? teachers.reduce((s, t) => s + t.totalHours, 0)}h
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-[11px] text-indigo-700 mt-1">
-              <span>CBSE: {stats?.totalCbseHours ?? 0}h</span>
-              <span>•</span>
-              <span>School: {stats?.totalSchoolHours ?? 0}h</span>
+            <div className="mt-2">
+              <div className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                {isLoading ? '-' : `${stats?.totalHoursLogged ?? teachers.reduce((s, t) => s + t.totalHours, 0)}h`}
+              </div>
+              <p className="text-[11px] text-slate-500">
+                CBSE: {stats?.totalCbseHours ?? 0}h • School: {stats?.totalSchoolHours ?? 0}h
+              </p>
             </div>
           </div>
         </div>
@@ -384,38 +400,40 @@ export default function AdminTeacherTrainingPage() {
         )}
 
         {/* Search & Filter Controls */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm">
-          <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search teacher by name or email..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="h-9 pl-9 text-xs"
-            />
-          </div>
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-3 shadow-2xs">
+          <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative flex-1 sm:max-w-xs">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                placeholder="Search faculty by name or email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-9 rounded-xl border-slate-200 bg-slate-50/50 pl-9 text-xs focus-visible:bg-white focus-visible:ring-emerald-500/20"
+              />
+            </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <span className="text-xs text-gray-500 font-medium whitespace-nowrap">Filter:</span>
-            <Select
-              value={statusFilter}
-              onValueChange={(val: any) => setStatusFilter(val)}
-            >
-              <SelectTrigger className="h-9 text-xs w-44 bg-gray-50/50">
-                <SelectValue placeholder="All Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL" className="text-xs">All Teachers ({teachers.length})</SelectItem>
-                <SelectItem value="COMPLIANT" className="text-xs">Compliant (50h+)</SelectItem>
-                <SelectItem value="IN_PROGRESS" className="text-xs">In Progress</SelectItem>
-                <SelectItem value="NOT_STARTED" className="text-xs">Not Started</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-slate-500 whitespace-nowrap">Filter Status:</span>
+              <Select
+                value={statusFilter}
+                onValueChange={(val: any) => setStatusFilter(val)}
+              >
+                <SelectTrigger className="h-9 rounded-xl border-slate-200 bg-slate-50/50 text-xs w-44 font-medium text-slate-700">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="ALL" className="text-xs">All Faculty ({teachers.length})</SelectItem>
+                  <SelectItem value="COMPLIANT" className="text-xs">Compliant (50h+)</SelectItem>
+                  <SelectItem value="IN_PROGRESS" className="text-xs">In Progress</SelectItem>
+                  <SelectItem value="NOT_STARTED" className="text-xs">Not Started</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
         {/* Teacher Compliance Table */}
-        <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="border-b border-gray-200 bg-gray-50/75 text-gray-600 font-semibold uppercase text-[11px] tracking-wider">

@@ -254,4 +254,14 @@ export const teacherController = {
       next(err);
     }
   },
+
+  async resendCredentials(req: Request, res: Response, next: NextFunction) {
+    try {
+      const schoolId = getTenantId(req);
+      const result = await teacherService.resendCredentials(schoolId, String(req.params.id));
+      sendSuccess(res, result);
+    } catch (err) {
+      next(err);
+    }
+  },
 };

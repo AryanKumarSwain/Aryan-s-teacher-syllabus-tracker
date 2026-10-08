@@ -72,11 +72,17 @@ export default function LoginPage() {
             <motion.div variants={fadeInUp}>
               <Link href="/" className="inline-flex items-center gap-3 group">
                 <MascotLogo size={48} animated />
-                <div className="flex flex-col">
-                  <span className="text-xl font-extrabold tracking-tight text-[#0b1c30]">
-                    SyllabusTracker
-                  </span>
-                  <span className="text-xs text-emerald-700 font-semibold tracking-wide">
+                <div className="flex flex-col leading-tight">
+                  <div className="flex items-center gap-0.5">
+                    <span className="text-xl font-black tracking-tight text-[#0b1c30]">
+                      Syllabus
+                    </span>
+                    <span className="text-xl font-black tracking-tight bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
+                      Tracker
+                    </span>
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 ml-0.5 animate-pulse" />
+                  </div>
+                  <span className="text-xs text-emerald-700 font-semibold tracking-wide mt-0.5">
                     Academic Operations OS
                   </span>
                 </div>
