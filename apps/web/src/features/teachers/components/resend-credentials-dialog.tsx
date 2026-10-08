@@ -122,7 +122,7 @@ export function ResendCredentialsDialog({
               <p className="text-xs font-bold text-slate-900 truncate">{teacher.name}</p>
               <p className="text-[11px] text-slate-500 font-mono truncate">{teacher.email}</p>
             </div>
-            <Badge variant="outline" className="shrink-0 bg-white text-[11px] font-semibold text-emerald-700 border-emerald-200">
+            <Badge variant="outline" className="shrink-0 whitespace-nowrap bg-white text-[11px] font-semibold text-emerald-700 border-emerald-200 px-2.5 py-0.5">
               Teacher
             </Badge>
           </div>
