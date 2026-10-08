@@ -36,7 +36,7 @@ export class GoogleDriveService {
       redirect_uri: redirectUri,
       response_type: 'code',
       access_type: 'offline',
-      prompt: 'consent',
+      prompt: 'consent select_account',
       scope: [
         'https://www.googleapis.com/auth/drive.file',
         'https://www.googleapis.com/auth/userinfo.email',
@@ -352,9 +352,64 @@ export class GoogleDriveService {
   }
 
   /**
-   * Gets Google Drive connection status for the school
+   * Fetches user and storage quota from Google Drive API
    */
-  async getStatus(schoolId: string): Promise<{ connected: boolean; email?: string | null; updatedAt?: Date }> {
+  async getStorageQuota(accessToken: string): Promise<{
+    limit?: number;
+    usage: number;
+    usageInDrive?: number;
+    percent?: number;
+    email?: string;
+  } | null> {
+    try {
+      const res = await fetch('https://www.googleapis.com/drive/v3/about?fields=storageQuota,user', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        console.warn('[Failed to fetch Drive storageQuota]:', res.status, errText);
+        return null;
+      }
+      const data = (await res.json()) as any;
+      const quota = data?.storageQuota;
+      if (!quota) return null;
+
+      const limit = quota.limit ? Number(quota.limit) : undefined;
+      const usage = quota.usage ? Number(quota.usage) : 0;
+      const usageInDrive = quota.usageInDrive ? Number(quota.usageInDrive) : 0;
+      const percent = limit && limit > 0 ? Math.min(100, Math.round((usage / limit) * 100)) : undefined;
+
+      return {
+        limit,
+        usage,
+        usageInDrive,
+        percent,
+        email: data.user?.emailAddress,
+      };
+    } catch (err) {
+      console.warn('[Error fetching Google Drive quota]:', err);
+      return null;
+    }
+  }
+
+  /**
+   * Gets Google Drive connection status and storage quota for the school
+   */
+  async getStatus(schoolId: string): Promise<{
+    connected: boolean;
+    email?: string | null;
+    updatedAt?: Date;
+    storage?: {
+      limit?: number;
+      usage: number;
+      usageInDrive?: number;
+      percent?: number;
+      formattedUsage: string;
+      formattedLimit?: string;
+      isNearFull: boolean;
+      isCritical: boolean;
+    } | null;
+  }> {
     const token = await prisma.googleDriveToken.findUnique({
       where: { schoolId },
       select: { email: true, updatedAt: true, refreshToken: true },
@@ -364,10 +419,51 @@ export class GoogleDriveService {
       return { connected: false };
     }
 
+    let storage = null;
+    let resolvedEmail = token.email;
+
+    try {
+      const accessToken = await this.getValidAccessToken(schoolId);
+      const quota = await this.getStorageQuota(accessToken);
+      if (quota) {
+        if (quota.email && quota.email !== token.email) {
+          resolvedEmail = quota.email;
+          prisma.googleDriveToken.update({
+            where: { schoolId },
+            data: { email: quota.email },
+          }).catch(() => {});
+        }
+
+        const formatBytes = (bytes: number) => {
+          if (bytes >= 1024 * 1024 * 1024) {
+            return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+          }
+          return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+        };
+
+        const isNearFull = quota.percent !== undefined && quota.percent >= 80;
+        const isCritical = quota.percent !== undefined && quota.percent >= 90;
+
+        storage = {
+          limit: quota.limit,
+          usage: quota.usage,
+          usageInDrive: quota.usageInDrive,
+          percent: quota.percent,
+          formattedUsage: formatBytes(quota.usage),
+          formattedLimit: quota.limit ? formatBytes(quota.limit) : undefined,
+          isNearFull,
+          isCritical,
+        };
+      }
+    } catch (e) {
+      console.warn('[Could not retrieve Google Drive storage details]:', e);
+    }
+
     return {
       connected: true,
-      email: token.email,
+      email: resolvedEmail,
       updatedAt: token.updatedAt,
+      storage,
     };
   }
 

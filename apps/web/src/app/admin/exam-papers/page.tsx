@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, FileText, Download, CheckCircle2, Eye, Edit3, Upload, Image as ImageIcon, Trash2, CloudUpload, ExternalLink, RefreshCw } from 'lucide-react';
+import { Loader2, FileText, Download, CheckCircle2, Eye, Edit3, Upload, Image as ImageIcon, Trash2, CloudUpload, ExternalLink, RefreshCw, AlertTriangle, HardDrive } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,22 @@ import { env } from '@/config/env';
 import { Badge } from '@/components/ui/badge';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { useAcademicSessions } from '@/features/syllabus/hooks/use-academic-sessions';
+import { cn } from '@/lib/utils';
+
+interface GoogleDriveStatusData {
+  connected: boolean;
+  email?: string;
+  storage?: {
+    limit?: number;
+    usage: number;
+    usageInDrive?: number;
+    percent?: number;
+    formattedUsage: string;
+    formattedLimit?: string;
+    isNearFull: boolean;
+    isCritical: boolean;
+  } | null;
+}
 
 function GoogleDriveIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
@@ -84,8 +100,8 @@ export default function AdminExamPapersPage() {
 
   const { data: driveStatus, refetch: refetchDriveStatus, isLoading: loadingDriveStatus } = useQuery({
     queryKey: ['google-drive-status'],
-    queryFn: () => api.get<{ connected: boolean; email?: string }>('/google-drive/status'),
-    staleTime: 15000,
+    queryFn: () => api.get<GoogleDriveStatusData>('/google-drive/status'),
+    staleTime: 30000,
   });
 
   useEffect(() => {
@@ -635,64 +651,194 @@ export default function AdminExamPapersPage() {
           </div>
 
           {/* Google Drive Integration Banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/40 via-white to-white p-4 shadow-xs">
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-lg border border-emerald-200 bg-white p-2 flex items-center justify-center shadow-2xs shrink-0">
-                <GoogleDriveIcon className="h-7 w-7" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-gray-800">Google Drive Auto-Sync</span>
-                  {loadingDriveStatus ? (
-                    <span className="text-[10px] bg-gray-100 text-gray-500 font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <Loader2 className="h-2.5 w-2.5 animate-spin" /> Checking
-                    </span>
-                  ) : driveStatus?.connected ? (
-                    <span className="text-[10px] bg-emerald-100 text-emerald-700 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Connected
-                    </span>
-                  ) : (
-                    <span className="text-[10px] bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">
-                      Not Connected
-                    </span>
-                  )}
+          <div className={cn(
+            "rounded-2xl border p-4 shadow-xs transition-all",
+            driveStatus?.storage?.isCritical
+              ? "border-red-300 bg-gradient-to-br from-red-50/50 via-white to-white"
+              : driveStatus?.storage?.isNearFull
+              ? "border-amber-300 bg-gradient-to-br from-amber-50/50 via-white to-white"
+              : "border-emerald-200/80 bg-gradient-to-br from-emerald-50/40 via-white to-white"
+          )}>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  "h-12 w-12 rounded-lg border bg-white p-2 flex items-center justify-center shadow-2xs shrink-0",
+                  driveStatus?.storage?.isCritical
+                    ? "border-red-200"
+                    : driveStatus?.storage?.isNearFull
+                    ? "border-amber-200"
+                    : "border-emerald-200"
+                )}>
+                  <GoogleDriveIcon className="h-7 w-7" />
                 </div>
-                <p className="text-[11px] text-gray-500 mt-0.5">
-                  {driveStatus?.connected
-                    ? `Active for ${driveStatus.email || 'School Admin'}. Uploaded exam papers automatically create Exam Papers > Classwise > Subjectwise folders in Drive.`
-                    : 'Connect your Google Drive with 1 click. When you upload exam papers, folders are automatically organized class-wise and subject-wise.'}
-                </p>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-semibold text-gray-800">Google Drive Auto-Sync</span>
+                    {loadingDriveStatus ? (
+                      <span className="text-[10px] bg-gray-100 text-gray-500 font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <Loader2 className="h-2.5 w-2.5 animate-spin" /> Checking
+                      </span>
+                    ) : driveStatus?.connected ? (
+                      <>
+                        <span className="text-[10px] bg-emerald-100 text-emerald-700 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Connected
+                        </span>
+                        {driveStatus.storage?.isCritical ? (
+                          <span className="text-[10px] bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full flex items-center gap-1 animate-pulse">
+                            <AlertTriangle className="h-2.5 w-2.5 text-red-600" /> Storage Critical ({driveStatus.storage.percent}%)
+                          </span>
+                        ) : driveStatus.storage?.isNearFull ? (
+                          <span className="text-[10px] bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <AlertTriangle className="h-2.5 w-2.5 text-amber-600" /> Storage Low ({driveStatus.storage.percent}%)
+                          </span>
+                        ) : null}
+                      </>
+                    ) : (
+                      <span className="text-[10px] bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">
+                        Not Connected
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-gray-500 mt-0.5">
+                    {driveStatus?.connected
+                      ? `Active for ${driveStatus.email || 'School Admin'}. Uploaded exam papers automatically create Exam Papers > Classwise > Subjectwise folders in Drive.`
+                      : 'Connect your Google Drive with 1 click. When you upload exam papers, folders are automatically organized class-wise and subject-wise.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
+                {driveStatus?.connected ? (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={connectingDrive || disconnectingDrive}
+                      onClick={handleConnectDrive}
+                      className="text-xs h-8 text-slate-700 hover:text-slate-900 hover:bg-slate-100 border-slate-200 gap-1.5 shadow-2xs"
+                      title="Switch to another Google account"
+                    >
+                      {connectingDrive ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5 text-slate-500" />}
+                      Switch Account
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={disconnectingDrive}
+                      onClick={handleDisconnectDrive}
+                      className="text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 gap-1.5"
+                    >
+                      {disconnectingDrive && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                      Disconnect Drive
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    size="sm"
+                    disabled={connectingDrive || loadingDriveStatus}
+                    onClick={handleConnectDrive}
+                    className="text-xs h-8 bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 shadow-2xs"
+                  >
+                    {connectingDrive ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <GoogleDriveIcon className="h-4 w-4" />
+                    )}
+                    Connect Google Drive
+                  </Button>
+                )}
               </div>
             </div>
 
-            <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-              {driveStatus?.connected ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={disconnectingDrive}
-                  onClick={handleDisconnectDrive}
-                  className="text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 gap-1.5"
-                >
-                  {disconnectingDrive && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                  Disconnect Drive
-                </Button>
-              ) : (
-                <Button
-                  size="sm"
-                  disabled={connectingDrive || loadingDriveStatus}
-                  onClick={handleConnectDrive}
-                  className="text-xs h-8 bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 shadow-2xs"
-                >
-                  {connectingDrive ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <GoogleDriveIcon className="h-4 w-4" />
+            {/* Storage Progress Bar & Metrics */}
+            {driveStatus?.connected && driveStatus.storage && (
+              <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5 text-slate-700">
+                    <HardDrive className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+                    <span className="font-medium">Drive Storage:</span>
+                    <span className="font-semibold text-slate-900">
+                      {driveStatus.storage.formattedUsage}
+                      {driveStatus.storage.formattedLimit ? ` of ${driveStatus.storage.formattedLimit}` : ''}
+                    </span>
+                    {driveStatus.storage.percent !== undefined && (
+                      <span className="text-[11px] text-slate-500 font-normal">
+                        ({driveStatus.storage.percent}% used)
+                      </span>
+                    )}
+                  </div>
+                  {driveStatus.storage.percent !== undefined && (
+                    <span className={cn(
+                      "text-[10px] font-bold px-2 py-0.5 rounded-md",
+                      driveStatus.storage.isCritical
+                        ? "bg-red-100 text-red-700"
+                        : driveStatus.storage.isNearFull
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-emerald-100 text-emerald-700"
+                    )}>
+                      {Math.max(0, 100 - driveStatus.storage.percent)}% free
+                    </span>
                   )}
-                  Connect Google Drive
-                </Button>
-              )}
-            </div>
+                </div>
+
+                {driveStatus.storage.percent !== undefined && (
+                  <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
+                    <div
+                      className={cn(
+                        "h-full rounded-full transition-all duration-500",
+                        driveStatus.storage.isCritical
+                          ? "bg-red-500 animate-pulse"
+                          : driveStatus.storage.isNearFull
+                          ? "bg-amber-500"
+                          : "bg-gradient-to-r from-emerald-500 to-teal-500"
+                      )}
+                      style={{ width: `${Math.min(100, Math.max(3, driveStatus.storage.percent))}%` }}
+                    />
+                  </div>
+                )}
+
+                {/* Storage Warning Banner */}
+                {driveStatus.storage.isNearFull && (
+                  <div className={cn(
+                    "flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-2.5 rounded-xl border text-xs mt-2.5 animate-fadeIn",
+                    driveStatus.storage.isCritical
+                      ? "bg-red-50/90 border-red-200 text-red-900"
+                      : "bg-amber-50/90 border-amber-200 text-amber-900"
+                  )}>
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className={cn(
+                        "h-4 w-4 shrink-0 mt-0.5",
+                        driveStatus.storage.isCritical ? "text-red-600" : "text-amber-600"
+                      )} />
+                      <div>
+                        <p className="font-semibold text-xs">
+                          {driveStatus.storage.isCritical
+                            ? "Google Drive storage almost completely full!"
+                            : "Google Drive storage is running low!"}
+                        </p>
+                        <p className="text-[11px] opacity-90 mt-0.5">
+                          Drive full hone par naye exam papers auto-upload nahi honge. Kripya naya Gmail account switch karein.
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={handleConnectDrive}
+                      disabled={connectingDrive}
+                      className={cn(
+                        "h-7 px-3 text-xs font-semibold shrink-0 gap-1.5 self-start sm:self-auto shadow-2xs",
+                        driveStatus.storage.isCritical
+                          ? "bg-red-600 hover:bg-red-700 text-white"
+                          : "bg-amber-600 hover:bg-amber-700 text-white"
+                      )}
+                    >
+                      {connectingDrive ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                      Switch Email Account
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
