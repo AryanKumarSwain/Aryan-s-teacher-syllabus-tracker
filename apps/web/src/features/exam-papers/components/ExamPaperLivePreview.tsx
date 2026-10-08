@@ -226,7 +226,7 @@ export function ExamPaperLivePreviewSheet({
                         return (
                           <div key={segIdx} className={cn(segIdx > 0 ? "pt-3.5" : "")}>
                             <div className="text-xs font-bold text-slate-800 mb-2 pl-0.5">
-                              {segment.label} ({segmentQuestions.length} questions × {segment.marksEach} marks = {segmentQuestions.length * segment.marksEach} marks)
+                              {segment.label} ({segmentQuestions.length} {segmentQuestions.length === 1 ? 'question' : 'questions'} × {segment.marksEach} {segment.marksEach === 1 ? 'mark' : 'marks'} = {segmentQuestions.length * segment.marksEach} marks)
                             </div>
 
                             {/* Assertion Reasoning Instructions Key */}
@@ -398,7 +398,7 @@ function PreviewQuestionItem({
         <div className="space-y-2">
           <div className="flex items-start gap-1.5">
             <span className="font-bold shrink-0">Q{questionNumber}.</span>
-            <span>Match the following items in Column A with Column B:</span>
+            <span>{question.questionText?.trim() || 'Match the following items in Column A with Column B:'}</span>
           </div>
           {question.matchingPairs && question.matchingPairs.length > 0 && (
             <div className="grid grid-cols-2 gap-4 pl-6 pt-1">
@@ -451,7 +451,7 @@ function PreviewQuestionItem({
 
                 {/* MCQ Options - rendered immediately below question text without gap */}
                 {isMCQ && question.options && question.options.length > 0 && (
-                  <div className="grid grid-flow-col grid-rows-2 gap-x-6 gap-y-1 pt-1 text-[11px]">
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 pt-1 text-[11px]">
                     {question.options.map((opt: any, oIdx: number) => {
                       const optText = typeof opt === 'string' ? opt : (opt.text || '');
                       const formattedOpt = formatContentWithMath(optText);
@@ -486,7 +486,7 @@ function PreviewQuestionItem({
                       <div className="leading-normal overflow-x-auto" dangerouslySetInnerHTML={{ __html: altFormatted }} />
 
                       {alt.options && alt.options.length > 0 && (
-                        <div className="grid grid-flow-col grid-rows-2 gap-x-6 gap-y-1 pt-1 text-[11px]">
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 pt-1 text-[11px]">
                           {alt.options.map((o: any, oIdx: number) => (
                             <div key={oIdx} className="flex items-start gap-1">
                               <span className="font-semibold">{String.fromCharCode(97 + oIdx)})</span>
