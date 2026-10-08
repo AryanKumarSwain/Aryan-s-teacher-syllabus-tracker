@@ -319,9 +319,9 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#c4c5d7]/40 shadow-xs transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-2.5 sm:py-3.5 flex items-center justify-between">
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
-            <MascotLogo size={36} className="sm:hidden" animated />
-            <MascotLogo size={46} className="hidden sm:block" animated />
+          <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
+            <MascotLogo size={40} className="sm:hidden" animated />
+            <MascotLogo size={48} className="hidden sm:block" animated />
             <div className="flex flex-col leading-tight">
               <div className="flex items-center gap-0.5">
                 <span className="text-sm sm:text-base font-black tracking-tight text-[#0b1c30]">
@@ -1686,7 +1686,7 @@ export default function LandingPage() {
       <footer className="bg-white py-8">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <MascotLogo size={36} animated />
+            <MascotLogo size={42} animated />
             <span className="text-xs text-[#434655]">
               © 2026 <strong className="font-black text-[#0b1c30]">Syllabus<span className="text-emerald-600">Tracker</span></strong>. All rights reserved. Academic Management Platform.
             </span>

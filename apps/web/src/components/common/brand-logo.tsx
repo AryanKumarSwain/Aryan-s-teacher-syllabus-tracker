@@ -10,7 +10,7 @@ interface BrandIconProps {
   animated?: boolean;
 }
 
-export function BrandIcon({ size = 36, className = '', animated = true }: BrandIconProps) {
+export function BrandIcon({ size = 40, className = '', animated = true }: BrandIconProps) {
   const imageElement = (
     <img
       src="/logo-transparent.png"
@@ -125,9 +125,9 @@ export function BrandLogo({
   animated = true,
 }: BrandLogoProps) {
   const defaultIconSizes = {
-    sm: 30,
-    md: 38,
-    lg: 48,
+    sm: 34,
+    md: 44,
+    lg: 54,
   };
 
   const calculatedIconSize = iconSize ?? defaultIconSizes[size];

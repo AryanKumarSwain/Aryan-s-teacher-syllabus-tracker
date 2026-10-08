@@ -15,7 +15,7 @@ interface MascotLogoProps {
  */
 export function MascotLogo({
   className = '',
-  size = 40,
+  size = 42,
   animated = false,
 }: MascotLogoProps) {
   const imageElement = (

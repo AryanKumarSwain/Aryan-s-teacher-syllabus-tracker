@@ -93,7 +93,7 @@ export function Sidebar() {
       <div className="flex h-16 items-center justify-between border-b border-white/10 px-3.5">
         {sidebarOpen ? (
           <Link href="/" className="flex items-center gap-2.5 min-w-0 group">
-            <MascotLogo size={32} animated />
+            <MascotLogo size={36} animated />
             <div className="flex flex-col min-w-0 leading-tight">
               <div className="flex items-center gap-0.5">
                 <span className="text-sm font-black tracking-tight text-white">
@@ -111,7 +111,7 @@ export function Sidebar() {
           </Link>
         ) : (
           <Link href="/" className="mx-auto block" title="SyllabusTracker">
-            <MascotLogo size={30} animated />
+            <MascotLogo size={34} animated />
           </Link>
         )}
         <Button
