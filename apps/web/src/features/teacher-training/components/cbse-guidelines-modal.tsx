@@ -47,22 +47,24 @@ export function CbseGuidelinesModal({ open, onOpenChange }: CbseGuidelinesModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="border-b pb-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1a73e8]/10 text-[#1a73e8]">
-              <Award className="h-5 w-5" />
+      <DialogContent className="w-[96vw] sm:w-full max-w-4xl max-h-[92vh] sm:max-h-[88vh] p-0 overflow-hidden flex flex-col rounded-3xl border border-slate-200/90 bg-white shadow-2xl">
+        <DialogHeader className="px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50/90 via-white to-blue-50/30 flex flex-row items-center justify-between shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 ring-4 ring-blue-50 shrink-0">
+              <Award className="h-5 w-5 text-white" />
             </div>
-            <div>
-              <DialogTitle className="text-xl font-bold text-gray-900">
+            <div className="text-left">
+              <DialogTitle className="text-base sm:text-lg font-black text-[#0b1c30]">
                 CBSE Continuous Professional Development (CPD) Guidelines - 2025
               </DialogTitle>
-              <p className="text-xs text-gray-500">
+              <p className="text-[11px] text-slate-500 font-medium">
                 Notification No. TRG-02/2025 • Ref: Affiliation Notification 16/2021 & Clause 12.2.9
               </p>
             </div>
           </div>
         </DialogHeader>
+
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
 
         {/* Notice Highlights Banner */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 my-2">
@@ -269,6 +271,16 @@ export function CbseGuidelinesModal({ open, onOpenChange }: CbseGuidelinesModalP
               ))}
             </div>
           )}
+        </div>
+
+        <div className="px-6 py-3.5 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end shrink-0">
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs shadow-2xs transition-colors"
+          >
+            Close Guidelines
+          </button>
         </div>
       </DialogContent>
     </Dialog>

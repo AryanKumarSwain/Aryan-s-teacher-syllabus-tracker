@@ -144,22 +144,24 @@ export function MathEquationDialog({ open, onOpenChange, onInsert }: MathEquatio
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
-              <Sigma className="h-4 w-4" />
+      <DialogContent className="w-[96vw] sm:w-full max-w-xl max-h-[92vh] sm:max-h-[88vh] p-0 overflow-hidden flex flex-col rounded-3xl border border-slate-200/90 bg-white shadow-2xl">
+        <DialogHeader className="px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50/90 via-white to-blue-50/30 flex flex-row items-center justify-between shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 ring-4 ring-blue-50 shrink-0">
+              <Sigma className="h-5 w-5 text-white" />
             </div>
-            <div>
-              <DialogTitle className="text-base font-semibold">Insert Math Equation / Formula</DialogTitle>
-              <DialogDescription className="text-xs">
+            <div className="text-left">
+              <DialogTitle className="text-base sm:text-lg font-black text-[#0b1c30]">
+                Insert Math Equation / Formula
+              </DialogTitle>
+              <DialogDescription className="text-[11px] text-slate-500 font-medium">
                 Type LaTeX or click symbols below to construct mathematical formulas
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
           {/* Live Preview Box */}
           <div>
             <Label className="text-xs font-semibold text-slate-700">Equation Live Preview</Label>
@@ -240,8 +242,14 @@ export function MathEquationDialog({ open, onOpenChange, onInsert }: MathEquatio
           </div>
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-0">
-          <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="px-6 py-3.5 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2.5 shrink-0">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onOpenChange(false)}
+            className="h-9 px-4 rounded-xl border-slate-200 text-slate-700 font-bold hover:bg-slate-100 text-xs shadow-2xs"
+          >
             Cancel
           </Button>
           <Button
@@ -249,7 +257,7 @@ export function MathEquationDialog({ open, onOpenChange, onInsert }: MathEquatio
             size="sm"
             onClick={handleConfirm}
             disabled={!latex.trim() || !!error}
-            className="gap-1.5 bg-blue-600 hover:bg-blue-700 text-white"
+            className="h-9 px-5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-md shadow-blue-600/20 active:scale-95 transition-all gap-1.5"
           >
             <Check className="h-4 w-4" />
             Insert Equation

@@ -115,9 +115,9 @@ export function ExamStepper({
         </div>
 
         {/* Paper details badges & Live Preview CTA */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {paperDetails && (paperDetails.totalMarks || paperDetails.duration) ? (
-            <div className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/80 px-2.5 py-1 text-xs text-slate-700">
+            <div className="hidden sm:flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/80 px-2.5 py-1 text-xs text-slate-700">
               {paperDetails.duration ? (
                 <span className="flex items-center gap-1 font-semibold text-slate-800 text-[11px]">
                   <Clock className="h-3 w-3 text-indigo-500" />

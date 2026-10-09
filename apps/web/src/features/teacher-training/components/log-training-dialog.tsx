@@ -260,24 +260,25 @@ export function LogTrainingDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white border border-gray-200 p-6 shadow-2xl">
-        <DialogHeader className="border-b border-gray-100 pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#1a73e8]">
-              <Award className="h-5 w-5" />
+      <DialogContent className="w-[96vw] sm:w-full max-w-2xl max-h-[92vh] sm:max-h-[88vh] p-0 overflow-hidden flex flex-col rounded-3xl border border-slate-200/90 bg-white shadow-2xl">
+        <DialogHeader className="px-5 sm:px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50/90 via-white to-blue-50/30 flex flex-row items-center justify-between shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 ring-4 ring-blue-50 shrink-0">
+              <Award className="h-5 w-5 text-white" />
             </div>
-            <div>
-              <DialogTitle className="text-lg font-bold text-gray-900">
+            <div className="text-left">
+              <DialogTitle className="text-base sm:text-lg font-black text-[#0b1c30]">
                 {isTeacherPortal ? 'Log My Completed Training' : 'Log Teacher Training Record'}
               </DialogTitle>
-              <p className="text-xs text-gray-500">
+              <p className="text-[11px] text-slate-500 font-medium">
                 Continuous Professional Development (CPD) • CBSE Circular TRG-02/2025
               </p>
             </div>
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden min-h-0">
+          <div className="flex-1 overflow-y-auto px-5 sm:px-6 py-4 space-y-4">
           {/* Target Teacher Selection (Admin Only) */}
           {!isTeacherPortal && (
             <div className="bg-gray-50/75 border border-gray-200 rounded-xl p-3.5 space-y-2.5">
@@ -471,11 +472,11 @@ export function LogTrainingDialog({
 
           {/* Topic Preset Category Tabs */}
           <div className="space-y-2">
-            <Label className="text-xs font-semibold text-gray-700 flex items-center gap-1.5">
+            <Label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
               <Sparkles className="h-3.5 w-3.5 text-amber-500" />
               Prescribed Topic Category (CBSE Circular TRG-02/2025)
             </Label>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-1 p-1 bg-gray-100 rounded-xl">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/70">
               {[
                 { id: 'annexure1', label: 'Annexure I (Ethics)' },
                 { id: 'annexure2', label: 'Annexure II (Practice)' },
@@ -487,10 +488,10 @@ export function LogTrainingDialog({
                   key={tab.id}
                   type="button"
                   onClick={() => handleCategoryChange(tab.id as any)}
-                  className={`py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
+                  className={`py-1.5 px-2 rounded-xl text-xs font-bold transition-all text-center ${
                     categoryType === tab.id
-                      ? 'bg-white text-[#1a73e8] shadow-xs'
-                      : 'text-gray-500 hover:text-gray-900'
+                      ? 'bg-white text-blue-700 shadow-2xs border border-slate-200/80 font-bold'
+                      : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   {tab.label}
@@ -508,12 +509,12 @@ export function LogTrainingDialog({
                     if (t) applyTopic(t);
                   }}
                 >
-                  <SelectTrigger className="bg-white">
+                  <SelectTrigger className="h-9 text-xs rounded-xl border-slate-200 bg-white hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs font-medium">
                     <SelectValue placeholder="Choose a prescribed topic..." />
                   </SelectTrigger>
-                  <SelectContent className="bg-white">
+                  <SelectContent className="bg-white rounded-xl shadow-xl border-slate-200">
                     {activeTopics.map((t) => (
-                      <SelectItem key={t.id} value={t.id}>
+                      <SelectItem key={t.id} value={t.id} className="text-xs">
                         {t.title} ({t.defaultHours} Hours)
                       </SelectItem>
                     ))}
@@ -525,12 +526,12 @@ export function LogTrainingDialog({
 
           {/* Topic Title */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-gray-700">Topic / Training Title *</Label>
+            <Label className="text-xs font-bold text-slate-700">Topic / Training Title *</Label>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Experiential Learning Workshop or Happy Classrooms"
-              className="text-xs bg-white"
+              className="h-9 text-xs rounded-xl border-slate-200 bg-white hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
               required
             />
           </div>
@@ -538,12 +539,12 @@ export function LogTrainingDialog({
           {/* Domain & Organizer Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-gray-700">NPST Domain *</Label>
+              <Label className="text-xs font-bold text-slate-700">NPST Domain *</Label>
               <Select value={domain} onValueChange={(v: any) => setDomain(v)}>
-                <SelectTrigger className="bg-white">
+                <SelectTrigger className="h-9 text-xs rounded-xl border-slate-200 bg-white hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs font-medium">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-white">
+                <SelectContent className="bg-white rounded-xl shadow-xl border-slate-200">
                   <SelectItem value="CORE_VALUES_ETHICS">
                     Domain 1: Core Values & Ethics (12h)
                   </SelectItem>
@@ -558,12 +559,12 @@ export function LogTrainingDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-gray-700">Organizer / Provider *</Label>
+              <Label className="text-xs font-bold text-slate-700">Organizer / Provider *</Label>
               <Select value={provider} onValueChange={(v: any) => setProvider(v)}>
-                <SelectTrigger className="bg-white">
+                <SelectTrigger className="h-9 text-xs rounded-xl border-slate-200 bg-white hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs font-medium">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-white">
+                <SelectContent className="bg-white rounded-xl shadow-xl border-slate-200">
                   <SelectItem value="CBSE">
                     CBSE / COE Regional Institute (25h quota)
                   </SelectItem>
@@ -584,12 +585,12 @@ export function LogTrainingDialog({
           {/* Mode & Hours Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-gray-700">Training Mode *</Label>
+              <Label className="text-xs font-bold text-slate-700">Training Mode *</Label>
               <Select value={trainingMode} onValueChange={(v: any) => setTrainingMode(v)}>
-                <SelectTrigger className="bg-white">
+                <SelectTrigger className="h-9 text-xs rounded-xl border-slate-200 bg-white hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs font-medium">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-white">
+                <SelectContent className="bg-white rounded-xl shadow-xl border-slate-200">
                   <SelectItem value="OFFLINE">Offline (Face to Face)</SelectItem>
                   <SelectItem value="ONLINE">Online / Webinar / PM e-Vidya</SelectItem>
                   <SelectItem value="BLENDED">Blended Mode</SelectItem>
@@ -598,9 +599,9 @@ export function LogTrainingDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-gray-700 flex items-center justify-between">
+              <Label className="text-xs font-bold text-slate-700 flex items-center justify-between">
                 <span>Duration (Hours) *</span>
-                <span className="text-[11px] text-gray-400">e.g. 2, 3, 6, 12, 18</span>
+                <span className="text-[11px] font-semibold text-slate-400">e.g. 2, 3, 6, 12, 18</span>
               </Label>
               <Input
                 type="number"
@@ -609,7 +610,7 @@ export function LogTrainingDialog({
                 max="50"
                 value={hours}
                 onChange={(e) => setHours(parseFloat(e.target.value) || 0)}
-                className="text-xs bg-white"
+                className="h-9 text-xs rounded-xl border-slate-200 bg-white hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
                 required
               />
             </div>
@@ -618,21 +619,21 @@ export function LogTrainingDialog({
           {/* Dates */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-gray-700">Start Date</Label>
+              <Label className="text-xs font-bold text-slate-700">Start Date</Label>
               <Input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="text-xs bg-white"
+                className="h-9 text-xs rounded-xl border-slate-200 bg-white hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-gray-700">End Date</Label>
+              <Label className="text-xs font-bold text-slate-700">End Date</Label>
               <Input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="text-xs bg-white"
+                className="h-9 text-xs rounded-xl border-slate-200 bg-white hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
               />
             </div>
           </div>
@@ -640,30 +641,30 @@ export function LogTrainingDialog({
           {/* Organizer, Resource Person & Location */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-gray-700">Organized By</Label>
+              <Label className="text-xs font-bold text-slate-700">Organized By</Label>
               <Input
                 placeholder="e.g. CBSE COE / School"
                 value={organizedBy}
                 onChange={(e) => setOrganizedBy(e.target.value)}
-                className="text-xs bg-white"
+                className="h-9 text-xs rounded-xl border-slate-200 bg-white hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-gray-700">Resource Person</Label>
+              <Label className="text-xs font-bold text-slate-700">Resource Person</Label>
               <Input
                 placeholder="e.g. Dr. R. Sharma"
                 value={resourcePerson}
                 onChange={(e) => setResourcePerson(e.target.value)}
-                className="text-xs bg-white"
+                className="h-9 text-xs rounded-xl border-slate-200 bg-white hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-gray-700">Location / Platform</Label>
+              <Label className="text-xs font-bold text-slate-700">Location / Platform</Label>
               <Input
                 placeholder="e.g. Auditorium / Zoom"
                 value={locationOrPlatform}
                 onChange={(e) => setLocationOrPlatform(e.target.value)}
-                className="text-xs bg-white"
+                className="h-9 text-xs rounded-xl border-slate-200 bg-white hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
               />
             </div>
           </div>
@@ -671,43 +672,45 @@ export function LogTrainingDialog({
           {/* Certificate & Remarks */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-gray-700">
+              <Label className="text-xs font-bold text-slate-700">
                 Certificate / Reference Number
               </Label>
               <Input
                 placeholder="e.g. CBSE/TRG/2025/10492"
                 value={certificateNumber}
                 onChange={(e) => setCertificateNumber(e.target.value)}
-                className="text-xs bg-white"
+                className="h-9 text-xs rounded-xl border-slate-200 bg-white hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-gray-700">Remarks / OASIS Notes</Label>
+              <Label className="text-xs font-bold text-slate-700">Remarks / OASIS Notes</Label>
               <Input
                 placeholder="Additional details for OASIS portal"
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
-                className="text-xs bg-white"
+                className="h-9 text-xs rounded-xl border-slate-200 bg-white hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
               />
             </div>
           </div>
 
-          <DialogFooter className="border-t border-gray-100 pt-3 gap-2">
+          </div>
+
+          <DialogFooter className="px-5 sm:px-6 py-3.5 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2.5 shrink-0">
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
-              className="border-gray-300"
+              className="h-9 px-4 rounded-xl border-slate-200 text-slate-700 font-bold hover:bg-slate-100 text-xs shadow-2xs"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               size="sm"
-              className="bg-[#1a73e8] hover:bg-[#1558b0] text-white"
               disabled={isSubmitting}
+              className="h-9 px-5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-md shadow-blue-600/20 active:scale-95 transition-all"
             >
               {isSubmitting ? 'Saving...' : 'Save Training Record'}
             </Button>

@@ -95,7 +95,7 @@ export function ResendCredentialsDialog({
 
   return (
     <Dialog open={open} onOpenChange={(val) => (!val ? handleClose() : onOpenChange(val))}>
-      <DialogContent className="max-w-md p-0 overflow-hidden rounded-2xl border border-slate-200 shadow-2xl">
+      <DialogContent className="max-w-md p-0 overflow-hidden rounded-2xl border border-slate-200 shadow-2xl max-h-[92vh] flex flex-col">
         {/* Header with gradient bar */}
         <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 px-6 pt-6 pb-5 text-white">
           <div className="flex items-center gap-3">
@@ -115,7 +115,7 @@ export function ResendCredentialsDialog({
           </div>
         </div>
 
-        <div className="p-6 space-y-4">
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {/* Teacher Summary Pill */}
           <div className="flex items-center justify-between rounded-xl border border-slate-200/80 bg-slate-50/80 p-3">
             <div className="min-w-0 pr-2">

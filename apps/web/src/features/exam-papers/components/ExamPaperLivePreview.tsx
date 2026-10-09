@@ -618,13 +618,13 @@ export function ExamPaperPreviewModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="max-w-6xl h-[94vh] p-0 flex flex-col gap-0 bg-slate-900 border-slate-800 text-white overflow-hidden rounded-2xl [&>button:last-child]:hidden">
+      <DialogContent className="w-[96vw] sm:w-full max-w-6xl h-[94vh] p-0 flex flex-col gap-0 bg-slate-900 border-slate-800 text-white overflow-hidden rounded-2xl [&>button:last-child]:hidden">
         <DialogTitle className="sr-only">Live Exam Paper Printable PDF Preview</DialogTitle>
         <DialogDescription className="sr-only">Exact printable PDF document preview matching the exported file</DialogDescription>
 
         {/* Modal Toolbar */}
-        <div className="px-6 py-3 bg-slate-800/90 border-b border-slate-700/80 flex flex-wrap items-center justify-between gap-4 shrink-0">
-          <div className="flex items-center gap-3">
+        <div className="px-3.5 sm:px-6 py-2.5 sm:py-3 bg-slate-800/90 border-b border-slate-700/80 flex flex-wrap items-center justify-between gap-2.5 sm:gap-4 shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <div className="h-8 w-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
               <FileText className="h-4 w-4" />
             </div>

@@ -106,25 +106,25 @@ export function BulkImportTeachersDialog({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Bulk import teachers</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col gap-0 p-0">
+        <DialogHeader className="shrink-0 px-6 pt-6 pb-4 border-b border-slate-100">
+          <DialogTitle className="text-base font-bold text-slate-900">Bulk Import Teachers</DialogTitle>
+          <DialogDescription className="text-xs text-slate-500 mt-1">
             Download the template, fill it in, then upload to import multiple teachers at once.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
           {/* Step 1 */}
-          <div className="bg-muted/40 rounded-lg border p-4">
-            <div className="flex items-center justify-between">
+          <div className="bg-slate-50 rounded-2xl border border-slate-200 p-4">
+            <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-medium">Step 1 — Download template</p>
-                <p className="text-muted-foreground mt-0.5 text-xs">
-                  Columns: <span className="font-mono">Name · Email · Phone</span>
+                <p className="text-sm font-semibold text-slate-800">Step 1 — Download template</p>
+                <p className="text-slate-500 mt-0.5 text-xs">
+                  Columns: <span className="font-mono text-slate-700">Name · Email · Phone</span>
                 </p>
               </div>
-              <Button size="sm" variant="outline" onClick={downloadTemplate}>
+              <Button size="sm" variant="outline" onClick={downloadTemplate} className="shrink-0 rounded-xl">
                 <Download className="mr-2 h-4 w-4" /> Download
               </Button>
             </div>
@@ -133,10 +133,10 @@ export function BulkImportTeachersDialog({ open, onOpenChange }: Props) {
           {/* Step 2 — upload or preview */}
           {!results && (
             <div>
-              <p className="mb-2 text-sm font-medium">Step 2 — Upload filled Excel</p>
+              <p className="mb-2 text-sm font-semibold text-slate-800">Step 2 — Upload filled Excel</p>
               {preview.length === 0 ? (
                 <label
-                  className="border-muted-foreground/30 hover:border-primary flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed py-10 transition"
+                  className="border-slate-300 hover:border-indigo-400 hover:bg-indigo-50/40 flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed py-10 transition-colors"
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={(e) => {
                     e.preventDefault();
@@ -144,8 +144,8 @@ export function BulkImportTeachersDialog({ open, onOpenChange }: Props) {
                     if (f) handleFile(f);
                   }}
                 >
-                  <Upload className="text-muted-foreground mb-2 h-8 w-8" />
-                  <p className="text-muted-foreground text-sm">
+                  <Upload className="text-slate-400 mb-2 h-8 w-8" />
+                  <p className="text-slate-500 text-sm">
                     {parsing ? 'Parsing...' : 'Click or drag & drop Excel file here'}
                   </p>
                   <input
@@ -162,16 +162,16 @@ export function BulkImportTeachersDialog({ open, onOpenChange }: Props) {
               ) : (
                 <div>
                   <div className="mb-2 flex items-center justify-between">
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-slate-500 text-sm">
                       {preview.length} teacher{preview.length > 1 ? 's' : ''} ready to import
                     </p>
-                    <Button size="sm" variant="ghost" onClick={reset}>
+                    <Button size="sm" variant="ghost" onClick={reset} className="rounded-lg">
                       <X className="mr-1 h-3 w-3" /> Clear
                     </Button>
                   </div>
-                  <div className="max-h-52 overflow-y-auto rounded-lg border">
+                  <div className="max-h-52 overflow-y-auto rounded-xl border border-slate-200">
                     <table className="w-full text-sm">
-                      <thead className="bg-muted text-muted-foreground sticky top-0 text-xs">
+                      <thead className="bg-slate-50 text-slate-500 sticky top-0 text-xs border-b border-slate-200">
                         <tr>
                           <th className="px-3 py-2 text-left">#</th>
                           <th className="px-3 py-2 text-left">Name</th>
@@ -181,15 +181,15 @@ export function BulkImportTeachersDialog({ open, onOpenChange }: Props) {
                       </thead>
                       <tbody>
                         {preview.map((row, i) => (
-                          <tr key={i} className="border-t">
-                            <td className="text-muted-foreground px-3 py-2">{i + 1}</td>
-                            <td className="px-3 py-2 font-medium">
+                          <tr key={i} className="border-t border-slate-100">
+                            <td className="text-slate-400 px-3 py-2">{i + 1}</td>
+                            <td className="px-3 py-2 font-medium text-slate-800">
                               {row.name || <span className="text-destructive">—</span>}
                             </td>
-                            <td className="px-3 py-2">
+                            <td className="px-3 py-2 text-slate-600">
                               {row.email || <span className="text-destructive">—</span>}
                             </td>
-                            <td className="text-muted-foreground px-3 py-2">{row.phone || '—'}</td>
+                            <td className="text-slate-400 px-3 py-2">{row.phone || '—'}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -203,10 +203,10 @@ export function BulkImportTeachersDialog({ open, onOpenChange }: Props) {
           {/* Results */}
           {results && (
             <div>
-              <p className="mb-2 text-sm font-medium">Import results</p>
-              <div className="max-h-60 overflow-y-auto rounded-lg border">
+              <p className="mb-2 text-sm font-semibold text-slate-800">Import results</p>
+              <div className="max-h-60 overflow-y-auto rounded-xl border border-slate-200">
                 <table className="w-full text-sm">
-                  <thead className="bg-muted text-muted-foreground sticky top-0 text-xs">
+                  <thead className="bg-slate-50 text-slate-500 sticky top-0 text-xs border-b border-slate-200">
                     <tr>
                       <th className="px-3 py-2 text-left">Name</th>
                       <th className="px-3 py-2 text-left">Email</th>
@@ -215,9 +215,9 @@ export function BulkImportTeachersDialog({ open, onOpenChange }: Props) {
                   </thead>
                   <tbody>
                     {results.map((r, i) => (
-                      <tr key={i} className="border-t">
-                        <td className="px-3 py-2 font-medium">{r.name}</td>
-                        <td className="text-muted-foreground px-3 py-2">{r.email}</td>
+                      <tr key={i} className="border-t border-slate-100">
+                        <td className="px-3 py-2 font-medium text-slate-800">{r.name}</td>
+                        <td className="text-slate-500 px-3 py-2">{r.email}</td>
                         <td className="px-3 py-2">
                           {r.success ? (
                             <span className="flex items-center gap-1 text-green-600">
@@ -234,25 +234,28 @@ export function BulkImportTeachersDialog({ open, onOpenChange }: Props) {
                   </tbody>
                 </table>
               </div>
-              <Button className="mt-3 w-full" variant="outline" onClick={() => handleClose(false)}>
-                Done
-              </Button>
             </div>
           )}
+        </div>
 
-          {/* Footer */}
-          {preview.length > 0 && !results && (
+        {/* Footer */}
+        <div className="shrink-0 px-6 py-4 border-t border-slate-100">
+          {results ? (
+            <Button className="w-full rounded-xl" variant="outline" onClick={() => handleClose(false)}>
+              Done
+            </Button>
+          ) : preview.length > 0 ? (
             <div className="flex gap-3">
               <Button
                 variant="outline"
-                className="flex-1"
+                className="flex-1 rounded-xl"
                 onClick={reset}
                 disabled={bulkMutation.isPending}
               >
                 Cancel
               </Button>
               <Button
-                className="flex-1"
+                className="flex-1 rounded-xl"
                 disabled={bulkMutation.isPending}
                 onClick={() =>
                   bulkMutation.mutate(preview, {
@@ -265,6 +268,10 @@ export function BulkImportTeachersDialog({ open, onOpenChange }: Props) {
                   : `Import ${preview.length} teachers`}
               </Button>
             </div>
+          ) : (
+            <Button variant="outline" className="w-full rounded-xl" onClick={() => handleClose(false)}>
+              Cancel
+            </Button>
           )}
         </div>
       </DialogContent>

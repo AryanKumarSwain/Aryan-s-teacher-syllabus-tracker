@@ -164,7 +164,7 @@ export function ImageCropModal({ isOpen, onClose, onCropComplete, imageSrc }: Im
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[92vh] flex flex-col p-6 overflow-hidden rounded-2xl">
+      <DialogContent className="max-w-2xl w-[95vw] max-h-[92vh] flex flex-col p-4 sm:p-6 overflow-hidden rounded-2xl">
         <DialogHeader className="shrink-0 pb-1">
           <div className="flex items-center gap-2">
             <CropIcon className="h-5 w-5 text-blue-600" />
@@ -176,14 +176,14 @@ export function ImageCropModal({ isOpen, onClose, onCropComplete, imageSrc }: Im
         </DialogHeader>
 
         {/* Aspect Ratio Presets Toolbar */}
-        <div className="flex flex-wrap items-center gap-2 pt-1 pb-2 shrink-0">
-          <span className="text-xs font-semibold text-slate-600">Aspect Ratio:</span>
-          <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs">
+        <div className="flex items-center gap-2 pt-1 pb-2 shrink-0 overflow-x-auto">
+          <span className="text-xs font-semibold text-slate-600 shrink-0">Ratio:</span>
+          <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs shrink-0">
             <button
               type="button"
               onClick={() => setAspectPreset(undefined)}
               className={cn(
-                "px-2.5 py-1 rounded-md font-medium transition-colors",
+                "px-2.5 py-1 rounded-md font-medium transition-colors whitespace-nowrap",
                 aspect === undefined ? "bg-white text-blue-700 shadow-2xs font-semibold" : "text-slate-600 hover:text-slate-900"
               )}
             >
@@ -193,17 +193,17 @@ export function ImageCropModal({ isOpen, onClose, onCropComplete, imageSrc }: Im
               type="button"
               onClick={() => setAspectPreset(1)}
               className={cn(
-                "px-2.5 py-1 rounded-md font-medium transition-colors",
+                "px-2.5 py-1 rounded-md font-medium transition-colors whitespace-nowrap",
                 aspect === 1 ? "bg-white text-blue-700 shadow-2xs font-semibold" : "text-slate-600 hover:text-slate-900"
               )}
             >
-              1:1 Square (Logo)
+              1:1
             </button>
             <button
               type="button"
               onClick={() => setAspectPreset(4 / 3)}
               className={cn(
-                "px-2.5 py-1 rounded-md font-medium transition-colors",
+                "px-2.5 py-1 rounded-md font-medium transition-colors whitespace-nowrap",
                 aspect === 4 / 3 ? "bg-white text-blue-700 shadow-2xs font-semibold" : "text-slate-600 hover:text-slate-900"
               )}
             >
@@ -213,7 +213,7 @@ export function ImageCropModal({ isOpen, onClose, onCropComplete, imageSrc }: Im
               type="button"
               onClick={() => setAspectPreset(16 / 9)}
               className={cn(
-                "px-2.5 py-1 rounded-md font-medium transition-colors",
+                "px-2.5 py-1 rounded-md font-medium transition-colors whitespace-nowrap",
                 aspect === 16 / 9 ? "bg-white text-blue-700 shadow-2xs font-semibold" : "text-slate-600 hover:text-slate-900"
               )}
             >
@@ -226,15 +226,15 @@ export function ImageCropModal({ isOpen, onClose, onCropComplete, imageSrc }: Im
             variant="ghost"
             size="sm"
             onClick={() => setAspectPreset(undefined)}
-            className="text-xs text-slate-500 hover:text-slate-800 h-7 ml-auto flex items-center gap-1"
+            className="text-xs text-slate-500 hover:text-slate-800 h-7 ml-auto shrink-0 flex items-center gap-1"
           >
             <RotateCcw className="h-3 w-3" />
-            Reset
+            <span className="hidden sm:inline">Reset</span>
           </Button>
         </div>
 
         {/* Cropper Viewport with constrained height and overflow protection */}
-        <div className="flex-1 min-h-[300px] max-h-[52vh] flex justify-center items-center overflow-auto p-3 bg-slate-950/5 rounded-xl border border-slate-200">
+        <div className="flex-1 min-h-[200px] sm:min-h-[300px] max-h-[45vh] sm:max-h-[52vh] flex justify-center items-center overflow-auto p-2 sm:p-3 bg-slate-950/5 rounded-xl border border-slate-200">
           {imageSrc && (
             <ReactCrop
               crop={crop}
@@ -242,14 +242,14 @@ export function ImageCropModal({ isOpen, onClose, onCropComplete, imageSrc }: Im
               onComplete={(c) => setCompletedCrop(c)}
               aspect={aspect}
               keepSelection
-              className="max-h-[48vh] max-w-full"
+              className="max-h-[43vh] sm:max-h-[48vh] max-w-full"
             >
               <img
                 src={imageSrc}
                 alt="Crop preview"
                 onLoad={onImageLoad}
                 style={{
-                  maxHeight: '48vh',
+                  maxHeight: '43vh',
                   maxWidth: '100%',
                   objectFit: 'contain',
                   display: 'block',
@@ -260,7 +260,7 @@ export function ImageCropModal({ isOpen, onClose, onCropComplete, imageSrc }: Im
           )}
         </div>
 
-        <DialogFooter className="shrink-0 pt-4 flex items-center justify-between sm:justify-end gap-2">
+        <DialogFooter className="shrink-0 pt-3 sm:pt-4 flex items-center justify-between sm:justify-end gap-2">
           <Button variant="outline" onClick={onClose} type="button" disabled={isProcessing}>
             Cancel
           </Button>

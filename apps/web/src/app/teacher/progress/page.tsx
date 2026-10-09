@@ -129,16 +129,16 @@ function Section({
 }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
-      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-4 py-3 sm:px-5 sm:py-3.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-3.5 py-3 sm:px-5 sm:py-3.5">
         <div className="flex items-center gap-2.5">
           <div className={cn('rounded-xl p-2', iconGradient ? cn(iconGradient, 'text-white') : iconBg)}>
             <Icon className={cn('h-4 w-4', iconGradient ? 'text-white' : iconColor)} />
           </div>
           <h3 className="text-sm font-bold tracking-tight text-slate-900">{title}</h3>
         </div>
-        {extra && <div className="flex items-center">{extra}</div>}
+        {extra && <div className="flex items-center self-end sm:self-auto">{extra}</div>}
       </div>
-      <div className="p-4 sm:p-5">{children}</div>
+      <div className="p-3.5 sm:p-5">{children}</div>
     </div>
   );
 }
@@ -454,13 +454,13 @@ export default function TeacherProgressPage() {
 
         {/* Class Filter Tabs & Velocity Breakdown */}
         <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             {/* Class Pill Selectors */}
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
               <button
                 onClick={() => setSelectedClassId('all')}
                 className={cn(
-                  'rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all border shadow-2xs',
+                  'rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all border shadow-2xs shrink-0',
                   selectedClassId === 'all'
                     ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
                     : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -473,7 +473,7 @@ export default function TeacherProgressPage() {
                   key={cls.id}
                   onClick={() => setSelectedClassId(cls.id)}
                   className={cn(
-                    'rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all border shadow-2xs',
+                    'rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all border shadow-2xs shrink-0',
                     selectedClassId === cls.id
                       ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -486,7 +486,7 @@ export default function TeacherProgressPage() {
             </div>
 
             {/* Velocity Filters */}
-            <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl">
+            <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl overflow-x-auto no-scrollbar w-full sm:w-auto">
               {(['all', 'less', 'neutral', 'more'] as const).map((v) => {
                 const cfg = v === 'all' ? null : velocityConfig[v];
                 const count = velocityCounts[v];
@@ -496,7 +496,7 @@ export default function TeacherProgressPage() {
                     key={v}
                     onClick={() => setVelocityFilter(v)}
                     className={cn(
-                      'flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition-all',
+                      'flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition-all shrink-0',
                       isActive
                         ? 'bg-white text-slate-900 shadow-2xs'
                         : 'text-slate-500 hover:text-slate-800'

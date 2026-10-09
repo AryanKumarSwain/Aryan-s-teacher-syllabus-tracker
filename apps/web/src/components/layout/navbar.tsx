@@ -1,10 +1,11 @@
 'use client';
 
-import { LogOut, Building2 } from 'lucide-react';
+import { LogOut, Building2, Menu } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/auth-store';
+import { useUiStore } from '@/store/ui-store';
 import { api } from '@/services/api-client';
 import { SessionSelector } from '@/components/admin/session-selector';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
@@ -82,22 +83,33 @@ export function Navbar({ title }: { title?: string }) {
     return 'Workspace';
   };
 
+  const setMobileSidebarOpen = useUiStore((s) => s.setMobileSidebarOpen);
   const displayTitle = title || getFallbackTitle(pathname || '');
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#c4c5d7]/40 bg-white/95 backdrop-blur-md px-4 sm:px-6">
-      {/* Left — school brand (logo + name) + workspace title */}
-      <div className="flex items-center gap-3 sm:gap-4">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#c4c5d7]/40 bg-white/95 backdrop-blur-md px-3 sm:px-6">
+      {/* Left — mobile menu button + school brand (logo + name) + workspace title */}
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setMobileSidebarOpen(true)}
+          title="Open navigation menu"
+          className="md:hidden shrink-0 text-slate-700 hover:bg-slate-100 rounded-xl h-9 w-9 -ml-1 sm:ml-0"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+
         {(schoolName || schoolLogo) && (
-          <div className="flex items-center gap-2.5 pr-3 sm:pr-4 border-r border-[#c4c5d7]/40">
+          <div className="flex items-center gap-2 sm:gap-2.5 pr-2 sm:pr-4 border-r border-[#c4c5d7]/40 shrink-0">
             {schoolLogo ? (
               <img
                 src={schoolLogo}
                 alt={schoolName || 'School Logo'}
-                className="h-9 w-9 rounded-xl object-contain border border-[#c4c5d7]/40 bg-white p-0.5 shadow-2xs shrink-0"
+                className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl object-contain border border-[#c4c5d7]/40 bg-white p-0.5 shadow-2xs shrink-0"
               />
             ) : (
-              <div className="h-9 w-9 rounded-xl bg-emerald-50 border border-emerald-200/70 flex items-center justify-center text-emerald-800 font-black text-sm shrink-0 shadow-2xs">
+              <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-emerald-50 border border-emerald-200/70 flex items-center justify-center text-emerald-800 font-black text-xs sm:text-sm shrink-0 shadow-2xs">
                 {schoolName ? schoolName.charAt(0).toUpperCase() : <Building2 className="h-4 w-4 text-emerald-700" />}
               </div>
             )}
@@ -113,17 +125,17 @@ export function Navbar({ title }: { title?: string }) {
         )}
 
         {displayTitle && (
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#434655]">Workspace</p>
-            <h1 className="text-base font-extrabold tracking-tight text-[#0b1c30] sm:text-lg">
+          <div className="min-w-0">
+            <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#434655]">Workspace</p>
+            <h1 className="text-sm sm:text-lg font-extrabold tracking-tight text-[#0b1c30] truncate max-w-[140px] sm:max-w-none">
               {displayTitle}
             </h1>
           </div>
         )}
       </div>
 
-      {/* Middle — session selector for admin routes, batch name for teacher routes */}
-      <div className="flex flex-1 items-center justify-center">
+      {/* Middle — session selector for admin routes, batch name for teacher routes (PC/Tablet view) */}
+      <div className="hidden md:flex flex-1 items-center justify-center px-2">
         {isAdminRoute && <SessionSelector />}
         {isTeacherRoute && currentSession && (
           <div className="flex items-center gap-2 rounded-full border border-slate-200/80 bg-white px-3 py-1 shadow-2xs">
@@ -139,16 +151,27 @@ export function Navbar({ title }: { title?: string }) {
         )}
       </div>
 
-      {/* Right — logout only */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={handleLogout}
-        title="Logout"
-        className="text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-      >
-        <LogOut className="h-4 w-4" />
-      </Button>
+      {/* Right — compact session pill on mobile + logout */}
+      <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        {isTeacherRoute && currentSession && (
+          <div className="flex md:hidden items-center gap-1 rounded-full border border-slate-200/80 bg-white px-2 py-0.5 shadow-2xs">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+            </span>
+            <span className="text-[10px] font-bold text-[#0b1c30]">{currentSession.name}</span>
+          </div>
+        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleLogout}
+          title="Logout"
+          className="text-gray-400 hover:bg-gray-100 hover:text-gray-600 h-9 w-9"
+        >
+          <LogOut className="h-4 w-4" />
+        </Button>
+      </div>
     </header>
   );
 }

@@ -52,16 +52,16 @@ export function TeacherCpdDrawer({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="border-b pb-3">
-          <div className="flex items-center justify-between">
+      <DialogContent className="w-[96vw] sm:w-full max-w-3xl max-h-[92vh] sm:max-h-[88vh] p-0 overflow-hidden flex flex-col rounded-3xl border border-slate-200/90 bg-white shadow-2xl">
+        <DialogHeader className="px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50/90 via-white to-blue-50/30 flex flex-row items-center justify-between shrink-0">
+          <div className="flex items-center justify-between w-full pr-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1a73e8] text-white font-bold text-base shadow-sm">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-black text-base shadow-md shadow-blue-500/20 ring-4 ring-blue-50 shrink-0">
                 {teacher?.name?.charAt(0) || 'T'}
               </div>
-              <div>
+              <div className="text-left">
                 <div className="flex items-center gap-2">
-                  <DialogTitle className="text-lg font-bold text-gray-900">
+                  <DialogTitle className="text-base sm:text-lg font-black text-[#0b1c30]">
                     {teacher?.name || 'Loading teacher...'}
                   </DialogTitle>
                   {teacher && (
@@ -71,7 +71,7 @@ export function TeacherCpdDrawer({
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                           : teacher.complianceStatus === 'IN_PROGRESS'
                           ? 'bg-blue-50 text-blue-700 border-blue-200'
-                          : 'bg-gray-100 text-gray-700 border-gray-200'
+                          : 'bg-slate-100 text-slate-700 border-slate-200'
                       }
                       variant="outline"
                     >
@@ -79,7 +79,7 @@ export function TeacherCpdDrawer({
                     </Badge>
                   )}
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-slate-500 font-medium">
                   {teacher?.email} • {teacher?.subjectNames.join(', ') || 'Teacher'}
                 </p>
               </div>
@@ -92,7 +92,7 @@ export function TeacherCpdDrawer({
                   onOpenChange(false);
                   onAddTrainingClick(teacher.teacherId);
                 }}
-                className="bg-[#1a73e8] hover:bg-[#1558b0] text-white text-xs flex items-center gap-1.5"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-md shadow-blue-600/20 flex items-center gap-1.5 h-8 px-3"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Log Training
@@ -100,6 +100,8 @@ export function TeacherCpdDrawer({
             )}
           </div>
         </DialogHeader>
+
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
 
         {isLoading ? (
           <div className="py-12 text-center text-xs text-gray-500">Loading CPD profile...</div>
@@ -299,6 +301,17 @@ export function TeacherCpdDrawer({
             </div>
           </div>
         ) : null}
+        </div>
+
+        <div className="px-6 py-3.5 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end shrink-0">
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs shadow-2xs transition-colors"
+          >
+            Close Overview
+          </button>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -250,7 +250,7 @@ export default function TeacherClassDetailPage({ params }: { params: Promise<{ i
             />
           ) : (
             <div className="space-y-3.5">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                 <h2 className="text-base font-bold text-slate-900">Subjects & Chapters</h2>
                 <span className="text-xs text-slate-400 font-medium">
                   Click on a subject to expand chapter workflows
@@ -277,18 +277,18 @@ export default function TeacherClassDetailPage({ params }: { params: Promise<{ i
                     <Card className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-all duration-200 hover:border-slate-300 hover:shadow-sm">
                       <button
                         type="button"
-                        className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-slate-50/60"
+                        className="flex w-full items-center justify-between gap-3 px-4 py-3.5 sm:px-5 sm:py-4 text-left transition-colors hover:bg-slate-50/60"
                         onClick={() => toggleSubject(subject.id)}
                       >
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-base font-bold text-slate-900">{subject.name}</h3>
-                            <Badge variant="outline" className="border-slate-200 bg-slate-50 text-[11px] font-semibold text-slate-600">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="text-sm sm:text-base font-bold text-slate-900">{subject.name}</h3>
+                            <Badge variant="outline" className="border-slate-200 bg-slate-50 text-[10px] sm:text-[11px] font-semibold text-slate-600">
                               {subject.chapters.length} Chapters
                             </Badge>
                           </div>
-                          <div className="mt-2 flex items-center gap-3">
-                            <div className="relative h-1.5 w-40 overflow-hidden rounded-full bg-slate-100">
+                          <div className="mt-2 flex items-center gap-2.5 sm:gap-3 flex-wrap">
+                            <div className="relative h-1.5 w-28 sm:w-40 overflow-hidden rounded-full bg-slate-100">
                               <div
                                 className={cn(
                                   'h-full rounded-full transition-all duration-500',

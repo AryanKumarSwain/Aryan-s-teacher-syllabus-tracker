@@ -167,7 +167,7 @@ export function CreateTeacherDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[80vh] flex-col gap-0 p-0">
+      <DialogContent className="flex max-h-[88vh] w-[95vw] max-w-lg flex-col gap-0 p-0">
         <DialogHeader className="shrink-0 px-6 pb-4 pt-6">
           <DialogTitle>Add teacher</DialogTitle>
           <DialogDescription>

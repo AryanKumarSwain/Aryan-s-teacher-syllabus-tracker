@@ -52,16 +52,16 @@ function Section({
 }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
-      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-4 py-3 sm:px-5 sm:py-3.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-3.5 py-3 sm:px-5 sm:py-3.5">
         <div className="flex items-center gap-2.5">
           <div className={cn('rounded-xl p-2', iconGradient ? cn(iconGradient, 'text-white') : iconBg)}>
             <Icon className={cn('h-4 w-4', iconGradient ? 'text-white' : iconColor)} />
           </div>
           <h3 className="text-sm font-bold tracking-tight text-slate-900">{title}</h3>
         </div>
-        {extra && <div className="flex items-center">{extra}</div>}
+        {extra && <div className="flex items-center overflow-x-auto no-scrollbar">{extra}</div>}
       </div>
-      <div className="p-4 sm:p-5">{children}</div>
+      <div className="p-3.5 sm:p-5">{children}</div>
     </div>
   );
 }
@@ -362,15 +362,15 @@ export default function TeacherTrainingPage() {
           icon={Clock}
           iconGradient="from-blue-600 to-indigo-600"
           extra={
-            <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl text-xs font-bold">
+            <div className="flex items-center gap-1 sm:gap-1.5 bg-slate-100/80 p-1 rounded-xl text-xs font-bold overflow-x-auto no-scrollbar w-full sm:w-auto">
               {(['ALL', 'CBSE', 'SCHOOL', 'ACADEMIC'] as const).map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setCategoryFilter(cat)}
                   className={cn(
-                    'px-2.5 py-1 rounded-lg transition-all',
+                    'px-2.5 py-1 rounded-lg transition-all shrink-0 text-xs',
                     categoryFilter === cat
-                      ? 'bg-white text-slate-900 shadow-2xs'
+                      ? 'bg-white text-slate-900 shadow-2xs font-bold'
                       : 'text-slate-500 hover:text-slate-800'
                   )}
                 >

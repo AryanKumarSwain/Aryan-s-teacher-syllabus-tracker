@@ -48,13 +48,13 @@ export function DashboardShell({ title, children }: { title?: string; children: 
       </div>
       <div className="relative z-10 flex min-h-screen">
         <Sidebar />
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col min-w-0 w-full overflow-x-hidden">
           <Navbar title={title} />
           <ViewModeBanner />
           
           {shouldRedirectToUpgrade ? (
-            <main className="flex flex-1 items-center justify-center p-6">
-              <div className="max-w-md text-center rounded-3xl bg-white p-8 shadow-xl border border-[#c4c5d7]/50">
+            <main className="flex flex-1 items-center justify-center p-4 sm:p-6">
+              <div className="max-w-md text-center rounded-3xl bg-white p-6 sm:p-8 shadow-xl border border-[#c4c5d7]/50">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200/60 mb-4 shadow-xs">
                   <ShieldAlert className="h-7 w-7" />
                 </div>
@@ -73,7 +73,7 @@ export function DashboardShell({ title, children }: { title?: string; children: 
               </div>
             </main>
           ) : (
-            <main className="flex-1 overflow-auto p-4 sm:p-6 bg-transparent">
+            <main className="flex-1 overflow-x-hidden p-3 sm:p-6 bg-transparent">
               <div className="mx-auto w-full max-w-7xl">{children}</div>
             </main>
           )}

@@ -74,40 +74,42 @@ export function EditTeacherDialog({ open, onOpenChange, teacher }: EditTeacherDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Edit Teacher</DialogTitle>
-          <DialogDescription>
-            Update teacher information. If you change the email, new login credentials will be sent to the new email address.
+      <DialogContent className="max-w-md max-h-[90vh] flex flex-col gap-0 p-0">
+        <DialogHeader className="shrink-0 px-6 pt-6 pb-4 border-b border-slate-100">
+          <DialogTitle className="text-base font-bold text-slate-900">Edit Teacher</DialogTitle>
+          <DialogDescription className="text-xs text-slate-500 mt-1">
+            Update teacher information. Changing the email will send new login credentials.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label>Name</Label>
-            <Input {...register('name')} />
-            {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-0 flex-1">
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-slate-700">Name</Label>
+              <Input {...register('name')} className="rounded-xl" />
+              {errors.name && <p className="text-destructive text-xs">{errors.name.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-slate-700">Email</Label>
+              <Input type="email" {...register('email')} className="rounded-xl" />
+              {errors.email && <p className="text-destructive text-xs">{errors.email.message}</p>}
+              <p className="text-muted-foreground text-xs">
+                Changing email will send new login credentials to the new address.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-slate-700">Phone</Label>
+              <Input {...register('phone')} className="rounded-xl" />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Email</Label>
-            <Input type="email" {...register('email')} />
-            {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
-            <p className="text-muted-foreground text-xs">
-              Changing email will send new login credentials to the new address.
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Phone</Label>
-            <Input {...register('phone')} />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <div className="shrink-0 flex justify-end gap-2 px-6 py-4 border-t border-slate-100">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl">
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} className="rounded-xl">
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes
             </Button>
