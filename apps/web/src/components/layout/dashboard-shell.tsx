@@ -48,7 +48,7 @@ export function DashboardShell({ title, children }: { title?: string; children: 
       </div>
       <div className="relative z-10 flex min-h-screen">
         <Sidebar />
-        <div className="flex flex-1 flex-col min-w-0 w-full overflow-x-hidden">
+        <div className="flex flex-1 flex-col min-w-0 w-full overflow-x-clip">
           <Navbar title={title} />
           <ViewModeBanner />
           
@@ -73,7 +73,7 @@ export function DashboardShell({ title, children }: { title?: string; children: 
               </div>
             </main>
           ) : (
-            <main className="flex-1 overflow-x-hidden p-3 sm:p-6 bg-transparent">
+            <main className="flex-1 overflow-x-clip p-3 sm:p-6 bg-transparent">
               <div className="mx-auto w-full max-w-7xl">{children}</div>
             </main>
           )}

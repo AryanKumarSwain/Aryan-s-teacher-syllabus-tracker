@@ -83,6 +83,8 @@ interface ExamStepperProps {
     totalMarks?: number;
     duration?: number;
   };
+  className?: string;
+  sticky?: boolean;
 }
 
 export function ExamStepper({
@@ -91,22 +93,30 @@ export function ExamStepper({
   onStepClick,
   onOpenPreview,
   paperDetails,
+  className,
+  sticky = true,
 }: ExamStepperProps) {
   const progressPercent = Math.min(100, Math.round(((currentStep - 1) / (EXAM_STEPS.length - 1)) * 100));
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-xs transition-all sm:p-4">
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-md p-2.5 sm:p-4 transition-all shadow-md sm:shadow-xs",
+        sticky && "sticky top-16 z-20",
+        className
+      )}
+    >
       {/* Subtle top gradient accent line */}
       <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500" />
 
       {/* Compact Top Header Row */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700 border border-blue-200/60 shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 pb-2 sm:pb-2.5 border-b border-slate-100">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] sm:text-[11px] font-bold text-blue-700 border border-blue-200/60 shrink-0">
             <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
             Step {currentStep} of {EXAM_STEPS.length}
           </span>
-          <h2 className="text-sm sm:text-base font-bold tracking-tight text-slate-900 truncate">
+          <h2 className="text-xs sm:text-base font-bold tracking-tight text-slate-900 truncate">
             {EXAM_STEPS[currentStep - 1]?.title}
           </h2>
           <span className="hidden md:inline-block text-xs text-slate-400 truncate">
@@ -117,17 +127,18 @@ export function ExamStepper({
         {/* Paper details badges & Live Preview CTA */}
         <div className="flex items-center gap-1.5 shrink-0">
           {paperDetails && (paperDetails.totalMarks || paperDetails.duration) ? (
-            <div className="flex items-center gap-1 rounded-lg bg-slate-50 border border-slate-200/80 px-2 py-1 text-xs text-slate-700">
+            <div className="flex items-center gap-1 rounded-lg bg-slate-50 border border-slate-200/80 px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs text-slate-700">
               {paperDetails.duration ? (
-                <span className="flex items-center gap-0.5 font-semibold text-slate-800 text-[11px]">
+                <span className="flex items-center gap-0.5 font-semibold text-slate-800 text-[10px] sm:text-[11px]">
                   <Clock className="h-3 w-3 text-indigo-500" />
                   <span className="hidden sm:inline">{formatDuration(paperDetails.duration)}</span>
+                  <span className="sm:hidden">{paperDetails.duration}m</span>
                 </span>
               ) : null}
               {paperDetails.totalMarks ? (
-                <span className="flex items-center gap-0.5 font-semibold text-slate-800 text-[11px]">
+                <span className="flex items-center gap-0.5 font-semibold text-slate-800 text-[10px] sm:text-[11px]">
                   <Award className="h-3 w-3 text-amber-500" />
-                  {paperDetails.totalMarks}<span className="hidden sm:inline"> Marks</span>
+                  {paperDetails.totalMarks}<span className="hidden sm:inline"> Marks</span><span className="sm:hidden">M</span>
                 </span>
               ) : null}
             </div>
@@ -138,9 +149,9 @@ export function ExamStepper({
               type="button"
               onClick={onOpenPreview}
               size="sm"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold h-7 px-2 sm:px-2.5 rounded-lg shadow-2xs gap-1"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] sm:text-xs font-semibold h-6 sm:h-7 px-2 sm:px-2.5 rounded-lg shadow-2xs gap-1"
             >
-              <Eye className="w-3.5 h-3.5" />
+              <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span className="hidden sm:inline">Live Preview</span>
             </Button>
           )}
@@ -148,9 +159,9 @@ export function ExamStepper({
       </div>
 
       {/* Compact Stepper Track */}
-      <div className="pt-2.5">
+      <div className="pt-1.5 sm:pt-2.5">
         {/* Thin Progress Bar Line */}
-        <div className="relative mb-2.5">
+        <div className="relative mb-1.5 sm:mb-2.5">
           <div className="h-1 w-full rounded-full bg-slate-100 overflow-hidden">
             <div 
               className="h-full rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-500 ease-out"
@@ -175,7 +186,7 @@ export function ExamStepper({
                 title={s.title}
                 onClick={() => isClickable && onStepClick?.(s.id)}
                 className={cn(
-                  "group relative flex flex-col sm:flex-row sm:items-center sm:gap-1.5 items-center rounded-xl py-1.5 px-1 sm:px-2 transition-all border",
+                  "group relative flex flex-col sm:flex-row sm:items-center sm:gap-1.5 items-center rounded-xl py-1 sm:py-1.5 px-0.5 sm:px-2 transition-all border",
                   isCurrent
                     ? "bg-blue-50/90 border-blue-300 shadow-2xs ring-1 ring-blue-500/20"
                     : isCompleted
@@ -186,7 +197,7 @@ export function ExamStepper({
                 {/* Step Circle Icon */}
                 <div
                   className={cn(
-                    "flex h-6 w-6 shrink-0 items-center justify-center rounded-lg font-bold text-xs transition-all",
+                    "flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-lg font-bold text-xs transition-all",
                     isCurrent
                       ? "bg-blue-600 text-white"
                       : isCompleted
@@ -195,15 +206,15 @@ export function ExamStepper({
                   )}
                 >
                   {isCompleted ? (
-                    <CheckCircle2 className="h-3 w-3 stroke-[2.5]" />
+                    <CheckCircle2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 stroke-[2.5]" />
                   ) : (
-                    <StepIcon className="h-3 w-3" />
+                    <StepIcon className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                   )}
                 </div>
 
                 {/* Short title — always visible below icon on mobile */}
                 <p className={cn(
-                  "text-[9px] font-semibold mt-0.5 leading-tight text-center sm:hidden line-clamp-1",
+                  "text-[8.5px] sm:text-[9px] font-semibold mt-0.5 leading-tight text-center sm:hidden line-clamp-1",
                   isCurrent ? "text-blue-700" : isCompleted ? "text-emerald-600" : "text-slate-400"
                 )}>
                   {s.shortTitle}
