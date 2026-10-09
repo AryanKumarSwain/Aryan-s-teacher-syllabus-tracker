@@ -315,7 +315,7 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
           </div>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-3 mt-5">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3 mt-5">
           {/* School (Read-only) */}
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
@@ -401,7 +401,7 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
           </div>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-3 mt-5">
+        <div className="grid gap-5 grid-cols-1 sm:grid-cols-3 mt-5">
           {/* Exam Name Select Dropdown */}
           <div className="space-y-1.5 md:col-span-2">
             <div className="flex items-center justify-between">
@@ -474,8 +474,8 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
               <p className="text-xs text-slate-500 mt-0.5">Grand total score for the question paper</p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="w-28">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+              <div className="w-24 shrink-0">
                 <Input 
                   type="number" 
                   min="1"
@@ -484,17 +484,17 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
                   className="rounded-xl border border-slate-200 text-center font-bold text-base text-slate-800"
                 />
               </div>
-              <span className="text-xs font-bold text-slate-500">Marks</span>
+              <span className="text-xs font-bold text-slate-500 shrink-0">Marks</span>
 
               {/* Quick Marks Presets */}
-              <div className="flex items-center gap-1.5 ml-2 pl-3 border-l border-slate-200">
+              <div className="flex items-center gap-1 pl-2 border-l border-slate-200">
                 {MARKS_PRESETS.map((m) => (
                   <button
                     key={m}
                     type="button"
                     onClick={() => form.setValue('totalMarks', m, { shouldValidate: true, shouldDirty: true })}
                     className={cn(
-                      "text-xs px-2.5 py-1 rounded-lg border font-semibold transition-all",
+                      "text-xs px-2 py-1 rounded-lg border font-semibold transition-all shrink-0",
                       Number(totalMarks) === m
                         ? "bg-amber-50 border-amber-300 text-amber-800 ring-1 ring-amber-400"
                         : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
@@ -522,9 +522,9 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
             </div>
           </div>
 
-          <div className="flex items-center gap-2 rounded-xl bg-emerald-50/70 border border-emerald-200 px-3.5 py-1.5 text-xs font-bold text-emerald-800">
-            <Clock className="h-3.5 w-3.5 text-emerald-600" />
-            <span>Total: {Math.floor(calculatedTotalMinutes / 60)}h {calculatedTotalMinutes % 60}m ({calculatedTotalMinutes} mins)</span>
+          <div className="flex items-center gap-2 rounded-xl bg-emerald-50/70 border border-emerald-200 px-3 py-1.5 text-xs font-bold text-emerald-800 self-start sm:self-auto shrink-0">
+            <Clock className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+            <span className="whitespace-nowrap">Total: {Math.floor(calculatedTotalMinutes / 60)}h {calculatedTotalMinutes % 60}m ({calculatedTotalMinutes} mins)</span>
           </div>
         </div>
 
@@ -602,7 +602,7 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
           {/* Single Column Template Card */}
           <div 
             onClick={() => form.setValue('templateType', 'SINGLE', { shouldDirty: true })}
@@ -696,14 +696,14 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
       </div>
 
       {/* Footer Submit Action Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-sm">
         <div className="text-xs text-slate-500">
           Step 1 of 5 • Proceeding will create or update the exam paper draft.
         </div>
         <Button 
           type="submit" 
           disabled={isSubmitting}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all hover:shadow"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all hover:shadow w-full sm:w-auto"
         >
           {isSubmitting ? (
             <>

@@ -252,8 +252,8 @@ export function SectionSegmentForm({
           </div>
 
           {/* Marks Scorecard Badges */}
-          <div className="flex items-center gap-3">
-            <div className="rounded-xl border border-slate-200/80 bg-white px-4 py-2 text-center shadow-2xs">
+          <div className="flex items-center gap-2">
+            <div className="rounded-xl border border-slate-200/80 bg-white px-3 py-2 text-center shadow-2xs">
               <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Allocated</span>
               <span className={cn(
                 "text-lg font-black",
@@ -263,12 +263,12 @@ export function SectionSegmentForm({
               </span>
             </div>
             <span className="text-slate-400 font-bold text-lg">/</span>
-            <div className="rounded-xl border border-slate-200/80 bg-white px-4 py-2 text-center shadow-2xs">
+            <div className="rounded-xl border border-slate-200/80 bg-white px-3 py-2 text-center shadow-2xs">
               <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Target</span>
               <span className="text-lg font-black text-slate-800">{targetTotalMarks}</span>
             </div>
-            <div className="hidden sm:block rounded-xl border border-slate-200/80 bg-white px-4 py-2 text-center shadow-2xs">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Questions</span>
+            <div className="rounded-xl border border-slate-200/80 bg-white px-3 py-2 text-center shadow-2xs">
+              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Qs</span>
               <span className="text-lg font-black text-indigo-600">{totalQuestions}</span>
             </div>
           </div>
@@ -306,15 +306,15 @@ export function SectionSegmentForm({
           </div>
 
           {/* Quick Section Pills Selector */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-xs font-semibold text-slate-500 mr-1">Count:</span>
+          <div className="flex items-center gap-1 flex-wrap">
+            <span className="text-xs font-semibold text-slate-500 mr-0.5">Count:</span>
             {[1, 2, 3, 4, 5, 6].map((num) => (
               <button
                 key={num}
                 type="button"
                 onClick={() => updateSectionCount(num)}
                 className={cn(
-                  "h-8 px-3 rounded-lg text-xs font-bold transition-all border",
+                  "h-7 px-2.5 rounded-lg text-xs font-bold transition-all border",
                   sectionCount === num
                     ? "bg-blue-600 border-blue-600 text-white shadow-xs"
                     : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
@@ -376,28 +376,25 @@ export function SectionSegmentForm({
                           key={segmentIndex} 
                           className="rounded-xl border border-slate-200 bg-white p-3.5 sm:p-4 shadow-2xs transition-all hover:border-slate-300"
                         >
-                          <div className="grid gap-3 sm:grid-cols-12 items-center">
-                            {/* Question Type Selector */}
-                            <div className="sm:col-span-4">
+                          <div className="grid gap-3">
+                            {/* Row 1: Question type - full width */}
+                            <div>
                               <Label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                                 Question Type
                               </Label>
-                              <div className="flex items-center gap-2">
-                                <select
-                                  value={segment.type}
-                                  onChange={(e) => {
-                                    const selectedType = SEGMENT_TYPES.find(t => t.value === e.target.value);
-                                    updateSegment(sectionIndex, segmentIndex, 'type', e.target.value);
-                                    updateSegment(sectionIndex, segmentIndex, 'label', selectedType?.label || e.target.value);
-                                  }}
-                                  className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                >
-                                  {SEGMENT_TYPES.map((type) => (
-                                    <option key={type.value} value={type.value}>{type.label}</option>
-                                  ))}
-                                </select>
-                              </div>
-
+                              <select
+                                value={segment.type}
+                                onChange={(e) => {
+                                  const selectedType = SEGMENT_TYPES.find(t => t.value === e.target.value);
+                                  updateSegment(sectionIndex, segmentIndex, 'type', e.target.value);
+                                  updateSegment(sectionIndex, segmentIndex, 'label', selectedType?.label || e.target.value);
+                                }}
+                                className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              >
+                                {SEGMENT_TYPES.map((type) => (
+                                  <option key={type.value} value={type.value}>{type.label}</option>
+                                ))}
+                              </select>
                               {segment.type === 'CUSTOM' && (
                                 <Input
                                   type="text"
@@ -412,58 +409,60 @@ export function SectionSegmentForm({
                               )}
                             </div>
 
-                            {/* Question Count */}
-                            <div className="sm:col-span-2">
-                              <Label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                                Questions
-                              </Label>
-                              <Input
-                                type="number"
-                                min="1"
-                                max="50"
-                                value={segment.questionCount}
-                                onChange={(e) => updateSegment(sectionIndex, segmentIndex, 'questionCount', Number(e.target.value))}
-                                className="h-8 text-xs font-bold text-center"
-                              />
-                            </div>
-
-                            {/* Marks Each */}
-                            <div className="sm:col-span-2">
-                              <Label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                                Marks Each
-                              </Label>
-                              <Input
-                                type="number"
-                                min="0.5"
-                                step="0.5"
-                                max="50"
-                                value={segment.marksEach}
-                                onChange={(e) => updateSegment(sectionIndex, segmentIndex, 'marksEach', Number(e.target.value))}
-                                className="h-8 text-xs font-bold text-center"
-                              />
-                            </div>
-
-                            {/* Total Marks Pill */}
-                            <div className="sm:col-span-3">
-                              <Label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                                Subtotal
-                              </Label>
-                              <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
-                                <span>{segment.questionCount} × {segment.marksEach}M =</span>
-                                <span className="font-bold text-blue-600">{segment.questionCount * segment.marksEach} Marks</span>
+                            {/* Row 2: Questions | Marks | Subtotal | Delete — 4-col grid */}
+                            <div className="grid grid-cols-4 gap-2 items-end">
+                              {/* Questions */}
+                              <div>
+                                <Label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                                  Qs
+                                </Label>
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  max="50"
+                                  value={segment.questionCount}
+                                  onChange={(e) => updateSegment(sectionIndex, segmentIndex, 'questionCount', Number(e.target.value))}
+                                  className="h-8 text-xs font-bold text-center"
+                                />
                               </div>
-                            </div>
 
-                            {/* Remove button */}
-                            <div className="sm:col-span-1 flex justify-end">
-                              <button
-                                type="button"
-                                title="Remove segment"
-                                onClick={() => removeSegment(sectionIndex, segmentIndex)}
-                                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
+                              {/* Marks Each */}
+                              <div>
+                                <Label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                                  Marks
+                                </Label>
+                                <Input
+                                  type="number"
+                                  min="0.5"
+                                  step="0.5"
+                                  max="50"
+                                  value={segment.marksEach}
+                                  onChange={(e) => updateSegment(sectionIndex, segmentIndex, 'marksEach', Number(e.target.value))}
+                                  className="h-8 text-xs font-bold text-center"
+                                />
+                              </div>
+
+                              {/* Subtotal */}
+                              <div>
+                                <Label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                                  Total
+                                </Label>
+                                <div className="flex items-center h-8 rounded-lg bg-slate-50 border border-slate-200 px-2 text-xs font-semibold text-slate-700">
+                                  <span className="font-bold text-blue-600 truncate">{segment.questionCount * segment.marksEach}M</span>
+                                </div>
+                              </div>
+
+                              {/* Delete */}
+                              <div className="flex justify-end">
+                                <button
+                                  type="button"
+                                  title="Remove segment"
+                                  onClick={() => removeSegment(sectionIndex, segmentIndex)}
+                                  className="h-8 w-8 flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -473,35 +472,39 @@ export function SectionSegmentForm({
                 )}
 
                 {/* Quick Add Question Type Presets */}
-                <div className="flex flex-wrap items-center gap-1.5 pt-2">
-                  <span className="text-[11px] font-bold text-slate-400 mr-1 uppercase tracking-wider">+ Add Type:</span>
-                  {[
-                    { label: 'MCQ (1M)', type: 'MCQ' },
-                    { label: 'Short Ans (2M)', type: 'SHORT_ANSWER' },
-                    { label: 'Long Ans (5M)', type: 'LONG_ANSWER' },
-                    { label: 'Fill Blanks (1M)', type: 'FILL_BLANKS' },
-                    { label: 'True/False (1M)', type: 'TRUE_FALSE' },
-                    { label: 'Matching (4M)', type: 'MATCHING' },
-                  ].map((preset) => (
-                    <button
-                      key={preset.label}
-                      type="button"
-                      onClick={() => addSegment(sectionIndex, preset.type)}
-                      className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 bg-white font-semibold text-slate-600 hover:border-blue-300 hover:bg-blue-50/50 hover:text-blue-700 transition-all shadow-2xs"
-                    >
-                      + {preset.label}
-                    </button>
-                  ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => addSegment(sectionIndex)}
-                    className="h-7 text-xs border-dashed ml-auto"
-                  >
-                    <Plus className="h-3 w-3 mr-1" />
-                    Custom Type
-                  </Button>
+                <div className="pt-2">
+                  <div className="flex items-center gap-1 flex-wrap">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider w-full sm:w-auto mb-1 sm:mb-0">+ Add Type:</span>
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {[
+                        { label: 'MCQ (1M)', type: 'MCQ' },
+                        { label: 'Short Ans (2M)', type: 'SHORT_ANSWER' },
+                        { label: 'Long Ans (5M)', type: 'LONG_ANSWER' },
+                        { label: 'Fill Blanks (1M)', type: 'FILL_BLANKS' },
+                        { label: 'True/False (1M)', type: 'TRUE_FALSE' },
+                        { label: 'Matching (4M)', type: 'MATCHING' },
+                      ].map((preset) => (
+                        <button
+                          key={preset.label}
+                          type="button"
+                          onClick={() => addSegment(sectionIndex, preset.type)}
+                          className="text-xs px-2 py-1 rounded-lg border border-slate-200 bg-white font-semibold text-slate-600 hover:border-blue-300 hover:bg-blue-50/50 hover:text-blue-700 transition-all shadow-2xs"
+                        >
+                          + {preset.label}
+                        </button>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => addSegment(sectionIndex)}
+                        className="h-7 text-xs border-dashed"
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        Custom
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             );
@@ -510,7 +513,7 @@ export function SectionSegmentForm({
       </div>
 
       {/* Navigation Footer */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-sm">
         <Button 
           type="button" 
           variant="outline" 
@@ -521,9 +524,9 @@ export function SectionSegmentForm({
           <span>Back to Setup</span>
         </Button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           {!isTotalMatching && (
-            <span className="text-xs font-semibold text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-200">
+            <span className="text-xs font-semibold text-rose-600 bg-rose-50 px-3 py-1.5 rounded-full border border-rose-200 text-center">
               Total must equal {targetTotalMarks} Marks
             </span>
           )}
@@ -531,7 +534,7 @@ export function SectionSegmentForm({
             type="button"
             onClick={handleSubmit}
             disabled={!isTotalMatching || sections.every(s => s.segments.length === 0)}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-sm flex items-center gap-2 transition-all hover:shadow"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all hover:shadow"
           >
             <span>Continue to Questions</span>
             <ArrowRight className="h-4 w-4" />

@@ -425,7 +425,7 @@ export default function CreateExamPaperPage() {
               </div>
 
               {/* KPI Stat Cards */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 mt-5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
                 <div className="rounded-xl border border-slate-200/80 bg-slate-50/60 p-3.5 shadow-2xs">
                   <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Exam & Subject</span>
                   <p className="font-bold text-slate-800 text-sm mt-1 truncate">{paperDetails.examName || 'Assessment'}</p>
@@ -541,7 +541,7 @@ export default function CreateExamPaperPage() {
             </div>
 
             {/* Bottom Finalize Actions */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-sm">
               <Button 
                 type="button" 
                 variant="outline" 
@@ -556,7 +556,7 @@ export default function CreateExamPaperPage() {
                 type="button" 
                 onClick={handleSubmit} 
                 disabled={isSubmittingFinal}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-2.5 rounded-xl shadow-sm flex items-center gap-2 transition-all hover:shadow"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-2.5 rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all hover:shadow"
               >
                 <CheckCircle2 className="h-5 w-5" />
                 <span>{isSubmittingFinal ? 'Publishing Paper...' : 'Submit & Finalize Exam Paper'}</span>

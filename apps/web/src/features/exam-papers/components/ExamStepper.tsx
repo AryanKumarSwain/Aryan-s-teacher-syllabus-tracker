@@ -115,22 +115,19 @@ export function ExamStepper({
         </div>
 
         {/* Paper details badges & Live Preview CTA */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           {paperDetails && (paperDetails.totalMarks || paperDetails.duration) ? (
-            <div className="hidden sm:flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/80 px-2.5 py-1 text-xs text-slate-700">
+            <div className="flex items-center gap-1 rounded-lg bg-slate-50 border border-slate-200/80 px-2 py-1 text-xs text-slate-700">
               {paperDetails.duration ? (
-                <span className="flex items-center gap-1 font-semibold text-slate-800 text-[11px]">
+                <span className="flex items-center gap-0.5 font-semibold text-slate-800 text-[11px]">
                   <Clock className="h-3 w-3 text-indigo-500" />
-                  {formatDuration(paperDetails.duration)}
+                  <span className="hidden sm:inline">{formatDuration(paperDetails.duration)}</span>
                 </span>
               ) : null}
-              {paperDetails.duration && paperDetails.totalMarks ? (
-                <span className="text-slate-300 text-[10px]">|</span>
-              ) : null}
               {paperDetails.totalMarks ? (
-                <span className="flex items-center gap-1 font-semibold text-slate-800 text-[11px]">
+                <span className="flex items-center gap-0.5 font-semibold text-slate-800 text-[11px]">
                   <Award className="h-3 w-3 text-amber-500" />
-                  {paperDetails.totalMarks} Marks
+                  {paperDetails.totalMarks}<span className="hidden sm:inline"> Marks</span>
                 </span>
               ) : null}
             </div>
@@ -141,10 +138,10 @@ export function ExamStepper({
               type="button"
               onClick={onOpenPreview}
               size="sm"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold h-7 px-2.5 rounded-lg shadow-2xs gap-1"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold h-7 px-2 sm:px-2.5 rounded-lg shadow-2xs gap-1"
             >
               <Eye className="w-3.5 h-3.5" />
-              <span>Live Preview</span>
+              <span className="hidden sm:inline">Live Preview</span>
             </Button>
           )}
         </div>
@@ -162,8 +159,8 @@ export function ExamStepper({
           </div>
         </div>
 
-        {/* Stepper items row */}
-        <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
+        {/* Stepper items row — icon+short-label column on mobile, icon+full-label row on sm+ */}
+        <div className="grid grid-cols-5 gap-1">
           {EXAM_STEPS.map((s) => {
             const isCompleted = s.id < currentStep;
             const isCurrent = s.id === currentStep;
@@ -175,64 +172,56 @@ export function ExamStepper({
                 key={s.id}
                 type="button"
                 disabled={!isClickable}
+                title={s.title}
                 onClick={() => isClickable && onStepClick?.(s.id)}
                 className={cn(
-                  "group relative flex items-center gap-2 rounded-xl py-1.5 px-2 sm:px-2.5 text-left transition-all border",
+                  "group relative flex flex-col sm:flex-row sm:items-center sm:gap-1.5 items-center rounded-xl py-1.5 px-1 sm:px-2 transition-all border",
                   isCurrent
                     ? "bg-blue-50/90 border-blue-300 shadow-2xs ring-1 ring-blue-500/20"
                     : isCompleted
                     ? "bg-slate-50 border-slate-200/80 hover:bg-slate-100/90 hover:border-slate-300 cursor-pointer"
-                    : "bg-white border-transparent opacity-50 cursor-not-allowed"
+                    : "bg-white border-transparent opacity-40 cursor-not-allowed"
                 )}
               >
                 {/* Step Circle Icon */}
                 <div
                   className={cn(
-                    "flex h-6 w-6 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-lg font-bold text-xs transition-all shadow-2xs",
+                    "flex h-6 w-6 shrink-0 items-center justify-center rounded-lg font-bold text-xs transition-all",
                     isCurrent
-                      ? "bg-blue-600 text-white shadow-blue-500/20"
+                      ? "bg-blue-600 text-white"
                       : isCompleted
                       ? "bg-emerald-500 text-white"
                       : "bg-slate-100 text-slate-400 border border-slate-200"
                   )}
                 >
                   {isCompleted ? (
-                    <CheckCircle2 className="h-3.5 w-3.5 stroke-[2.5]" />
+                    <CheckCircle2 className="h-3 w-3 stroke-[2.5]" />
                   ) : (
-                    <StepIcon className="h-3.5 w-3.5" />
+                    <StepIcon className="h-3 w-3" />
                   )}
                 </div>
 
-                {/* Step Label */}
+                {/* Short title — always visible below icon on mobile */}
+                <p className={cn(
+                  "text-[9px] font-semibold mt-0.5 leading-tight text-center sm:hidden line-clamp-1",
+                  isCurrent ? "text-blue-700" : isCompleted ? "text-emerald-600" : "text-slate-400"
+                )}>
+                  {s.shortTitle}
+                </p>
+
+                {/* Full label — sm+ only */}
                 <div className="min-w-0 flex-1 hidden sm:block">
-                  <div className="flex items-center gap-1 leading-none">
-                    <span
-                      className={cn(
-                        "text-[9px] font-bold uppercase tracking-wider",
-                        isCurrent
-                          ? "text-blue-600"
-                          : isCompleted
-                          ? "text-emerald-600"
-                          : "text-slate-400"
-                      )}
-                    >
-                      Step {s.id}
-                    </span>
-                    {isCompleted && (
-                      <span className="text-[9px] text-emerald-600 font-semibold">• Done</span>
-                    )}
-                  </div>
-                  <p
-                    className={cn(
-                      "truncate text-xs font-semibold mt-0.5",
-                      isCurrent
-                        ? "text-slate-900"
-                        : isCompleted
-                        ? "text-slate-700"
-                        : "text-slate-400"
-                    )}
-                  >
-                    {s.title}
+                  <span className={cn(
+                    "text-[9px] font-bold uppercase tracking-wider block leading-none",
+                    isCurrent ? "text-blue-600" : isCompleted ? "text-emerald-600" : "text-slate-400"
+                  )}>
+                    {isCompleted ? "✓ Done" : `Step ${s.id}`}
+                  </span>
+                  <p className={cn(
+                    "truncate text-[11px] font-semibold mt-0.5",
+                    isCurrent ? "text-slate-900" : isCompleted ? "text-slate-700" : "text-slate-400"
+                  )}>
+                    {s.shortTitle}
                   </p>
                 </div>
               </button>
