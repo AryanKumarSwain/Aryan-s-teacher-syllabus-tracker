@@ -172,4 +172,55 @@ export const examPaperController = {
       next(error);
     }
   },
+
+  async getExamNames(req: Request, res: Response, next: NextFunction) {
+    try {
+      const schoolId = getTenantId(req);
+      const template = await examPaperService.getTemplate(schoolId);
+      let examNames = ['Term 1', 'Term 2'];
+      if (template?.footerHtml) {
+        try {
+          const parsed = JSON.parse(template.footerHtml);
+          if (Array.isArray(parsed.examNames) && parsed.examNames.length > 0) {
+            examNames = parsed.examNames;
+          }
+        } catch {
+          // not json, keep default
+        }
+      }
+      sendSuccess(res, { examNames });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async updateExamNames(req: Request, res: Response, next: NextFunction) {
+    try {
+      const schoolId = getTenantId(req);
+      const { examNames } = req.body;
+      if (!Array.isArray(examNames)) {
+        return res.status(400).json({ error: 'examNames must be an array of strings' });
+      }
+      const cleanNames = examNames.map((n: any) => String(n).trim()).filter(Boolean);
+      const finalNames = cleanNames.length > 0 ? cleanNames : ['Term 1', 'Term 2'];
+
+      const existing = await examPaperService.getTemplate(schoolId);
+      let existingObj: Record<string, any> = {};
+      if (existing?.footerHtml) {
+        try {
+          existingObj = JSON.parse(existing.footerHtml);
+        } catch {
+          // ignore non-json
+        }
+      }
+      existingObj.examNames = finalNames;
+
+      await examPaperService.saveTemplate(schoolId, {
+        footerHtml: JSON.stringify(existingObj),
+      });
+      sendSuccess(res, { examNames: finalNames });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

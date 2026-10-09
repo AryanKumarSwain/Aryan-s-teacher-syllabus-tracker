@@ -324,7 +324,11 @@ export class GoogleDriveService {
     const subjectName = paper.subject?.name || 'General';
     const subjectFolderId = await this.findOrCreateFolder(accessToken, subjectName, classFolderId);
 
-    // 4. File Name formatting (includes teacher name)
+    // 4. Exam Name Subfolder (e.g. "Term 1", "PA 2")
+    const examFolderName = paper.examName.replace(/[/\\?%*:|"<>]/g, '_').trim() || 'General Exam';
+    const examFolderId = await this.findOrCreateFolder(accessToken, examFolderName, subjectFolderId);
+
+    // 5. File Name formatting (includes teacher name)
     const cleanExamName = paper.examName.replace(/[/\\?%*:|"<>]/g, '_').replace(/\s+/g, '_').trim();
     const rawTeacherName = paper.teacher?.user?.name?.trim();
     const cleanTeacherName = rawTeacherName ? rawTeacherName.replace(/[/\\?%*:|"<>]/g, '_').replace(/\s+/g, '_') : '';
@@ -343,16 +347,16 @@ export class GoogleDriveService {
         : `${cleanExamName}.pdf`;
     }
 
-    // 5. Upload PDF file
+    // 6. Upload PDF file into Exam Name folder
     const uploadedFile = await this.uploadFileToFolder(
       accessToken,
       finalFileName,
-      subjectFolderId,
+      examFolderId,
       pdfBuffer,
       'application/pdf',
     );
 
-    // 6. Update database with Drive links
+    // 7. Update database with Drive links
     await prisma.examPaper.update({
       where: { id: paperId },
       data: {
@@ -365,7 +369,7 @@ export class GoogleDriveService {
       fileId: uploadedFile.id,
       fileName: uploadedFile.name,
       webViewLink: uploadedFile.webViewLink,
-      folderPath: `${rootFolderName} / ${className} / ${subjectName}`,
+      folderPath: `${rootFolderName} / ${className} / ${subjectName} / ${examFolderName}`,
       classFolderName: className,
       subjectFolderName: subjectName,
     };

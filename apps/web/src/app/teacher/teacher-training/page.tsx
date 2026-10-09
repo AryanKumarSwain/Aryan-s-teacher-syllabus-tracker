@@ -27,7 +27,40 @@ import {
   Trash2,
   AlertTriangle,
   User,
+  Sparkles,
+  Layers,
+  GraduationCap
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+function Section({
+  title,
+  icon: Icon,
+  iconGradient = 'from-blue-600 to-indigo-600',
+  extra,
+  children,
+}: {
+  title: string;
+  icon: React.ElementType;
+  iconGradient?: string;
+  extra?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xs transition-all duration-200 hover:shadow-xs">
+      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-4 py-3 sm:px-5 sm:py-3">
+        <div className="flex items-center gap-2.5">
+          <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br ${iconGradient} text-white shadow-xs`}>
+            <Icon className="h-3.5 w-3.5 text-white" />
+          </div>
+          <h3 className="text-sm font-black tracking-tight text-[#0b1c30]">{title}</h3>
+        </div>
+        {extra && <div className="flex items-center">{extra}</div>}
+      </div>
+      <div className="p-4 sm:p-5">{children}</div>
+    </div>
+  );
+}
 
 export default function TeacherTrainingPage() {
   const [guidelinesOpen, setGuidelinesOpen] = useState(false);
@@ -111,32 +144,35 @@ export default function TeacherTrainingPage() {
 
   return (
     <DashboardShell title="My CPD Training">
-      <div className="space-y-6 pb-12">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="space-y-6 max-w-7xl mx-auto pb-12">
+        {/* Header - Matching Admin Dashboard Style */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#1a73e8] to-[#1558b0] text-white shadow-sm">
-                <Award className="h-5 w-5" />
-              </div>
-              <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-                My Teacher Training (CPD)
-              </h1>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-amber-700 border border-amber-200/80">
+                <Award className="h-3 w-3" /> CBSE CPD Mandate TRG-02/2025
+              </span>
+              <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600">
+                50 Hours Annual Target
+              </span>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              CBSE Notification TRG-02/2025 • Mandatory 50 Hours Continuous Professional Development
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-[#0b1c30] sm:text-3xl">
+              Teacher Continuous Professional Development
+            </h1>
+            <p className="mt-0.5 text-xs sm:text-sm text-slate-500 font-medium">
+              Track mandatory 50-hour professional development hours across CBSE & In-house institutional modules.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setGuidelinesOpen(true)}
-              className="text-xs flex items-center gap-1.5 border-gray-300"
+              className="text-xs font-bold rounded-xl border-slate-200 hover:bg-slate-50 gap-1.5"
             >
-              <BookOpen className="h-4 w-4 text-[#1a73e8]" />
-              CBSE Circular & Guidelines
+              <BookOpen className="h-3.5 w-3.5 text-blue-600" />
+              CBSE Guidelines
             </Button>
 
             <Button
@@ -144,191 +180,162 @@ export default function TeacherTrainingPage() {
               size="sm"
               onClick={handleDownloadSummary}
               disabled={!records.length}
-              className="text-xs flex items-center gap-1.5 border-gray-300"
+              className="text-xs font-bold rounded-xl border-slate-200 hover:bg-slate-50 gap-1.5"
             >
-              <Download className="h-4 w-4 text-emerald-600" />
+              <Download className="h-3.5 w-3.5 text-emerald-600" />
               Download Portfolio
             </Button>
 
             <Button
               size="sm"
               onClick={() => setLogDialogOpen(true)}
-              className="bg-[#1a73e8] hover:bg-[#1558b0] text-white text-xs flex items-center gap-1.5 shadow-sm"
+              className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl gap-1.5 shadow-xs hover:shadow"
             >
-              <Plus className="h-4 w-4" />
-              Log Completed Training
+              <Plus className="h-3.5 w-3.5" />
+              Log Training Record
             </Button>
           </div>
         </div>
 
-        {/* Hero Progress Banner (Yellow / Amber Gradient) */}
-        <div className="rounded-2xl border border-amber-400 bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 p-6 text-white shadow-md">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div className="space-y-2 max-w-xl">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider bg-black/20 text-white px-2.5 py-0.5 rounded-full backdrop-blur-sm">
-                  Annual 50-Hour Target
-                </span>
-                <span className="text-xs text-amber-100 font-medium">
-                  Academic Session 2025-26
-                </span>
-              </div>
-              <h2 className="text-3xl font-black text-white">
-                {effectiveTotal}{' '}
-                <span className="text-xl font-normal text-amber-100">
-                  / 50 Hours Completed
-                </span>
-              </h2>
-              {rawTotal > effectiveTotal && (
-                <p className="text-xs text-amber-100 font-medium">
-                  ({rawTotal}h total logged across CBSE & School)
+        {/* 4 Top KPI Stat Cards - Matching Admin Dashboard */}
+        <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
+          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Effective</p>
+                <p className="mt-1 text-2xl sm:text-3xl font-black text-[#0b1c30] tracking-tight">
+                  {effectiveTotal} <span className="text-sm font-bold text-slate-400">/ 50h</span>
                 </p>
-              )}
-              <p className="text-xs text-amber-50 leading-relaxed font-medium">
-                {isCompliant
-                  ? '🎉 Congratulations! You have successfully completed your mandatory 50 CPD hours for this academic year.'
-                  : `You need ${hoursRemaining} more hours to meet the CBSE Affiliation mandate (25h CBSE + 25h School required).`}
-              </p>
-            </div>
-
-            <div className="bg-black/20 backdrop-blur-md rounded-xl p-4 border border-white/25 min-w-[260px] text-right">
-              <div className="flex items-center justify-between text-xs font-semibold mb-1.5 text-amber-100">
-                <span>Overall Completion</span>
-                <span className="text-white text-sm font-bold">{totalProgress}%</span>
+                <p className="mt-1 text-[11px] font-semibold text-slate-400">{totalProgress}% completed</p>
               </div>
-              <DomainStackedProgressBar
-                domain1Hours={myCpd?.domain1Hours || 0}
-                domain2Hours={myCpd?.domain2Hours || 0}
-                domain3Hours={myCpd?.domain3Hours || 0}
-                totalHours={effectiveTotal}
-                targetHours={50}
-                className="bg-black/25"
-              />
-              <div className="flex items-center justify-between text-[11px] text-amber-100 mt-2">
-                <span>Status:</span>
-                <span className="font-bold text-white uppercase">
-                  {myCpd?.complianceStatus?.replace('_', ' ') || 'NOT STARTED'}
-                </span>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-xs">
+                <Award className="h-5 w-5" />
+              </div>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">CBSE Quota</p>
+                <p className="mt-1 text-2xl sm:text-3xl font-black text-blue-600 tracking-tight">
+                  {effectiveCbse} <span className="text-sm font-bold text-slate-400">/ 25h</span>
+                </p>
+                <p className="mt-1 text-[11px] font-semibold text-slate-400">COE & Regional</p>
+              </div>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xs">
+                <Building className="h-5 w-5" />
+              </div>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">School Quota</p>
+                <p className="mt-1 text-2xl sm:text-3xl font-black text-purple-600 tracking-tight">
+                  {effectiveSchool} <span className="text-sm font-bold text-slate-400">/ 25h</span>
+                </p>
+                <p className="mt-1 text-[11px] font-semibold text-slate-400">In-house & Duties</p>
+              </div>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-xs">
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Compliance</p>
+                <p className={cn(
+                  "mt-1 text-xl sm:text-2xl font-black tracking-tight",
+                  isCompliant ? "text-emerald-600" : "text-amber-600"
+                )}>
+                  {isCompliant ? 'COMPLIANT' : `${hoursRemaining}h Needed`}
+                </p>
+                <p className="mt-1 text-[11px] font-semibold text-slate-400">Affiliation status</p>
+              </div>
+              <div className={cn(
+                "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white shadow-xs",
+                isCompliant
+                  ? "bg-gradient-to-br from-emerald-500 to-teal-600"
+                  : "bg-gradient-to-br from-amber-500 to-orange-500"
+              )}>
+                {isCompliant ? <CheckCircle2 className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Quota Distribution Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Card 1: CBSE Quota (25h) */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                  <Building className="h-4 w-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-gray-900">CBSE Quota</h3>
-                  <p className="text-[11px] text-gray-500">COE & Regional Institutes</p>
-                </div>
-              </div>
-              <Badge
-                variant="outline"
-                className={
-                  (myCpd?.cbseHours || 0) >= 25
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                    : 'bg-blue-50 text-blue-700 border-blue-200'
-                }
-              >
-                {myCpd?.cbseHours || 0} / 25 Hours
-              </Badge>
-            </div>
-            <Progress value={myCpd?.cbseProgress || 0} className="h-2 bg-blue-50" />
-            <p className="text-[11px] text-gray-500">
-              Must be organized by CBSE COE / Training Institutes on Annexure topics.
-            </p>
-          </div>
-
-          {/* Card 2: School Quota (25h) */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                  <CheckCircle2 className="h-4 w-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-gray-900">School / In-house Quota</h3>
-                  <p className="text-[11px] text-gray-500">In-house, Sahodaya & Duties</p>
-                </div>
-              </div>
-              <Badge
-                variant="outline"
-                className={
-                  (myCpd?.schoolHours || 0) >= 25
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                    : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                }
-              >
-                {myCpd?.schoolHours || 0} / 25 Hours
-              </Badge>
-            </div>
-            <Progress value={myCpd?.schoolProgress || 0} className="h-2 bg-emerald-50" />
-            <p className="text-[11px] text-gray-500">
-              Includes in-house workshops, Sahodaya, and eligible academic duties (up to 11h).
-            </p>
-          </div>
-        </div>
-
-        {/* 3 NPST Domains Cards */}
-        <div className="border border-gray-200 rounded-2xl bg-gray-50/50 p-4">
-          <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-3">
-            3 NPST Standards / Domains Progress
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
+        {/* 3 NPST Standards Cards Section */}
+        <Section
+          title="NPST Professional Standards Breakdown (50h Total)"
+          icon={Layers}
+          iconGradient="from-indigo-600 to-blue-600"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 shadow-2xs space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-gray-900">Domain 1: Core Values</span>
-                <span className="font-black text-indigo-600">{myCpd?.domain1Hours || 0} / 12h</span>
+                <span className="font-bold text-[#0b1c30]">Domain 1: Core Values</span>
+                <span className="font-black text-indigo-600">{effectiveD1} / 12h</span>
               </div>
-              <Progress value={myCpd?.domain1Progress || 0} className="h-1.5 mt-2" />
-              <p className="text-[10px] text-gray-400 mt-1">Ethics, Wellness, Inclusion (Annexure-I)</p>
+              <div className="relative h-2 w-full overflow-hidden rounded-full bg-slate-200/60">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-indigo-600 transition-all duration-700"
+                  style={{ width: `${Math.min(100, Math.round((effectiveD1 / 12) * 100))}%` }}
+                />
+              </div>
+              <p className="text-[11px] text-slate-500 font-medium">Ethics, Wellness, Child Protection (Annexure-I)</p>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
+            <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 shadow-2xs space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-gray-900">Domain 2: Practice</span>
-                <span className="font-black text-sky-600">{myCpd?.domain2Hours || 0} / 24h</span>
+                <span className="font-bold text-[#0b1c30]">Domain 2: Practice</span>
+                <span className="font-black text-sky-600">{effectiveD2} / 24h</span>
               </div>
-              <Progress value={myCpd?.domain2Progress || 0} className="h-1.5 mt-2" />
-              <p className="text-[10px] text-gray-400 mt-1">Subject & Pedagogy (Annexure-II)</p>
+              <div className="relative h-2 w-full overflow-hidden rounded-full bg-slate-200/60">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-sky-500 to-blue-600 transition-all duration-700"
+                  style={{ width: `${Math.min(100, Math.round((effectiveD2 / 24) * 100))}%` }}
+                />
+              </div>
+              <p className="text-[11px] text-slate-500 font-medium">Curriculum, Pedagogy, Tech Integration (Annexure-II)</p>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
+            <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 shadow-2xs space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-gray-900">Domain 3: Growth</span>
-                <span className="font-black text-emerald-600">{myCpd?.domain3Hours || 0} / 14h</span>
+                <span className="font-bold text-[#0b1c30]">Domain 3: Growth</span>
+                <span className="font-black text-emerald-600">{effectiveD3} / 14h</span>
               </div>
-              <Progress value={myCpd?.domain3Progress || 0} className="h-1.5 mt-2" />
-              <p className="text-[10px] text-gray-400 mt-1">NCF, NEP & Duties (Annexure-III)</p>
+              <div className="relative h-2 w-full overflow-hidden rounded-full bg-slate-200/60">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 transition-all duration-700"
+                  style={{ width: `${Math.min(100, Math.round((effectiveD3 / 14) * 100))}%` }}
+                />
+              </div>
+              <p className="text-[11px] text-slate-500 font-medium">NCF, NEP 2020, Research & Duties (Annexure-III)</p>
             </div>
           </div>
-        </div>
+        </Section>
 
-        {/* Training Records History */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-gray-100 pb-3">
-            <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
-              <Clock className="h-4 w-4 text-[#1a73e8]" />
-              My Training History ({records.length})
-            </h3>
-
-            {/* Filter Tabs */}
-            <div className="flex items-center gap-1.5 text-xs">
+        {/* Training Records History Section */}
+        <Section
+          title="CPD Training Portfolio & Activity Records"
+          icon={Clock}
+          iconGradient="from-blue-600 to-indigo-600"
+          extra={
+            <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl text-xs font-bold">
               {(['ALL', 'CBSE', 'SCHOOL', 'ACADEMIC'] as const).map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setCategoryFilter(cat)}
-                  className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
+                  className={cn(
+                    'px-2.5 py-1 rounded-lg transition-all',
                     categoryFilter === cat
-                      ? 'bg-[#1a73e8] text-white shadow-xs'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
+                      ? 'bg-white text-slate-900 shadow-2xs'
+                      : 'text-slate-500 hover:text-slate-800'
+                  )}
                 >
                   {cat === 'ALL'
                     ? 'All'
@@ -336,70 +343,68 @@ export default function TeacherTrainingPage() {
                     ? 'CBSE (25h)'
                     : cat === 'SCHOOL'
                     ? 'School (25h)'
-                    : 'Academic Duties'}
+                    : 'Duties'}
                 </button>
               ))}
             </div>
-          </div>
-
+          }
+        >
           {isLoading ? (
-            <div className="py-12 text-center text-xs text-gray-500">Loading your CPD records...</div>
+            <div className="py-12 text-center text-xs text-slate-400">Loading your CPD records...</div>
           ) : filteredRecords.length === 0 ? (
-            <div className="py-12 text-center border border-dashed border-gray-200 rounded-xl">
-              <Clock className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-              <p className="text-xs font-semibold text-gray-700">No training records found</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">
-                Click "Log Completed Training" to record your completed workshops and webinars.
-              </p>
+            <div className="py-12 text-center border border-dashed border-slate-200 rounded-2xl">
+              <Clock className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm font-bold text-slate-700">No training records found</p>
+              <p className="text-xs text-slate-400 mt-0.5">Click &apos;Log Training Record&apos; to add your completed workshops and certifications.</p>
               <Button
                 size="sm"
                 onClick={() => setLogDialogOpen(true)}
-                className="mt-3 bg-[#1a73e8] hover:bg-[#1558b0] text-white text-xs"
+                className="mt-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl"
               >
                 <Plus className="h-3.5 w-3.5 mr-1" />
                 Log First Training
               </Button>
             </div>
           ) : (
-            <div className="space-y-2.5">
+            <div className="space-y-3">
               {filteredRecords.map((rec) => {
                 const domainMeta = DOMAIN_INFO[rec.domain];
                 return (
                   <div
                     key={rec.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border border-gray-200 bg-white hover:border-gray-300 transition-colors gap-3"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-slate-200/90 bg-white shadow-2xs hover:border-slate-300 transition-all gap-3.5"
                   >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-gray-900">{rec.title}</span>
+                    <div className="space-y-1.5 min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-bold text-[#0b1c30]">{rec.title}</span>
                         {rec.annexure && (
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                          <Badge variant="outline" className="text-[10px] px-2 py-0.5 border-slate-200 bg-slate-50 text-slate-600">
                             {rec.annexure.replace('_', ' ')}
                           </Badge>
                         )}
                         <Badge
                           variant="outline"
-                          className={`text-[10px] px-1.5 py-0 ${domainMeta?.badgeClass || ''}`}
+                          className={cn('text-[10px] px-2 py-0.5', domainMeta?.badgeClass || '')}
                         >
                           {domainMeta?.title.split(':')[0] || 'CPD'}
                         </Badge>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-500">
+                      <div className="flex flex-wrap items-center gap-2.5 text-xs text-slate-500 font-medium">
                         <span className="flex items-center gap-1">
-                          <Building className="h-3 w-3" />
+                          <Building className="h-3.5 w-3.5 text-slate-400" />
                           {rec.provider}
                         </span>
                         <span>•</span>
                         <span className="flex items-center gap-1">
-                          <Laptop className="h-3 w-3" />
+                          <Laptop className="h-3.5 w-3.5 text-slate-400" />
                           {rec.trainingMode}
                         </span>
                         {rec.startDate && (
                           <>
                             <span>•</span>
                             <span className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
+                              <Calendar className="h-3.5 w-3.5 text-slate-400" />
                               {new Date(rec.startDate).toLocaleDateString()}
                             </span>
                           </>
@@ -407,8 +412,8 @@ export default function TeacherTrainingPage() {
                         {rec.resourcePerson && (
                           <>
                             <span>•</span>
-                            <span className="flex items-center gap-1 text-gray-700">
-                              <User className="h-3 w-3 text-gray-400" />
+                            <span className="flex items-center gap-1 text-slate-700">
+                              <User className="h-3.5 w-3.5 text-slate-400" />
                               RP: {rec.resourcePerson}
                             </span>
                           </>
@@ -416,8 +421,8 @@ export default function TeacherTrainingPage() {
                         {rec.certificateNumber && (
                           <>
                             <span>•</span>
-                            <span className="flex items-center gap-1 text-[#1a73e8] font-medium">
-                              <ShieldCheck className="h-3 w-3" />
+                            <span className="flex items-center gap-1 text-blue-600 font-semibold">
+                              <ShieldCheck className="h-3.5 w-3.5" />
                               Cert: {rec.certificateNumber}
                             </span>
                           </>
@@ -427,26 +432,35 @@ export default function TeacherTrainingPage() {
 
                     <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
                       <div className="text-right">
-                        <span className="text-sm font-black text-gray-900">{Number(rec.hours)}h</span>
+                        <span className="text-base font-black text-[#0b1c30]">{Number(rec.hours)}h</span>
                         {rec.status === 'SUBMITTED' ? (
-                          <p className="text-[10px] text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                          <p className="text-[10px] text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 mt-0.5">
                             Pending Approval
                           </p>
                         ) : rec.status === 'REJECTED' ? (
-                          <p className="text-[10px] text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded-full border border-red-200">
+                          <p className="text-[10px] text-rose-700 font-bold bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200 mt-0.5">
                             Rejected
                           </p>
                         ) : (
-                          <p className="text-[10px] text-emerald-600 font-medium">Verified</p>
+                          <p className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 mt-0.5">Verified</p>
                         )}
                       </div>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(rec.id)}
+                        className="text-xs h-8 rounded-xl border-slate-200 text-rose-600 hover:bg-rose-50 hover:border-rose-200"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
                   </div>
                 );
               })}
             </div>
           )}
-        </div>
+        </Section>
       </div>
 
       {/* Guidelines Modal */}

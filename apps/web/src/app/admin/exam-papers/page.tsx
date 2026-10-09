@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, FileText, Download, CheckCircle2, Eye, Edit3, Upload, Image as ImageIcon, Trash2, CloudUpload, ExternalLink, RefreshCw, AlertTriangle, HardDrive } from 'lucide-react';
+import { Loader2, FileText, Download, CheckCircle2, Eye, Edit3, Upload, Image as ImageIcon, Trash2, CloudUpload, ExternalLink, RefreshCw, AlertTriangle, HardDrive, GraduationCap, Plus, X } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -94,6 +94,49 @@ export default function AdminExamPapersPage() {
     queryFn: () => api.get<{ id?: string; logoUrl?: string | null }>('/exam-papers/template'),
     staleTime: 60000,
   });
+
+  const [newExamNameInput, setNewExamNameInput] = useState('');
+
+  const { data: examNamesData, isLoading: isLoadingExamNames } = useQuery({
+    queryKey: ['admin-exam-names'],
+    queryFn: () => api.get<{ examNames: string[] }>('/exam-papers/exam-names'),
+  });
+
+  const examNames = examNamesData?.examNames || ['Term 1', 'Term 2'];
+
+  const updateExamNamesMutation = useMutation({
+    mutationFn: (newNames: string[]) => api.post('/exam-papers/exam-names', { examNames: newNames }),
+    onSuccess: (data: any) => {
+      queryClient.setQueryData(['admin-exam-names'], data);
+      queryClient.invalidateQueries({ queryKey: ['admin-exam-names'] });
+      toast.success('Exam types updated successfully');
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || 'Failed to update exam names');
+    },
+  });
+
+  const handleAddExamName = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const clean = newExamNameInput.trim();
+    if (!clean) return;
+    if (examNames.some((n) => n.toLowerCase() === clean.toLowerCase())) {
+      toast.error('This exam name already exists');
+      return;
+    }
+    const updated = [...examNames, clean];
+    updateExamNamesMutation.mutate(updated);
+    setNewExamNameInput('');
+  };
+
+  const handleRemoveExamName = (nameToRemove: string) => {
+    if (examNames.length <= 1) {
+      toast.error('At least one exam name is required');
+      return;
+    }
+    const updated = examNames.filter((n) => n !== nameToRemove);
+    updateExamNamesMutation.mutate(updated);
+  };
 
   const [connectingDrive, setConnectingDrive] = useState(false);
   const [disconnectingDrive, setDisconnectingDrive] = useState(false);
@@ -573,10 +616,10 @@ export default function AdminExamPapersPage() {
           </div>
         </div>
 
-        {/* Integration Hub: School Logo & Google Drive */}
-        <div className="grid gap-3.5 lg:grid-cols-2">
+        {/* Integration Hub: 50% School Logo & 50% Exam Names */}
+        <div className="grid gap-3.5 md:grid-cols-2">
 
-          {/* School Logo Section (Synced with Settings & Navbar) */}
+          {/* 50% Left: School Header Logo */}
           <div className="flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs hover:border-slate-300 transition-all">
             <div>
               <div className="flex items-start justify-between gap-3">
@@ -658,185 +701,269 @@ export default function AdminExamPapersPage() {
             </div>
           </div>
 
-          {/* Google Drive Integration Banner */}
-          <div className={cn(
-            "flex flex-col justify-between rounded-2xl border p-4 shadow-xs transition-all",
-            driveStatus?.storage?.isCritical
-              ? "border-red-300 bg-gradient-to-br from-red-50/40 via-white to-white"
-              : driveStatus?.storage?.isNearFull
-              ? "border-amber-300 bg-gradient-to-br from-amber-50/40 via-white to-white"
-              : "border-emerald-200/80 bg-gradient-to-br from-emerald-50/30 via-white to-white"
-          )}>
+          {/* 50% Right: Standard Exam Names / Types */}
+          <div className="flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs hover:border-slate-300 transition-all">
             <div>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className={cn(
-                    "h-11 w-11 rounded-xl border bg-white p-2 flex items-center justify-center shadow-2xs shrink-0",
-                    driveStatus?.storage?.isCritical
-                      ? "border-red-200"
-                      : driveStatus?.storage?.isNearFull
-                      ? "border-amber-200"
-                      : "border-emerald-200"
-                  )}>
-                    <GoogleDriveIcon className="h-6 w-6" />
+                  <div className="h-11 w-11 rounded-xl border border-slate-200/80 bg-indigo-50/70 p-1 flex items-center justify-center shadow-2xs overflow-hidden shrink-0 text-indigo-600">
+                    <GraduationCap className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-xs font-bold text-slate-900 truncate">Google Drive Auto-Sync</h3>
-                      {loadingDriveStatus ? (
-                        <span className="text-[10px] bg-slate-100 text-slate-500 font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <Loader2 className="h-2.5 w-2.5 animate-spin" /> Checking
-                        </span>
-                      ) : driveStatus?.connected ? (
-                        <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse"></span> Connected
-                        </span>
-                      ) : (
-                        <span className="text-[10px] bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">
-                          Not Connected
-                        </span>
-                      )}
+                      <h3 className="text-xs font-bold text-slate-900 truncate">Exam Names &amp; Types</h3>
+                      <span className="text-[10px] bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold px-2 py-0.5 rounded-full">
+                        {isLoadingExamNames ? '...' : `${examNames.length} Active`}
+                      </span>
                     </div>
                     <p className="text-[11px] text-slate-500 mt-0.5 truncate">
-                      {driveStatus?.connected
-                        ? `Connected: ${driveStatus.email || 'School Admin'}`
-                        : 'Auto-syncs exam papers into class & subject folders'}
+                      Synced with teacher exam creation dropdown
                     </p>
                   </div>
                 </div>
+              </div>
 
-                <div className="flex items-center gap-1.5 shrink-0">
-                  {driveStatus?.connected ? (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={connectingDrive || disconnectingDrive}
-                        onClick={handleConnectDrive}
-                        className="text-xs h-8 rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-50 border-slate-200 gap-1.5 shadow-2xs font-medium"
-                        title="Switch to another Google account"
-                      >
-                        {connectingDrive ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5 text-slate-500" />}
-                        Switch Account
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={disconnectingDrive}
-                        onClick={handleDisconnectDrive}
-                        className="text-xs h-8 rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50 px-2.5"
-                        title="Disconnect Drive"
-                      >
-                        {disconnectingDrive ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Disconnect'}
-                      </Button>
-                    </>
+              {/* Add Exam Name Input */}
+              <form onSubmit={handleAddExamName} className="mt-3 flex items-center gap-2">
+                <Input
+                  placeholder="Add exam name (e.g. Unit Test 1)..."
+                  value={newExamNameInput}
+                  onChange={(e) => setNewExamNameInput(e.target.value)}
+                  className="text-xs h-8 rounded-xl border-slate-200 focus-visible:ring-indigo-500"
+                  disabled={updateExamNamesMutation.isPending}
+                />
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={!newExamNameInput.trim() || updateExamNamesMutation.isPending}
+                  className="text-xs h-8 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium shrink-0 gap-1 px-3 shadow-2xs"
+                >
+                  {updateExamNamesMutation.isPending ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   ) : (
-                    <Button
-                      size="sm"
-                      disabled={connectingDrive || loadingDriveStatus}
-                      onClick={handleConnectDrive}
-                      className="text-xs h-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 shadow-2xs font-medium"
-                    >
-                      {connectingDrive ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <GoogleDriveIcon className="h-3.5 w-3.5" />
-                      )}
-                      Connect Drive
-                    </Button>
+                    <Plus className="h-3.5 w-3.5" />
                   )}
-                </div>
+                  Add Exam
+                </Button>
+              </form>
+
+              {/* Exam Badges */}
+              <div className="mt-2.5 flex flex-wrap gap-1.5 min-h-[30px] items-center">
+                {isLoadingExamNames ? (
+                  <div className="flex items-center gap-1.5 text-xs text-slate-400 py-1">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <span>Loading exams...</span>
+                  </div>
+                ) : (
+                  examNames.map((name) => (
+                    <span
+                      key={name}
+                      className="inline-flex items-center gap-1.5 text-[11px] font-semibold bg-slate-100/90 text-slate-800 border border-slate-200/80 rounded-lg px-2.5 py-1 transition-all hover:border-slate-300"
+                    >
+                      {name}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveExamName(name)}
+                        disabled={updateExamNamesMutation.isPending}
+                        className="text-slate-400 hover:text-red-600 p-0.5 -mr-0.5 transition-colors rounded hover:bg-red-50"
+                        title={`Remove ${name}`}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))
+                )}
               </div>
             </div>
 
-            <div className="mt-3 pt-2.5 border-t border-slate-100">
-              {driveStatus?.connected && driveStatus.storage ? (
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 text-slate-700">
-                      <HardDrive className="h-3.5 w-3.5 text-slate-500 shrink-0" />
-                      <span className="font-medium text-[11px]">Storage:</span>
-                      <span className="font-bold text-[11px] text-slate-900">
-                        {driveStatus.storage.formattedUsage}
-                        {driveStatus.storage.formattedLimit ? ` / ${driveStatus.storage.formattedLimit}` : ''}
+            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                Synced with Teacher Paper Creator
+              </span>
+              <span className="text-[10px] text-slate-400 font-medium">Default: Term 1, Term 2</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Google Drive Integration Banner */}
+        <div className={cn(
+          "flex flex-col justify-between rounded-2xl border p-4 shadow-xs transition-all",
+          driveStatus?.storage?.isCritical
+            ? "border-red-300 bg-gradient-to-br from-red-50/40 via-white to-white"
+            : driveStatus?.storage?.isNearFull
+            ? "border-amber-300 bg-gradient-to-br from-amber-50/40 via-white to-white"
+            : "border-emerald-200/80 bg-gradient-to-br from-emerald-50/30 via-white to-white"
+        )}>
+          <div>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className={cn(
+                  "h-11 w-11 rounded-xl border bg-white p-2 flex items-center justify-center shadow-2xs shrink-0",
+                  driveStatus?.storage?.isCritical
+                    ? "border-red-200"
+                    : driveStatus?.storage?.isNearFull
+                    ? "border-amber-200"
+                    : "border-emerald-200"
+                )}>
+                  <GoogleDriveIcon className="h-6 w-6" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xs font-bold text-slate-900 truncate">Google Drive Auto-Sync</h3>
+                    {loadingDriveStatus ? (
+                      <span className="text-[10px] bg-slate-100 text-slate-500 font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <Loader2 className="h-2.5 w-2.5 animate-spin" /> Checking
                       </span>
-                      {driveStatus.storage.percent !== undefined && (
-                        <span className="text-[10px] text-slate-500 font-normal">
-                          ({driveStatus.storage.percent}% used)
-                        </span>
-                      )}
-                    </div>
-                    {driveStatus.storage.percent !== undefined && (
-                      <span className={cn(
-                        "text-[10px] font-bold px-2 py-0.5 rounded-full",
-                        driveStatus.storage.isCritical
-                          ? "bg-red-100 text-red-700"
-                          : driveStatus.storage.isNearFull
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-emerald-100 text-emerald-700"
-                      )}>
-                        {Math.max(0, 100 - driveStatus.storage.percent)}% free
+                    ) : driveStatus?.connected ? (
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse"></span> Connected
+                      </span>
+                    ) : (
+                      <span className="text-[10px] bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">
+                        Not Connected
                       </span>
                     )}
                   </div>
-
-                  {driveStatus.storage.percent !== undefined && (
-                    <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden border border-slate-200/60">
-                      <div
-                        className={cn(
-                          "h-full rounded-full transition-all duration-500",
-                          driveStatus.storage.isCritical
-                            ? "bg-red-500 animate-pulse"
-                            : driveStatus.storage.isNearFull
-                            ? "bg-amber-500"
-                            : "bg-gradient-to-r from-emerald-500 to-teal-500"
-                        )}
-                        style={{ width: `${Math.min(100, Math.max(3, driveStatus.storage.percent))}%` }}
-                      />
-                    </div>
-                  )}
-
-                  {driveStatus.storage.isNearFull && (
-                    <div className={cn(
-                      "flex items-center justify-between gap-2 p-1.5 px-2 rounded-lg border text-[11px] mt-1.5 animate-fadeIn",
-                      driveStatus.storage.isCritical
-                        ? "bg-red-50 border-red-200 text-red-900"
-                        : "bg-amber-50 border-amber-200 text-amber-900"
-                    )}>
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <AlertTriangle className={cn(
-                          "h-3.5 w-3.5 shrink-0",
-                          driveStatus.storage.isCritical ? "text-red-600" : "text-amber-600"
-                        )} />
-                        <span className="truncate font-medium">
-                          {driveStatus.storage.isCritical ? "Storage critical! Switch email" : "Storage running low! Switch email"}
-                        </span>
-                      </div>
-                      <Button
-                        size="sm"
-                        onClick={handleConnectDrive}
-                        disabled={connectingDrive}
-                        className={cn(
-                          "h-5 px-2 text-[10px] font-bold shrink-0 gap-1 rounded-md",
-                          driveStatus.storage.isCritical ? "bg-red-600 text-white" : "bg-amber-600 text-white"
-                        )}
-                      >
-                        <RefreshCw className="h-2.5 w-2.5" />
-                        Switch
-                      </Button>
-                    </div>
-                  )}
+                  <p className="text-[11px] text-slate-500 mt-0.5 truncate">
+                    {driveStatus?.connected
+                      ? `Connected: ${driveStatus.email || 'School Admin'}`
+                      : 'Auto-syncs exam papers into Class > Subject > Exam folders'}
+                  </p>
                 </div>
-              ) : (
-                <div className="flex items-center justify-between text-[11px] text-slate-500">
-                  <span className="flex items-center gap-1.5">
-                    <CloudUpload className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                    Auto-creates Classwise &gt; Subjectwise folders
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-medium">Auto-Sync</span>
-                </div>
-              )}
+              </div>
+
+              <div className="flex items-center gap-1.5 shrink-0">
+                {driveStatus?.connected ? (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={connectingDrive || disconnectingDrive}
+                      onClick={handleConnectDrive}
+                      className="text-xs h-8 rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-50 border-slate-200 gap-1.5 shadow-2xs font-medium"
+                      title="Switch to another Google account"
+                    >
+                      {connectingDrive ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5 text-slate-500" />}
+                      Switch Account
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={disconnectingDrive}
+                      onClick={handleDisconnectDrive}
+                      className="text-xs h-8 rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50 px-2.5"
+                      title="Disconnect Drive"
+                    >
+                      {disconnectingDrive ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Disconnect'}
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    size="sm"
+                    disabled={connectingDrive || loadingDriveStatus}
+                    onClick={handleConnectDrive}
+                    className="text-xs h-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 shadow-2xs font-medium"
+                  >
+                    {connectingDrive ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <GoogleDriveIcon className="h-3.5 w-3.5" />
+                    )}
+                    Connect Drive
+                  </Button>
+                )}
+              </div>
             </div>
+          </div>
+
+          <div className="mt-3 pt-2.5 border-t border-slate-100">
+            {driveStatus?.connected && driveStatus.storage ? (
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5 text-slate-700">
+                    <HardDrive className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+                    <span className="font-medium text-[11px]">Storage:</span>
+                    <span className="font-bold text-[11px] text-slate-900">
+                      {driveStatus.storage.formattedUsage}
+                      {driveStatus.storage.formattedLimit ? ` / ${driveStatus.storage.formattedLimit}` : ''}
+                    </span>
+                    {driveStatus.storage.percent !== undefined && (
+                      <span className="text-[10px] text-slate-500 font-normal">
+                        ({driveStatus.storage.percent}% used)
+                      </span>
+                    )}
+                  </div>
+                  {driveStatus.storage.percent !== undefined && (
+                    <span className={cn(
+                      "text-[10px] font-bold px-2 py-0.5 rounded-full",
+                      driveStatus.storage.isCritical
+                        ? "bg-red-100 text-red-700"
+                        : driveStatus.storage.isNearFull
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-emerald-100 text-emerald-700"
+                    )}>
+                      {Math.max(0, 100 - driveStatus.storage.percent)}% free
+                    </span>
+                  )}
+                </div>
+
+                {driveStatus.storage.percent !== undefined && (
+                  <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden border border-slate-200/60">
+                    <div
+                      className={cn(
+                        "h-full rounded-full transition-all duration-500",
+                        driveStatus.storage.isCritical
+                          ? "bg-red-500 animate-pulse"
+                          : driveStatus.storage.isNearFull
+                          ? "bg-amber-500"
+                          : "bg-gradient-to-r from-emerald-500 to-teal-500"
+                      )}
+                      style={{ width: `${Math.min(100, Math.max(3, driveStatus.storage.percent))}%` }}
+                    />
+                  </div>
+                )}
+
+                {driveStatus.storage.isNearFull && (
+                  <div className={cn(
+                    "flex items-center justify-between gap-2 p-1.5 px-2 rounded-lg border text-[11px] mt-1.5 animate-fadeIn",
+                    driveStatus.storage.isCritical
+                      ? "bg-red-50 border-red-200 text-red-900"
+                      : "bg-amber-50 border-amber-200 text-amber-900"
+                  )}>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <AlertTriangle className={cn(
+                        "h-3.5 w-3.5 shrink-0",
+                        driveStatus.storage.isCritical ? "text-red-600" : "text-amber-600"
+                      )} />
+                      <span className="truncate font-medium">
+                        {driveStatus.storage.isCritical ? "Storage critical! Switch email" : "Storage running low! Switch email"}
+                      </span>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={handleConnectDrive}
+                      disabled={connectingDrive}
+                      className={cn(
+                        "h-5 px-2 text-[10px] font-bold shrink-0 gap-1 rounded-md",
+                        driveStatus.storage.isCritical ? "bg-red-600 text-white" : "bg-amber-600 text-white"
+                      )}
+                    >
+                      <RefreshCw className="h-2.5 w-2.5" />
+                      Switch
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center justify-between text-[11px] text-slate-500">
+                <span className="flex items-center gap-1.5">
+                  <CloudUpload className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                  Auto-creates: Class &gt; Subject &gt; Exam folders
+                </span>
+                <span className="text-[10px] text-slate-400 font-medium">Auto-Sync</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1042,7 +1169,7 @@ export default function AdminExamPapersPage() {
                           <p className="text-xs text-gray-500 mb-2">
                             Auto-syncs into: <br />
                             <span className="font-semibold text-emerald-800 break-all text-[11px]">
-                              Exam Papers &gt; {paper.class.name} &gt; {paper.subject.name}
+                              Exam Papers &gt; {paper.class.name} &gt; {paper.subject.name} &gt; {paper.examName}
                             </span>
                           </p>
                         </div>

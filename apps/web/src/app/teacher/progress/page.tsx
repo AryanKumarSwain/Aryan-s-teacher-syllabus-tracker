@@ -12,13 +12,13 @@ import {
   Target,
   Calendar,
   Info,
+  GraduationCap,
+  Layers,
+  Sparkles,
+  Zap,
 } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { api } from '@/services/api-client';
 import { useAuthStore } from '@/store/auth-store';
 import { cn } from '@/lib/utils';
@@ -80,34 +80,63 @@ const velocityConfig = {
   less: {
     label: 'Behind',
     fullLabel: 'Behind schedule',
-    color: 'text-red-600',
-    bg: 'bg-red-50 border-red-200',
-    badge: 'bg-red-100 text-red-700 border-red-200',
-    bar: 'bg-red-400',
+    color: 'text-rose-700',
+    bg: 'bg-rose-50 border-rose-200',
+    badge: 'bg-rose-100 text-rose-800 border-rose-200',
+    bar: 'from-rose-500 to-red-600',
     icon: TrendingDown,
-    dot: 'bg-red-500',
+    dot: 'bg-rose-500',
   },
   neutral: {
     label: 'On Pace',
     fullLabel: 'On pace',
-    color: 'text-amber-600',
+    color: 'text-amber-700',
     bg: 'bg-amber-50 border-amber-200',
-    badge: 'bg-amber-100 text-amber-700 border-amber-200',
-    bar: 'bg-amber-400',
+    badge: 'bg-amber-100 text-amber-800 border-amber-200',
+    bar: 'from-amber-400 to-orange-500',
     icon: Minus,
     dot: 'bg-amber-500',
   },
   more: {
     label: 'Ahead',
     fullLabel: 'Ahead of schedule',
-    color: 'text-emerald-600',
+    color: 'text-emerald-700',
     bg: 'bg-emerald-50 border-emerald-200',
-    badge: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    bar: 'bg-emerald-400',
+    badge: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+    bar: 'from-emerald-500 to-teal-600',
     icon: TrendingUp,
     dot: 'bg-emerald-500',
   },
 };
+
+function Section({
+  title,
+  icon: Icon,
+  iconGradient = 'from-blue-600 to-indigo-600',
+  extra,
+  children,
+}: {
+  title: string;
+  icon: React.ElementType;
+  iconGradient?: string;
+  extra?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xs transition-all duration-200 hover:shadow-xs">
+      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-4 py-3 sm:px-5 sm:py-3">
+        <div className="flex items-center gap-2.5">
+          <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br ${iconGradient} text-white shadow-xs`}>
+            <Icon className="h-3.5 w-3.5 text-white" />
+          </div>
+          <h3 className="text-sm font-black tracking-tight text-[#0b1c30]">{title}</h3>
+        </div>
+        {extra && <div className="flex items-center">{extra}</div>}
+      </div>
+      <div className="p-4 sm:p-5">{children}</div>
+    </div>
+  );
+}
 
 export default function TeacherProgressPage() {
   const user = useAuthStore((s) => s.user);
@@ -128,7 +157,6 @@ export default function TeacherProgressPage() {
           ...(academicSessionId && { academicSessionId }),
         })
         .then((res) => {
-          // Handle variations in api delivery formats safely
           return Array.isArray(res) ? res : (res as any).items || [];
         }),
     enabled: !!schoolId,
@@ -160,574 +188,371 @@ export default function TeacherProgressPage() {
   const rawSubjectProgress = progressionData?.subjectProgress ?? [];
   const timeline = timelineData?.data;
 
-  // Re-evaluate velocity dynamically relative to Timeline target progress threshold
   const subjectProgress = useMemo(() => {
-    if (!timeline) return rawSubjectProgress;
+    if (!selectedClassId || selectedClassId === 'all') return rawSubjectProgress;
+    return rawSubjectProgress.filter((s) => s.classId === selectedClassId);
+  }, [rawSubjectProgress, selectedClassId]);
 
-    const target = timeline.progress.targetProgress;
-
-    return rawSubjectProgress.map((subject) => {
-      let calculatedVelocity: 'less' | 'neutral' | 'more' = 'neutral';
-
-      if (subject.percentageComplete < target) {
-        calculatedVelocity = 'less';
-      } else if (subject.percentageComplete > target) {
-        calculatedVelocity = 'more';
-      }
-
-      return {
-        ...subject,
-        velocity: calculatedVelocity,
-      };
-    });
-  }, [rawSubjectProgress, timeline]);
-
-  const selectedClass = classes.find((c) => c.id === selectedClassId);
-
-  const filteredSubjects = useMemo(() => {
-    let subjects =
-      selectedClassId === 'all'
-        ? subjectProgress
-        : selectedClassId
-          ? subjectProgress.filter((s) => s.classId === selectedClassId)
-          : subjectProgress;
-    if (velocityFilter !== 'all') {
-      subjects = subjects.filter((s) => s.velocity === velocityFilter);
-    }
-    return subjects;
-  }, [subjectProgress, selectedClassId, velocityFilter]);
+  const selectedClass = useMemo(() => {
+    if (!selectedClassId || selectedClassId === 'all') return null;
+    return classes.find((c) => c.id === selectedClassId) ?? null;
+  }, [classes, selectedClassId]);
 
   const velocityCounts = useMemo(() => {
-    const base =
-      selectedClassId === 'all'
-        ? subjectProgress
-        : selectedClassId
-          ? subjectProgress.filter((s) => s.classId === selectedClassId)
-          : subjectProgress;
     return {
-      all: base.length,
-      less: base.filter((s) => s.velocity === 'less').length,
-      neutral: base.filter((s) => s.velocity === 'neutral').length,
-      more: base.filter((s) => s.velocity === 'more').length,
+      all: subjectProgress.length,
+      less: subjectProgress.filter((s) => s.velocity === 'less').length,
+      neutral: subjectProgress.filter((s) => s.velocity === 'neutral').length,
+      more: subjectProgress.filter((s) => s.velocity === 'more').length,
     };
-  }, [subjectProgress, selectedClassId]);
+  }, [subjectProgress]);
 
-  const isLoading = classesLoading || progressionLoading || timelineLoading;
+  const filteredSubjects = useMemo(() => {
+    if (velocityFilter === 'all') return subjectProgress;
+    return subjectProgress.filter((s) => s.velocity === velocityFilter);
+  }, [subjectProgress, velocityFilter]);
+
+  const avgCompletion = useMemo(() => {
+    if (selectedClass) return selectedClass.progress.toFixed(0);
+    const totalTopics = subjectProgress.reduce((sum, s) => sum + (s.totalTopics || 0), 0);
+    const completedTopics = subjectProgress.reduce((sum, s) => sum + (s.completedTopics || 0), 0);
+    if (totalTopics === 0) return '0';
+    return ((completedTopics / totalTopics) * 100).toFixed(0);
+  }, [selectedClass, subjectProgress]);
+
+  const totalTopicsCount = subjectProgress.reduce((sum, s) => sum + (s.totalTopics || 0), 0);
+  const completedTopicsCount = subjectProgress.reduce((sum, s) => sum + (s.completedTopics || 0), 0);
 
   return (
     <DashboardShell>
-      <div className="space-y-6">
-        {/* Header */}
+      <div className="space-y-6 max-w-7xl mx-auto pb-12">
+        {/* Header - Matching Admin Dashboard Style */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-emerald-700 border border-emerald-200">
-                <TrendingUp className="h-3 w-3" /> Curriculum Pacing
+              <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-blue-700 border border-blue-200/80">
+                <Target className="h-3 w-3" /> Syllabus Progression Analytics
+              </span>
+              <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600">
+                Velocity Tracker
               </span>
             </div>
-            <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
-              Teaching Progress & Velocity
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-[#0b1c30] sm:text-3xl">
+              Teacher Curriculum Velocity
             </h1>
-            <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
-              Real-time monitoring of syllabus completion pace compared against academic terms.
+            <p className="mt-0.5 text-xs sm:text-sm text-slate-500 font-medium">
+              Real-time velocity tracking against academic calendar benchmarks, chapter milestones, and topic coverage.
             </p>
           </div>
         </div>
 
-        {/* Header Stats Row */}
-        {((selectedClassId === 'all' && subjectProgress.length > 0) || selectedClass) &&
-          !isLoading && (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {[
-                {
-                  label: 'Overall Progress',
-                  value: selectedClass
-                    ? `${selectedClass.progress.toFixed(0)}%`
-                    : `${(
-                        (subjectProgress.reduce((sum, s) => sum + (s.completedTopics || 0), 0) /
-                          Math.max(
-                            subjectProgress.reduce((sum, s) => sum + (s.totalTopics || 0), 0),
-                            1,
-                          )) *
-                        100
-                      ).toFixed(0)}%`,
-                  icon: Target,
-                  color: 'text-blue-700',
-                  bg: 'bg-blue-50/70 border-blue-100',
-                },
-                {
-                  label: selectedClass ? 'Chapters Done' : 'Topics Done',
-                  value: selectedClass
-                    ? `${selectedClass.completedChapters}/${selectedClass.totalChapters}`
-                    : `${subjectProgress.reduce((sum, s) => sum + (s.completedTopics || 0), 0)}/${subjectProgress.reduce((sum, s) => sum + (s.totalTopics || 0), 0)}`,
-                  icon: CheckCircle2,
-                  color: 'text-emerald-700',
-                  bg: 'bg-emerald-50/70 border-emerald-100',
-                },
-                {
-                  label: 'Assigned Subjects',
-                  value: selectedClass ? selectedClass._count.subjects : subjectProgress.length,
-                  icon: BookOpen,
-                  color: 'text-purple-700',
-                  bg: 'bg-purple-50/70 border-purple-100',
-                },
-                {
-                  label: 'Behind Schedule',
-                  value: velocityCounts.less,
-                  icon: AlertTriangle,
-                  color: 'text-red-700',
-                  bg: 'bg-red-50/70 border-red-100',
-                },
-              ].map(({ label, value, icon: Icon, color, bg }) => (
-                <div key={label} className={cn('rounded-2xl border p-4 bg-white shadow-xs', bg)}>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{label}</p>
-                      <p className={cn('mt-0.5 text-2xl font-black tracking-tight', color)}>{value}</p>
-                    </div>
-                    <div className={cn('flex h-10 w-10 items-center justify-center rounded-xl bg-white/80 shadow-xs', color)}>
-                      <Icon className="h-5 w-5" />
-                    </div>
-                  </div>
-                </div>
-              ))}
+        {/* 4 Top KPI Stat Cards - Matching Admin Dashboard Design */}
+        <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
+          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Completion</p>
+                <p className="mt-1 text-2xl sm:text-3xl font-black text-[#0b1c30] tracking-tight">{avgCompletion}%</p>
+                <p className="mt-1 text-[11px] font-semibold text-slate-400">Total syllabus progress</p>
+              </div>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xs">
+                <Target className="h-5 w-5" />
+              </div>
             </div>
-          )}
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Topics Done</p>
+                <p className="mt-1 text-2xl sm:text-3xl font-black text-emerald-600 tracking-tight">
+                  {completedTopicsCount} <span className="text-sm text-slate-400 font-bold">/ {totalTopicsCount}</span>
+                </p>
+                <p className="mt-1 text-[11px] font-semibold text-slate-400">Milestones achieved</p>
+              </div>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xs">
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Active Subjects</p>
+                <p className="mt-1 text-2xl sm:text-3xl font-black text-[#0b1c30] tracking-tight">{subjectProgress.length}</p>
+                <p className="mt-1 text-[11px] font-semibold text-slate-400">Tracked curriculums</p>
+              </div>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-xs">
+                <BookOpen className="h-5 w-5" />
+              </div>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Behind Schedule</p>
+                <p className="mt-1 text-2xl sm:text-3xl font-black text-rose-600 tracking-tight">{velocityCounts.less}</p>
+                <p className="mt-1 text-[11px] font-semibold text-slate-400">Subjects needing focus</p>
+              </div>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-xs">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Academic Timeline Progress Card */}
         {timeline && (
-          <Card
-            className={cn(
-              'border-2 transition-all duration-300',
-              timeline.progress.isBehindSchedule
-                ? 'border-orange-300 bg-orange-50/30'
-                : 'border-emerald-300 bg-emerald-50/30',
-            )}
-          >
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="relative flex items-center gap-2 text-base font-bold">
-                  <Calendar className="h-5 w-5 text-blue-500" />
-                  Academic Timeline — {timeline.academicTerm.name}
-                  {/* Custom Popover Container */}
-                  <div className="relative inline-block">
-                    <button
-                      type="button"
-                      onClick={() => setShowInfoPopover(!showInfoPopover)}
-                      onBlur={() => setTimeout(() => setShowInfoPopover(false), 200)}
-                      className="flex h-6 w-6 items-center justify-center rounded-full text-gray-400 outline-none hover:bg-gray-100 hover:text-gray-600"
-                    >
-                      <Info className="h-4 w-4" />
-                    </button>
-
-                    {showInfoPopover && (
-                      <div className="animate-in fade-in slide-in-from-bottom-2 absolute bottom-full left-1/2 z-50 mb-2 w-72 -translate-x-1/2 rounded-xl border border-gray-200 bg-white p-4 shadow-xl transition-all duration-200">
-                        <div className="space-y-2 text-xs font-normal normal-case tracking-normal">
-                          <h4 className="text-sm font-bold text-gray-900">
-                            How pacing is calculated:
-                          </h4>
-                          <p className="leading-relaxed text-gray-600">
-                            Subject progress markers are determined relative to the current
-                            <span className="font-semibold text-purple-700">
-                              {' '}
-                              Teaching Days Progress ({timeline.progress.targetProgress}%)
-                            </span>
-                            :
-                          </p>
-                          <ul className="list-disc space-y-1 pl-4 text-gray-600">
-                            <li>
-                              <span className="font-semibold text-red-600">Behind:</span> Progress
-                              is less than {timeline.progress.targetProgress}%
-                            </li>
-                            <li>
-                              <span className="font-semibold text-amber-600">On Pace:</span>{' '}
-                              Progress matches exactly {timeline.progress.targetProgress}%
-                            </li>
-                            <li>
-                              <span className="font-semibold text-emerald-600">Ahead:</span>{' '}
-                              Progress is greater than {timeline.progress.targetProgress}%
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardTitle>
+          <Section
+            title={`Academic Timeline Schedule Pacing — ${timeline.academicTerm.name}`}
+            icon={Calendar}
+            iconGradient="from-indigo-600 to-blue-600"
+            extra={
+              <div className="flex items-center gap-2">
                 <span
                   className={cn(
-                    'flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold',
+                    'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold border shadow-2xs',
                     timeline.progress.isBehindSchedule
-                      ? 'bg-orange-100 text-orange-700'
-                      : 'bg-emerald-100 text-emerald-700',
+                      ? 'bg-rose-50 text-rose-800 border-rose-200'
+                      : 'bg-emerald-50 text-emerald-800 border-emerald-200',
                   )}
                 >
                   {timeline.progress.isBehindSchedule ? (
                     <>
-                      <AlertTriangle className="h-3 w-3" /> Behind Schedule
+                      <AlertTriangle className="h-3.5 w-3.5 text-rose-600" />
+                      Behind Schedule ({Math.abs(timeline.progress.progressDifference)}% gap)
                     </>
                   ) : (
                     <>
-                      <TrendingUp className="h-3 w-3" /> On Track
+                      <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
+                      On Schedule ({timeline.progress.progressDifference}% lead)
                     </>
                   )}
                 </span>
               </div>
-              <p className="text-muted-foreground text-xs">
-                {new Date(timeline.academicTerm.startDate).toLocaleDateString()} —{' '}
-                {new Date(timeline.academicTerm.endDate).toLocaleDateString()}
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-6 md:grid-cols-2">
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    {
-                      label: 'Days Remaining',
-                      value: timeline.timeline.daysRemaining,
-                      color: 'text-blue-600',
-                      bg: 'bg-blue-50',
-                    },
-                    {
-                      label: 'Teaching Days',
-                      value: timeline.teachingDays.availableDays,
-                      color: 'text-purple-600',
-                      bg: 'bg-purple-50',
-                    },
-                    {
-                      label: 'Days Elapsed',
-                      value: timeline.timeline.daysElapsed,
-                      color: 'text-gray-600',
-                      bg: 'bg-gray-50',
-                    },
-                    {
-                      label: 'Per Chapter',
-                      value: timeline.teachingDays.daysPerChapterRequired,
-                      color: 'text-amber-600',
-                      bg: 'bg-amber-50',
-                    },
-                  ].map(({ label, value, color, bg }) => (
-                    <div key={label} className={cn('rounded-lg p-3', bg)}>
-                      <div className={cn('text-xl font-bold', color)}>{value}</div>
-                      <div className="text-muted-foreground text-[11px]">{label}</div>
-                    </div>
-                  ))}
+            }
+          >
+            <div className="grid gap-4 md:grid-cols-2 items-center">
+              <div className="grid grid-cols-2 gap-2.5">
+                <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-3 shadow-2xs">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-blue-600">Days Remaining</span>
+                  <span className="text-xl font-black text-blue-900 mt-0.5 block">{timeline.timeline.daysRemaining}</span>
+                  <span className="text-[10px] text-blue-600/70 font-semibold">{timeline.timeline.daysElapsed} days elapsed</span>
                 </div>
-                <div className="space-y-4">
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Your Progress</span>
-                      <span className="font-bold text-blue-600">
-                        {timeline.progress.completionPercentage}%
-                      </span>
-                    </div>
-                    <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-blue-100">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-700"
-                        style={{ width: `${timeline.progress.completionPercentage}%` }}
-                      />
-                    </div>
+                <div className="rounded-xl border border-purple-100 bg-purple-50/50 p-3 shadow-2xs">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-purple-600">Teaching Days</span>
+                  <span className="text-xl font-black text-purple-900 mt-0.5 block">{timeline.teachingDays.availableDays}</span>
+                  <span className="text-[10px] text-purple-600/70 font-semibold">Of {timeline.academicTerm.totalWorkingDays} working days</span>
+                </div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 shadow-2xs">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Per Chapter Goal</span>
+                  <span className="text-xl font-black text-slate-800 mt-0.5 block">{timeline.teachingDays.daysPerChapterRequired}</span>
+                  <span className="text-[10px] text-slate-400 font-semibold">Teaching days / chapter</span>
+                </div>
+                <div className="rounded-xl border border-amber-100 bg-amber-50/50 p-3 shadow-2xs">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-amber-600">Target Pace</span>
+                  <span className="text-xl font-black text-amber-900 mt-0.5 block">{timeline.progress.targetProgress}%</span>
+                  <span className="text-[10px] text-amber-600/70 font-semibold">Term progress benchmark</span>
+                </div>
+              </div>
+
+              <div className="space-y-4 rounded-xl border border-slate-100 bg-slate-50/40 p-4">
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs font-bold">
+                    <span className="text-slate-700 flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-blue-600" />
+                      Your Current Completion
+                    </span>
+                    <span className="text-blue-600 font-black">{timeline.progress.completionPercentage}%</span>
                   </div>
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground flex items-center gap-1">
-                        <TrendingUp className="h-3.5 w-3.5" /> Target
-                      </span>
-                      <span className="font-bold text-purple-600">
-                        {timeline.progress.targetProgress}%
-                      </span>
-                    </div>
-                    <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-purple-100">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-purple-400 to-purple-600 transition-all duration-700"
-                        style={{ width: `${timeline.progress.targetProgress}%` }}
-                      />
-                    </div>
+                  <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-slate-200/60">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-700"
+                      style={{ width: `${timeline.progress.completionPercentage}%` }}
+                    />
                   </div>
-                  <div
-                    className={cn(
-                      'rounded-lg px-3 py-2 text-sm font-medium',
-                      timeline.progress.isBehindSchedule
-                        ? 'bg-orange-100 text-orange-700'
-                        : 'bg-emerald-100 text-emerald-700',
-                    )}
-                  >
-                    {timeline.progress.isBehindSchedule
-                      ? `${Math.abs(timeline.progress.progressDifference)}% behind target`
-                      : `${timeline.progress.progressDifference}% ahead of target`}
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs font-bold">
+                    <span className="text-slate-700 flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-amber-500" />
+                      Expected Calendar Schedule
+                    </span>
+                    <span className="text-amber-600 font-black">{timeline.progress.targetProgress}%</span>
+                  </div>
+                  <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-slate-200/60">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-700"
+                      style={{ width: `${timeline.progress.targetProgress}%` }}
+                    />
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </Section>
         )}
 
-        {/* Class Tabs */}
-        <div>
-          {classesLoading ? (
-            <div className="flex gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-9 w-24 rounded-lg" />
-              ))}
-            </div>
-          ) : classes.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center">
-                <BookOpen className="text-muted-foreground mx-auto mb-2 h-8 w-8" />
-                <p className="text-muted-foreground text-sm">No assigned classes found.</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="flex flex-wrap gap-2">
+        {/* Class Filter Tabs & Velocity Breakdown */}
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            {/* Class Pill Selectors */}
+            <div className="flex flex-wrap gap-1.5">
               <button
                 onClick={() => setSelectedClassId('all')}
                 className={cn(
-                  'rounded-lg border px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-95',
+                  'rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all border shadow-2xs',
                   selectedClassId === 'all'
-                    ? 'border-blue-500 bg-blue-500 text-white shadow-md'
-                    : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50',
+                    ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
+                    : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                 )}
               >
-                All Classes
+                All Classes ({classes.length})
               </button>
               {classes.map((cls) => (
                 <button
                   key={cls.id}
                   onClick={() => setSelectedClassId(cls.id)}
                   className={cn(
-                    'rounded-lg border px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-95',
+                    'rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all border shadow-2xs',
                     selectedClassId === cls.id
-                      ? 'border-blue-500 bg-blue-500 text-white shadow-md'
-                      : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50',
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                   )}
                 >
                   {cls.name}
-                  {cls.section && (
-                    <span
-                      className={cn(
-                        'ml-1.5 text-xs',
-                        selectedClassId === cls.id ? 'text-blue-100' : 'text-muted-foreground',
-                      )}
-                    >
-                      §{cls.section}
-                    </span>
-                  )}
+                  {cls.section && <span className="ml-1 opacity-80 font-normal">({cls.section})</span>}
                 </button>
               ))}
             </div>
-          )}
-        </div>
 
-        {/* Selected Class Dashboard Summary */}
-        {selectedClassId && selectedClassId !== 'all' && selectedClass && (
-          <div className="rounded-xl border bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
-            <div className="mb-2 flex items-center justify-between text-sm">
-              <span className="font-semibold text-blue-900">{selectedClass.name} — Overall</span>
-              <span className="font-bold text-blue-700">{selectedClass.progress.toFixed(1)}%</span>
-            </div>
-            <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-blue-100">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 transition-all duration-700"
-                style={{ width: `${selectedClass.progress}%` }}
-              />
-            </div>
-            <div className="text-muted-foreground mt-1.5 text-xs">
-              {selectedClass.completedChapters} of {selectedClass.totalChapters} chapters completed
-            </div>
-          </div>
-        )}
-
-        {/* Aggregate progress summary for All Classes */}
-        {selectedClassId === 'all' && subjectProgress.length > 0 && (
-          <div className="rounded-xl border bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
-            <div className="mb-2 flex items-center justify-between text-sm">
-              <span className="font-semibold text-blue-900">All Classes — Overall</span>
-              <span className="font-bold text-blue-700">
-                {(
-                  (subjectProgress.reduce((sum, s) => sum + (s.completedTopics || 0), 0) /
-                    Math.max(
-                      subjectProgress.reduce((sum, s) => sum + (s.totalTopics || 0), 0),
-                      1,
-                    )) *
-                  100
-                ).toFixed(1)}
-                %
-              </span>
-            </div>
-            <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-blue-100">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 transition-all duration-700"
-                style={{
-                  width: `${
-                    (subjectProgress.reduce((sum, s) => sum + (s.completedTopics || 0), 0) /
-                      Math.max(
-                        subjectProgress.reduce((sum, s) => sum + (s.totalTopics || 0), 0),
-                        1,
-                      )) *
-                    100
-                  }%`,
-                }}
-              />
-            </div>
-            <div className="text-muted-foreground mt-1.5 text-xs">
-              {subjectProgress.reduce((sum, s) => sum + (s.completedTopics || 0), 0)} of{' '}
-              {subjectProgress.reduce((sum, s) => sum + (s.totalTopics || 0), 0)} topics completed
-              across {subjectProgress.length} subjects
-            </div>
-          </div>
-        )}
-
-        {/* Velocity Filter Tabs */}
-        {(selectedClass || selectedClassId === 'all') && (
-          <div className="flex flex-wrap gap-2">
-            {(['all', 'less', 'neutral', 'more'] as const).map((v) => {
-              const cfg = v === 'all' ? null : velocityConfig[v];
-              const count = velocityCounts[v];
-              const isActive = velocityFilter === v;
-              return (
-                <button
-                  key={v}
-                  onClick={() => setVelocityFilter(v)}
-                  className={cn(
-                    'flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-150',
-                    isActive && v === 'all' && 'border-gray-800 bg-gray-800 text-white',
-                    isActive && v !== 'all' && cfg && `${cfg.badge} border`,
-                    !isActive &&
-                      'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50',
-                  )}
-                >
-                  {cfg && <span className={cn('h-2 w-2 rounded-full', cfg.dot)} />}
-                  {v === 'all' ? 'All Subjects' : cfg?.label}
-                  <span
+            {/* Velocity Filters */}
+            <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl">
+              {(['all', 'less', 'neutral', 'more'] as const).map((v) => {
+                const cfg = v === 'all' ? null : velocityConfig[v];
+                const count = velocityCounts[v];
+                const isActive = velocityFilter === v;
+                return (
+                  <button
+                    key={v}
+                    onClick={() => setVelocityFilter(v)}
                     className={cn(
-                      'rounded-full px-1.5 py-0.5 text-[10px] font-bold',
-                      isActive && v === 'all'
-                        ? 'bg-white/20 text-white'
-                        : 'bg-gray-100 text-gray-600',
-                      isActive && v !== 'all' && cfg ? `${cfg.bg} ${cfg.color}` : '',
+                      'flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition-all',
+                      isActive
+                        ? 'bg-white text-slate-900 shadow-2xs'
+                        : 'text-slate-500 hover:text-slate-800'
                     )}
                   >
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
+                    {cfg && <span className={cn('h-1.5 w-1.5 rounded-full', cfg.dot)} />}
+                    <span>{v === 'all' ? 'All' : cfg?.label}</span>
+                    <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-200 text-slate-700 font-bold">
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        )}
+        </div>
 
-        {/* Subject Cards Grid */}
-        {progressionLoading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-44 rounded-xl" />
-            ))}
-          </div>
-        ) : !selectedClassId ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <BookOpen className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
-              <p className="text-muted-foreground text-sm">
-                Select a class to view your assigned subjects.
-              </p>
-            </CardContent>
-          </Card>
-        ) : filteredSubjects.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <CheckCircle2 className="mx-auto mb-3 h-10 w-10 text-emerald-400" />
-              <p className="font-medium text-gray-700">
-                {velocityFilter === 'all'
-                  ? 'No assigned subjects found.'
-                  : `No subjects ${velocityConfig[velocityFilter as 'less' | 'neutral' | 'more']?.fullLabel}.`}
-              </p>
-              <p className="text-muted-foreground mt-1 text-xs">
-                {velocityFilter !== 'all' && 'Try clearing the filter.'}
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredSubjects.map((subject, index) => {
-              const cfg = velocityConfig[subject.velocity];
-              const Icon = cfg.icon;
-              const remaining = subject.totalTopics - subject.completedTopics;
-              return (
-                <div
-                  key={subject.subjectId}
-                  className="animate-in fade-in slide-in-from-bottom-2 duration-300"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <Card className="group h-full border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <CardTitle className="line-clamp-1 text-base font-bold">
-                            {subject.subjectName}
-                          </CardTitle>
-                          {subject.className && (
-                            <p className="text-muted-foreground mt-0.5 text-xs">
-                              {subject.className}
-                            </p>
-                          )}
-                        </div>
-                        <span
-                          className={cn(
-                            'flex flex-shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold',
-                            cfg.badge,
-                          )}
-                        >
-                          <Icon className="h-3 w-3" />
-                          {cfg.label}
+        {/* Subject Cards Section */}
+        <Section
+          title={selectedClass ? `${selectedClass.name} — Subject Progression` : 'All Subject Syllabi Progression'}
+          icon={BookOpen}
+          iconGradient="from-blue-600 to-indigo-600"
+          extra={
+            <span className="text-xs font-bold text-slate-500">
+              {filteredSubjects.length} of {subjectProgress.length} subjects shown
+            </span>
+          }
+        >
+          {progressionLoading ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-44 rounded-2xl" />
+              ))}
+            </div>
+          ) : filteredSubjects.length === 0 ? (
+            <div className="py-12 text-center">
+              <CheckCircle2 className="mx-auto mb-2 h-8 w-8 text-emerald-400" />
+              <p className="font-bold text-slate-700 text-sm">No subjects matching current filter</p>
+              <p className="text-xs text-slate-400 mt-0.5">Try selecting All Subjects or clearing filter tags.</p>
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredSubjects.map((subject, index) => {
+                const cfg = velocityConfig[subject.velocity];
+                const Icon = cfg.icon;
+                const remaining = subject.totalTopics - subject.completedTopics;
+                return (
+                  <div
+                    key={subject.subjectId}
+                    className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md space-y-4"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="line-clamp-1 text-base font-bold text-[#0b1c30]">
+                          {subject.subjectName}
+                        </h4>
+                        {subject.className && (
+                          <p className="text-slate-500 font-medium mt-0.5 text-xs truncate">
+                            {subject.className}
+                          </p>
+                        )}
+                      </div>
+                      <span
+                        className={cn(
+                          'flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-bold',
+                          cfg.badge,
+                        )}
+                      >
+                        <Icon className="h-3 w-3 stroke-[2.5]" />
+                        {cfg.label}
+                      </span>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs font-bold">
+                        <span className="text-slate-400 font-medium">
+                          {subject.completedTopics} / {subject.totalTopics} topics done
+                        </span>
+                        <span className={cn('font-black text-sm', cfg.color)}>
+                          {subject.percentageComplete.toFixed(1)}%
                         </span>
                       </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {/* Progress Metrics */}
-                      <div className="space-y-1.5">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground text-xs">
-                            {subject.completedTopics} / {subject.totalTopics} topics
-                          </span>
-                          <span className={cn('text-sm font-bold', cfg.color)}>
-                            {subject.percentageComplete.toFixed(1)}%
-                          </span>
-                        </div>
-                        <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-100">
-                          <div
-                            className={cn(
-                              'h-full rounded-full transition-all duration-700',
-                              cfg.bar,
-                            )}
-                            style={{ width: `${subject.percentageComplete}%` }}
-                          />
-                        </div>
+                      <div className="relative h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                        <div
+                          className={cn(
+                            'h-full rounded-full bg-gradient-to-r transition-all duration-700',
+                            cfg.bar,
+                          )}
+                          style={{ width: `${subject.percentageComplete}%` }}
+                        />
                       </div>
+                    </div>
 
-                      {/* Bottom Layout Matrix Row */}
-                      <div className="flex items-center justify-between border-t pt-3">
-                        <div className="text-center">
-                          <div className="text-sm font-bold text-emerald-600">
-                            {subject.completedTopics}
-                          </div>
-                          <div className="text-muted-foreground text-[10px]">Done</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-sm font-bold text-gray-500">{remaining}</div>
-                          <div className="text-muted-foreground text-[10px]">Remaining</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-sm font-bold text-blue-600">
-                            {subject.totalTopics}
-                          </div>
-                          <div className="text-muted-foreground text-[10px]">Total</div>
-                        </div>
+                    <div className="grid grid-cols-3 gap-2 border-t border-slate-100 pt-3 text-center">
+                      <div className="rounded-lg bg-emerald-50/50 p-1.5 border border-emerald-100">
+                        <span className="text-xs font-black text-emerald-700 block">{subject.completedTopics}</span>
+                        <span className="text-[10px] uppercase font-bold text-slate-400">Done</span>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                      <div className="rounded-lg bg-slate-50 p-1.5 border border-slate-100">
+                        <span className="text-xs font-black text-slate-700 block">{remaining}</span>
+                        <span className="text-[10px] uppercase font-bold text-slate-400">Remaining</span>
+                      </div>
+                      <div className="rounded-lg bg-blue-50/50 p-1.5 border border-blue-100">
+                        <span className="text-xs font-black text-blue-700 block">{subject.totalTopics}</span>
+                        <span className="text-[10px] uppercase font-bold text-slate-400">Total</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </Section>
       </div>
     </DashboardShell>
   );
