@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
@@ -20,7 +20,11 @@ import {
   Sparkles,
   Award,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Search,
+  Filter,
+  RotateCcw,
+  X
 } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
@@ -90,6 +94,9 @@ export default function TeacherExamPapersPage() {
   const [studentCount, setStudentCount] = useState(30);
   const [downloadingType, setDownloadingType] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'DRAFT' | 'SUBMITTED' | 'REVIEWED'>('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedClass, setSelectedClass] = useState<string>('ALL');
+  const [selectedSubject, setSelectedSubject] = useState<string>('ALL');
 
   const { data: papers = [], isLoading } = useQuery({
     queryKey: ['teacher-exam-papers'],
@@ -256,10 +263,58 @@ export default function TeacherExamPapersPage() {
   const submittedPapers = papers.filter((p) => p.status === 'SUBMITTED').length;
   const reviewedPapers = papers.filter((p) => p.status === 'REVIEWED').length;
 
-  const filteredPapers = papers.filter((p) => {
-    if (statusFilter === 'ALL') return true;
-    return p.status === statusFilter;
-  });
+  const uniqueClasses = useMemo(() => {
+    const set = new Set<string>();
+    papers.forEach((p) => {
+      if (p.class?.name) set.add(p.class.name);
+    });
+    return Array.from(set).sort();
+  }, [papers]);
+
+  const uniqueSubjects = useMemo(() => {
+    const set = new Set<string>();
+    papers.forEach((p) => {
+      if (p.subject?.name) set.add(p.subject.name);
+    });
+    return Array.from(set).sort();
+  }, [papers]);
+
+  const filteredPapers = useMemo(() => {
+    let list = [...papers];
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter((p) => {
+        const examMatch = p.examName?.toLowerCase().includes(q);
+        const subjectMatch = p.subject?.name?.toLowerCase().includes(q);
+        const classMatch = p.class?.name?.toLowerCase().includes(q);
+        return Boolean(examMatch || subjectMatch || classMatch);
+      });
+    }
+
+    if (statusFilter !== 'ALL') {
+      list = list.filter((p) => p.status === statusFilter);
+    }
+
+    if (selectedClass !== 'ALL') {
+      list = list.filter((p) => p.class?.name === selectedClass);
+    }
+
+    if (selectedSubject !== 'ALL') {
+      list = list.filter((p) => p.subject?.name === selectedSubject);
+    }
+
+    return list;
+  }, [papers, searchQuery, statusFilter, selectedClass, selectedSubject]);
+
+  const hasActiveFilters = searchQuery.trim() !== '' || statusFilter !== 'ALL' || selectedClass !== 'ALL' || selectedSubject !== 'ALL';
+
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('ALL');
+    setSelectedClass('ALL');
+    setSelectedSubject('ALL');
+  };
 
   return (
     <DashboardShell>
@@ -369,6 +424,79 @@ export default function TeacherExamPapersPage() {
             </div>
           }
         >
+          {/* Search, Class & Subject Filter Bar */}
+          <div className="mb-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pb-3 border-b border-slate-100">
+            <div className="flex flex-1 items-center gap-2 flex-wrap">
+              {/* Search Input */}
+              <div className="relative min-w-[180px] flex-1 sm:max-w-xs">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search exam, subject, class..."
+                  className="h-8 pl-8 pr-7 text-xs rounded-lg border-slate-200 bg-slate-50/50 focus:bg-white"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+
+              {/* Class Filter Dropdown */}
+              <div className="flex items-center gap-1">
+                <span className="text-[11px] font-semibold text-slate-500 hidden md:inline">Class:</span>
+                <select
+                  value={selectedClass}
+                  onChange={(e) => setSelectedClass(e.target.value)}
+                  className="h-8 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-purple-500 cursor-pointer shadow-2xs hover:border-slate-300"
+                >
+                  <option value="ALL">All Classes</option>
+                  {uniqueClasses.map((cls) => (
+                    <option key={cls} value={cls}>
+                      {cls}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Subject Filter Dropdown */}
+              <div className="flex items-center gap-1">
+                <span className="text-[11px] font-semibold text-slate-500 hidden md:inline">Subject:</span>
+                <select
+                  value={selectedSubject}
+                  onChange={(e) => setSelectedSubject(e.target.value)}
+                  className="h-8 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-purple-500 cursor-pointer shadow-2xs hover:border-slate-300"
+                >
+                  <option value="ALL">All Subjects</option>
+                  {uniqueSubjects.map((sub) => (
+                    <option key={sub} value={sub}>
+                      {sub}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Reset Filters button */}
+              {hasActiveFilters && (
+                <button
+                  onClick={handleResetFilters}
+                  className="h-8 px-2 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-100 flex items-center gap-1 transition-colors"
+                  title="Reset all filters"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                  <span className="hidden sm:inline">Reset</span>
+                </button>
+              )}
+            </div>
+
+            <div className="text-[11px] font-semibold text-slate-400 self-end sm:self-center shrink-0">
+              Showing <span className="font-bold text-slate-700">{filteredPapers.length}</span> of {papers.length}
+            </div>
+          </div>
           {isLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -378,12 +506,23 @@ export default function TeacherExamPapersPage() {
           ) : filteredPapers.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-200 p-12 text-center text-sm text-slate-500">
               <FileText className="h-8 w-8 text-slate-300 mx-auto mb-2" />
-              <p className="font-bold text-slate-800 text-base">No exam papers found</p>
+              <p className="font-bold text-slate-800 text-base">No exam papers match your filters</p>
               <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-                {statusFilter !== 'ALL'
-                  ? `No papers with status '${statusFilter.toLowerCase()}'. Try changing filter tabs.`
+                {hasActiveFilters
+                  ? "No papers match the selected class, subject, search, or status filter. Try clearing filters."
                   : "Click 'Create Exam Paper' to start authoring your first draft."}
               </p>
+              {hasActiveFilters && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleResetFilters}
+                  className="mt-3.5 text-xs h-8 rounded-lg gap-1.5"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                  Clear Filters
+                </Button>
+              )}
             </div>
           ) : (
             <div className="space-y-3">
