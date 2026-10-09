@@ -95,48 +95,41 @@ export function ExamStepper({
   const progressPercent = Math.min(100, Math.round(((currentStep - 1) / (EXAM_STEPS.length - 1)) * 100));
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all sm:p-6">
+    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-xs transition-all sm:p-4">
       {/* Subtle top gradient accent line */}
       <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500" />
 
-      {/* Top Header Row: Step description & Quick paper metadata */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-5 border-b border-slate-100">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700 border border-blue-200/60">
-              <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
-              Step {currentStep} of {EXAM_STEPS.length}
-            </span>
-            {paperDetails?.examName && (
-              <span className="hidden sm:inline-block text-xs font-semibold text-slate-500">
-                • {paperDetails.examName} {paperDetails.subjectName ? `(${paperDetails.subjectName})` : ''}
-              </span>
-            )}
-          </div>
-          <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+      {/* Compact Top Header Row */}
+      <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700 border border-blue-200/60 shrink-0">
+            <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
+            Step {currentStep} of {EXAM_STEPS.length}
+          </span>
+          <h2 className="text-sm sm:text-base font-bold tracking-tight text-slate-900 truncate">
             {EXAM_STEPS[currentStep - 1]?.title}
           </h2>
-          <p className="text-xs text-slate-500 sm:text-sm mt-0.5">
-            {EXAM_STEPS[currentStep - 1]?.description}
-          </p>
+          <span className="hidden md:inline-block text-xs text-slate-400 truncate">
+            — {EXAM_STEPS[currentStep - 1]?.description}
+          </span>
         </div>
 
         {/* Paper details badges & Live Preview CTA */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex items-center gap-2 shrink-0">
           {paperDetails && (paperDetails.totalMarks || paperDetails.duration) ? (
-            <div className="flex items-center gap-2 rounded-xl bg-slate-50 border border-slate-200/80 px-3 py-1.5 text-xs font-medium text-slate-700 shadow-2xs">
+            <div className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/80 px-2.5 py-1 text-xs text-slate-700">
               {paperDetails.duration ? (
-                <span className="flex items-center gap-1 font-semibold text-slate-800">
-                  <Clock className="h-3.5 w-3.5 text-indigo-500" />
+                <span className="flex items-center gap-1 font-semibold text-slate-800 text-[11px]">
+                  <Clock className="h-3 w-3 text-indigo-500" />
                   {formatDuration(paperDetails.duration)}
                 </span>
               ) : null}
               {paperDetails.duration && paperDetails.totalMarks ? (
-                <span className="text-slate-300">|</span>
+                <span className="text-slate-300 text-[10px]">|</span>
               ) : null}
               {paperDetails.totalMarks ? (
-                <span className="flex items-center gap-1 font-semibold text-slate-800">
-                  <Award className="h-3.5 w-3.5 text-amber-500" />
+                <span className="flex items-center gap-1 font-semibold text-slate-800 text-[11px]">
+                  <Award className="h-3 w-3 text-amber-500" />
                   {paperDetails.totalMarks} Marks
                 </span>
               ) : null}
@@ -148,7 +141,7 @@ export function ExamStepper({
               type="button"
               onClick={onOpenPreview}
               size="sm"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 rounded-xl shadow-xs transition-all hover:shadow"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold h-7 px-2.5 rounded-lg shadow-2xs gap-1"
             >
               <Eye className="w-3.5 h-3.5" />
               <span>Live Preview</span>
@@ -157,11 +150,11 @@ export function ExamStepper({
         </div>
       </div>
 
-      {/* Modern Stepper Process Track */}
-      <div className="pt-5">
-        {/* Progress Bar Line */}
-        <div className="relative mb-6">
-          <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+      {/* Compact Stepper Track */}
+      <div className="pt-2.5">
+        {/* Thin Progress Bar Line */}
+        <div className="relative mb-2.5">
+          <div className="h-1 w-full rounded-full bg-slate-100 overflow-hidden">
             <div 
               className="h-full rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-500 ease-out"
               style={{ width: `${progressPercent}%` }}
@@ -170,7 +163,7 @@ export function ExamStepper({
         </div>
 
         {/* Stepper items row */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
+        <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
           {EXAM_STEPS.map((s) => {
             const isCompleted = s.id < currentStep;
             const isCurrent = s.id === currentStep;
@@ -184,18 +177,18 @@ export function ExamStepper({
                 disabled={!isClickable}
                 onClick={() => isClickable && onStepClick?.(s.id)}
                 className={cn(
-                  "group relative flex items-center gap-2.5 rounded-xl p-2.5 sm:p-3 text-left transition-all border",
+                  "group relative flex items-center gap-2 rounded-xl py-1.5 px-2 sm:px-2.5 text-left transition-all border",
                   isCurrent
-                    ? "bg-blue-50/80 border-blue-200/90 shadow-2xs ring-1 ring-blue-500/20"
+                    ? "bg-blue-50/90 border-blue-300 shadow-2xs ring-1 ring-blue-500/20"
                     : isCompleted
-                    ? "bg-slate-50/60 border-slate-200/60 hover:bg-slate-100/80 hover:border-slate-300 cursor-pointer"
-                    : "bg-white border-transparent opacity-60 cursor-not-allowed"
+                    ? "bg-slate-50 border-slate-200/80 hover:bg-slate-100/90 hover:border-slate-300 cursor-pointer"
+                    : "bg-white border-transparent opacity-50 cursor-not-allowed"
                 )}
               >
                 {/* Step Circle Icon */}
                 <div
                   className={cn(
-                    "flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl font-bold text-xs transition-all shadow-2xs",
+                    "flex h-6 w-6 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-lg font-bold text-xs transition-all shadow-2xs",
                     isCurrent
                       ? "bg-blue-600 text-white shadow-blue-500/20"
                       : isCompleted
@@ -204,18 +197,18 @@ export function ExamStepper({
                   )}
                 >
                   {isCompleted ? (
-                    <CheckCircle2 className="h-4 w-4 stroke-[2.5]" />
+                    <CheckCircle2 className="h-3.5 w-3.5 stroke-[2.5]" />
                   ) : (
-                    <StepIcon className="h-4 w-4" />
+                    <StepIcon className="h-3.5 w-3.5" />
                   )}
                 </div>
 
-                {/* Step Label & Subtitle */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1">
+                {/* Step Label */}
+                <div className="min-w-0 flex-1 hidden sm:block">
+                  <div className="flex items-center gap-1 leading-none">
                     <span
                       className={cn(
-                        "text-[10px] font-bold uppercase tracking-wider",
+                        "text-[9px] font-bold uppercase tracking-wider",
                         isCurrent
                           ? "text-blue-600"
                           : isCompleted
@@ -226,12 +219,12 @@ export function ExamStepper({
                       Step {s.id}
                     </span>
                     {isCompleted && (
-                      <span className="text-[10px] text-emerald-600 font-semibold">• Done</span>
+                      <span className="text-[9px] text-emerald-600 font-semibold">• Done</span>
                     )}
                   </div>
                   <p
                     className={cn(
-                      "truncate text-xs sm:text-sm font-semibold mt-0.5",
+                      "truncate text-xs font-semibold mt-0.5",
                       isCurrent
                         ? "text-slate-900"
                         : isCompleted

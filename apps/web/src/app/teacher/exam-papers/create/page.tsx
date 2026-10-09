@@ -327,7 +327,7 @@ export default function CreateExamPaperPage() {
 
   return (
     <DashboardShell title="Create Exam Paper">
-      <div className="space-y-6 max-w-7xl mx-auto pb-12">
+      <div className="space-y-4 max-w-7xl mx-auto pb-12">
         {/* Interactive 5-Step Stepper Header */}
         <ExamStepper
           currentStep={step}
