@@ -1,15 +1,16 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, FileText, Download, CheckCircle2, Eye, Edit3, Upload, Image as ImageIcon, Trash2, CloudUpload, ExternalLink, RefreshCw, AlertTriangle, HardDrive, GraduationCap, Plus, X } from 'lucide-react';
+import { Loader2, FileText, Download, CheckCircle2, Eye, Edit3, Upload, Image as ImageIcon, Trash2, CloudUpload, ExternalLink, RefreshCw, AlertTriangle, HardDrive, GraduationCap, Plus, X, Search, Filter, ArrowUpDown, RotateCcw } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/services/api-client';
 import { toast } from 'sonner';
+import { env } from '@/config/env';
 import { Badge } from '@/components/ui/badge';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { useAcademicSessions } from '@/features/syllabus/hooks/use-academic-sessions';
@@ -87,6 +88,14 @@ export default function AdminExamPapersPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [isDraggingLogo, setIsDraggingLogo] = useState(false);
+
+  // Search & Filter & Sorting states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'SUBMITTED' | 'REVIEWED' | 'DRIVE_SYNCED'>('ALL');
+  const [selectedClass, setSelectedClass] = useState<string>('ALL');
+  const [selectedSubject, setSelectedSubject] = useState<string>('ALL');
+  const [sortBy, setSortBy] = useState<'NEWEST' | 'OLDEST' | 'EXAM_ASC' | 'TEACHER_ASC' | 'MARKS_DESC'>('NEWEST');
 
   const { data: template } = useQuery({
     queryKey: ['exam-paper-template'],
@@ -165,8 +174,7 @@ export default function AdminExamPapersPage() {
     }
   }, [queryClient, refetchDriveStatus]);
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const processLogoUpload = async (file: File) => {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
@@ -201,6 +209,13 @@ export default function AdminExamPapersPage() {
     }
   };
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await processLogoUpload(file);
+    }
+  };
+
   const handleRemoveLogo = async () => {
     setUploadingLogo(true);
     try {
@@ -230,6 +245,84 @@ export default function AdminExamPapersPage() {
     queryFn: () => api.get<AdminPaperItem[]>('/exam-papers'),
     staleTime: 30000,
   });
+
+  const uniqueClasses = useMemo(() => {
+    const set = new Set<string>();
+    papers.forEach((p) => {
+      if (p.class?.name) set.add(p.class.name);
+    });
+    return Array.from(set).sort();
+  }, [papers]);
+
+  const uniqueSubjects = useMemo(() => {
+    const set = new Set<string>();
+    papers.forEach((p) => {
+      if (p.subject?.name) set.add(p.subject.name);
+    });
+    return Array.from(set).sort();
+  }, [papers]);
+
+  const filteredPapers = useMemo(() => {
+    let list = [...papers];
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter((p) => {
+        const examMatch = p.examName?.toLowerCase().includes(q);
+        const teacherMatch = p.teacher?.user?.name?.toLowerCase().includes(q);
+        const subjectMatch = p.subject?.name?.toLowerCase().includes(q);
+        const classMatch = p.class?.name?.toLowerCase().includes(q);
+        return Boolean(examMatch || teacherMatch || subjectMatch || classMatch);
+      });
+    }
+
+    if (statusFilter === 'SUBMITTED') {
+      list = list.filter((p) => p.status === 'SUBMITTED');
+    } else if (statusFilter === 'REVIEWED') {
+      list = list.filter((p) => p.status === 'REVIEWED');
+    } else if (statusFilter === 'DRIVE_SYNCED') {
+      list = list.filter((p) => !!p.googleDriveWebViewLink);
+    }
+
+    if (selectedClass !== 'ALL') {
+      list = list.filter((p) => p.class?.name === selectedClass);
+    }
+
+    if (selectedSubject !== 'ALL') {
+      list = list.filter((p) => p.subject?.name === selectedSubject);
+    }
+
+    list.sort((a, b) => {
+      switch (sortBy) {
+        case 'NEWEST':
+          if (a.examDate && b.examDate) return new Date(b.examDate).getTime() - new Date(a.examDate).getTime();
+          return b.id.localeCompare(a.id);
+        case 'OLDEST':
+          if (a.examDate && b.examDate) return new Date(a.examDate).getTime() - new Date(b.examDate).getTime();
+          return a.id.localeCompare(b.id);
+        case 'EXAM_ASC':
+          return (a.examName || '').localeCompare(b.examName || '');
+        case 'TEACHER_ASC':
+          return (a.teacher?.user?.name || '').localeCompare(b.teacher?.user?.name || '');
+        case 'MARKS_DESC':
+          return (b.totalMarks || 0) - (a.totalMarks || 0);
+        default:
+          return 0;
+      }
+    });
+
+    return list;
+  }, [papers, searchQuery, statusFilter, selectedClass, selectedSubject, sortBy]);
+
+  const hasActiveFilters = searchQuery.trim() !== '' || statusFilter !== 'ALL' || selectedClass !== 'ALL' || selectedSubject !== 'ALL' || sortBy !== 'NEWEST';
+
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('ALL');
+    setSelectedClass('ALL');
+    setSelectedSubject('ALL');
+    setSortBy('NEWEST');
+  };
 
   const markReviewedMutation = useMutation({
     mutationFn: (id: string) => api.patch(`/exam-papers/${id}`, { status: 'REVIEWED' }),
@@ -622,12 +715,58 @@ export default function AdminExamPapersPage() {
         {/* Integration Hub: 50% School Logo & 50% Exam Names */}
         <div className="grid gap-3.5 md:grid-cols-2">
 
-          {/* 50% Left: School Header Logo */}
-          <div className="flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs hover:border-slate-300 transition-all">
+          {/* 50% Left: School Header Logo with Drag & Drop */}
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsDraggingLogo(true);
+            }}
+            onDragEnter={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsDraggingLogo(true);
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsDraggingLogo(false);
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsDraggingLogo(false);
+              const file = e.dataTransfer.files?.[0];
+              if (file) {
+                processLogoUpload(file);
+              }
+            }}
+            className={cn(
+              "relative flex flex-col justify-between rounded-2xl border p-4 shadow-xs transition-all duration-200 overflow-hidden",
+              isDraggingLogo
+                ? "border-dashed border-2 border-emerald-500 bg-emerald-50/70 ring-4 ring-emerald-500/20"
+                : "border-slate-200/80 bg-white hover:border-slate-300"
+            )}
+          >
+            {/* Dragging Active Overlay */}
+            {isDraggingLogo && (
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center rounded-2xl bg-emerald-50/95 backdrop-blur-[2px] border-2 border-dashed border-emerald-500 p-4 text-center pointer-events-none animate-in fade-in duration-150">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-md mb-1.5 animate-bounce">
+                  <Upload className="h-5 w-5" />
+                </div>
+                <p className="text-xs font-bold text-emerald-900">Drop your school logo here</p>
+                <p className="text-[10px] text-emerald-700 mt-0.5">PNG, JPG, SVG, WebP supported</p>
+              </div>
+            )}
+
             <div>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="h-11 w-11 rounded-xl border border-slate-200/80 bg-slate-50 p-1 flex items-center justify-center shadow-2xs overflow-hidden shrink-0">
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="h-11 w-11 rounded-xl border border-slate-200/80 bg-slate-50 p-1 flex items-center justify-center shadow-2xs overflow-hidden shrink-0 cursor-pointer hover:border-emerald-300 transition-colors"
+                    title="Click to change logo"
+                  >
                     {template?.logoUrl ? (
                       <img
                         src={template.logoUrl}
@@ -693,9 +832,20 @@ export default function AdminExamPapersPage() {
                   )}
                 </div>
               </div>
+
+              {/* Clickable Drag & Drop Area */}
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="mt-3 cursor-pointer rounded-xl border border-dashed border-slate-200 bg-slate-50/70 p-2 text-center transition-all hover:bg-slate-100 hover:border-slate-300 group"
+              >
+                <span className="text-[11px] text-slate-500 group-hover:text-slate-700 flex items-center justify-center gap-1.5 font-medium">
+                  <Upload className="h-3.5 w-3.5 text-slate-400 group-hover:text-emerald-600 transition-colors" />
+                  Drag &amp; drop image here or click to browse
+                </span>
+              </div>
             </div>
 
-            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+            <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
                 Synced with PDF Generator &amp; Settings
@@ -970,6 +1120,161 @@ export default function AdminExamPapersPage() {
           </div>
         </div>
 
+        {/* Search, Filter & Sorting Toolbar */}
+        {!isLoading && papers.length > 0 && (
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-xs space-y-3">
+            <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+              {/* Search Bar */}
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                <Input
+                  type="text"
+                  placeholder="Search exam name, teacher, class, subject..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 pr-8 text-xs h-9 rounded-xl border-slate-200 focus-visible:ring-emerald-500 bg-slate-50/50 focus:bg-white transition-all"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-100 transition-colors"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Sorting & Reset Action */}
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1.5 text-xs text-slate-500 bg-slate-50 border border-slate-200/80 rounded-xl px-2.5 py-1.5 shadow-2xs">
+                  <ArrowUpDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                  <span className="font-medium text-slate-500 hidden sm:inline">Sort:</span>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                    className="bg-transparent text-xs font-semibold text-slate-800 focus:outline-none cursor-pointer"
+                  >
+                    <option value="NEWEST">Newest First</option>
+                    <option value="OLDEST">Oldest First</option>
+                    <option value="EXAM_ASC">Exam Name (A-Z)</option>
+                    <option value="TEACHER_ASC">Teacher Name (A-Z)</option>
+                    <option value="MARKS_DESC">Marks (High to Low)</option>
+                  </select>
+                </div>
+
+                {hasActiveFilters && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleResetFilters}
+                    className="text-xs h-8 px-2.5 rounded-xl text-slate-500 hover:text-red-600 hover:bg-red-50 gap-1 font-medium transition-colors"
+                    title="Clear all filters"
+                  >
+                    <RotateCcw className="h-3 w-3" />
+                    Reset
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Filter Pills & Counters */}
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 text-xs">
+              <span className="text-[11px] font-semibold text-slate-400 flex items-center gap-1 mr-0.5">
+                <Filter className="h-3 w-3" /> Filters:
+              </span>
+
+              {/* Status Pills */}
+              <div className="flex items-center gap-1 bg-slate-100/90 p-0.5 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('ALL')}
+                  className={cn(
+                    "px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all",
+                    statusFilter === 'ALL'
+                      ? "bg-white text-slate-900 shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  )}
+                >
+                  All ({papers.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('SUBMITTED')}
+                  className={cn(
+                    "px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all",
+                    statusFilter === 'SUBMITTED'
+                      ? "bg-amber-100 text-amber-900 shadow-2xs font-bold"
+                      : "text-slate-600 hover:text-slate-900"
+                  )}
+                >
+                  Submitted ({pendingCount})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('REVIEWED')}
+                  className={cn(
+                    "px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all",
+                    statusFilter === 'REVIEWED'
+                      ? "bg-emerald-100 text-emerald-900 shadow-2xs font-bold"
+                      : "text-slate-600 hover:text-slate-900"
+                  )}
+                >
+                  Reviewed ({reviewedCount})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('DRIVE_SYNCED')}
+                  className={cn(
+                    "px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all",
+                    statusFilter === 'DRIVE_SYNCED'
+                      ? "bg-teal-100 text-teal-900 shadow-2xs font-bold"
+                      : "text-slate-600 hover:text-slate-900"
+                  )}
+                >
+                  Drive ({syncedDriveCount})
+                </button>
+              </div>
+
+              {/* Class Filter Dropdown */}
+              {uniqueClasses.length > 0 && (
+                <select
+                  value={selectedClass}
+                  onChange={(e) => setSelectedClass(e.target.value)}
+                  className="text-xs h-7 rounded-lg border border-slate-200 bg-white px-2 py-0.5 text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer shadow-2xs"
+                >
+                  <option value="ALL">All Classes</option>
+                  {uniqueClasses.map((cls) => (
+                    <option key={cls} value={cls}>
+                      {cls}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              {/* Subject Filter Dropdown */}
+              {uniqueSubjects.length > 0 && (
+                <select
+                  value={selectedSubject}
+                  onChange={(e) => setSelectedSubject(e.target.value)}
+                  className="text-xs h-7 rounded-lg border border-slate-200 bg-white px-2 py-0.5 text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer shadow-2xs"
+                >
+                  <option value="ALL">All Subjects</option>
+                  {uniqueSubjects.map((sub) => (
+                    <option key={sub} value={sub}>
+                      {sub}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              <div className="ml-auto text-[11px] text-slate-400 font-medium">
+                Showing <span className="font-bold text-slate-700">{filteredPapers.length}</span> of {papers.length} papers
+              </div>
+            </div>
+          </div>
+        )}
+
         {isLoading ? (
           <div className="space-y-3">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -982,9 +1287,24 @@ export default function AdminExamPapersPage() {
             <p className="font-medium text-gray-700">No exam papers found.</p>
             <p className="text-xs text-gray-400 mt-1">Exam papers submitted by teachers will appear here for review.</p>
           </div>
+        ) : filteredPapers.length === 0 ? (
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-12 text-center text-sm text-slate-500 shadow-xs">
+            <FileText className="h-10 w-10 text-slate-300 mx-auto mb-3" />
+            <p className="font-bold text-slate-800 text-base">No matching exam papers</p>
+            <p className="text-xs text-slate-400 mt-1">No exam papers match your current search and filter settings.</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleResetFilters}
+              className="mt-4 text-xs h-8 rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50 gap-1.5"
+            >
+              <RotateCcw className="h-3 w-3" />
+              Clear Filters
+            </Button>
+          </div>
         ) : (
           <div className="space-y-3">
-            {papers.map((paper) => (
+            {filteredPapers.map((paper) => (
               <div key={paper.id} className="rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden transition-all hover:border-slate-300 hover:shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-3">
                   <div className="space-y-1">
