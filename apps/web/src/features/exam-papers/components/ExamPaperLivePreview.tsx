@@ -618,7 +618,7 @@ export function ExamPaperPreviewModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="max-w-6xl h-[94vh] p-0 flex flex-col gap-0 bg-slate-900 border-slate-800 text-white overflow-hidden rounded-2xl">
+      <DialogContent className="max-w-6xl h-[94vh] p-0 flex flex-col gap-0 bg-slate-900 border-slate-800 text-white overflow-hidden rounded-2xl [&>button:last-child]:hidden">
         <DialogTitle className="sr-only">Live Exam Paper Printable PDF Preview</DialogTitle>
         <DialogDescription className="sr-only">Exact printable PDF document preview matching the exported file</DialogDescription>
 

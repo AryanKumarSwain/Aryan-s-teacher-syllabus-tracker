@@ -267,7 +267,7 @@ async function renderMathToImage(
   const trimmed = latex.trim();
   if (!trimmed) return null;
 
-  const cacheKey = `v6_${trimmed}_${color}_${fontSizePt}`;
+  const cacheKey = `v7_${trimmed}_${color}_${fontSizePt}`;
   if (mathImageCache.has(cacheKey)) {
     return mathImageCache.get(cacheKey)!;
   }
@@ -276,12 +276,14 @@ async function renderMathToImage(
   try {
     container = document.createElement('div');
     container.style.position = 'fixed';
-    container.style.left = '-10000px';
+    container.style.left = '0';
     container.style.top = '0';
     container.style.width = 'auto';
     container.style.height = 'auto';
     container.style.visibility = 'visible';
+    container.style.opacity = '0.01';
     container.style.pointerEvents = 'none';
+    container.style.zIndex = '-9999';
 
     // Flex container to measure exact typographic baseline
     const flexWrap = document.createElement('div');
@@ -307,7 +309,7 @@ async function renderMathToImage(
     katex.render(trimmed, mathSpan, {
       throwOnError: false,
       displayMode: false,
-      minRuleThickness: 0.06,
+      minRuleThickness: 0.08,
       output: 'html',
     });
 
@@ -315,6 +317,10 @@ async function renderMathToImage(
     flexWrap.appendChild(mathSpan);
     container.appendChild(flexWrap);
     document.body.appendChild(container);
+
+    if (typeof document !== 'undefined' && document.fonts) {
+      await document.fonts.ready;
+    }
 
     // 1. Transform KaTeX fractions (\frac) from KaTeX's broken table/vlist coordinates
     // to a clean flex column layout so html2canvas renders numerator, fraction bar, and denominator with zero overlap
@@ -343,8 +349,8 @@ async function renderMathToImage(
         c.style.height = 'auto';
         c.style.display = 'block';
         c.style.textAlign = 'center';
-        c.style.lineHeight = '1';
-        c.style.paddingTop = '1px';
+        c.style.lineHeight = 'normal';
+        c.style.paddingTop = '2px';
         c.querySelectorAll<HTMLElement>('.pstrut').forEach(p => (p.style.display = 'none'));
       });
 
@@ -355,12 +361,12 @@ async function renderMathToImage(
         c.style.height = 'auto';
         c.style.display = 'block';
         c.style.textAlign = 'center';
-        c.style.lineHeight = '1';
-        c.style.paddingBottom = '1px';
+        c.style.lineHeight = 'normal';
+        c.style.paddingBottom = '2px';
         c.querySelectorAll<HTMLElement>('.pstrut').forEach(p => (p.style.display = 'none'));
       });
 
-      // Format fraction bar
+      // Format fraction bar as solid visible line
       fracLineContainer.style.position = 'static';
       fracLineContainer.style.top = '0';
       fracLineContainer.style.height = 'auto';
@@ -368,20 +374,18 @@ async function renderMathToImage(
       fracLineContainer.style.width = '100%';
       fracLineContainer.style.padding = '0';
       fracLineContainer.style.margin = '2px 0';
-      fracLineContainer.style.lineHeight = '0';
+      fracLineContainer.style.lineHeight = 'normal';
       fracLineContainer.querySelectorAll<HTMLElement>('.pstrut').forEach(p => (p.style.display = 'none'));
 
       fracLine.style.display = 'block';
       fracLine.style.width = '100%';
-      fracLine.style.minWidth = '12px';
-      fracLine.style.borderBottom = `1.5px solid ${color}`;
-      fracLine.style.borderTop = 'none';
-      fracLine.style.borderLeft = 'none';
-      fracLine.style.borderRight = 'none';
-      fracLine.style.height = '0';
-      fracLine.style.minHeight = '0';
-      fracLine.style.margin = '0';
-      fracLine.style.background = 'transparent';
+      fracLine.style.minWidth = '14px';
+      fracLine.style.height = '2px';
+      fracLine.style.minHeight = '2px';
+      fracLine.style.backgroundColor = color;
+      fracLine.style.border = 'none';
+      fracLine.style.margin = '2px 0';
+      fracLine.style.opacity = '1';
 
       // Create pure flex column: Numerator on top, bar in middle, denominator on bottom
       const flexWrapper = document.createElement('span');
@@ -408,13 +412,57 @@ async function renderMathToImage(
 
     // Fallback for any standalone frac-line
     mathSpan.querySelectorAll<HTMLElement>('.frac-line').forEach(el => {
-      el.style.borderBottom = `1.5px solid ${color}`;
-      el.style.borderTop = 'none';
-      el.style.borderLeft = 'none';
-      el.style.borderRight = 'none';
-      el.style.height = '0';
-      el.style.minHeight = '0';
-      el.style.background = 'transparent';
+      el.style.display = 'block';
+      el.style.width = '100%';
+      el.style.minWidth = '14px';
+      el.style.height = '2px';
+      el.style.minHeight = '2px';
+      el.style.backgroundColor = color;
+      el.style.border = 'none';
+      el.style.margin = '2px 0';
+      el.style.opacity = '1';
+    });
+
+    // 2. Fix superscripts and subscripts (\msupsub) so x^2 and a_1 don't displace vertically
+    mathSpan.querySelectorAll<HTMLElement>('.msupsub').forEach(msupsub => {
+      const vlist = msupsub.querySelector<HTMLElement>('.vlist');
+      if (!vlist) return;
+
+      const children = Array.from(vlist.children) as HTMLElement[];
+      children.forEach(c => {
+        c.querySelectorAll<HTMLElement>('.pstrut').forEach(p => (p.style.display = 'none'));
+        c.style.position = 'static';
+        c.style.top = '0';
+        c.style.display = 'inline-block';
+        c.style.height = 'auto';
+        c.style.lineHeight = 'normal';
+      });
+
+      if (children.length === 1) {
+        const item = children[0];
+        const isSup = (item.getAttribute('style') || '').includes('top:-') || !msupsub.classList.contains('sub');
+        msupsub.style.display = 'inline-block';
+        msupsub.style.position = 'relative';
+        msupsub.style.verticalAlign = isSup ? 'super' : 'sub';
+        msupsub.style.fontSize = '0.7em';
+        msupsub.style.lineHeight = '0';
+        msupsub.style.top = isSup ? '-0.45em' : '0.25em';
+        msupsub.style.marginLeft = '1px';
+
+        const wrapper = msupsub.querySelector<HTMLElement>('.vlist-t') || vlist;
+        wrapper.style.display = 'inline-block';
+        wrapper.style.height = 'auto';
+        vlist.style.display = 'inline-block';
+        vlist.style.height = 'auto';
+      } else if (children.length >= 2) {
+        msupsub.style.display = 'inline-flex';
+        msupsub.style.flexDirection = 'column-reverse';
+        msupsub.style.verticalAlign = 'middle';
+        msupsub.style.fontSize = '0.7em';
+        msupsub.style.lineHeight = '1';
+        msupsub.style.marginLeft = '1px';
+        vlist.style.display = 'contents';
+      }
     });
 
     // 2. Fix square roots (\sqrt) and radical overline

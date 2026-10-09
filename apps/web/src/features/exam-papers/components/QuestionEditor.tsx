@@ -540,28 +540,28 @@ export function QuestionEditor({
   };
 
   return (
-    <div className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
+    <div className="space-y-6">
       {/* Sleek Global Toolbar for Exam Typography & Styling */}
-      <div className="rounded-xl border border-slate-200/90 bg-linear-to-r from-slate-50 via-sky-50/20 to-indigo-50/20 p-4 shadow-2xs">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700">
-              <Type className="h-4 w-4" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200/50">
+              <Type className="h-5 w-5" />
             </div>
             <div>
-              <h4 className="text-xs font-semibold text-slate-800 uppercase tracking-wider">Exam Typography & Styling</h4>
+              <h4 className="text-sm font-bold text-slate-900">Exam Typography & Formatting</h4>
               <p className="text-xs text-slate-500">Applies globally across all question text, equations, and options</p>
             </div>
           </div>
           
           <div className="flex flex-wrap items-center gap-3">
             {/* Font Family Selector */}
-            <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 shadow-2xs">
-              <span className="text-xs font-medium text-slate-500">Font:</span>
+            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-2xs">
+              <span className="text-xs font-semibold text-slate-500">Font:</span>
               <select 
                 value={globalStyle.fontFamily}
                 onChange={(e) => setGlobalStyle(prev => ({ ...prev, fontFamily: e.target.value }))}
-                className="text-xs font-semibold text-slate-800 bg-transparent border-0 focus:outline-none cursor-pointer"
+                className="text-xs font-bold text-slate-800 bg-transparent border-0 focus:outline-none cursor-pointer"
               >
                 {FONT_OPTIONS.map(f => (
                   <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
@@ -570,12 +570,12 @@ export function QuestionEditor({
             </div>
 
             {/* Font Size Selector */}
-            <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 shadow-2xs">
-              <span className="text-xs font-medium text-slate-500">Size:</span>
+            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-2xs">
+              <span className="text-xs font-semibold text-slate-500">Size:</span>
               <select 
                 value={globalStyle.fontSize}
                 onChange={(e) => setGlobalStyle(prev => ({ ...prev, fontSize: e.target.value }))}
-                className="text-xs font-semibold text-slate-800 bg-transparent border-0 focus:outline-none cursor-pointer"
+                className="text-xs font-bold text-slate-800 bg-transparent border-0 focus:outline-none cursor-pointer"
               >
                 {FONT_SIZES.map(s => (
                   <option key={s.value} value={s.value}>{s.label}</option>
@@ -584,7 +584,7 @@ export function QuestionEditor({
             </div>
 
             {/* Color Selector */}
-            <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 shadow-2xs">
+            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-2xs">
               <Palette className="h-3.5 w-3.5 text-slate-500" />
               <div className="flex items-center gap-1">
                 {COLOR_PRESETS.map(c => (
@@ -615,11 +615,11 @@ export function QuestionEditor({
         </div>
 
         {/* Live Typography Preview Pill & Paper Preview Button */}
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 pt-2.5 border-t border-slate-200/60 text-xs">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 pt-2 text-xs">
           <div className="flex items-center gap-2">
-            <span className="text-slate-400 font-medium">Live Preview:</span>
+            <span className="text-slate-400 font-medium">Style Preview:</span>
             <span 
-              className="rounded bg-white/90 px-3 py-1 border border-slate-200/80 shadow-2xs"
+              className="rounded-lg bg-slate-50 px-3 py-1 border border-slate-200/80 shadow-2xs"
               style={{ fontFamily: globalStyle.fontFamily, fontSize: globalStyle.fontSize, color: globalStyle.color }}
             >
               Sample: If 2x + 5 = 15, then x = ? &nbsp;•&nbsp; (A) 5 &nbsp; (B) 10
@@ -632,7 +632,7 @@ export function QuestionEditor({
               variant="outline"
               size="sm"
               onClick={() => onOpenPreview(draftSections, globalStyle)}
-              className="bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800 text-xs flex items-center gap-1.5 font-semibold"
+              className="bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800 text-xs flex items-center gap-1.5 font-semibold rounded-xl"
             >
               <Eye className="w-3.5 h-3.5 text-indigo-600" />
               Preview Full Paper
@@ -1295,20 +1295,35 @@ export function QuestionEditor({
       </div>
       
       {/* Bottom Step Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-200">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
         <div>
           {onBack && (
-            <Button type="button" variant="outline" onClick={onBack} className="text-slate-600">
-              ← Back
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onBack} 
+              className="rounded-xl flex items-center gap-1.5 font-semibold text-slate-600"
+            >
+              <span>← Back to Sections</span>
             </Button>
           )}
         </div>
         <div className="flex items-center gap-3">
-          <Button type="button" variant="outline" onClick={handleSaveDraft} className="border-slate-300 text-slate-700">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={handleSaveDraft} 
+            className="rounded-xl border-slate-300 font-semibold text-slate-700 hover:bg-slate-50"
+          >
             Save as Draft
           </Button>
-          <Button type="button" onClick={handleSubmit} className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5">
-            Proceed to Instructions →
+          <Button 
+            type="button" 
+            onClick={handleSubmit} 
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-sm flex items-center gap-2 transition-all hover:shadow"
+          >
+            <span>Proceed to Instructions</span>
+            <span className="text-base">→</span>
           </Button>
         </div>
       </div>
