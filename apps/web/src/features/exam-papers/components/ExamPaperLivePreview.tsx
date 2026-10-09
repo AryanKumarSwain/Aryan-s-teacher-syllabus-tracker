@@ -451,7 +451,7 @@ function PreviewQuestionItem({
 
                 {/* MCQ Options - rendered immediately below question text without gap */}
                 {isMCQ && question.options && question.options.length > 0 && (
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 pt-1 text-[11px]">
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-0.5 pt-0.5 text-[11px]">
                     {question.options.map((opt: any, oIdx: number) => {
                       const optText = typeof opt === 'string' ? opt : (opt.text || '');
                       const formattedOpt = formatContentWithMath(optText);
@@ -486,7 +486,7 @@ function PreviewQuestionItem({
                       <div className="leading-normal overflow-x-auto" dangerouslySetInnerHTML={{ __html: altFormatted }} />
 
                       {alt.options && alt.options.length > 0 && (
-                        <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 pt-1 text-[11px]">
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-0.5 pt-0.5 text-[11px]">
                           {alt.options.map((o: any, oIdx: number) => (
                             <div key={oIdx} className="flex items-start gap-1">
                               <span className="font-semibold">{String.fromCharCode(97 + oIdx)})</span>

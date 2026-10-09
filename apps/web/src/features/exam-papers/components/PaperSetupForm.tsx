@@ -164,7 +164,7 @@ export function PaperSetupForm({ onSubmitSuccess, initialData, isEdit = false, p
         if (isActive && res?.examNames && Array.isArray(res.examNames) && res.examNames.length > 0) {
           setExamNameOptions(res.examNames);
           const currentVal = form.getValues('examName');
-          if (!currentVal) {
+          if (!currentVal && res.examNames[0]) {
             form.setValue('examName', res.examNames[0]);
           }
         }
