@@ -187,20 +187,11 @@ export default function AdminExamPapersPage() {
       const formData = new FormData();
       formData.append('logo', file);
 
-      const response = await fetch(`${env.apiUrl}/exam-papers/template/upload-logo`, {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
-      });
+      await api.postFormData('/exam-papers/template/upload-logo', formData);
 
-      const data = await response.json();
-      if (response.ok && data.success) {
-        queryClient.invalidateQueries({ queryKey: ['exam-paper-template'] });
-        queryClient.invalidateQueries({ queryKey: ['admin-exam-papers'] });
-        toast.success('School logo updated and synced');
-      } else {
-        throw new Error(data.error || 'Upload failed');
-      }
+      queryClient.invalidateQueries({ queryKey: ['exam-paper-template'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-exam-papers'] });
+      toast.success('School logo updated and synced');
     } catch (error: any) {
       toast.error(error?.message || 'Logo upload failed');
     } finally {

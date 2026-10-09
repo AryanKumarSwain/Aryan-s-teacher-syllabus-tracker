@@ -163,15 +163,10 @@ export function SettingsPageContent() {
       const formData = new FormData();
       formData.append('logo', file);
       
-      const response = await fetch(`${env.apiUrl}/exam-papers/template/upload-logo`, {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
-      });
-      
-      const data = await response.json();
-      if (response.ok && data.success) {
-        setLogoUrl(data.data.logoUrl);
+      const res = await api.postFormData<any>('/exam-papers/template/upload-logo', formData);
+      const newLogoUrl = res?.logoUrl;
+      if (newLogoUrl) {
+        setLogoUrl(newLogoUrl);
         queryClient.invalidateQueries({ queryKey: ['exam-paper-template'] });
         queryClient.invalidateQueries({ queryKey: ['admin-exam-papers'] });
         if (user) {
@@ -181,16 +176,14 @@ export function SettingsPageContent() {
               id: user.school?.id || '',
               name: user.school?.name || '',
               currentAcademicSessionId: user.school?.currentAcademicSessionId ?? null,
-              logo: data.data.logoUrl,
+              logo: newLogoUrl,
             }
           }, accessToken!);
         }
         toast.success('Logo uploaded successfully');
-      } else {
-        throw new Error(data.error || 'Upload failed');
       }
-    } catch (error) {
-      toast.error('Logo upload failed');
+    } catch (error: any) {
+      toast.error(error?.message || 'Logo upload failed');
     } finally {
       setUploadingLogo(false);
     }

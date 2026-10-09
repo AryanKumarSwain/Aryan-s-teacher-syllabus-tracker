@@ -1,3 +1,5 @@
+import path from 'node:path';
+import fs from 'node:fs';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -74,6 +76,14 @@ export function createApp() {
     }
     next();
   });
+
+  // Serve static uploads
+  const uploadsDir = path.resolve(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+  app.use('/uploads', express.static(uploadsDir, { maxAge: '7d' }));
+  app.use('/api/uploads', express.static(uploadsDir, { maxAge: '7d' }));
 
   // Global API Rate Limiter
   app.use('/api', apiLimiter);

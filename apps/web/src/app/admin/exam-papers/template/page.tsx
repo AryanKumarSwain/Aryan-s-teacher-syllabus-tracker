@@ -38,17 +38,9 @@ export default function ExamPaperTemplatePage() {
       const formData = new FormData();
       formData.append('logo', file);
       
-      const response = await fetch(`${env.apiUrl}/exam-papers/template/upload-logo`, {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
-      });
-      
-      const data = await response.json();
-      if (response.ok && data.success) {
-        setLogoUrl(data.data.logoUrl);
-      } else {
-        throw new Error(data.error || 'Upload failed');
+      const res = await api.postFormData<any>('/exam-papers/template/upload-logo', formData);
+      if (res?.logoUrl) {
+        setLogoUrl(res.logoUrl);
       }
     } catch (error) {
       console.error('Logo upload failed:', error);
