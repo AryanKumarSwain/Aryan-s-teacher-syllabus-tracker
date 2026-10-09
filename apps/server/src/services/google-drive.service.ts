@@ -296,6 +296,13 @@ export class GoogleDriveService {
         class: true,
         subject: true,
         school: true,
+        teacher: {
+          include: {
+            user: {
+              select: { name: true },
+            },
+          },
+        },
       },
     });
 
@@ -317,11 +324,24 @@ export class GoogleDriveService {
     const subjectName = paper.subject?.name || 'General';
     const subjectFolderId = await this.findOrCreateFolder(accessToken, subjectName, classFolderId);
 
-    // 4. File Name formatting
-    const cleanExamName = paper.examName.replace(/[/\\?%*:|"<>]/g, '_').trim();
-    const finalFileName = customFileName
-      ? `${customFileName.replace(/\.pdf$/i, '')}.pdf`
-      : `${cleanExamName}.pdf`;
+    // 4. File Name formatting (includes teacher name)
+    const cleanExamName = paper.examName.replace(/[/\\?%*:|"<>]/g, '_').replace(/\s+/g, '_').trim();
+    const rawTeacherName = paper.teacher?.user?.name?.trim();
+    const cleanTeacherName = rawTeacherName ? rawTeacherName.replace(/[/\\?%*:|"<>]/g, '_').replace(/\s+/g, '_') : '';
+
+    let finalFileName: string;
+    if (customFileName) {
+      const baseName = customFileName.replace(/\.pdf$/i, '').trim();
+      if (cleanTeacherName && !baseName.toLowerCase().includes(cleanTeacherName.toLowerCase())) {
+        finalFileName = `${baseName}_${cleanTeacherName}.pdf`;
+      } else {
+        finalFileName = `${baseName}.pdf`;
+      }
+    } else {
+      finalFileName = cleanTeacherName
+        ? `${cleanExamName}_${cleanTeacherName}.pdf`
+        : `${cleanExamName}.pdf`;
+    }
 
     // 5. Upload PDF file
     const uploadedFile = await this.uploadFileToFolder(

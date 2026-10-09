@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { RichTextField } from './RichTextField';
 import { ImageCropModal } from './ImageCropModal';
 import { api } from '@/services/api-client';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import katex from 'katex';
 import { MathEquationDialog } from './MathEquationDialog';
@@ -414,18 +415,50 @@ export function QuestionEditor({
     if (!currentImage) return;
     
     try {
-      const response = await fetch(croppedImageUrl);
-      const blob = await response.blob();
-      const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
+      // Extract blob directly from data URL or fetch
+      let blob: Blob;
+      if (croppedImageUrl.startsWith('data:')) {
+        const parts = croppedImageUrl.split(';base64,');
+        const contentType = parts[0].split(':')[1] || 'image/jpeg';
+        const raw = window.atob(parts[1]);
+        const rawLength = raw.length;
+        const uInt8Array = new Uint8Array(rawLength);
+        for (let i = 0; i < rawLength; ++i) {
+          uInt8Array[i] = raw.charCodeAt(i);
+        }
+        blob = new Blob([uInt8Array], { type: contentType });
+      } else {
+        const response = await fetch(croppedImageUrl);
+        blob = await response.blob();
+      }
       
+      const file = new File([blob], `diagram_${Date.now()}.jpg`, { type: 'image/jpeg' });
       const formData = new FormData();
       formData.append('image', file);
       
-      const uploadResponse = await api.postFormData<{ imageUrl: string }>('/exam-papers/upload-question-image', formData);
-      updateQuestion(currentImage.sectionIndex, currentImage.questionIndex, { imageUrl: uploadResponse.imageUrl });
+      try {
+        const uploadResponse = await api.postFormData<{ imageUrl: string }>('/exam-papers/upload-question-image', formData);
+        if (uploadResponse?.imageUrl) {
+          updateQuestion(currentImage.sectionIndex, currentImage.questionIndex, { imageUrl: uploadResponse.imageUrl });
+          toast.success('Diagram image uploaded successfully');
+          return;
+        }
+      } catch (uploadErr) {
+        console.warn('Cloud upload returned error, using local diagram image:', uploadErr);
+        // Fallback: Use cropped base64 directly so user's work is NEVER lost
+        updateQuestion(currentImage.sectionIndex, currentImage.questionIndex, { imageUrl: croppedImageUrl });
+        toast.success('Diagram saved to question');
+        return;
+      }
+
+      // If no URL returned, still use croppedImageUrl
+      updateQuestion(currentImage.sectionIndex, currentImage.questionIndex, { imageUrl: croppedImageUrl });
+      toast.success('Diagram saved to question');
     } catch (error) {
-      console.error('Failed to upload cropped image:', error);
-      alert('Failed to upload cropped image. Please try again.');
+      console.error('Failed to process cropped image:', error);
+      // Fallback: save cropped base64
+      updateQuestion(currentImage.sectionIndex, currentImage.questionIndex, { imageUrl: croppedImageUrl });
+      toast.info('Diagram saved to question');
     }
   };
 

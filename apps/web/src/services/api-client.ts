@@ -72,7 +72,18 @@ async function request<T>(endpoint: string, options: RequestOptions = {}, retrie
     headers,
   });
 
-  const data = await response.json();
+  let data: any = {};
+  const contentType = response.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    try {
+      data = await response.json();
+    } catch {
+      data = { success: false, error: 'Invalid JSON response from server' };
+    }
+  } else {
+    const rawText = await response.text();
+    data = { success: false, error: rawText.slice(0, 300) || `Server error (${response.status})` };
+  }
 
   if (response.status === 401 && !retried && !skipAuth && !endpoint.includes('/auth/')) {
     const newToken = await refreshAccessToken();

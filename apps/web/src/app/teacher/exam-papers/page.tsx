@@ -140,9 +140,8 @@ export default function TeacherExamPapersPage() {
       
       const blob = await generateExamPaperPdf(pdfData as any, '');
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${paper.examName.replace(/\s+/g, '_')}_Paper.pdf`;
+      const teacherSuffix = paper.teacher?.user?.name ? `_${paper.teacher.user.name.trim().replace(/\s+/g, '_')}` : '';
+      link.download = `${paper.examName.trim().replace(/\s+/g, '_')}${teacherSuffix}_Paper.pdf`;
       link.click();
       window.URL.revokeObjectURL(url);
       toast.success('Blank PDF downloaded');

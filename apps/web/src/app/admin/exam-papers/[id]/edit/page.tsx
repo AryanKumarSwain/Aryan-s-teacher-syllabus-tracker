@@ -193,10 +193,10 @@ export default function AdminEditExamPaperPage() {
       };
       
       const blob = await generateExamPaperPdf(pdfData);
-      const url = window.URL.createObjectURL(blob);
+      const teacherSuffix = paperDetails.teacherName ? `_${paperDetails.teacherName.trim().replace(/\s+/g, '_')}` : '';
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${paperDetails.examName.replace(/\s+/g, '_')}_Paper.pdf`;
+      link.download = `${paperDetails.examName.trim().replace(/\s+/g, '_')}${teacherSuffix}_Paper.pdf`;
       link.click();
       window.URL.revokeObjectURL(url);
     } catch (err) {

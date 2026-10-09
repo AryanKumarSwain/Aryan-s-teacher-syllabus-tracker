@@ -233,8 +233,9 @@ export default function EditExamPaperPage() {
       const blob = await generateExamPaperPdf(pdfData);
       
       // Upload PDF to server
+      const teacherSuffix = paperDetails.teacherName ? `_${paperDetails.teacherName.trim().replace(/\s+/g, '_')}` : '';
       const formData = new FormData();
-      formData.append('pdf', blob, `${paperDetails.examName.replace(/\s+/g, '_')}_Paper.pdf`);
+      formData.append('pdf', blob, `${paperDetails.examName.trim().replace(/\s+/g, '_')}${teacherSuffix}_Paper.pdf`);
       
       await fetch(`/api/exam-papers/${params.id}/pdf`, {
         method: 'POST',
@@ -272,9 +273,10 @@ export default function EditExamPaperPage() {
       
       const blob = await generateExamPaperPdf(pdfData);
       const url = window.URL.createObjectURL(blob);
+      const teacherSuffix = paperDetails.teacherName ? `_${paperDetails.teacherName.trim().replace(/\s+/g, '_')}` : '';
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${paperDetails.examName.replace(/\s+/g, '_')}_Paper.pdf`;
+      link.download = `${paperDetails.examName.trim().replace(/\s+/g, '_')}${teacherSuffix}_Paper.pdf`;
       link.click();
       window.URL.revokeObjectURL(url);
     } catch (err) {

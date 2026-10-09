@@ -317,9 +317,8 @@ export default function AdminExamPapersPage() {
       
       const blob = await generateExamPaperPdf(pdfData as any, '');
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${paper.examName.replace(/\s+/g, '_')}_Paper.pdf`;
+      const teacherSuffix = paper.teacher?.user?.name ? `_${paper.teacher.user.name.trim().replace(/\s+/g, '_')}` : '';
+      link.download = `${paper.examName.trim().replace(/\s+/g, '_')}${teacherSuffix}_Paper.pdf`;
       link.click();
       window.URL.revokeObjectURL(url);
       toast.success('Blank exam paper PDF downloaded');
@@ -402,8 +401,8 @@ export default function AdminExamPapersPage() {
         sections: paper.sections || [],
       };
 
-      const blob = await generateExamPaperPdf(pdfData as any, '');
-      const safeExamName = `${paper.examName.replace(/\s+/g, '_')}_Paper.pdf`;
+      const teacherSuffix = paper.teacher?.user?.name ? `_${paper.teacher.user.name.trim().replace(/\s+/g, '_')}` : '';
+      const safeExamName = `${paper.examName.trim().replace(/\s+/g, '_')}${teacherSuffix}_Paper.pdf`;
 
       const formData = new FormData();
       formData.append('pdf', blob, safeExamName);

@@ -29,8 +29,7 @@ export async function uploadImage(file: File | Buffer, folder: string = 'exam-pa
     cld.uploader.upload_stream(
       { 
         folder,
-        resource_type: 'image',
-        allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'],
+        resource_type: 'auto',
       },
       (error, result) => {
         if (error) {

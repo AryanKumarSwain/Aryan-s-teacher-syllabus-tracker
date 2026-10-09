@@ -89,8 +89,22 @@ export function ImageCropModal({ isOpen, onClose, onCropComplete, imageSrc }: Im
     const cropWidth = Math.max(Math.round(pixelCrop.width * scaleX), 1);
     const cropHeight = Math.max(Math.round(pixelCrop.height * scaleY), 1);
 
-    canvas.width = cropWidth;
-    canvas.height = cropHeight;
+    // Limit maximum dimensions to 1200px for sharp exam diagrams without massive payloads
+    const maxDim = 1200;
+    let finalWidth = cropWidth;
+    let finalHeight = cropHeight;
+    if (finalWidth > maxDim || finalHeight > maxDim) {
+      if (finalWidth > finalHeight) {
+        finalHeight = Math.round((finalHeight * maxDim) / finalWidth);
+        finalWidth = maxDim;
+      } else {
+        finalWidth = Math.round((finalWidth * maxDim) / finalHeight);
+        finalHeight = maxDim;
+      }
+    }
+
+    canvas.width = finalWidth;
+    canvas.height = finalHeight;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return Promise.resolve('');
@@ -106,8 +120,8 @@ export function ImageCropModal({ isOpen, onClose, onCropComplete, imageSrc }: Im
       cropHeight,
       0,
       0,
-      cropWidth,
-      cropHeight
+      finalWidth,
+      finalHeight
     );
 
     return new Promise((resolve) => {
@@ -119,7 +133,7 @@ export function ImageCropModal({ isOpen, onClose, onCropComplete, imageSrc }: Im
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result as string);
         reader.readAsDataURL(blob);
-      }, 'image/png');
+      }, 'image/jpeg', 0.88);
     });
   };
 
