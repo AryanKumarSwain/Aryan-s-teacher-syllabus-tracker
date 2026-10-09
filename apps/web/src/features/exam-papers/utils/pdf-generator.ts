@@ -17,22 +17,26 @@ async function fetchImageAsBase64(url: string): Promise<string> {
 // Load Devanagari font for Hindi text rendering
 function loadDevanagariFont(doc: any): void {
   if (typeof window === 'undefined') {
-    const fs = require('fs');
-    const path = require('path');
-    const fontDir = path.join(__dirname);
-    
-    const regularBase64 = fs.readFileSync(path.join(fontDir, 'noto-sans-devanagari-regular.b64'), 'utf-8');
-    const boldBase64 = fs.readFileSync(path.join(fontDir, 'noto-sans-devanagari-bold.b64'), 'utf-8');
-    
-    // @ts-ignore - jsPDF addFileToVFS and addFont methods
-    doc.addFileToVFS('NotoSansDevanagari-Regular.ttf', regularBase64);
-    // @ts-ignore
-    doc.addFont('NotoSansDevanagari-Regular.ttf', 'NotoSansDevanagari', 'normal');
-    
-    // @ts-ignore
-    doc.addFileToVFS('NotoSansDevanagari-Bold.ttf', boldBase64);
-    // @ts-ignore
-    doc.addFont('NotoSansDevanagari-Bold.ttf', 'NotoSansDevanagari', 'bold');
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const fontDir = path.join(__dirname);
+      
+      const regularBase64 = fs.readFileSync(path.join(fontDir, 'noto-sans-devanagari-regular.b64'), 'utf-8');
+      const boldBase64 = fs.readFileSync(path.join(fontDir, 'noto-sans-devanagari-bold.b64'), 'utf-8');
+      
+      // @ts-ignore - jsPDF addFileToVFS and addFont methods
+      doc.addFileToVFS('NotoSansDevanagari-Regular.ttf', regularBase64);
+      // @ts-ignore
+      doc.addFont('NotoSansDevanagari-Regular.ttf', 'NotoSansDevanagari', 'normal');
+      
+      // @ts-ignore
+      doc.addFileToVFS('NotoSansDevanagari-Bold.ttf', boldBase64);
+      // @ts-ignore
+      doc.addFont('NotoSansDevanagari-Bold.ttf', 'NotoSansDevanagari', 'bold');
+    } catch {
+      // Ignore if font files not found in SSR environment
+    }
   }
 }
 

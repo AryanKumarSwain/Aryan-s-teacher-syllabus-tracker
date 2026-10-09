@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/services/api-client';
 import { toast } from 'sonner';
-import { env } from '@/config/env';
 import { Badge } from '@/components/ui/badge';
 import { useSchool } from '@/features/syllabus/hooks/use-school';
 import { useAcademicSessions } from '@/features/syllabus/hooks/use-academic-sessions';
@@ -361,6 +360,8 @@ export default function AdminExamPapersPage() {
       const blob = await generateExamPaperPdf(pdfData as any, '');
       const url = window.URL.createObjectURL(blob);
       const teacherSuffix = paper.teacher?.user?.name ? `_${paper.teacher.user.name.trim().replace(/\s+/g, '_')}` : '';
+      const link = document.createElement('a');
+      link.href = url;
       link.download = `${paper.examName.trim().replace(/\s+/g, '_')}${teacherSuffix}_Paper.pdf`;
       link.click();
       window.URL.revokeObjectURL(url);
@@ -446,6 +447,8 @@ export default function AdminExamPapersPage() {
 
       const teacherSuffix = paper.teacher?.user?.name ? `_${paper.teacher.user.name.trim().replace(/\s+/g, '_')}` : '';
       const safeExamName = `${paper.examName.trim().replace(/\s+/g, '_')}${teacherSuffix}_Paper.pdf`;
+
+      const blob = await generateExamPaperPdf(pdfData as any, '');
 
       const formData = new FormData();
       formData.append('pdf', blob, safeExamName);

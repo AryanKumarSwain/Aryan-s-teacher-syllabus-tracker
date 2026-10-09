@@ -174,6 +174,8 @@ export default function AdminExamPaperReviewPage() {
       const teacherSuffix = paper.teacher?.user?.name ? `_${paper.teacher.user.name.trim().replace(/\s+/g, '_')}` : '';
       const safeExamName = `${paper.examName.trim().replace(/\s+/g, '_')}${teacherSuffix}_Paper.pdf`;
 
+      const blob = await generateExamPaperPdf(pdfData as any, '');
+
       const formData = new FormData();
       formData.append('pdf', blob, safeExamName);
       formData.append('fileName', safeExamName);
