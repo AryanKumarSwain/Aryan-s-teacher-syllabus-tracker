@@ -36,24 +36,28 @@ import { cn } from '@/lib/utils';
 function Section({
   title,
   icon: Icon,
-  iconGradient = 'from-blue-600 to-indigo-600',
+  iconBg = 'bg-blue-50',
+  iconColor = 'text-blue-600',
+  iconGradient,
   extra,
   children,
 }: {
   title: string;
   icon: React.ElementType;
+  iconBg?: string;
+  iconColor?: string;
   iconGradient?: string;
   extra?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xs transition-all duration-200 hover:shadow-xs">
-      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-4 py-3 sm:px-5 sm:py-3">
+    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-4 py-3 sm:px-5 sm:py-3.5">
         <div className="flex items-center gap-2.5">
-          <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br ${iconGradient} text-white shadow-xs`}>
-            <Icon className="h-3.5 w-3.5 text-white" />
+          <div className={cn('rounded-xl p-2', iconGradient ? cn(iconGradient, 'text-white') : iconBg)}>
+            <Icon className={cn('h-4 w-4', iconGradient ? 'text-white' : iconColor)} />
           </div>
-          <h3 className="text-sm font-black tracking-tight text-[#0b1c30]">{title}</h3>
+          <h3 className="text-sm font-bold tracking-tight text-slate-900">{title}</h3>
         </div>
         {extra && <div className="flex items-center">{extra}</div>}
       </div>
@@ -144,127 +148,160 @@ export default function TeacherTrainingPage() {
 
   return (
     <DashboardShell title="My CPD Training">
-      <div className="space-y-6 max-w-7xl mx-auto pb-12">
-        {/* Header - Matching Admin Dashboard Style */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-amber-700 border border-amber-200/80">
-                <Award className="h-3 w-3" /> CBSE CPD Mandate TRG-02/2025
-              </span>
-              <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600">
-                50 Hours Annual Target
-              </span>
+      <div className="animate-in fade-in space-y-4 pb-8 duration-300">
+        {/* Executive Welcome & Status Banner (Matching Image 1 exact UI) */}
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-4 sm:p-5 shadow-xs">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-emerald-400/10 blur-3xl" />
+          <div className="pointer-events-none absolute -left-16 -bottom-16 h-36 w-36 rounded-full bg-blue-400/10 blur-3xl" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 ring-2 ring-emerald-500/15">
+                <Award className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#0b1c30]">
+                    Teacher Professional Development (CPD)
+                  </h1>
+                  <Badge className="border-none bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5 gap-1.5 shadow-2xs">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                    </span>
+                    Live: 50h Annual Mandate
+                  </Badge>
+                </div>
+                <p className="text-xs text-slate-500 font-medium">
+                  Track mandatory 50-hour professional development hours across CBSE & In-house institutional modules.
+                </p>
+              </div>
             </div>
-            <h1 className="mt-1 text-2xl font-black tracking-tight text-[#0b1c30] sm:text-3xl">
-              Teacher Continuous Professional Development
-            </h1>
-            <p className="mt-0.5 text-xs sm:text-sm text-slate-500 font-medium">
-              Track mandatory 50-hour professional development hours across CBSE & In-house institutional modules.
-            </p>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setGuidelinesOpen(true)}
-              className="text-xs font-bold rounded-xl border-slate-200 hover:bg-slate-50 gap-1.5"
-            >
-              <BookOpen className="h-3.5 w-3.5 text-blue-600" />
-              CBSE Guidelines
-            </Button>
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setGuidelinesOpen(true)}
+                className="h-9 text-xs font-bold border-slate-200 text-slate-700 bg-white hover:bg-slate-50 gap-1.5 shadow-2xs rounded-xl"
+              >
+                <BookOpen className="h-3.5 w-3.5 text-blue-600" />
+                Guidelines
+              </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDownloadSummary}
-              disabled={!records.length}
-              className="text-xs font-bold rounded-xl border-slate-200 hover:bg-slate-50 gap-1.5"
-            >
-              <Download className="h-3.5 w-3.5 text-emerald-600" />
-              Download Portfolio
-            </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadSummary}
+                disabled={!records.length}
+                className="h-9 text-xs font-bold border-slate-200 text-slate-700 bg-white hover:bg-slate-50 gap-1.5 shadow-2xs rounded-xl"
+              >
+                <Download className="h-3.5 w-3.5 text-emerald-600" />
+                Portfolio
+              </Button>
 
-            <Button
-              size="sm"
-              onClick={() => setLogDialogOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl gap-1.5 shadow-xs hover:shadow"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              Log Training Record
-            </Button>
+              <Button
+                size="sm"
+                onClick={() => setLogDialogOpen(true)}
+                className="h-9 font-bold text-xs shadow-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-600/20 px-3.5 gap-1.5 rounded-xl cursor-pointer active:scale-95 transition-all"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Log Record
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* 4 Top KPI Stat Cards - Matching Admin Dashboard */}
-        <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Effective</p>
-                <p className="mt-1 text-2xl sm:text-3xl font-black text-[#0b1c30] tracking-tight">
-                  {effectiveTotal} <span className="text-sm font-bold text-slate-400">/ 50h</span>
-                </p>
-                <p className="mt-1 text-[11px] font-semibold text-slate-400">{totalProgress}% completed</p>
-              </div>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-xs">
-                <Award className="h-5 w-5" />
-              </div>
+        {/* 4 Concise Overview KPI Metric Cards (Matching Image 1 UI) */}
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+          {/* Card 1 - Blue: Effective Total */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-blue-200/80 bg-gradient-to-br from-blue-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Effective Hours
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-blue-100 text-blue-700">
+                {totalProgress}% Done
+              </span>
             </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                {effectiveTotal}h
+              </span>
+              <span className="text-[10px] font-semibold text-slate-400">/ 50h</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+              Mandatory annual CPD quota
+            </p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">CBSE Quota</p>
-                <p className="mt-1 text-2xl sm:text-3xl font-black text-blue-600 tracking-tight">
-                  {effectiveCbse} <span className="text-sm font-bold text-slate-400">/ 25h</span>
-                </p>
-                <p className="mt-1 text-[11px] font-semibold text-slate-400">COE & Regional</p>
-              </div>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xs">
-                <Building className="h-5 w-5" />
-              </div>
+          {/* Card 2 - Purple: CBSE Quota */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-purple-200/80 bg-gradient-to-br from-purple-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-600" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                CBSE Quota
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-purple-100 text-purple-700">
+                COE / Regional
+              </span>
             </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                {effectiveCbse}h
+              </span>
+              <span className="text-[10px] font-semibold text-slate-400">/ 25h</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+              Official CBSE workshops
+            </p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">School Quota</p>
-                <p className="mt-1 text-2xl sm:text-3xl font-black text-purple-600 tracking-tight">
-                  {effectiveSchool} <span className="text-sm font-bold text-slate-400">/ 25h</span>
-                </p>
-                <p className="mt-1 text-[11px] font-semibold text-slate-400">In-house & Duties</p>
-              </div>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-xs">
-                <CheckCircle2 className="h-5 w-5" />
-              </div>
+          {/* Card 3 - Amber: School Quota */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-amber-200/80 bg-gradient-to-br from-amber-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                School Quota
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-700">
+                In-House
+              </span>
             </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                {effectiveSchool}h
+              </span>
+              <span className="text-[10px] font-semibold text-slate-400">/ 25h</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+              School internal sessions
+            </p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Compliance</p>
-                <p className={cn(
-                  "mt-1 text-xl sm:text-2xl font-black tracking-tight",
-                  isCompliant ? "text-emerald-600" : "text-amber-600"
-                )}>
-                  {isCompliant ? 'COMPLIANT' : `${hoursRemaining}h Needed`}
-                </p>
-                <p className="mt-1 text-[11px] font-semibold text-slate-400">Affiliation status</p>
-              </div>
-              <div className={cn(
-                "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white shadow-xs",
-                isCompliant
-                  ? "bg-gradient-to-br from-emerald-500 to-teal-600"
-                  : "bg-gradient-to-br from-amber-500 to-orange-500"
-              )}>
-                {isCompliant ? <CheckCircle2 className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
-              </div>
+          {/* Card 4 - Emerald: Compliance */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className={cn('absolute inset-x-0 top-0 h-1 bg-gradient-to-r', isCompliant ? 'from-emerald-600 to-teal-600' : 'from-amber-500 to-orange-500')} />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Compliance
+              </span>
+              <span className={cn('rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider', isCompliant ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700')}>
+                {isCompliant ? 'Compliant' : 'Pending'}
+              </span>
             </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className={cn('text-xl font-black', isCompliant ? 'text-emerald-700' : 'text-amber-700')}>
+                {isCompliant ? 'MET' : `${hoursRemaining}h`}
+              </span>
+              <span className={cn('text-[10px] font-semibold', isCompliant ? 'text-emerald-600' : 'text-amber-600')}>
+                {isCompliant ? 'fulfilled' : 'remaining'}
+              </span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+              Board affiliation mandate
+            </p>
           </div>
         </div>
 

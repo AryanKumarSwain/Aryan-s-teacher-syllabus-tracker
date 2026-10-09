@@ -442,7 +442,7 @@ async function renderMathToImage(
         c.style.lineHeight = 'normal';
       });
 
-      if (children.length === 1) {
+      if (children.length === 1 && children[0]) {
         const item = children[0];
         const isSup = (item.getAttribute('style') || '').includes('top:-') || !msupsub.classList.contains('sub');
         msupsub.style.display = 'inline-block';

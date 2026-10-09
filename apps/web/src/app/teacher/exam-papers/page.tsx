@@ -29,6 +29,7 @@ import {
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/services/api-client';
 import { toast } from 'sonner';
@@ -61,24 +62,28 @@ interface ExamPaperItem {
 function Section({
   title,
   icon: Icon,
-  iconGradient = 'from-blue-600 to-indigo-600',
+  iconBg = 'bg-purple-50',
+  iconColor = 'text-purple-600',
+  iconGradient,
   extra,
   children,
 }: {
   title: string;
   icon: React.ElementType;
+  iconBg?: string;
+  iconColor?: string;
   iconGradient?: string;
   extra?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xs transition-all duration-200 hover:shadow-xs">
-      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-4 py-3 sm:px-5 sm:py-3">
+    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-4 py-3 sm:px-5 sm:py-3.5">
         <div className="flex items-center gap-2.5">
-          <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br ${iconGradient} text-white shadow-xs`}>
-            <Icon className="h-3.5 w-3.5 text-white" />
+          <div className={cn('rounded-xl p-2', iconGradient ? cn(iconGradient, 'text-white') : iconBg)}>
+            <Icon className={cn('h-4 w-4', iconGradient ? 'text-white' : iconColor)} />
           </div>
-          <h3 className="text-sm font-black tracking-tight text-[#0b1c30]">{title}</h3>
+          <h3 className="text-sm font-bold tracking-tight text-slate-900">{title}</h3>
         </div>
         {extra && <div className="flex items-center">{extra}</div>}
       </div>
@@ -317,86 +322,139 @@ export default function TeacherExamPapersPage() {
   };
 
   return (
-    <DashboardShell>
-      <div className="space-y-6 max-w-7xl mx-auto pb-12">
-        {/* Header - Matching Admin Dashboard Style */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 rounded-md bg-purple-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-purple-700 border border-purple-200/80">
-                <FileText className="h-3 w-3" /> Question Paper Studio
-              </span>
-              <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600">
+    <DashboardShell title="Exam Papers">
+      <div className="animate-in fade-in space-y-4 pb-8 duration-300">
+        {/* Executive Header Banner (Matching Image 1 exact UI) */}
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-4 sm:p-5 shadow-xs">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-emerald-400/10 blur-3xl" />
+          <div className="pointer-events-none absolute -left-16 -bottom-16 h-36 w-36 rounded-full bg-blue-400/10 blur-3xl" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 ring-2 ring-emerald-500/15">
+                <FileText className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#0b1c30]">
+                    Exam Papers & Question Sets
+                  </h1>
+                  <Badge className="border-none bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5 gap-1.5 shadow-2xs">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                    </span>
+                    Live: Question Studio
+                  </Badge>
+                </div>
+                <p className="text-xs text-slate-500 font-medium">
+                  Create, edit, review, and export high-resolution PDFs and student-tailored roll sheets.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <span className="h-9 inline-flex items-center gap-1.5 text-xs font-bold px-3 rounded-xl border border-indigo-200/80 bg-indigo-50 text-indigo-700 shadow-2xs">
+                <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
                 {totalPapers} Papers Generated
               </span>
+              <Link href="/teacher/exam-papers/create">
+                <Button className="h-9 font-bold text-xs shadow-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-600/20 px-3.5 gap-1.5 rounded-xl cursor-pointer active:scale-95 transition-all">
+                  <Plus className="h-4 w-4" /> Create Exam Paper
+                </Button>
+              </Link>
             </div>
-            <h1 className="mt-1 text-2xl font-black tracking-tight text-[#0b1c30] sm:text-3xl">
-              Exam Papers & Question Sets
-            </h1>
-            <p className="mt-0.5 text-xs sm:text-sm text-slate-500 font-medium">
-              Create, edit, review, and export high-resolution PDFs and student-tailored roll sheets.
+          </div>
+        </div>
+
+        {/* 4 Concise Overview KPI Metric Cards (Matching Image 1 UI) */}
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+          {/* Card 1 - Blue: Total Papers */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-blue-200/80 bg-gradient-to-br from-blue-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Total Papers
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-blue-100 text-blue-700">
+                Catalog
+              </span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                {totalPapers}
+              </span>
+              <span className="text-[10px] font-semibold text-slate-400">authored</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+              All authored papers
             </p>
           </div>
 
-          <Link href="/teacher/exam-papers/create">
-            <Button className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition-all gap-1.5 hover:shadow">
-              <Plus className="h-4 w-4" /> Create Exam Paper
-            </Button>
-          </Link>
-        </div>
-
-        {/* 4 Top KPI Stat Cards - Matching Admin Dashboard */}
-        <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Papers</p>
-                <p className="mt-1 text-2xl sm:text-3xl font-black text-[#0b1c30] tracking-tight">{totalPapers}</p>
-                <p className="mt-1 text-[11px] font-semibold text-slate-400">All authored papers</p>
-              </div>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xs">
-                <FileText className="h-5 w-5" />
-              </div>
+          {/* Card 2 - Purple/Slate: Drafts */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-purple-200/80 bg-gradient-to-br from-purple-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-600" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Drafts
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-purple-100 text-purple-700">
+                In Edit
+              </span>
             </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                {draftPapers}
+              </span>
+              <span className="text-[10px] font-semibold text-slate-400">drafts</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+              In edit progress
+            </p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Drafts</p>
-                <p className="mt-1 text-2xl sm:text-3xl font-black text-slate-700 tracking-tight">{draftPapers}</p>
-                <p className="mt-1 text-[11px] font-semibold text-slate-400">In edit progress</p>
-              </div>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-slate-600 to-slate-800 text-white shadow-xs">
-                <Edit3 className="h-5 w-5" />
-              </div>
+          {/* Card 3 - Amber: Submitted */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-amber-200/80 bg-gradient-to-br from-amber-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Submitted
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-700">
+                Under Review
+              </span>
             </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                {submittedPapers}
+              </span>
+              <span className="text-[10px] font-semibold text-slate-400">pending</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+              Under school review
+            </p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Submitted</p>
-                <p className="mt-1 text-2xl sm:text-3xl font-black text-amber-600 tracking-tight">{submittedPapers}</p>
-                <p className="mt-1 text-[11px] font-semibold text-slate-400">Under school review</p>
-              </div>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-xs">
-                <Clock className="h-5 w-5" />
-              </div>
+          {/* Card 4 - Emerald: Reviewed */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-600 to-teal-600" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Reviewed / Live
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700">
+                Ready
+              </span>
             </div>
-          </div>
-
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Reviewed / Live</p>
-                <p className="mt-1 text-2xl sm:text-3xl font-black text-emerald-600 tracking-tight">{reviewedPapers}</p>
-                <p className="mt-1 text-[11px] font-semibold text-slate-400">Ready for examination</p>
-              </div>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xs">
-                <CheckCircle2 className="h-5 w-5" />
-              </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                {reviewedPapers}
+              </span>
+              <span className="text-[10px] font-semibold text-emerald-600">approved</span>
             </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+              Ready for examination
+            </p>
           </div>
         </div>
 
@@ -531,23 +589,23 @@ export default function TeacherExamPapersPage() {
                 return (
                   <div
                     key={paper.id}
-                    className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-2xs transition-all duration-200 hover:border-slate-300 hover:shadow-xs"
+                    className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-all duration-200 hover:border-slate-300 hover:shadow-sm"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 gap-3.5">
                       <div className="space-y-1.5">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="font-bold text-base text-[#0b1c30]">
+                          <h4 className="font-bold text-base text-slate-900">
                             {paper.examName}
                           </h4>
                           {paper.subject?.name && (
-                            <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 border border-blue-100">
+                            <Badge variant="outline" className="border-blue-100 bg-blue-50 text-[11px] font-semibold text-blue-700">
                               {paper.subject.name}
-                            </span>
+                            </Badge>
                           )}
                           {paper.class?.name && (
-                            <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                            <Badge variant="outline" className="border-slate-200 bg-slate-50 text-[11px] font-semibold text-slate-600">
                               {paper.class.name}
-                            </span>
+                            </Badge>
                           )}
                         </div>
 

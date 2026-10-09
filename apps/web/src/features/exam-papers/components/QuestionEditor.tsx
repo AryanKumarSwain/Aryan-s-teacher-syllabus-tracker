@@ -419,8 +419,8 @@ export function QuestionEditor({
       let blob: Blob;
       if (croppedImageUrl.startsWith('data:')) {
         const parts = croppedImageUrl.split(';base64,');
-        const contentType = parts[0].split(':')[1] || 'image/jpeg';
-        const raw = window.atob(parts[1]);
+        const contentType = parts[0]?.split(':')[1] || 'image/jpeg';
+        const raw = window.atob(parts[1] || '');
         const rawLength = raw.length;
         const uInt8Array = new Uint8Array(rawLength);
         for (let i = 0; i < rawLength; ++i) {

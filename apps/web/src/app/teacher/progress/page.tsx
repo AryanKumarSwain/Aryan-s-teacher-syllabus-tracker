@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import { api } from '@/services/api-client';
 import { useAuthStore } from '@/store/auth-store';
 import { cn } from '@/lib/utils';
@@ -112,24 +113,28 @@ const velocityConfig = {
 function Section({
   title,
   icon: Icon,
-  iconGradient = 'from-blue-600 to-indigo-600',
+  iconBg = 'bg-blue-50',
+  iconColor = 'text-blue-600',
+  iconGradient,
   extra,
   children,
 }: {
   title: string;
   icon: React.ElementType;
+  iconBg?: string;
+  iconColor?: string;
   iconGradient?: string;
   extra?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xs transition-all duration-200 hover:shadow-xs">
-      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-4 py-3 sm:px-5 sm:py-3">
+    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-4 py-3 sm:px-5 sm:py-3.5">
         <div className="flex items-center gap-2.5">
-          <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br ${iconGradient} text-white shadow-xs`}>
-            <Icon className="h-3.5 w-3.5 text-white" />
+          <div className={cn('rounded-xl p-2', iconGradient ? cn(iconGradient, 'text-white') : iconBg)}>
+            <Icon className={cn('h-4 w-4', iconGradient ? 'text-white' : iconColor)} />
           </div>
-          <h3 className="text-sm font-black tracking-tight text-[#0b1c30]">{title}</h3>
+          <h3 className="text-sm font-bold tracking-tight text-slate-900">{title}</h3>
         </div>
         {extra && <div className="flex items-center">{extra}</div>}
       </div>
@@ -224,82 +229,134 @@ export default function TeacherProgressPage() {
   const completedTopicsCount = subjectProgress.reduce((sum, s) => sum + (s.completedTopics || 0), 0);
 
   return (
-    <DashboardShell>
-      <div className="space-y-6 max-w-7xl mx-auto pb-12">
-        {/* Header - Matching Admin Dashboard Style */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-blue-700 border border-blue-200/80">
-                <Target className="h-3 w-3" /> Syllabus Progression Analytics
-              </span>
-              <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600">
-                Velocity Tracker
+    <DashboardShell title="Curriculum Velocity">
+      <div className="animate-in fade-in space-y-4 pb-8 duration-300">
+        {/* Executive Welcome & Status Banner (Matching Image 1 exact UI) */}
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-4 sm:p-5 shadow-xs">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-emerald-400/10 blur-3xl" />
+          <div className="pointer-events-none absolute -left-16 -bottom-16 h-36 w-36 rounded-full bg-blue-400/10 blur-3xl" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 ring-2 ring-emerald-500/15">
+                <Target className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#0b1c30]">
+                    Curriculum Pacing & Velocity
+                  </h1>
+                  <Badge className="border-none bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5 gap-1.5 shadow-2xs">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                    </span>
+                    Live: Velocity Tracking
+                  </Badge>
+                </div>
+                <p className="text-xs text-slate-500 font-medium">
+                  Real-time velocity tracking against academic calendar benchmarks, chapter milestones, and topic coverage.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <span className="h-9 inline-flex items-center gap-1.5 text-xs font-bold px-3 rounded-xl border border-indigo-200/80 bg-indigo-50 text-indigo-700 shadow-2xs">
+                <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                {subjectProgress.length} Tracked Subjects
               </span>
             </div>
-            <h1 className="mt-1 text-2xl font-black tracking-tight text-[#0b1c30] sm:text-3xl">
-              Teacher Curriculum Velocity
-            </h1>
-            <p className="mt-0.5 text-xs sm:text-sm text-slate-500 font-medium">
-              Real-time velocity tracking against academic calendar benchmarks, chapter milestones, and topic coverage.
-            </p>
           </div>
         </div>
 
-        {/* 4 Top KPI Stat Cards - Matching Admin Dashboard Design */}
-        <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Completion</p>
-                <p className="mt-1 text-2xl sm:text-3xl font-black text-[#0b1c30] tracking-tight">{avgCompletion}%</p>
-                <p className="mt-1 text-[11px] font-semibold text-slate-400">Total syllabus progress</p>
-              </div>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xs">
-                <Target className="h-5 w-5" />
-              </div>
+        {/* 4 Concise Overview KPI Metric Cards (Matching Image 1 UI) */}
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+          {/* Card 1 - Emerald: Avg Syllabus Pace */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-600 to-teal-600" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Avg Syllabus Pace
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700">
+                {avgCompletion}% Passed
+              </span>
             </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                {avgCompletion}%
+              </span>
+              <span className="text-[10px] font-semibold text-emerald-600">completion</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+              Overall syllabus progression
+            </p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Topics Done</p>
-                <p className="mt-1 text-2xl sm:text-3xl font-black text-emerald-600 tracking-tight">
-                  {completedTopicsCount} <span className="text-sm text-slate-400 font-bold">/ {totalTopicsCount}</span>
-                </p>
-                <p className="mt-1 text-[11px] font-semibold text-slate-400">Milestones achieved</p>
-              </div>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xs">
-                <CheckCircle2 className="h-5 w-5" />
-              </div>
+          {/* Card 2 - Blue: Topics Done */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-blue-200/80 bg-gradient-to-br from-blue-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Topics Covered
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-blue-100 text-blue-700">
+                {completedTopicsCount}/{totalTopicsCount}
+              </span>
             </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                {completedTopicsCount}
+              </span>
+              <span className="text-[10px] font-semibold text-slate-400">topics</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+              {Math.max(0, totalTopicsCount - completedTopicsCount)} milestones remaining
+            </p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Active Subjects</p>
-                <p className="mt-1 text-2xl sm:text-3xl font-black text-[#0b1c30] tracking-tight">{subjectProgress.length}</p>
-                <p className="mt-1 text-[11px] font-semibold text-slate-400">Tracked curriculums</p>
-              </div>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-xs">
-                <BookOpen className="h-5 w-5" />
-              </div>
+          {/* Card 3 - Purple: Total Subjects */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-purple-200/80 bg-gradient-to-br from-purple-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-600" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Active Curricula
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-purple-100 text-purple-700">
+                Subjects
+              </span>
             </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                {subjectProgress.length}
+              </span>
+              <span className="text-[10px] font-semibold text-slate-400">mapped</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+              Assigned course curricula
+            </p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Behind Schedule</p>
-                <p className="mt-1 text-2xl sm:text-3xl font-black text-rose-600 tracking-tight">{velocityCounts.less}</p>
-                <p className="mt-1 text-[11px] font-semibold text-slate-400">Subjects needing focus</p>
-              </div>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-xs">
-                <AlertTriangle className="h-5 w-5" />
-              </div>
+          {/* Card 4 - Amber: Delayed / Attention */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-amber-200/80 bg-gradient-to-br from-amber-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Needs Attention
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-700">
+                Pacing
+              </span>
             </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                {velocityCounts.less}
+              </span>
+              <span className="text-[10px] font-semibold text-amber-600">delayed</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+              Subjects behind schedule
+            </p>
           </div>
         </div>
 
@@ -489,11 +546,11 @@ export default function TeacherProgressPage() {
                 return (
                   <div
                     key={subject.subjectId}
-                    className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md space-y-4"
+                    className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-sm space-y-4"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <h4 className="line-clamp-1 text-base font-bold text-[#0b1c30]">
+                        <h4 className="line-clamp-1 text-base font-bold text-slate-900">
                           {subject.subjectName}
                         </h4>
                         {subject.className && (

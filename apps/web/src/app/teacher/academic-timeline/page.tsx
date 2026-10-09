@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/shared/empty-state';
 import { api } from '@/services/api-client';
 import { useAuthStore } from '@/store/auth-store';
@@ -58,24 +59,28 @@ const monthNames = [
 function Section({
   title,
   icon: Icon,
-  iconGradient = 'from-blue-600 to-indigo-600',
+  iconBg = 'bg-blue-50',
+  iconColor = 'text-blue-600',
+  iconGradient,
   extra,
   children,
 }: {
   title: string;
   icon: React.ElementType;
+  iconBg?: string;
+  iconColor?: string;
   iconGradient?: string;
   extra?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xs transition-all duration-200 hover:shadow-xs">
-      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-4 py-3 sm:px-5 sm:py-3">
+    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 via-white to-slate-50/30 px-4 py-3 sm:px-5 sm:py-3.5">
         <div className="flex items-center gap-2.5">
-          <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br ${iconGradient} text-white shadow-xs`}>
-            <Icon className="h-3.5 w-3.5 text-white" />
+          <div className={cn('rounded-xl p-2', iconGradient ? cn(iconGradient, 'text-white') : iconBg)}>
+            <Icon className={cn('h-4 w-4', iconGradient ? 'text-white' : iconColor)} />
           </div>
-          <h3 className="text-sm font-black tracking-tight text-[#0b1c30]">{title}</h3>
+          <h3 className="text-sm font-bold tracking-tight text-slate-900">{title}</h3>
         </div>
         {extra && <div className="flex items-center">{extra}</div>}
       </div>
@@ -209,47 +214,58 @@ export default function TeacherAcademicTimelinePage() {
   const vacationsCount = timelineDays.filter((d) => d.isVacation).length;
 
   return (
-    <DashboardShell>
-      <div className="space-y-6 max-w-7xl mx-auto pb-12">
-        {/* Header - Matching Admin Dashboard Style */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-blue-700 border border-blue-200/80">
-                <Calendar className="h-3 w-3" /> Calendar Schedule
-              </span>
-              <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600">
-                {terms.length} Terms Configured
-              </span>
-            </div>
-            <h1 className="mt-1 text-2xl font-black tracking-tight text-[#0b1c30] sm:text-3xl">
-              Academic Term Timeline
-            </h1>
-            <p className="mt-0.5 text-xs sm:text-sm text-slate-500 font-medium">
-              Official school calendar schedules, teaching days, declared holidays, and vacation breaks.
-            </p>
-          </div>
+    <DashboardShell title="Academic Timeline">
+      <div className="animate-in fade-in space-y-4 pb-8 duration-300">
+        {/* Executive Welcome & Status Banner (Matching Image 1 exact UI) */}
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-4 sm:p-5 shadow-xs">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-emerald-400/10 blur-3xl" />
+          <div className="pointer-events-none absolute -left-16 -bottom-16 h-36 w-36 rounded-full bg-blue-400/10 blur-3xl" />
 
-          {/* Term Selector */}
-          {terms.length > 0 && (
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3.5 py-2 shadow-2xs">
-                <Filter className="h-3.5 w-3.5 text-slate-400" />
-                <span className="text-xs font-semibold text-slate-400">Term:</span>
-                <select
-                  value={selectedTermId}
-                  onChange={(e) => setSelectedTermId(e.target.value)}
-                  className="cursor-pointer bg-transparent text-xs font-bold text-slate-800 focus:outline-none"
-                >
-                  {terms.map((term) => (
-                    <option key={term.id} value={term.id}>
-                      {term.name}
-                    </option>
-                  ))}
-                </select>
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 ring-2 ring-emerald-500/15">
+                <Calendar className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#0b1c30]">
+                    Academic Term Timeline
+                  </h1>
+                  <Badge className="border-none bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5 gap-1.5 shadow-2xs">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                    </span>
+                    Live: {selectedTerm ? selectedTerm.name : 'Academic Calendar'}
+                  </Badge>
+                </div>
+                <p className="text-xs text-slate-500 font-medium">
+                  Official school calendar schedules, teaching days, declared holidays, and vacation breaks.
+                </p>
               </div>
             </div>
-          )}
+
+            {/* Term Selector */}
+            {terms.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 shadow-2xs">
+                  <Filter className="h-3.5 w-3.5 text-slate-400" />
+                  <span className="text-xs font-medium text-slate-500">Term:</span>
+                  <select
+                    value={selectedTermId}
+                    onChange={(e) => setSelectedTermId(e.target.value)}
+                    className="cursor-pointer bg-transparent text-xs font-semibold text-slate-800 focus:outline-none"
+                  >
+                    {terms.map((term) => (
+                      <option key={term.id} value={term.id}>
+                        {term.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {isLoading ? (
@@ -266,60 +282,94 @@ export default function TeacherAcademicTimelinePage() {
           />
         ) : (
           <>
-            {/* 4 Top KPI Stat Cards */}
-            <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
-              <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Teaching Days</p>
-                    <p className="mt-1 text-2xl sm:text-3xl font-black text-blue-600 tracking-tight">{teachingDays.length}</p>
-                    <p className="mt-1 text-[11px] font-semibold text-slate-400">Classroom sessions</p>
-                  </div>
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xs">
-                    <Clock className="h-5 w-5" />
-                  </div>
+            {/* 4 Concise Overview KPI Metric Cards (Matching Image 1 UI) */}
+            <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+              {/* Card 1 - Blue: Teaching Days */}
+              <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-blue-200/80 bg-gradient-to-br from-blue-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
+                <div className="flex items-center justify-between gap-1.5">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                    Teaching Days
+                  </span>
+                  <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-blue-100 text-blue-700">
+                    Schedule
+                  </span>
                 </div>
+                <div className="mt-1 flex items-baseline gap-1.5">
+                  <span className="text-xl font-black text-[#0b1c30]">
+                    {teachingDays.length}
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-400">days</span>
+                </div>
+                <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+                  Planned teaching sessions
+                </p>
               </div>
 
-              <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Completed Days</p>
-                    <p className="mt-1 text-2xl sm:text-3xl font-black text-emerald-600 tracking-tight">
-                      {completedDays} <span className="text-sm font-bold text-slate-400">({Math.round(progressPercentage)}%)</span>
-                    </p>
-                    <p className="mt-1 text-[11px] font-semibold text-slate-400">Instruction elapsed</p>
-                  </div>
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xs">
-                    <CheckCircle2 className="h-5 w-5" />
-                  </div>
+              {/* Card 2 - Emerald: Completed Days */}
+              <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-600 to-teal-600" />
+                <div className="flex items-center justify-between gap-1.5">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                    Instruction Elapsed
+                  </span>
+                  <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700">
+                    {Math.round(progressPercentage)}% Passed
+                  </span>
                 </div>
+                <div className="mt-1 flex items-baseline gap-1.5">
+                  <span className="text-xl font-black text-[#0b1c30]">
+                    {completedDays}
+                  </span>
+                  <span className="text-[10px] font-semibold text-emerald-600">elapsed</span>
+                </div>
+                <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+                  {teachingDays.length - completedDays} teaching days remain
+                </p>
               </div>
 
-              <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Weekly Holidays</p>
-                    <p className="mt-1 text-2xl sm:text-3xl font-black text-rose-600 tracking-tight">{holidaysCount}</p>
-                    <p className="mt-1 text-[11px] font-semibold text-slate-400">Sundays & weekends</p>
-                  </div>
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-xs">
-                    <AlertCircle className="h-5 w-5" />
-                  </div>
+              {/* Card 3 - Rose: Holidays */}
+              <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-rose-200/80 bg-gradient-to-br from-rose-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-rose-500 to-pink-500" />
+                <div className="flex items-center justify-between gap-1.5">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                    Holidays
+                  </span>
+                  <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-rose-100 text-rose-700">
+                    Sundays
+                  </span>
                 </div>
+                <div className="mt-1 flex items-baseline gap-1.5">
+                  <span className="text-xl font-black text-[#0b1c30]">
+                    {holidaysCount}
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-400">holidays</span>
+                </div>
+                <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+                  Sundays & declared weekends
+                </p>
               </div>
 
-              <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs relative">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Vacations & Breaks</p>
-                    <p className="mt-1 text-2xl sm:text-3xl font-black text-amber-600 tracking-tight">{vacationsCount}</p>
-                    <p className="mt-1 text-[11px] font-semibold text-slate-400">Scheduled recess</p>
-                  </div>
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-xs">
-                    <Palmtree className="h-5 w-5" />
-                  </div>
+              {/* Card 4 - Amber: Vacations */}
+              <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-amber-200/80 bg-gradient-to-br from-amber-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
+                <div className="flex items-center justify-between gap-1.5">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                    Vacation Breaks
+                  </span>
+                  <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-700">
+                    Recess
+                  </span>
                 </div>
+                <div className="mt-1 flex items-baseline gap-1.5">
+                  <span className="text-xl font-black text-[#0b1c30]">
+                    {vacationsCount}
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-400">breaks</span>
+                </div>
+                <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+                  Scheduled calendar breaks
+                </p>
               </div>
             </div>
 
@@ -445,7 +495,8 @@ export default function TeacherAcademicTimelinePage() {
             <Section
               title="All Academic Terms Overview"
               icon={Layers}
-              iconGradient="from-purple-600 to-indigo-600"
+              iconBg="bg-purple-50"
+              iconColor="text-purple-600"
             >
               <div className="grid gap-4 md:grid-cols-2">
                 {terms.map((term) => (
@@ -453,22 +504,22 @@ export default function TeacherAcademicTimelinePage() {
                     key={term.id}
                     onClick={() => setSelectedTermId(term.id)}
                     className={cn(
-                      'cursor-pointer rounded-2xl border p-4 sm:p-5 shadow-2xs transition-all duration-200 hover:-translate-y-0.5',
+                      'cursor-pointer rounded-2xl border p-4 sm:p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5',
                       selectedTermId === term.id
-                        ? 'border-blue-500 bg-blue-50/30 ring-2 ring-blue-200 shadow-xs'
-                        : 'border-slate-200/90 bg-white hover:border-slate-300'
+                        ? 'border-emerald-500 bg-emerald-50/20 ring-2 ring-emerald-200 shadow-xs'
+                        : 'border-slate-200/80 bg-white hover:border-slate-300 hover:shadow-sm'
                     )}
                   >
                     <div className="flex items-start justify-between">
                       <div>
-                        <h4 className="text-base font-bold text-[#0b1c30]">{term.name}</h4>
+                        <h4 className="text-base font-bold text-slate-900">{term.name}</h4>
                         <p className="text-xs text-slate-500 font-medium mt-0.5">
                           {new Date(term.startDate).toLocaleDateString()} — {new Date(term.endDate).toLocaleDateString()}
                         </p>
                       </div>
-                      <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700 border border-blue-200">
+                      <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-[11px] font-semibold text-emerald-700">
                         {term.status}
-                      </span>
+                      </Badge>
                     </div>
 
                     <div className="grid grid-cols-3 gap-2 mt-4 text-center">

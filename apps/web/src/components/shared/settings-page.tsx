@@ -192,32 +192,35 @@ export function SettingsPageContent() {
   return (
     <DashboardShell title="Settings">
       <div className="animate-in fade-in space-y-4 pb-8 duration-300">
-        {/* Executive Header Banner */}
-        <div className="rounded-2xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-4 sm:p-5 shadow-xs">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3.5">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm ring-4 ring-emerald-500/10">
-                <SettingsIcon className="h-5 w-5" />
+        {/* Executive Welcome & Status Banner (Matching Image 1 exact UI) */}
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-r from-white via-slate-50/70 to-emerald-50/30 p-4 sm:p-5 shadow-xs">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-emerald-400/10 blur-3xl" />
+          <div className="pointer-events-none absolute -left-16 -bottom-16 h-36 w-36 rounded-full bg-blue-400/10 blur-3xl" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 ring-2 ring-emerald-500/15">
+                <SettingsIcon className="h-5 w-5 text-white" />
               </div>
               <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-lg font-bold tracking-tight text-slate-900 sm:text-xl">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#0b1c30]">
                     System & Account Settings
                   </h1>
-                  <Badge
-                    variant="outline"
-                    className="border-emerald-200 bg-emerald-50 text-[11px] font-semibold text-emerald-700 shadow-2xs"
-                  >
-                    <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    Active: {user?.role?.replace('_', ' ')}
+                  <Badge className="border-none bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-2 py-0.5 gap-1.5 shadow-2xs">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                    </span>
+                    Live: {user?.role?.replace('_', ' ')}
                   </Badge>
                   {schoolName && (
-                    <Badge variant="outline" className="border-slate-200 bg-slate-50 text-[11px] text-slate-600">
+                    <span className="rounded-md bg-slate-100 border border-slate-200/70 px-2 py-0.5 text-[10px] font-extrabold text-slate-700">
                       {schoolName}
-                    </Badge>
+                    </span>
                   )}
                 </div>
-                <p className="mt-0.5 text-xs text-slate-500">
+                <p className="text-xs text-slate-500 font-medium">
                   Manage profile credentials, institution identity, exam branding logos, and access security.
                 </p>
               </div>
@@ -225,78 +228,94 @@ export function SettingsPageContent() {
           </div>
         </div>
 
-        {/* 4-KPI Metric Strip */}
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500" />
-            <div className="flex items-center justify-between">
-              <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-emerald-700 uppercase">
-                Account
+        {/* 4 Concise Overview KPI Metric Cards (Matching Image 1 UI) */}
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+          {/* Card 1 - Emerald: Account */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-600 to-teal-600" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Account Status
               </span>
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                <CheckCircle2 className="h-3.5 w-3.5" />
-              </div>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700">
+                Verified
+              </span>
             </div>
-            <div className="mt-2">
-              <div className="text-base font-bold tracking-tight text-slate-900 sm:text-lg">
-                Active & Verified
-              </div>
-              <p className="text-[11px] text-slate-500 truncate">{user?.email}</p>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                ACTIVE
+              </span>
+              <span className="text-[10px] font-semibold text-emerald-600">profile</span>
             </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500 truncate">
+              {user?.email}
+            </p>
           </div>
 
-          <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+          {/* Card 2 - Blue: Role Tier */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-blue-200/80 bg-gradient-to-br from-blue-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
-            <div className="flex items-center justify-between">
-              <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-blue-700 uppercase">
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
                 Role Tier
               </span>
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                <Shield className="h-3.5 w-3.5" />
-              </div>
-            </div>
-            <div className="mt-2">
-              <div className="text-base font-bold tracking-tight text-slate-900 sm:text-lg">
-                {user?.role?.replace('_', ' ') || 'User'}
-              </div>
-              <p className="text-[11px] text-slate-500">Administrative clearance</p>
-            </div>
-          </div>
-
-          <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
-            <div className="flex items-center justify-between">
-              <span className="rounded-md bg-purple-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-purple-700 uppercase">
-                School Entity
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-blue-100 text-blue-700">
+                Clearance
               </span>
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
-                <Building className="h-3.5 w-3.5" />
-              </div>
             </div>
-            <div className="mt-2">
-              <div className="text-base font-bold tracking-tight text-slate-900 sm:text-lg truncate">
-                {schoolName || 'Not Set'}
-              </div>
-              <p className="text-[11px] text-slate-500">Registered institution</p>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                {user?.role?.replace('_', ' ') || 'USER'}
+              </span>
+              <span className="text-[10px] font-semibold text-slate-400">access</span>
             </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+              Authorized portal clearance
+            </p>
           </div>
 
-          <div className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-sm">
+          {/* Card 3 - Purple: School Entity */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-purple-200/80 bg-gradient-to-br from-purple-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-600" />
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Organization
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-purple-100 text-purple-700">
+                School
+              </span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30] truncate">
+                {schoolName ? schoolName.split(' ')[0] : 'JD'}
+              </span>
+              <span className="text-[10px] font-semibold text-slate-400">entity</span>
+            </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500 truncate">
+              {schoolName || 'Registered school institution'}
+            </p>
+          </div>
+
+          {/* Card 4 - Amber: Security */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-amber-200/80 bg-gradient-to-br from-amber-50/40 via-white to-slate-50/30 p-3.5 shadow-2xs transition-all duration-200 hover:shadow-xs">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
-            <div className="flex items-center justify-between">
-              <span className="rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-amber-700 uppercase">
-                Security
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 truncate">
+                Security Level
               </span>
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
-                <KeyRound className="h-3.5 w-3.5" />
-              </div>
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-700">
+                2-Factor
+              </span>
             </div>
-            <div className="mt-2">
-              <div className="text-base font-bold tracking-tight text-slate-900 sm:text-lg">
-                OTP Protected
-              </div>
-              <p className="text-[11px] text-slate-500">2-Factor verified resets</p>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="text-xl font-black text-[#0b1c30]">
+                PROTECTED
+              </span>
+              <span className="text-[10px] font-semibold text-amber-600">otp</span>
             </div>
+            <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+              2-Factor authenticated resets
+            </p>
           </div>
         </div>
 
