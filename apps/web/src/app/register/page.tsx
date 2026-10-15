@@ -228,24 +228,7 @@ export default function RegisterPage() {
               </motion.div>
             </motion.div>
 
-            {/* Compact Telemetry */}
-            <motion.div
-              variants={fadeInUp}
-              className="grid grid-cols-3 gap-3 border-t border-[#c4c5d7]/30 pt-3"
-            >
-              <div>
-                <p className="text-lg font-black text-[#0b1c30]">450+</p>
-                <p className="text-[11px] text-[#434655]">Schools Trust Us</p>
-              </div>
-              <div>
-                <p className="text-lg font-black text-emerald-600">100%</p>
-                <p className="text-[11px] text-[#434655]">Board Aligned</p>
-              </div>
-              <div>
-                <p className="text-lg font-black text-[#0b1c30]">5 Mins</p>
-                <p className="text-[11px] text-[#434655]">Setup Time</p>
-              </div>
-            </motion.div>
+
           </motion.div>
 
           {/* ── Right Column: Compact & Clean Register Card (NO BLACK BG) with Entrance Animation ── */}

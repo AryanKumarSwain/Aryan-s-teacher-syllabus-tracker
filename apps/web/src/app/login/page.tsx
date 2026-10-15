@@ -152,24 +152,7 @@ export default function LoginPage() {
               </motion.div>
             </motion.div>
 
-            {/* Telemetry Social Proof */}
-            <motion.div
-              variants={fadeInUp}
-              className="grid grid-cols-3 gap-4 border-t border-[#c4c5d7]/40 pt-4 max-w-xl"
-            >
-              <div>
-                <p className="text-xl font-black text-[#0b1c30]">450+</p>
-                <p className="text-xs text-[#434655]">Schools Onboarded</p>
-              </div>
-              <div>
-                <p className="text-xl font-black text-emerald-600">98.6%</p>
-                <p className="text-xs text-[#434655]">Pacing Accuracy</p>
-              </div>
-              <div>
-                <p className="text-xl font-black text-[#0b1c30]">3.4M</p>
-                <p className="text-xs text-[#434655]">Copies Audited</p>
-              </div>
-            </motion.div>
+
           </motion.div>
 
           {/* ── Right Column: Sign In Card with Entrance Animation ── */}

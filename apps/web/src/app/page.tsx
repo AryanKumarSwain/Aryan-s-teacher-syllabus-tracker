@@ -434,19 +434,28 @@ export default function LandingPage() {
                   />
                 </motion.div>
 
-                {/* Key Telemetry Badges */}
+                {/* Feature Highlights Badges */}
                 <motion.div variants={fadeInUp} className="pt-2 sm:pt-3 grid grid-cols-3 gap-2 sm:gap-2.5 border-t border-[#c4c5d7]/40 text-left">
                   <div className="p-1.5 sm:p-2 rounded-lg bg-white/60 border border-[#eff4ff]">
-                    <p className="text-lg sm:text-2xl font-extrabold text-[#1d4ed8]">450+</p>
-                    <p className="text-[10px] sm:text-[11px] text-[#434655] font-medium leading-tight">Institutions Onboarded</p>
+                    <div className="flex items-center gap-1 text-[#1d4ed8]">
+                      <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#1d4ed8] shrink-0" />
+                      <span className="text-xs sm:text-sm font-extrabold text-[#1d4ed8] truncate">3-Stage</span>
+                    </div>
+                    <p className="text-[10px] sm:text-[11px] text-[#434655] font-medium leading-tight mt-0.5">Verification</p>
                   </div>
                   <div className="p-1.5 sm:p-2 rounded-lg bg-white/60 border border-[#eff4ff]">
-                    <p className="text-lg sm:text-2xl font-extrabold text-[#006c49]">98.6%</p>
-                    <p className="text-[10px] sm:text-[11px] text-[#434655] font-medium leading-tight">Pacing Accuracy</p>
+                    <div className="flex items-center gap-1 text-[#006c49]">
+                      <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#006c49] shrink-0" />
+                      <span className="text-xs sm:text-sm font-extrabold text-[#006c49] truncate">Role-Based</span>
+                    </div>
+                    <p className="text-[10px] sm:text-[11px] text-[#434655] font-medium leading-tight mt-0.5">Access Control</p>
                   </div>
                   <div className="p-1.5 sm:p-2 rounded-lg bg-white/60 border border-[#eff4ff]">
-                    <p className="text-lg sm:text-2xl font-extrabold text-[#0b1c30]">3.4M</p>
-                    <p className="text-[10px] sm:text-[11px] text-[#434655] font-medium leading-tight">Copies Checked</p>
+                    <div className="flex items-center gap-1 text-[#6b21a8]">
+                      <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#6b21a8] shrink-0" />
+                      <span className="text-xs sm:text-sm font-extrabold text-[#6b21a8] truncate">1-Click</span>
+                    </div>
+                    <p className="text-[10px] sm:text-[11px] text-[#434655] font-medium leading-tight mt-0.5">Exam Blueprint</p>
                   </div>
                 </motion.div>
               </motion.div>
@@ -1653,7 +1662,7 @@ export default function LandingPage() {
                   Ready to Modernize Academic Delivery Across Your Schools?
                 </h2>
                 <p className="text-sm text-white/80 leading-relaxed font-normal">
-                  Join 450+ leading schools that have eliminated syllabus blind spots. Deploy in 48 hours with full historical curriculum migration support.
+                  Join forward-thinking schools and educators that have eliminated syllabus blind spots. Deploy in minutes with seamless curriculum management.
                 </p>
 
                 <div className="pt-3 flex flex-col sm:flex-row items-center gap-4">
